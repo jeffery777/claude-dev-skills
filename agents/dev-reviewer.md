@@ -1,6 +1,6 @@
 ---
 name: dev-reviewer
-description: Independent read-only reviewer for code, docs or mixed changes (routine or deep). Tries to disprove the change against its DoD and requirements; reports findings with IDs, severity (MUST-FIX, SHOULD-FIX, NIT, SCOPE-CREEP), location and evidence. Cannot edit files.
+description: Independent read-only reviewer for code, docs or mixed changes (routine or deep). Tries to disprove the change against its DoD and requirements; reports findings with IDs, severity (MUST-FIX, SHOULD-FIX, NIT, SCOPE-CREEP), location and evidence. Has no Edit or Write tools; read-only Bash use is enforced by instructions only.
 model: opus
 effort: high
 tools: Read, Grep, Glob, Bash

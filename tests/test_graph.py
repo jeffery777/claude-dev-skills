@@ -99,13 +99,36 @@ class RequirementFiles(unittest.TestCase):
     def test_conflict_blocks_open_writers(self):
         path = os.path.join(self.tmp, "REQ-002-limit-docs.md")
         self.rewrite(path, "status: active", "status: conflict")
-        # T3 (docs, planned) only waits; it is left out of `ready`.
-        self.assertEqual(self.codes(self.tmp), (set(), {"WAITING_ON_CONFLICT"}))
-        waiting = {w["node"] for w in graph.check_graph(self.g, self.tmp)[1]}
-        self.assertNotIn("T3", graph.ready_nodes(self.g, waiting))
-        # Once it moves forward the conflict is an error.
-        self.g["nodes"][2]["status"] = "ready"
+        # REQ-008: validate fails while an open writer (T3, planned) cites a conflicting REQ.
         self.assertEqual(self.codes(self.tmp)[0], {"REQUIREMENT_CONFLICT"})
+
+    def test_ready_continues_around_parked_conflict_writer(self):
+        project = os.path.join(self.tmp, "proj")
+        os.makedirs(os.path.join(project, ".dev", "OBJ"))
+        shutil.copytree(self.tmp, os.path.join(project, "docs", "requirements"),
+                        ignore=shutil.ignore_patterns("proj"))
+        self.rewrite(os.path.join(project, "docs", "requirements", "REQ-002-limit-docs.md"),
+                     "status: active", "status: conflict")
+        target = os.path.join(project, ".dev", "OBJ", "graph.json")
+        shutil.copy(os.path.join(FIXTURES, "valid", "rate-limit.json"), target)
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            self.assertEqual(graph.main(["validate", target]), 1)
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            self.assertEqual(graph.main(["ready", target]), 0)
+        result = json.loads(out.getvalue())
+        self.assertEqual((result["ready"], result["waiting_on_conflict"]), (["T2"], ["T3"]))
+
+    def test_comment_line_inside_block_list(self):
+        self.set_field("REQ-001-login-rate-limit.md", "depends_on: []", "depends_on:\n  # none yet\n  - REQ-002")
+        self.assertEqual(graph.frontmatter(os.path.join(self.tmp, "REQ-001-login-rate-limit.md"))["depends_on"], ["REQ-002"])
+
+    def test_single_quote_escape(self):
+        path = os.path.join(self.tmp, "q.md")
+        with open(path, "w", encoding="utf-8") as fh:
+            fh.write("---\nquote: 'user''s login' # c\n---\n")
+        self.assertEqual(graph.frontmatter(path)["quote"], "user's login")
 
     def set_field(self, name, old, new):
         self.rewrite(os.path.join(self.tmp, name), old, new)
@@ -347,6 +370,17 @@ class Transitions(unittest.TestCase):
         errs = graph.transition(os.path.join(project, ".dev", "OBJ", "graph.json"), "T2", "in_progress", "x", "test")
         self.assertEqual(errs[0]["code"], "SYMLINK_REFUSED")
 
+    def test_symlinked_objective_to_other_repo_refused(self):
+        project = os.path.join(self.tmp, "proj")
+        os.makedirs(os.path.join(project, ".dev"))
+        other = os.path.join(self.tmp, "other")
+        os.makedirs(os.path.join(other, ".git"))
+        shutil.copy(self.path, os.path.join(other, "graph.json"))
+        os.symlink(other, os.path.join(project, ".dev", "OBJ"))
+        errs = graph.transition(os.path.join(project, ".dev", "OBJ", "graph.json"), "T2", "in_progress", "x", "test")
+        self.assertEqual(errs[0]["code"], "SYMLINK_REFUSED")
+        self.assertFalse(os.path.exists(os.path.join(other, "events.jsonl")))
+
     def test_finished_writers_not_compared_for_overlap(self):
         g = graph.load(self.path)
         g["nodes"][2]["owns"] = ["src/auth/limiter/README.md"]   # T3 overlaps T2, no ordering
@@ -371,6 +405,7 @@ class Overlap(unittest.TestCase):
         self.assertTrue(graph.patterns_overlap("src//a.py", "src/a.py"))
         self.assertTrue(graph.patterns_overlap(".", "src/a.py"))
         self.assertTrue(graph.patterns_overlap("/", "docs/x.md"))
+        self.assertTrue(graph.patterns_overlap("Src/auth/**", "src/auth/x.py"))
         self.assertTrue(graph.patterns_overlap("src/a.py", "src/a.py"))
         self.assertFalse(graph.patterns_overlap("src/auth/**", "src/billing/**"))
         self.assertFalse(graph.patterns_overlap("docs/auth.md", "docs/billing.md"))

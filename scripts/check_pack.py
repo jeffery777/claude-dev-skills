@@ -99,6 +99,9 @@ def main() -> int:
             with open(doc, encoding="utf-8") as fh:
                 text = fh.read()
             for ref in sorted(set(re.findall(r"\$\{CLAUDE_SKILL_DIR\}/([^\s`'\")]+)", text))):
+                if os.path.basename(skill_dir) == "dev-core" and not ref.startswith(("../dev-core/", "../../vendor/")):
+                    errors.append(f"{os.path.relpath(doc, ROOT)}: dev-core is loaded by sibling skills; "
+                                  f"write ${{CLAUDE_SKILL_DIR}}/../dev-core/... instead of ${{CLAUDE_SKILL_DIR}}/{ref}")
                 target = ref.split("<")[0].rstrip("/.,:;")
                 if target and not os.path.exists(os.path.normpath(os.path.join(skill_dir, target))):
                     errors.append(f"{os.path.relpath(doc, ROOT)}: referenced path does not exist: ${{CLAUDE_SKILL_DIR}}/{ref}")
@@ -126,7 +129,7 @@ def main() -> int:
                 errors.append(f"{rel}: read-only agent exposes write tools {sorted(exposed)}")
 
     req_dir = os.path.join(ROOT, "docs", "requirements")
-    for req in sorted(glob.glob(os.path.join(req_dir, "REQ-*.md"))):
+    for req in sorted(p for p in glob.glob(os.path.join(req_dir, "REQ-*.md")) if graph.REQ_FILE_RE.match(os.path.basename(p))):
         rel = os.path.relpath(req, ROOT)
         block = front_block(req)
         if block is None:

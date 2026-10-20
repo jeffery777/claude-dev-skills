@@ -15,9 +15,13 @@ linked worktrees). Diffs run with --no-ext-diff and --no-textconv.
 
 The argument may be any folder inside the repository; the whole repository is
 fingerprinted. Tool caches (__pycache__, .pytest_cache, .mypy_cache,
-.ruff_cache, *.pyc) are excluded, so a substitute running the tests does not
+.ruff_cache folders) are excluded, so a substitute running the tests does not
 trigger a false alarm; a change hidden only in a cache folder is not detected.
 FIFOs, sockets and devices are recorded by type and mode, never opened.
+
+Not covered: submodules (their own git directories under .git/modules and
+edits inside an already-dirty submodule); fingerprint a submodule separately
+when it matters.
 
 Not covered, by design: effects outside this repository, such as a push,
 comments on a forge, or writes to ~/.gitconfig or other folders. The brief
@@ -48,7 +52,7 @@ CACHE_DIRS = {"__pycache__", ".pytest_cache", ".mypy_cache", ".ruff_cache"}
 
 def _is_cache(rel: str) -> bool:
     """Tool caches are excluded on purpose (see module docstring)."""
-    return bool(CACHE_DIRS & set(rel.rstrip("/").split("/"))) or rel.endswith(".pyc")
+    return bool(CACHE_DIRS & set(rel.rstrip("/").split("/")))  # a bare .pyc outside __pycache__ is importable code: kept
 
 
 def entry_digest(path: str) -> str:
@@ -94,10 +98,23 @@ def fingerprint(repo: str) -> str:
     add("staged", git(repo, "diff", "--cached", "--binary", "--no-ext-diff", "--no-textconv"))
     add("worktree", git(repo, "diff", "--binary", "--no-ext-diff", "--no-textconv"))
     raw_status = git(repo, "status", "--porcelain=v1", "-z", "--untracked-files=all", "--ignored")
-    entries = [e for e in raw_status.split(b"\0") if e and not _is_cache(e[3:].decode("utf-8", "surrogateescape"))]
+    entries: list[bytes] = []
+    parts = raw_status.split(b"\0")
+    i = 0
+    while i < len(parts):
+        e = parts[i]
+        i += 1
+        if not e:
+            continue
+        if e[:1] in (b"R", b"C"):  # rename/copy: the next record is the original path
+            entries.append(e + b"\0" + parts[i])
+            i += 1
+            continue
+        if not _is_cache(e[3:].decode("utf-8", "surrogateescape")):
+            entries.append(e)
     status = b"\0".join(entries)
     add("status", status)
-    top = git(repo, "rev-parse", "--show-toplevel").decode().strip()
+    top = repo
     # Files flagged assume-unchanged (lowercase tag) or skip-worktree (S) are
     # hidden from diff and status, so hash their working-tree content directly.
     for entry in index.split(b"\0"):

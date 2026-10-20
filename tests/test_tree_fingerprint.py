@@ -143,6 +143,14 @@ class Fingerprint(unittest.TestCase):
         os.mkfifo(os.path.join(nested, "pipe"))
         self.assertNotEqual(tf.fingerprint(self.repo), before)  # recorded by type, never opened (no hang)
 
+    def test_bare_pyc_outside_cache_detected(self):
+        self.write("notes/json.pyc", "x")
+        self.assertTrue(self.changed())
+
+    def test_staged_rename(self):
+        self.git("mv", "tracked.txt", "renamed.txt")
+        self.assertTrue(self.changed())
+
     def test_repo_without_commits(self):
         fresh = tempfile.mkdtemp()
         try:

@@ -100,7 +100,7 @@ def _prefix(pattern: str) -> list[str]:
 
 
 def patterns_overlap(a: str, b: str) -> bool:
-    pa, pb = _prefix(a), _prefix(b)
+    pa, pb = [s.casefold() for s in _prefix(a)], [s.casefold() for s in _prefix(b)]  # case-insensitive file systems
     n = min(len(pa), len(pb))
     return pa[:n] == pb[:n]
 
@@ -240,8 +240,15 @@ def strip_comment(value: str) -> str:
                 return value[:i + 1]
         return value
     if value[:1] in {"'", '"'}:
-        end = value.find(value[0], 1)
-        return value[:end + 1] if end != -1 else value
+        i = 1
+        while i < len(value):
+            if value[i] == value[0]:
+                if value[0] == "'" and value[i + 1:i + 2] == "'":
+                    i += 2  # '' is an escaped quote inside single quotes
+                    continue
+                return value[:i + 1]
+            i += 1
+        return value
     m = re.search(r"\s+#", value)
     return value[:m.start()].rstrip() if m else value
 
@@ -249,7 +256,8 @@ def strip_comment(value: str) -> str:
 def _unquote(value: str) -> str:
     value = value.strip()
     if len(value) >= 2 and value[0] == value[-1] and value[0] in "'\"":
-        return value[1:-1]
+        inner = value[1:-1]
+        return inner.replace("''", "'") if value[0] == "'" else inner
     return value
 
 
@@ -268,6 +276,8 @@ def frontmatter(path: str) -> dict[str, Any]:
     key: str | None = None
     folded: list[str] | None = None
     for line in lines:
+        if line.strip().startswith("#") and folded is None:
+            continue  # comment-only line
         m = re.match(r"^([A-Za-z_][A-Za-z0-9_-]*):(?:\s+(.*))?$", line)
         if m:
             if folded is not None and key:
@@ -326,6 +336,7 @@ def check_requirement_relations(metas: dict[str, dict[str, Any]], known: set[str
 
 
 REQ_STATUSES = {"proposed", "active", "conflict", "done", "superseded", "dropped"}
+REQ_FILE_RE = re.compile(r"^(REQ-[0-9]{3,})(-.*)?\.md$")
 
 
 def load_requirements(requirements_dir: str) -> tuple[dict[str, list[str]], dict[str, dict[str, Any]], dict[str, Any]]:
@@ -338,7 +349,7 @@ def load_requirements(requirements_dir: str) -> tuple[dict[str, list[str]], dict
     metas: dict[str, dict[str, Any]] = {}
     found_ids: dict[str, Any] = {}
     for name in sorted(os.listdir(requirements_dir)):
-        m = re.match(r"^(REQ-[0-9]{3,})(-.*)?\.md$", name)
+        m = REQ_FILE_RE.match(name)
         if not m:
             continue
         by_id.setdefault(m.group(1), []).append(name)
@@ -379,11 +390,7 @@ def check_requirement_files(declared: set[str], nodes: dict[str, dict[str, Any]]
                             if req in n["requirements"] and n["status"] not in SATISFIED | {"cancelled"})
         if meta.get("status") == "conflict":
             for nid in open_users:
-                if nodes[nid]["kind"] not in WRITE_KINDS:
-                    continue
-                if nodes[nid]["status"] in {"planned", "blocked"}:
-                    warnings.append(Issue("WAITING_ON_CONFLICT", f"{req} has conflicting sources; this node waits for the user's decision", nid))
-                else:
+                if nodes[nid]["kind"] in WRITE_KINDS:
                     errors.append(Issue("REQUIREMENT_CONFLICT", f"{req} has conflicting sources; the user must decide before this node proceeds", nid))
         elif meta.get("status") in {"dropped", "superseded"} and open_users:
             warnings.append(Issue("INACTIVE_REQUIREMENT", f"{req} is {meta['status']} but open nodes cite it: {open_users}"))
@@ -545,6 +552,16 @@ def transition(path: str, node: str, to: str, evidence: str, actor: str,
     root = project_root(path)
     if root is not None and not _inside(root, folder):
         return [Issue("SYMLINK_REFUSED", f"{folder} resolves outside the project root {root} (symlinked parent folder)")]
+    parts = folder.split(os.sep)
+    if ".dev" in parts:  # no symlinked folder between the graph and its .dev folder
+        dev = os.sep.join(parts[:len(parts) - parts[::-1].index(".dev")])
+        current = folder
+        while True:
+            if os.path.islink(current):
+                return [Issue("SYMLINK_REFUSED", f"{current} is a symlink; refusing to write through it")]
+            if current == dev:
+                break
+            current = os.path.dirname(current)
     events_path = os.path.join(folder, "events.jsonl")
     lock_path = os.path.join(folder, ".graph.lock")
     for p in (path, events_path, lock_path):
@@ -579,7 +596,7 @@ def transition(path: str, node: str, to: str, evidence: str, actor: str,
                              if n["status"] not in {"planned", "ready", "cancelled"}
                              and any(d["node"] == node for d in n["depends_on"]))
             if started:
-                return [Issue("ILLEGAL_REOPEN", f"dependents already started: {started}; move them back first", node)]
+                return [Issue("ILLEGAL_REOPEN", f"dependents already past ready: {started}; move unfinished ones back to planned first, and for done or accepted ones add a new node instead of reopening", node)]
         # Moving forward needs a clean node and a clean graph; parking a node
         # (planned, blocked, cancelled) is allowed while other errors are open,
         # so a writer can be recorded as waiting on the user's decision.
@@ -717,10 +734,15 @@ def main(argv: list[str] | None = None) -> int:
     if args.cmd == "validate":
         _emit({"ok": not errors, "errors": errors, "warnings": warnings})
         return 1 if errors else 0
-    if errors:
-        _emit({"ok": False, "errors": errors})
+    # A writer parked (planned or blocked) on a conflicting REQ waits for the
+    # user; it must not stall the rest of the graph. Any other error still stops.
+    statuses = {n["id"]: n["status"] for n in g["nodes"]}
+    waiting = {e["node"] for e in errors
+               if e["code"] == "REQUIREMENT_CONFLICT" and statuses.get(e.get("node")) in {"planned", "blocked"}}
+    other = [e for e in errors if not (e["code"] == "REQUIREMENT_CONFLICT" and e.get("node") in waiting)]
+    if other:
+        _emit({"ok": False, "errors": other})
         return 1
-    waiting = {w["node"] for w in warnings if w["code"] == "WAITING_ON_CONFLICT"}
     print(json.dumps({"ready": ready_nodes(g, waiting), "waiting_on_conflict": sorted(waiting)}))
     return 0
 

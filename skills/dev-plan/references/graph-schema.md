@@ -83,10 +83,10 @@ accepted, cancelled: terminal
 | `REQUIREMENTS_DIR_OUTSIDE` | The requirements folder (configured, found, or given with `--requirements-dir`) resolves outside the project root |
 | `BAD_CONFIG` | `.dev/config.json` cannot be read or has a bad `requirements_dir` (exit 1) |
 | `BAD_REQUIREMENT_STATUS` | A cited REQ has a status outside the allowed set (statuses are case-sensitive) |
-| `REQUIREMENT_CONFLICT` | An open write node cites a REQ whose status is `conflict`; the user must decide first |
+| `REQUIREMENT_CONFLICT` | An open write node cites a REQ whose status is `conflict`; the user must decide first. `validate` fails. `ready` still lists the other nodes when the only such errors are on writers parked as `planned` or `blocked`, and reports those writers under `waiting_on_conflict` |
 | `RISK_REVIEW` | The review mode is too weak for the risk or the rigor |
 | `NO_OWNERSHIP` | A write node declares no owned paths |
-| `OWNERSHIP_OVERLAP` | Two unfinished writers with no live dependency path between them own overlapping paths (reported on both nodes; finished writers are not compared) |
+| `OWNERSHIP_OVERLAP` | Two unfinished writers with no live dependency path between them own overlapping paths, compared case-insensitively (reported on both nodes; finished writers are not compared) |
 | `STATUS_DEP` | A node is `ready` or past it while a dependency is not `done` or `accepted` |
 
 Transition errors:
@@ -95,7 +95,7 @@ Transition errors:
 - `INVALID_GRAPH`: structural errors (schema, duplicate ids, unknown dependencies, cycles) block every transition; other errors block moving a node forward when they concern that node or the whole graph. Moving a node to `planned`, `blocked` or `cancelled` stays possible, so a writer can wait for the user's decision on a `REQUIREMENT_CONFLICT`
 - `ILLEGAL_REOPEN`: moving a `done` node back to `ready` while a dependent is past `ready` (including `blocked`)
 - `TRANSITION_BREAKS_GRAPH`: the transition would add errors, for example cancelling the only node that orders two overlapping writers, or reopening a node while a dependent is `ready`; re-plan or move the dependent back first
-- `SYMLINK_REFUSED`: the graph, event log or lock is a symlink, or the graph's folder resolves outside the project root
+- `SYMLINK_REFUSED`: the graph, event log or lock is a symlink, a folder between the graph and its `.dev` folder is a symlink, or the graph's folder resolves outside the project root
 - `LOCK_UNAVAILABLE`: no `fcntl` file locking (non-POSIX platform); transitions are supported on POSIX only
 - `EVENTS_CORRUPT`: `events.jsonl` ends with a torn line; repair it first
 - `EVENT_WRITE_FAILED`: the event could not be written completely; the partial line was removed and the graph restored
@@ -105,7 +105,6 @@ Warnings:
 
 - `UNUSED_REQUIREMENT`: a declared requirement has no node.
 - `INACTIVE_REQUIREMENT`: an open node cites a `dropped` or `superseded` requirement.
-- `WAITING_ON_CONFLICT`: a `planned` or `blocked` writer cites a REQ in `conflict`; `ready` leaves it out and lists it under `waiting_on_conflict`. Moving it forward is a `REQUIREMENT_CONFLICT` error.
 - `STRANDED`: an open node depends on a cancelled node, so it can never become ready; re-plan the edge or cancel the node.
 
 Every command checks the requirement files. The folder is resolved inside the

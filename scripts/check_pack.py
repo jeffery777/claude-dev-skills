@@ -57,16 +57,18 @@ def sources(block: list[str]) -> tuple[list[dict[str, str]], list[str]]:
     current: dict[str, str] | None = None
     field: str | None = None
     field_indent = 0
+    block_scalar = False
     in_sources = False
     for line in block:
         if re.match(r"^[A-Za-z_][A-Za-z0-9_-]*:", line):
             in_sources = line.startswith("sources:") and graph.strip_comment(line[len("sources:"):]) == ""
             field = None
             continue
-        if not in_sources or not line.strip() or line.strip().startswith("#"):
-            continue
-        m = re.match(r"^(\s*)(-\s+)?([A-Za-z_][A-Za-z0-9_-]*):\s*(.*?)\s*$", line)
         indent = len(line) - len(line.lstrip())
+        in_block = bool(current is not None and field and block_scalar and indent > field_indent)
+        if not in_sources or not line.strip() or (line.strip().startswith("#") and not in_block):
+            continue  # comment-only lines are skipped, except inside a block scalar (as in graph.frontmatter)
+        m = re.match(r"^(\s*)(-\s+)?([A-Za-z_][A-Za-z0-9_-]*):\s*(.*?)\s*$", line)
         if m and not (field and indent > field_indent):
             if m.group(2):
                 current = {}
@@ -80,7 +82,8 @@ def sources(block: list[str]) -> tuple[list[dict[str, str]], list[str]]:
             field = m.group(3)
             field_indent = len(m.group(1)) + (len(m.group(2)) if m.group(2) else 0)
             value = graph.strip_comment(m.group(4))
-            current[field] = "" if value in {">", "|", ">-", "|-"} else graph._unquote(value)
+            block_scalar = value in {">", "|", ">-", "|-"}
+            current[field] = "" if block_scalar else graph._unquote(value)
             continue
         if current is not None and field and indent > field_indent:  # continuation of the last field
             current[field] = graph._unquote((current[field] + " " + line.strip()).strip())

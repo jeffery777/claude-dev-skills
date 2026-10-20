@@ -113,6 +113,22 @@ class SourcesParser(unittest.TestCase):
         self.assertEqual(entries[0]["quote"], "")
         self.assertEqual(problems, ["unknown key 'note' in a sources entry"])
 
+    def test_hash_line_inside_block_scalar_is_content(self):  # MR5-01
+        mod = load("check_pack")
+        block = ["sources:", "  - type: chat", "    locator: x", "    quote: |", "      # Heading", "      line two",
+                 "  - type: doc", "    locator: y", "    quote: >", "      one", "      # two", "      three"]
+        self.assertEqual(mod.sources(block), ([
+            {"type": "chat", "locator": "x", "quote": "# Heading line two"},
+            {"type": "doc", "locator": "y", "quote": "one # two three"}], []))
+
+    def test_comment_line_outside_block_scalar_is_skipped(self):
+        mod = load("check_pack")
+        block = ["sources:", "  - type: chat", "    locator: x", "    quote: q", "      # a comment",
+                 "  # between entries", "  - type: doc", "    locator: y", "    quote: >", "      text", "  # after"]
+        self.assertEqual(mod.sources(block), ([
+            {"type": "chat", "locator": "x", "quote": "q"},
+            {"type": "doc", "locator": "y", "quote": "text"}], []))
+
 
 class ReviewerBinding(unittest.TestCase):
     """dev-core section 8: no write-capable substitute for a required review (PR #2 decision 3)."""

@@ -1,6 +1,7 @@
 """Tests for skills/dev-plan/scripts/graph.py (run: python3 -m unittest discover tests)."""
 
 import contextlib
+import hashlib
 import importlib.util
 import io
 import json
@@ -282,19 +283,97 @@ class Transitions(unittest.TestCase):
         leftovers = [f for f in os.listdir(self.tmp) if f.endswith(".tmp")]
         self.assertEqual(leftovers, [])
 
-    def test_cli_evidence_file(self):
+    def _evidence_project(self):
         project = os.path.join(self.tmp, "proj")
         os.makedirs(os.path.join(project, ".dev", "OBJ"))
         shutil.copytree(REQS, os.path.join(project, "docs", "requirements"))
         target = os.path.join(project, ".dev", "OBJ", "graph.json")
         shutil.copy(self.path, target)
-        ev = os.path.join(self.tmp, "ev.txt")
-        with open(ev, "w", encoding="utf-8") as fh:
-            fh.write("$(touch pwned) commit abc123\n")
-        with contextlib.redirect_stdout(io.StringIO()):
-            self.assertEqual(graph.main(["transition", target, "T2", "in_progress", "--evidence-file", ev]), 0)
+        return project, target
+
+    def _run_evidence_file(self, target, ev):
+        err = io.StringIO()
+        with contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(err):
+            code = graph.main(["transition", target, "T2", "in_progress", "--evidence-file", ev])
+        return code, err.getvalue()
+
+    def test_cli_evidence_file_records_path_and_hash_not_content(self):
+        project, target = self._evidence_project()
+        ev = os.path.join(project, ".dev", "OBJ", "ev.txt")
+        body = b"$(touch pwned) commit abc123 SECRET-TOKEN\n"
+        with open(ev, "wb") as fh:
+            fh.write(body)
+        self.assertEqual(self._run_evidence_file(target, ev)[0], 0)
         with open(os.path.join(project, ".dev", "OBJ", "events.jsonl"), encoding="utf-8") as fh:
-            self.assertEqual(json.loads(fh.readline())["evidence"], "$(touch pwned) commit abc123")
+            raw = fh.read()
+        self.assertEqual(json.loads(raw)["evidence"],
+                         "file:.dev/OBJ/ev.txt sha256:" + hashlib.sha256(body).hexdigest())
+        self.assertNotIn("SECRET-TOKEN", raw)
+
+    def test_cli_evidence_file_outside_project_refused(self):
+        project, target = self._evidence_project()
+        outside = os.path.join(self.tmp, "private.txt")
+        with open(outside, "w", encoding="utf-8") as fh:
+            fh.write("SECRET-TOKEN\n")
+        code, err = self._run_evidence_file(target, outside)
+        self.assertEqual(code, 2)
+        self.assertIn("EVIDENCE_FILE_REFUSED", err)
+        self.assertFalse(os.path.exists(os.path.join(project, ".dev", "OBJ", "events.jsonl")))
+        self.assertEqual(graph.load(target), graph.load(self.path))
+
+    def test_cli_evidence_file_symlink_refused(self):
+        project, target = self._evidence_project()
+        outside = os.path.join(self.tmp, "private.txt")
+        open(outside, "w").close()
+        link = os.path.join(project, "ev-link.txt")
+        os.symlink(outside, link)
+        inner = os.path.join(project, "inner.txt")
+        open(inner, "w").close()
+        inner_link = os.path.join(project, "inner-link.txt")
+        os.symlink(inner, inner_link)
+        for path in (link, inner_link):
+            with self.subTest(path=os.path.basename(path)):
+                code, err = self._run_evidence_file(target, path)
+                self.assertEqual(code, 2)
+                self.assertIn("EVIDENCE_FILE_REFUSED", err)
+
+    def test_cli_evidence_file_symlinked_parent_outside_refused(self):
+        project, target = self._evidence_project()
+        outside_dir = os.path.join(self.tmp, "outside")
+        os.makedirs(outside_dir)
+        with open(os.path.join(outside_dir, "key.txt"), "w", encoding="utf-8") as fh:
+            fh.write("SECRET-TOKEN\n")
+        os.symlink(outside_dir, os.path.join(project, "linked"))
+        code, err = self._run_evidence_file(target, os.path.join(project, "linked", "key.txt"))
+        self.assertEqual(code, 2)
+        self.assertIn("EVIDENCE_FILE_REFUSED", err)
+
+    @unittest.skipUnless(hasattr(os, "mkfifo"), "needs mkfifo")
+    def test_cli_evidence_file_fifo_refused_without_blocking(self):
+        project, target = self._evidence_project()
+        fifo = os.path.join(project, "pipe")
+        os.mkfifo(fifo)
+        code, err = self._run_evidence_file(target, fifo)
+        self.assertEqual(code, 2)
+        self.assertIn("EVIDENCE_FILE_REFUSED", err)
+
+    def test_cli_evidence_file_missing_refused(self):
+        project, target = self._evidence_project()
+        code, err = self._run_evidence_file(target, os.path.join(project, "missing.txt"))
+        self.assertEqual(code, 2)
+        self.assertIn("EVIDENCE_FILE_REFUSED", err)
+
+    def test_evidence_file_without_project_root_refused(self):
+        with mock.patch.object(graph, "project_root", return_value=None):
+            ref, refused = graph.evidence_file_ref(self.path, self.path)
+        self.assertIsNone(ref)
+        self.assertEqual(refused["code"], "EVIDENCE_FILE_REFUSED")
+
+    def test_cli_evidence_file_not_regular_refused(self):
+        project, target = self._evidence_project()
+        code, err = self._run_evidence_file(target, os.path.join(project, "docs"))
+        self.assertEqual(code, 2)
+        self.assertIn("EVIDENCE_FILE_REFUSED", err)
 
     def test_cancel_that_breaks_ordering_refused(self):
         g = graph.load(self.path)

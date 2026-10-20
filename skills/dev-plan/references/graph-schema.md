@@ -132,12 +132,20 @@ event cannot be written, the graph is restored.
 python3 graph.py validate <graph> [--requirements-dir DIR]
 python3 graph.py ready <graph> [--requirements-dir DIR]     # {ready, waiting_on_conflict, warnings}
 python3 graph.py transition <graph> <node> <status> --evidence 'abc1234 tests pass' [--actor NAME]
-python3 graph.py transition <graph> <node> <status> --evidence-file <path>
+python3 graph.py transition <graph> <node> <status> --evidence-file <path>   # records file:<relative path> sha256:<hex>
 ```
 
 Pass evidence as a short reference in single quotes (a commit SHA, a report
-path, a command name), or write it to a file and use `--evidence-file`. Never
-paste receipt or tool text into a double-quoted shell argument.
+path, a command name). Never paste receipt or tool text into a double-quoted
+shell argument. For longer evidence, save it as a report in the project (for
+example under `.dev/<objective-id>/reviews/`) and pass `--evidence-file`.
+`events.jsonl` is committed by default, so `--evidence-file` never copies the
+file's content: it records the project-relative path and the SHA-256. It
+refuses a symlink, a file that is not a regular file (such as a FIFO), a
+missing file, and a path that resolves outside the project root
+(`EVIDENCE_FILE_REFUSED`, exit 2) (REQ-011). It needs a project root. Do not
+point it at a secret file: the hash of a short, guessable file can be guessed
+offline.
 
 Requires a shell with Python 3. Where no shell is available (for example a
 Cowork session without code execution), apply the same rules by hand: check

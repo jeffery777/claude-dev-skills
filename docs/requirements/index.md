@@ -14,3 +14,4 @@ One row per requirement. Agents read this first, then open only the files they n
 | REQ-008 | Per-project requirements wiki with precise sources, templates and ingest | active | [[REQ-008-requirements-wiki]] |
 | REQ-009 | Choose subagent model and effort per task | active | [[REQ-009-subagent-model-effort]] |
 | REQ-010 | Phase 1 scope | active | [[REQ-010-phase-1-scope]] |
+| REQ-011 | Security review before every commit and push | active | [[REQ-011-security-review-before-commit-push]] |

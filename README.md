@@ -42,7 +42,7 @@ Cowork 有兩項尚未實測：技能能否執行 `graph.py`（需要 shell）�
 | `dev-plan` | 釐清需求並 ingest 成 REQ 檔，決定風險等級，產出 task graph |
 | `dev-implement` | 實作一個有界修改，驗證後自查 diff |
 | `dev-review` | 派獨立的唯讀 reviewer。finding 有 ID、嚴重度（含 `SCOPE-CREEP`）與處置 |
-| `dev-gate` | commit／PR／merge 前的正式關卡。content、platform、授權三項分開判定 |
+| `dev-gate` | commit／push／PR／merge 前的正式關卡。content、platform、授權三項分開判定 |
 | `dev-docs` | 依已驗證的行為同步文件，並檢查 code 與文件是否一致 |
 | `dev-continue` | 存 checkpoint；接續時從 repo 狀態重建 |
 | `dev-deliver` | 外層編排：依 task graph 派工、整合、審查，再跑關卡 |
@@ -54,6 +54,7 @@ Subagents：`dev-explorer`（haiku）、`dev-implementer`（sonnet）、`dev-rev
 - `light`：低風險的局部修改，不建 graph 檔。若要 commit 或開 PR，仍須先經獨立 review 與 commit gate。
 - `standard`：一般功能。要有 task graph 和獨立 reviewer。
 - `strict`：涉及安全、資料、migration、對外契約或 release。要初期就做深入或安全審查，並通過 exact-head 關卡與 human gate。
+- 所有等級：每次 commit 與 push 之前，由 `dev-security-reviewer` 掃描已 stage 的 diff 與 commit 的身分和訊息，或 push 要送出的全部內容（D-015）。
 
 每個寫入任務都要對應到需求（`REQ-…`）。對應不到需求的新增，會成為 `SCOPE-CREEP` finding。
 
@@ -133,7 +134,7 @@ Two things are not yet tested in Cowork: whether skills can run `graph.py` (a sh
 | `dev-plan` | Clarify needs and ingest them as REQ files, choose the rigor tier, produce the task graph |
 | `dev-implement` | Implement one bounded change, verify it, and check the diff |
 | `dev-review` | Dispatch an independent read-only reviewer. Findings have IDs, severities (including `SCOPE-CREEP`) and dispositions |
-| `dev-gate` | Formal gate before a commit, PR or merge. Content, platform and authority are decided separately |
+| `dev-gate` | Formal gate before a commit, push, PR or merge. Content, platform and authority are decided separately |
 | `dev-docs` | Sync the docs with verified behavior and check that code and docs agree |
 | `dev-continue` | Save a checkpoint, and rebuild from repository state when resuming |
 | `dev-deliver` | Outer loop: dispatch work from the task graph, integrate it, review it, then run the gates |
@@ -145,6 +146,7 @@ Subagents: `dev-explorer` (haiku), `dev-implementer` (sonnet), `dev-reviewer` (o
 - `light`: a low-risk local change, with no graph file. Before a commit or PR, it still needs an independent review and the commit gate.
 - `standard`: a normal feature. It needs a task graph and an independent reviewer.
 - `strict`: security, data, migration, public contract or release work. It needs early deep or security review, the exact-head gate and a human gate.
+- Every tier: before every commit and push, `dev-security-reviewer` scans the staged diff and the commit identity and message, or everything the push sends (D-015).
 
 Every write task must trace to a requirement (`REQ-…`). An addition that no requirement covers becomes a `SCOPE-CREEP` finding.
 

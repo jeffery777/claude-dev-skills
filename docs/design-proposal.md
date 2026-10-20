@@ -52,7 +52,7 @@ Graph engineering 在原專案的定位（ADR OE-007）：
 | `dev-explorer` | haiku | low | 只有讀取工具與 Bash（唯讀靠指示） | 大範圍查讀，只回結論 |
 | `dev-implementer` | sonnet | medium | 可寫，建議 worktree | 有界實作。不 commit、不 push，回傳一份結構化 receipt |
 | `dev-reviewer` | opus | high | 沒有 Edit/Write；保留 Bash（唯讀靠指示） | 一般與深入 review |
-| `dev-security-reviewer` | opus | xhigh | 沒有 Edit/Write；保留 Bash（唯讀靠指示） | 涉及信任邊界、權限、資料、依賴的變更 |
+| `dev-security-reviewer` | opus | xhigh | 沒有 Edit/Write；保留 Bash（唯讀靠指示） | 涉及信任邊界、權限、資料、依賴的變更；以及每次 commit、push 與貼出 PR 文字前的掃描（D-015） |
 
 共用 brief 契約：目標、ownership（路徑）、DoD、驗證、升級條件，加上一份最終 receipt。子代理沒有外部寫入權；主代理負責整合與驗收。
 
@@ -275,6 +275,26 @@ Graph engineering 在原專案的定位（ADR OE-007）：
 - Plugin 名稱是 `dev-skills`。`claude plugin validate` 不接受以 `claude-` 開頭的第三方 plugin 名稱，所以 repo 名稱維持 `claude-dev-skills`，plugin 改名。安裝指令為 `claude plugin install dev-skills@dev-skills`。
 - 不在 Phase 1：G1–G3、hooks、需求 wiki 的 lint 腳本（留到 Phase 2；Phase 1 只定格式並做 ingest）、CI workflow。
 
+### D-015 每次 commit 與 push 前做安全審查（已決定，2026-10-20）
+
+D-009 到 D-014 與 D-016 是同一天的決定，分別在後續的 PR-B 和 PR-C 記錄。本 PR（Issue #4）只記錄 D-015。
+
+- 來源：PR #2 的 SEC-01。分支上 10 個 commit 的作者與 committer 是由本機帳號與主機名稱推導出來的，push 後已經公開。內容審查沒有檢查 commit 的中繼資料，到合併前的安全掃描才發現。需求見 REQ-011。
+- 規則（`dev-core` R-REV-9）：每次 commit 與每次 push 之前，由獨立的 `dev-security-reviewer` 掃描「實際要公開的內容」。小改動或只改文件也不例外，這項掃描永遠不能標為「不適用」。
+  - commit 前：已 stage 的 diff，以及這個 commit 會帶的作者、committer（用 `git var GIT_AUTHOR_IDENT` 與 `git var GIT_COMMITTER_IDENT` 讀出）、訊息與 trailer。掃描後不得再覆寫身分；commit 後立刻用 `git log -1 --format=fuller` 讀回。
+  - push 前：這次 push 要送出的全部內容。主代理用和實際 push 完全相同的參數執行 `git push --dry-run --porcelain`，之後也用完全相同的參數 push。掃描它列出的每個 ref 上遠端還沒有的每一個 commit，包含身分、訊息、解決 merge 衝突時加入的內容，以及 annotated tag 的 tagger 與訊息。並確認實際記錄的身分與訊息和掃描時相同。
+  - 掃描要看到內容，而不是編碼後的資料：每個掃描指令加上 `--text --no-textconv --no-ext-diff`。
+  - 貼出 PR 或 MR 的標題、內文、留言或審查紀錄之前：掃描要貼出的原文。
+  - 合併前：base..head 範圍內的每一個 commit，不只看最後的 diff；以及平台合併時會建立的 merge 或 squash commit：合併方式、作者、訊息與 trailer（例如由分支 commit 產生的 `Co-authored-by:`）。
+  - 要找的東西：金鑰、密碼、token、私人檔案、私人路徑、主機名稱、私人 email，以及作者沒有選擇公開的真實姓名。有發現就擋下 commit 或 push，修正後重新掃描。
+  - 掃描後只要 stage 的內容、身分、訊息或要貼出的文字有變，就是新的候選，要重新掃描。掃描與 gate 的紀錄不放進它們所涵蓋的那個 commit，而是放進之後的 commit（由那個 commit 自己的掃描涵蓋）或 PR。
+  - 找不到 `dev-security-reviewer` 時，在 commit 或 push 之前停下。
+- R-REV-1 補充：必要的安全審查或 Security Diff Scan 一律使用 `dev-security-reviewer`，不能用 `dev-reviewer`。
+- 建議（不在本 PR 實作）：用 gitleaks 之類的 secret scanner，掛在 pre-commit 或 pre-push hook，作為確定性的補充檢查；並設定 `git config user.useConfigOnly true`，讓 Git 不會用主機名稱猜身分。安裝工具或 hook、改 Git 設定都需要使用者同意；它們都不能取代獨立審查。
+- 審查報告也會 commit 或貼到 PR，所以兩個 reviewer agent 回報時一律遮蔽金鑰與私人識別資訊：只寫種類、位置與長度或類別；email 只說是不是 noreply 與提供者；路徑與主機名稱中的帳號或主機部分換成代稱。
+- 與 Core 的差異：Core 只在變更碰到信任邊界時要求 Security Diff Scan；這裡改成每次 commit 與 push 都要掃。這是收緊，記錄在 `skills/dev-core/deltas.md` 的 DL-010。
+- 同一個 PR 修正 `graph.py transition --evidence-file`：原本會把任何可讀檔案的內容複製進預設會被 commit 的 `events.jsonl`。現在只接受專案根目錄內的一般檔案（不接受 symlink 或 FIFO 之類的非一般檔案），而且只記錄相對路徑與 SHA-256，不記錄內容（使用者選擇的選項，2026-10-20）。剩下的風險：專案內短而好猜的秘密檔（例如被 gitignore 的 `.env`）的雜湊會被 commit，可以離線猜測。專案內任何一般檔案（包括 `.git/` 底下的檔案或 hardlink）都只會記下路徑與雜湊，不會記下內容；這些情況沒有對應的需求，所以不另外擋（2026-10-20 使用者決定）。追蹤項目是 `.dev/followups.md` 的 FU-003。
+
 ---
 
 <a id="english"></a>
@@ -361,7 +381,7 @@ How the original project positions graph engineering (ADR OE-007):
 | `dev-explorer` | haiku | low | Read tools and Bash (read-only by instruction) | Broad searches; returns conclusions only |
 | `dev-implementer` | sonnet | medium | Can write; worktree recommended | Bounded implementation. Never commits or pushes; returns one structured receipt |
 | `dev-reviewer` | opus | high | No Edit/Write; keeps Bash (read-only by instruction) | Routine and deep review |
-| `dev-security-reviewer` | opus | xhigh | No Edit/Write; keeps Bash (read-only by instruction) | Changes to trust boundaries, permissions, data or dependencies |
+| `dev-security-reviewer` | opus | xhigh | No Edit/Write; keeps Bash (read-only by instruction) | Changes to trust boundaries, permissions, data or dependencies; and the scan before every commit, push and PR post (D-015) |
 
 Shared brief contract: objective, ownership (paths), DoD, verification and
 escalation conditions, plus one final receipt. Subagents have no
@@ -689,5 +709,76 @@ records the mapping.
 - Not in Phase 1: G1–G3, hooks, the requirements wiki lint script (moved to
   Phase 2; Phase 1 only defines the format and does the ingest), and a CI
   workflow.
+
+### D-015 Security review before every commit and push (decided, 2026-10-20)
+
+D-009 to D-014 and D-016 were decided on the same day. Later PRs (PR-B and
+PR-C) record them. This PR (Issue #4) records only D-015.
+
+- Origin: PR #2 SEC-01. The author and committer of all 10 branch commits were
+  derived from the local account and the machine hostname, and the push
+  published them. No content review checked commit metadata; the security
+  scan before the merge found it. The requirement is REQ-011.
+- Rule (`dev-core` R-REV-9): before every commit and every push, an
+  independent `dev-security-reviewer` scans exactly what will be published.
+  There is no exception for small or docs-only changes, and this scan is never
+  `not applicable`.
+  - Before a commit: the staged diff, and the author, committer (read with
+    `git var GIT_AUTHOR_IDENT` and `git var GIT_COMMITTER_IDENT`), message
+    and trailers the commit will carry. Do not override the identity after
+    the scan; read it back with `git log -1 --format=fuller` right after the
+    commit.
+  - Before a push: everything the push sends. The main agent runs
+    `git push --dry-run --porcelain` with exactly the arguments of the real
+    push, and then pushes with exactly those arguments. The scan covers every
+    commit the remote does not have yet on each listed ref, with identities,
+    messages and merge-resolution content, and the tagger and message of each
+    listed annotated tag. Confirm that the recorded identity and message match
+    what was scanned.
+  - The scan shows content, not encoded data: every scan command uses
+    `--text --no-textconv --no-ext-diff`.
+  - Before posting a PR or MR title, body or comment, or a review record: the
+    exact text.
+  - At merge readiness: every commit in base..head, not only the final diff,
+    and the merge or squash commit that the platform will create: the merge
+    method, author, message and trailers (for example `Co-authored-by:` lines
+    built from the branch commits).
+  - What to look for: keys, passwords, tokens, private files, private paths,
+    machine hostnames, private email addresses, and real names the author has
+    not chosen to publish. A finding blocks the commit or push until it is
+    fixed and scanned again.
+  - Any change to the staged content, identity, message or text after the
+    scan is a new candidate and needs a new scan. The records of a scan and
+    its gate never go into the commit they cover. They go into a later commit,
+    whose own scan covers them, or into the PR.
+  - Without `dev-security-reviewer`, stop before the commit or push.
+- R-REV-1 clarification: a required security review or Security Diff Scan
+  uses `dev-security-reviewer`, never `dev-reviewer`.
+- Recommendation (not implemented in this PR): a secret scanner such as
+  gitleaks in a pre-commit or pre-push hook, as an additional deterministic
+  check, and `git config user.useConfigOnly true`, so that Git never guesses
+  an identity from the hostname. Installing a tool or a hook, or changing Git
+  config, needs the user's approval, and none of them replaces the
+  independent review.
+- Review reports are committed or posted to the PR too, so both reviewer
+  agents mask secrets and private identifiers: they give only the kind,
+  location and length or class; for an email, only whether it is a noreply
+  address and its provider; for a path or hostname, a placeholder for the
+  account or host part.
+- Difference from Core: Core requires a Security Diff Scan only when a change
+  touches a trust boundary. Here every commit and push needs the scan. This
+  is a tightening, recorded as DL-010 in `skills/dev-core/deltas.md`.
+- The same PR fixes `graph.py transition --evidence-file`. It copied the
+  content of any readable file into `events.jsonl`, which is committed by
+  default. Now it accepts only a regular file inside the project root (no
+  symlink, and no FIFO or other non-regular file), and it records only the
+  relative path and the SHA-256, never the content (the option the user
+  chose, 2026-10-20). Remaining risk: the hash of a short, guessable secret
+  file inside the project (for example a gitignored `.env`) is committed and
+  can be guessed offline. For any regular file inside the project (including
+  a file under `.git/` or a hardlink), only the path and hash are recorded,
+  never the content. No requirement covers these cases, so they are not
+  blocked separately (user decision, 2026-10-20). The tracking entry is
+  FU-003 in `.dev/followups.md`.
 
 </details>

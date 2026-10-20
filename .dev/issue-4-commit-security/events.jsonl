@@ -1,0 +1,18 @@
+{"seq": 1, "at": "2026-10-20T08:56:18+00:00", "actor": "main-agent", "node": "T1", "from": "planned", "to": "ready", "evidence": "planned in this PR"}
+{"seq": 2, "at": "2026-10-20T08:56:19+00:00", "actor": "main-agent", "node": "T1", "from": "ready", "to": "in_progress", "evidence": "REQ-011 written"}
+{"seq": 3, "at": "2026-10-20T08:56:19+00:00", "actor": "main-agent", "node": "T1", "from": "in_progress", "to": "reviewing", "evidence": "check_pack.py OK"}
+{"seq": 4, "at": "2026-10-20T08:56:19+00:00", "actor": "main-agent", "node": "T1", "from": "reviewing", "to": "done", "evidence": "self-check; independent review pending in T6"}
+{"seq": 5, "at": "2026-10-20T08:56:19+00:00", "actor": "main-agent", "node": "T2", "from": "planned", "to": "ready", "evidence": "T1 done"}
+{"seq": 6, "at": "2026-10-20T08:56:19+00:00", "actor": "main-agent", "node": "T2", "from": "ready", "to": "in_progress", "evidence": "editing"}
+{"seq": 7, "at": "2026-10-20T08:56:19+00:00", "actor": "main-agent", "node": "T2", "from": "in_progress", "to": "reviewing", "evidence": "validate.sh all checks passed"}
+{"seq": 8, "at": "2026-10-20T08:56:19+00:00", "actor": "main-agent", "node": "T3", "from": "planned", "to": "ready", "evidence": "T1 done"}
+{"seq": 9, "at": "2026-10-20T08:56:20+00:00", "actor": "main-agent", "node": "T3", "from": "ready", "to": "in_progress", "evidence": "editing"}
+{"seq": 10, "at": "2026-10-20T08:56:20+00:00", "actor": "main-agent", "node": "T3", "from": "in_progress", "to": "reviewing", "evidence": "validate.sh all checks passed"}
+{"seq": 11, "at": "2026-10-20T08:56:26+00:00", "actor": "main-agent", "node": "T3", "from": "reviewing", "to": "done", "evidence": "check_core_coverage OK (41 rules); deep review in T6"}
+{"seq": 12, "at": "2026-10-20T08:56:26+00:00", "actor": "main-agent", "node": "T4", "from": "planned", "to": "ready", "evidence": "T3 done"}
+{"seq": 13, "at": "2026-10-20T08:56:26+00:00", "actor": "main-agent", "node": "T4", "from": "ready", "to": "in_progress", "evidence": "editing"}
+{"seq": 14, "at": "2026-10-20T08:56:26+00:00", "actor": "main-agent", "node": "T4", "from": "in_progress", "to": "reviewing", "evidence": "check_pack OK"}
+{"seq": 15, "at": "2026-10-20T08:56:27+00:00", "actor": "main-agent", "node": "T4", "from": "reviewing", "to": "done", "evidence": "validate.sh passed; deep review in T6"}
+{"seq": 16, "at": "2026-10-20T08:56:27+00:00", "actor": "main-agent", "node": "T5", "from": "planned", "to": "ready", "evidence": "T4 done"}
+{"seq": 17, "at": "2026-10-20T08:56:27+00:00", "actor": "main-agent", "node": "T5", "from": "ready", "to": "in_progress", "evidence": "editing"}
+{"seq": 18, "at": "2026-10-20T08:56:27+00:00", "actor": "main-agent", "node": "T5", "from": "in_progress", "to": "reviewing", "evidence": "75 tests OK; 6 new tests fail on old graph.py"}

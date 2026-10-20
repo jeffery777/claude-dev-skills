@@ -29,7 +29,7 @@ cited Core section (see review round 1, DR-001 to DR-008, in
 | `review-and-security.md#review-independent` | R-REV-1, R-REV-2 | covered | Edit/Write removed by the tool allowlist; read-only Bash use is by instruction (DL-004) |
 | `review-and-security.md#review-findings` | R-RIG-2, R-REV-3, R-REV-4, R-REV-5 | covered | Adds SCOPE-CREEP severity |
 | `review-and-security.md#review-risk-timing` | R-RIG-1, R-RIG-2, R-REV-6 | covered | Rigor tiers map Core risk timing (D-004) |
-| `review-and-security.md#review-security` | R-REV-7 | covered | |
+| `review-and-security.md#review-security` | R-REV-7, R-REV-9 | covered | R-REV-9 tightens: a scan before every commit, push and PR post, including commit identity and message (DL-010) |
 | `review-and-security.md#review-evidence` | R-REV-8 | covered | |
 | `exact-head-and-evidence.md#exact-identity` | R-EXH-1 | covered | |
 | `exact-head-and-evidence.md#exact-coherence` | R-EXH-2 | covered | |

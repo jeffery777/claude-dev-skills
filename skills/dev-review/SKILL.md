@@ -16,9 +16,17 @@ Review stays read-only unless the user asks for fixes (R-REV-1).
 | routine | low or medium risk | `dev-reviewer`, model `opus`, effort `high` |
 | deep | high or unknown risk, cross-module contracts, packaging, migrations, integrations | `dev-reviewer`, model `opus`, effort `xhigh` |
 | security | trust boundaries, auth, permissions, sensitive data, dependencies, installers (R-REV-7) | `dev-security-reviewer`, model `opus`, effort `xhigh` or `max` |
+| commit / push scan | before every commit and every push, at any tier (R-REV-9) | `dev-security-reviewer`, model `opus`, effort `high` or more |
 
 Decide the mode from the actual impact, not the file type. When unsure, use
-the stronger mode.
+the stronger mode. A required security review or scan always uses
+`dev-security-reviewer`, never `dev-reviewer` (R-REV-1).
+
+For a commit / push scan, the target is exactly what will be published: the
+staged diff plus the author, committer, message and trailers the commit will
+carry, or everything the push sends, or the PR text to be posted (R-REV-9).
+Review records are committed or posted too, so both reviewer agents mask any
+secret or private identifier they report.
 
 ## Workflow
 
@@ -41,7 +49,7 @@ the stronger mode.
      `dev-reviewer` (never yourself as the author), and record which tool ran
      and in which context. A native pass that runs in a context with write
      tools is an extra pass only; the required review still needs
-     `dev-reviewer` or `dev-security-reviewer`, and without them the work
+     `dev-reviewer` (`dev-security-reviewer` for a security review or scan), and without them the work
      stops at the gate (dev-core §8).
 4. Read the report back. Check that each finding has a file and line and
    evidence. Mark claims you could not reproduce as unverified.

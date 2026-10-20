@@ -31,6 +31,24 @@ Read `${CLAUDE_SKILL_DIR}/../dev-core/SKILL.md` first.
    independently reviewed" as residual risk (R-RIG-2).
 
 Do not commit, push or open a PR unless the user asked for it (R-AUTH-2).
+When the user asked for it, use this order (R-REV-9):
+
+1. Stage only the intended files and check the staged list.
+2. `dev-security-reviewer` scans the staged diff and the author, committer
+   (`git var GIT_AUTHOR_IDENT`, `git var GIT_COMMITTER_IDENT`), message and
+   trailers the commit will carry.
+3. Pass the `dev-gate` commit gate, then commit without overriding the
+   identity. Read back `git log -1 --format=fuller`.
+4. Before the push, confirm that the recorded identity and message match what
+   was scanned. Run `git fetch --prune <remote>`, then
+   `git push --dry-run --porcelain` with the exact arguments
+   of the real push, and have `dev-security-reviewer` scan everything it
+   lists: every commit the remote does not have yet and any annotated tag.
+5. Pass the `dev-gate` push gate, then push with exactly those arguments.
+
+Any change after a scan needs a new scan. Scan and gate records go into a
+later commit or the PR, never into the commit they cover. Without
+`dev-security-reviewer`, stop before the commit or push.
 
 ## Output
 

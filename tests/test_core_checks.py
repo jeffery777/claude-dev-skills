@@ -120,6 +120,7 @@ class ReviewerBinding(unittest.TestCase):
     def setUp(self):
         with open(os.path.join(ROOT, "skills", "dev-core", "SKILL.md"), encoding="utf-8") as fh:
             text = fh.read()
+        self.text = text
         self.section = text[text.index("## 8. Claude-specific bindings"):]
 
     def test_fingerprint_script_removed(self):
@@ -130,8 +131,11 @@ class ReviewerBinding(unittest.TestCase):
         self.assertNotIn("When a named agent is unavailable, use a general-purpose subagent", self.section)
         self.assertIn("do not substitute an agent that has write tools for a required review", self.section)
         self.assertIn("Stop at that gate", self.section)
+        self.assertNotIn("general-purpose substitute counts as the independent reviewer", self.text)
+        self.assertNotIn("tree check", self.text)
 
     def test_accidental_edit_check_is_stated(self):
+        self.assertIn("git rev-parse HEAD", self.section)
         self.assertIn("git status --porcelain=v1 --untracked-files=all", self.section)
         self.assertIn("git diff HEAD --binary", self.section)
         self.assertIn("It is not isolation", self.section)

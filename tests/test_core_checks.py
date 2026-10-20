@@ -70,7 +70,7 @@ class Coverage(unittest.TestCase):
 class TemplateParses(unittest.TestCase):
     def test_req_template_sources_parse(self):
         mod = load("check_pack")
-        entries = mod.sources(mod.front_block(os.path.join(ROOT, "skills", "dev-plan", "templates", "REQ-template.md")))
+        entries, _ = mod.sources(mod.front_block(os.path.join(ROOT, "skills", "dev-plan", "templates", "REQ-template.md")))
         self.assertEqual(len(entries), 1)
         self.assertEqual(entries[0]["type"], "chat")
 
@@ -103,9 +103,15 @@ class SourcesParser(unittest.TestCase):
         mod = load("check_pack")
         block = ["id: REQ-001", "sources:", "- type: chat", "  locator: \"x\"", "  quote:", "    long quote",
                  "  - type: doc", "    locator: y", "    quote: >", "      folded text", "non_goals: []"]
-        self.assertEqual(mod.sources(block), [
+        self.assertEqual(mod.sources(block), ([
             {"type": "chat", "locator": "x", "quote": "long quote"},
-            {"type": "doc", "locator": "y", "quote": "folded text"}])
+            {"type": "doc", "locator": "y", "quote": "folded text"}], []))
+
+    def test_sibling_key_is_not_a_quote(self):
+        mod = load("check_pack")
+        entries, problems = mod.sources(["sources:", "  - type: chat", "    locator: x", "    quote:", "    note: anything"])
+        self.assertEqual(entries[0]["quote"], "")
+        self.assertEqual(problems, ["unknown key 'note' in a sources entry"])
 
 
 class VendorLock(unittest.TestCase):

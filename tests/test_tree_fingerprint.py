@@ -154,9 +154,10 @@ class Fingerprint(unittest.TestCase):
     def test_worktree_rename_record(self):
         os.rename(os.path.join(self.repo, "tracked.txt"), os.path.join(self.repo, "moved.txt"))
         self.git("add", "-N", "moved.txt")
-        status = subprocess.run(["git", "-C", self.repo, "status", "--porcelain=v1", "-z"], capture_output=True).stdout
         self.assertTrue(self.changed())
-        self.assertIsInstance(status, bytes)
+        # The original-path record stays attached, even when it looks like a cache path.
+        raw = b" R new.txt\0ab/__pycache__/f\0?? x.txt\0"
+        self.assertEqual(tf.status_entries(raw), [b" R new.txt\0ab/__pycache__/f", b"?? x.txt"])
 
     def test_repo_without_commits(self):
         fresh = tempfile.mkdtemp()

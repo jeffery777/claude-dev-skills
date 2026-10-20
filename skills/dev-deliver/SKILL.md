@@ -31,7 +31,7 @@ Repeat until the objective is complete or a stop condition holds (R-AUTH-5):
 
 1. **Select.** Run `graph.py ready` and take one listed node, preferring the
    smallest one that advances the objective. A listed node that is still
-   `planned` moves to `ready` first. A `STRANDED` warning means a dependency
+   `planned` moves to `ready` first. A `STRANDED` warning in the `ready` output means a dependency
    was cancelled: re-plan that edge with `dev-plan` or cancel the node.
 2. **Dispatch.** Run the node in this session, or delegate it to one subagent
    with a brief from `${CLAUDE_SKILL_DIR}/references/task-brief.md`.

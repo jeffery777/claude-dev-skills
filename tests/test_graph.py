@@ -119,6 +119,7 @@ class RequirementFiles(unittest.TestCase):
             self.assertEqual(graph.main(["ready", target]), 0)
         result = json.loads(out.getvalue())
         self.assertEqual((result["ready"], result["waiting_on_conflict"]), (["T2"], ["T3"]))
+        self.assertIn("warnings", result)
 
     def test_comment_line_inside_block_list(self):
         self.set_field("REQ-001-login-rate-limit.md", "depends_on: []", "depends_on:\n  # none yet\n  - REQ-002")
@@ -149,6 +150,10 @@ class RequirementFiles(unittest.TestCase):
     def test_unindented_block_list_parsed(self):
         self.set_field("REQ-001-login-rate-limit.md", "depends_on: []", "depends_on:\n- REQ-406")
         self.assertEqual(self.codes(self.tmp)[0], {"REQ_RELATION_UNKNOWN"})
+
+    def test_empty_status_is_reported_not_crash(self):
+        self.set_field("REQ-002-limit-docs.md", "status: active", "status:")
+        self.assertEqual(self.codes(self.tmp)[0], {"BAD_REQUIREMENT_STATUS"})
 
     def test_bad_status_case(self):
         self.set_field("REQ-002-limit-docs.md", "status: active", "status: Conflict")
@@ -298,6 +303,16 @@ class Transitions(unittest.TestCase):
         self.assertEqual(graph.transition(self.path, "T3", "cancelled", "dropped", "test"), [])
         _, warnings = graph.check_graph(graph.load(self.path))
         self.assertIn("STRANDED", {w["code"] for w in warnings})
+        # `ready` passes the warning on, so the dev-deliver loop sees it.
+        project = os.path.join(self.tmp, "proj")
+        os.makedirs(os.path.join(project, ".dev", "OBJ"))
+        shutil.copytree(REQS, os.path.join(project, "docs", "requirements"))
+        target = os.path.join(project, ".dev", "OBJ", "graph.json")
+        shutil.copy(self.path, target)
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            self.assertEqual(graph.main(["ready", target]), 0)
+        self.assertIn("STRANDED", {w["code"] for w in json.loads(out.getvalue())["warnings"]})
 
     def test_reopen_refused_when_dependent_blocked(self):
         self.assertEqual(graph.transition(self.path, "T2", "in_progress", "start", "test"), [])

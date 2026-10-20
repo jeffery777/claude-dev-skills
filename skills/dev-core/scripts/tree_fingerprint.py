@@ -55,6 +55,29 @@ def _is_cache(rel: str) -> bool:
     return bool(CACHE_DIRS & set(rel.rstrip("/").split("/")))  # a bare .pyc outside __pycache__ is importable code: kept
 
 
+def status_entries(raw: bytes) -> list[bytes]:
+    """Split `status --porcelain=v1 -z` output into entries, minus tool caches.
+
+    A rename or copy (R or C in either status column) is followed by a second
+    record holding the original path; it stays attached to its entry.
+    """
+    entries: list[bytes] = []
+    parts = raw.split(b"\0")
+    i = 0
+    while i < len(parts):
+        e = parts[i]
+        i += 1
+        if not e:
+            continue
+        if b"R" in e[:2] or b"C" in e[:2]:
+            entries.append(e + b"\0" + (parts[i] if i < len(parts) else b""))
+            i += 1
+            continue
+        if not _is_cache(e[3:].decode("utf-8", "surrogateescape")):
+            entries.append(e)
+    return entries
+
+
 def entry_digest(path: str) -> str:
     st = os.lstat(path)
     if stat.S_ISLNK(st.st_mode):
@@ -98,20 +121,7 @@ def fingerprint(repo: str) -> str:
     add("staged", git(repo, "diff", "--cached", "--binary", "--no-ext-diff", "--no-textconv"))
     add("worktree", git(repo, "diff", "--binary", "--no-ext-diff", "--no-textconv"))
     raw_status = git(repo, "status", "--porcelain=v1", "-z", "--untracked-files=all", "--ignored")
-    entries: list[bytes] = []
-    parts = raw_status.split(b"\0")
-    i = 0
-    while i < len(parts):
-        e = parts[i]
-        i += 1
-        if not e:
-            continue
-        if b"R" in e[:2] or b"C" in e[:2]:  # rename/copy (index or worktree side): next record is the original path
-            entries.append(e + b"\0" + parts[i])
-            i += 1
-            continue
-        if not _is_cache(e[3:].decode("utf-8", "surrogateescape")):
-            entries.append(e)
+    entries = status_entries(raw_status)
     status = b"\0".join(entries)
     add("status", status)
     top = repo

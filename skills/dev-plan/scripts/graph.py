@@ -383,7 +383,7 @@ def check_requirement_files(declared: set[str], nodes: dict[str, dict[str, Any]]
         if meta is None:
             errors.append(Issue("REQUIREMENT_ID_MISMATCH", f"{hits[0]} front matter id is {found_ids.get(hits[0])!r}, expected {req}"))
             continue
-        if meta.get("status") not in REQ_STATUSES:
+        if not isinstance(meta.get("status"), str) or meta.get("status") not in REQ_STATUSES:
             errors.append(Issue("BAD_REQUIREMENT_STATUS", f"{req} status {meta.get('status')!r} is not one of {sorted(REQ_STATUSES)}"))
             continue
         open_users = sorted(nid for nid, n in nodes.items()
@@ -752,7 +752,8 @@ def main(argv: list[str] | None = None) -> int:
     if other:
         _emit({"ok": False, "errors": other})
         return 1
-    print(json.dumps({"ready": ready_nodes(g, waiting), "waiting_on_conflict": sorted(waiting)}))
+    print(json.dumps({"ready": ready_nodes(g, waiting), "waiting_on_conflict": sorted(waiting),
+                      "warnings": warnings}, ensure_ascii=False))
     return 0
 
 

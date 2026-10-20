@@ -45,38 +45,48 @@ def tool_set(value: Any) -> set[str]:
     return {graph._unquote(t.strip()).split("(", 1)[0].strip() for t in items if t.strip()}
 
 
-def sources(block: list[str]) -> list[dict[str, str]]:
-    """Entries of the `sources:` list (a list of type/locator/quote mappings).
+def sources(block: list[str]) -> tuple[list[dict[str, str]], list[str]]:
+    """Entries of the `sources:` list and any problems found while parsing.
 
     Items may start at column 0 or indented. A field value may continue on
-    the following, deeper-indented lines, or be a `>`/`|` block scalar.
+    following lines indented deeper than the field's key, or be a `>`/`|`
+    block scalar. Any other key inside an item is reported as a problem.
     """
     entries: list[dict[str, str]] = []
+    problems: list[str] = []
     current: dict[str, str] | None = None
     field: str | None = None
+    field_indent = 0
     in_sources = False
     for line in block:
         if re.match(r"^[A-Za-z_][A-Za-z0-9_-]*:", line):
             in_sources = line.startswith("sources:") and graph.strip_comment(line[len("sources:"):]) == ""
             field = None
             continue
-        if not in_sources or not line.strip():
+        if not in_sources or not line.strip() or line.strip().startswith("#"):
             continue
-        m = re.match(r"^\s*(-\s+)?(type|locator|quote):\s*(.*?)\s*$", line)
-        if m:
-            if m.group(1):
+        m = re.match(r"^(\s*)(-\s+)?([A-Za-z_][A-Za-z0-9_-]*):\s*(.*?)\s*$", line)
+        indent = len(line) - len(line.lstrip())
+        if m and not (field and indent > field_indent):
+            if m.group(2):
                 current = {}
                 entries.append(current)
             if current is None:
                 continue
-            field = m.group(2)
-            value = graph.strip_comment(m.group(3))
+            if m.group(3) not in {"type", "locator", "quote"}:
+                problems.append(f"unknown key {m.group(3)!r} in a sources entry")
+                field = None
+                continue
+            field = m.group(3)
+            field_indent = len(m.group(1)) + (len(m.group(2)) if m.group(2) else 0)
+            value = graph.strip_comment(m.group(4))
             current[field] = "" if value in {">", "|", ">-", "|-"} else graph._unquote(value)
             continue
-        if current is not None and field:  # continuation of the last field
-            joined = (current[field] + " " + line.strip()).strip()
-            current[field] = graph._unquote(joined)
-    return entries
+        if current is not None and field and indent > field_indent:  # continuation of the last field
+            current[field] = graph._unquote((current[field] + " " + line.strip()).strip())
+        else:
+            problems.append(f"unexpected line in sources: {line.strip()!r}")
+    return entries, problems
 
 
 def main() -> int:
@@ -117,9 +127,9 @@ def main() -> int:
             errors.append(f"{rel}: name must equal the file name")
         if not meta.get("description"):
             errors.append(f"{rel}: description missing")
-        if meta.get("model") not in MODELS:
+        if not isinstance(meta.get("model"), str) or meta.get("model") not in MODELS:
             errors.append(f"{rel}: model must be an alias {sorted(MODELS)}")
-        if meta.get("effort") not in EFFORTS:
+        if not isinstance(meta.get("effort"), str) or meta.get("effort") not in EFFORTS:
             errors.append(f"{rel}: effort must be one of {sorted(EFFORTS)}")
         if stem in READ_ONLY_AGENTS:
             if not meta.get("tools"):
@@ -139,7 +149,7 @@ def main() -> int:
         prefix = re.match(r"^(REQ-\d{3,})", os.path.basename(req))
         if not prefix or meta.get("id") != prefix.group(1):
             errors.append(f"{rel}: front matter id must match the file name")
-        if meta.get("status") not in graph.REQ_STATUSES:
+        if not isinstance(meta.get("status"), str) or meta.get("status") not in graph.REQ_STATUSES:
             errors.append(f"{rel}: status must be one of {sorted(graph.REQ_STATUSES)}")
         for field in graph.REQ_RELATIONS:
             value = meta.get(field)
@@ -150,7 +160,8 @@ def main() -> int:
                 errors.append(f"{rel}: superseded requires superseded_by")
             if not meta.get("superseded_reason"):
                 errors.append(f"{rel}: superseded requires superseded_reason")
-        entries = sources(block)
+        entries, problems = sources(block)
+        errors += [f"{rel}: {p}" for p in problems]
         if not entries:
             errors.append(f"{rel}: sources must list at least one entry")
         for i, e in enumerate(entries):

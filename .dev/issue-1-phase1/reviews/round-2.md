@@ -24,7 +24,7 @@
 | ID | Sev | Finding | Disposition |
 | --- | --- | --- | --- |
 | R2C-01 | SHOULD-FIX | = CR-002 reopened | Fixed (see above) |
-| R2C-02 | SHOULD-FIX | Dependents of a cancelled node were stranded silently | Fixed: `STRANDED` warning; dev-deliver says to re-plan; the schema doc states that a cancelled dependency is never satisfied |
+| R2C-02 | SHOULD-FIX | Dependents of a cancelled node were stranded silently | Fixed: `STRANDED` warning; dev-deliver says to re-plan; the schema doc states that a cancelled dependency is never satisfied (Completed under MR4-01: `ready` now passes the warning on.) |
 | R2C-03 | SHOULD-FIX | = CR-003 reopened | Fixed |
 | R2C-04 | SHOULD-FIX | = SR-004 reopened | Fixed |
 | R2C-05 | SHOULD-FIX | Unhashable enum values crashed validate | Fixed: type guards; test |

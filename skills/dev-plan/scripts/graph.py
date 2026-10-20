@@ -264,10 +264,29 @@ def _unquote(value: str) -> str:
 def frontmatter(path: str) -> dict[str, Any]:
     """Top-level keys of a Markdown front matter block (a small YAML subset).
 
-    Scalars become strings with comments and one pair of matching quotes
-    removed. Block scalars (`>`, `|`) are joined text. Flow lists (`[a, b]`) and
-    block lists of scalars (`- a`, indented or not) become lists of strings.
-    Nested mappings are not parsed. Missing delimiters yield {}.
+    Supported subset (REQ, SKILL.md and agent front matter must stay inside it):
+
+    - Block: the first line is `---` and the next line that is `---` closes
+      it. A missing delimiter yields {}.
+    - Keys: a line at column 0 of the form `key:` or `key: value`, where key
+      matches [A-Za-z_][A-Za-z0-9_-]*. A repeated key keeps its last value.
+      Comment-only lines are skipped (except inside a block scalar).
+    - Plain or quoted scalar -> str. A trailing ` # comment` is removed, then
+      one pair of matching outer quotes. Inside single quotes `''` is `'`.
+      Indented lines that follow are appended with one space.
+    - `null` or `~` -> None. No other type conversion: `true` and `12` stay str.
+    - Flow list on one line, `[a, "b, c"]` -> list of str (no nesting).
+    - Empty value, then `- item` lines (any indent) -> list of str. Without
+      items the value is [], or the str on the next indented line.
+    - Block scalar `>` or `|` (chomping indicators ignored) -> the following
+      lines, stripped and joined with spaces; `|` does not keep newlines.
+
+    Not supported: double-quote escapes (`\\"` ends the string), flow lists
+    over several lines (they become a str), nested mappings (a `- key: v` item
+    becomes the str "key: v" and its other lines are dropped; check_pack.sources
+    reads `sources` entries itself), anchors, aliases, tags, flow mappings and
+    several documents. Input outside the subset raises no error and may parse
+    wrongly; that is a format limit of this parser, not a defect.
     """
     lines = frontmatter_lines(path)
     if lines is None:

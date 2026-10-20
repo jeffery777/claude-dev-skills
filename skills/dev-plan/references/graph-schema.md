@@ -113,6 +113,10 @@ project root (the nearest ancestor of the graph file that holds `.git` or
 `<root>/docs/requirements/`. The search never climbs above the project root,
 and a configured path that resolves outside it is refused.
 
+REQ front matter is read with a small YAML subset. The `frontmatter`
+docstring in `scripts/graph.py` lists what is supported; input outside the
+subset is a format limit, not a defect.
+
 A crash between the graph write and the event append can leave a status change
 without its event (an accepted trade-off of writing the graph first). Compare
 `graph.json` with the last events after an interrupted run.

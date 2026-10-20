@@ -177,6 +177,17 @@ class RequirementFiles(unittest.TestCase):
         self.assertEqual((meta["title"], meta["type"], meta["desc"], meta["ml"]),
                          ("Fix C#port", "chat", "line one line two", "short continued here"))
 
+    def test_frontmatter_documented_limits(self):
+        doc = graph.frontmatter.__doc__
+        self.assertIn("Supported subset", doc)
+        self.assertIn("Not supported", doc)
+        path = os.path.join(self.tmp, "limits.md")
+        with open(path, "w", encoding="utf-8") as fh:
+            fh.write('---\nflag: true\nn: 12\nesc: "x \\" y"\nmulti: [a,\n  b]\n'
+                     'items:\n  - type: doc\n    locator: x\nflag: again\n---\n')
+        self.assertEqual(graph.frontmatter(path), {"flag": "again", "n": "12", "esc": "x \\",
+                                                   "multi": "[a, b]", "items": ["type: doc"]})
+
     def test_explicit_dir_outside_root_refused(self):
         project = os.path.join(self.tmp, "proj")
         os.makedirs(os.path.join(project, ".dev", "OBJ"))

@@ -270,7 +270,7 @@ Graph engineering 在原專案的定位（ADR OE-007）：
 | 打包 | `.claude-plugin/plugin.json`、`.claude-plugin/marketplace.json`、`scripts/validate.sh` | 本機一個指令跑完所有檢查 |
 
 - 需求 wiki 放在各目標專案自己的 `docs/requirements/`，不另外建一個專案。
-- `.dev/<objective-id>/` 預設隨工作一起 commit，讓其他 session 可以接續；裡面不得寫入 secrets、憑證、私有路徑或原始 log。lock 與暫存檔已列入 `.gitignore`。專案也可以選擇把整個 `.dev/` 列入 gitignore。
+- `.dev/<objective-id>/` 是否 commit 由專案設定：`.dev/config.json` 的 `commit_state`，預設 `true`，也就是隨工作一起 commit，讓其他 session 可以接續。只有設成 JSON 的 `false` 才關閉；關閉後不 stage `.dev/<objective-id>/` 下的檔案，專案應把 `.dev/*/` 列入 gitignore，`.dev/config.json` 仍保留在版本控制中。裡面不得寫入 secrets、憑證、私有路徑或原始 log。lock 與暫存檔已列入 `.gitignore`。（2026-10-20 使用者決定，PR #2 交接第 6 項）
 - `scripts/check_pack.py` 只檢查本 repo REQ 檔的格式（欄位與關係 ID），不是需求 lint；矛盾、孤兒與過期需求的 lint 仍在 Phase 2。
 - Plugin 名稱是 `dev-skills`。`claude plugin validate` 不接受以 `claude-` 開頭的第三方 plugin 名稱，所以 repo 名稱維持 `claude-dev-skills`，plugin 改名。安裝指令為 `claude plugin install dev-skills@dev-skills`。
 - 不在 Phase 1：G1–G3、hooks、需求 wiki 的 lint 腳本（留到 Phase 2；Phase 1 只定格式並做 ingest）、CI workflow。
@@ -671,10 +671,14 @@ records the mapping.
 
 - The requirements wiki lives in each target project's own
   `docs/requirements/`. There is no separate requirements project.
-- `.dev/<objective-id>/` is committed with the work by default so another
-  session can resume. It must not contain secrets, credentials, private paths
-  or raw logs. The lock and temporary files are in `.gitignore`. A project may
-  choose to gitignore `.dev/` instead.
+- Whether `.dev/<objective-id>/` is committed is a project setting:
+  `commit_state` in `.dev/config.json`. The default is `true`: the folder is
+  committed with the work so another session can resume. Only the JSON value
+  `false` turns it off. Then the files under `.dev/<objective-id>/` are never
+  staged, and the project should gitignore `.dev/*/` and keep
+  `.dev/config.json` tracked. The folder must not contain secrets,
+  credentials, private paths or raw logs. The lock and temporary files are in
+  `.gitignore`. (User decision, 2026-10-20, PR #2 handoff item 6.)
 - `scripts/check_pack.py` checks only the format of this repository's REQ files
   (fields and relation IDs). It is not the requirements lint; the lint for
   contradictions, orphans and stale requirements stays in Phase 2.

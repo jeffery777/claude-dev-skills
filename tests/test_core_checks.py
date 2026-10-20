@@ -114,6 +114,32 @@ class SourcesParser(unittest.TestCase):
         self.assertEqual(problems, ["unknown key 'note' in a sources entry"])
 
 
+class ReviewerBinding(unittest.TestCase):
+    """dev-core section 8: no write-capable substitute for a required review (PR #2 decision 3)."""
+
+    def setUp(self):
+        with open(os.path.join(ROOT, "skills", "dev-core", "SKILL.md"), encoding="utf-8") as fh:
+            text = fh.read()
+        self.section = text[text.index("## 8. Claude-specific bindings"):]
+
+    def test_fingerprint_script_removed(self):
+        self.assertFalse(os.path.exists(os.path.join(ROOT, "skills", "dev-core", "scripts", "tree_fingerprint.py")))
+        self.assertNotIn("tree_fingerprint", self.section)
+
+    def test_required_review_stops_without_read_only_agent(self):
+        self.assertNotIn("When a named agent is unavailable, use a general-purpose subagent", self.section)
+        self.assertIn("do not substitute an agent that has write tools for a required review", self.section)
+        self.assertIn("Stop at that gate", self.section)
+
+    def test_accidental_edit_check_is_stated(self):
+        self.assertIn("git status --porcelain=v1 --untracked-files=all", self.section)
+        self.assertIn("git diff HEAD --binary", self.section)
+        self.assertIn("It is not isolation", self.section)
+
+    def test_commit_state_setting(self):
+        self.assertIn('`"commit_state"` in `.dev/config.json`. The default is `true`', self.section)
+
+
 class VendorLock(unittest.TestCase):
     def setUp(self):
         self.mod = load("verify_core")

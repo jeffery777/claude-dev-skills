@@ -39,7 +39,10 @@ the stronger mode.
      is not the independent review. Map its findings into the report format
      below, run the requirement-trace and SCOPE-CREEP pass through
      `dev-reviewer` (never yourself as the author), and record which tool ran
-     and in which context.
+     and in which context. A native pass that runs in a context with write
+     tools is an extra pass only; the required review still needs
+     `dev-reviewer` or `dev-security-reviewer`, and without them the work
+     stops at the gate (dev-core §8).
 4. Read the report back. Check that each finding has a file and line and
    evidence. Mark claims you could not reproduce as unverified.
 5. Assign IDs (`F-001`, …) and propose a disposition for each finding

@@ -5,7 +5,8 @@
 
 - Target: <base>..<head> | working tree at <HEAD> (+ uncommitted)
 - Diff identity: sha256 of `git diff <base> <head> --binary` (or `git diff HEAD --binary` after `git add -N .`)
-- Mode: routine | deep | security
+- Mode: routine | deep | security | commit / push scan
+- Commit / push scan only (R-REV-9): sha256 of `git diff --cached --binary`, or the refs and commit range the push sends, or the PR text; the author, committer and message checked (masked)
 - Reviewer: <agent> (requested model/effort: <model>/<effort>; effective: unknown)
 - Scope: <paths>  Requirements: REQ-…  DoD: <ref>
 
@@ -28,7 +29,7 @@ State which requirement it fails to trace to.
 
 ## Security scan
 
-Applicable: yes | no (scope examined, reason)
+Applicable: yes | no (scope examined, reason). A commit / push scan (R-REV-9) is always applicable.
 Status: PASSED | FINDINGS | NOT_RUN (capability: UNAVAILABLE, reason, coverage)
 
 ## Verification evidence
@@ -37,6 +38,12 @@ Commands run, their results, and what was skipped and why.
 
 ## Residual risk and limits
 ```
+
+Mask every secret or private identifier in the report: give its kind,
+location and length or class only; for an email, say only whether it is a
+noreply address and its provider; replace the account or host part of a path
+or hostname with a placeholder. Never paste raw command output that contains
+such a value.
 
 ## Disposition requirements
 

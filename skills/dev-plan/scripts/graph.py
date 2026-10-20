@@ -11,6 +11,11 @@ Commands:
   transition <graph.json> <node> <status> (--evidence TEXT | --evidence-file PATH)
              [--actor NAME] [--requirements-dir DIR]
 
+--evidence-file never copies file content into events.jsonl, which is
+committed by default. The file must be a regular, non-symlink file inside the
+project root; the event records "file:<relative path> sha256:<hex>". A refused file exits 2 with
+EVIDENCE_FILE_REFUSED. A graph without a project root cannot use it.
+
 `ready` lists nodes whose dependencies are satisfied; a listed node that is
 still `planned` must move to `ready` before `in_progress`. `transition`
 re-validates the resulting graph and refuses a change that would leave it
@@ -29,10 +34,12 @@ from __future__ import annotations
 
 import argparse
 import datetime as _dt
+import hashlib
 import json
 import os
 import posixpath
 import re
+import stat
 import sys
 import tempfile
 from typing import Any
@@ -687,6 +694,38 @@ def transition(path: str, node: str, to: str, evidence: str, actor: str,
         os.close(lock_fd)
 
 
+def evidence_file_ref(graph_path: str, file_path: str) -> tuple[str | None, Issue | None]:
+    """Reference an evidence file by project-relative path and SHA-256, never by content.
+
+    events.jsonl is committed by default, so copying file text into it could
+    publish a private file, and an absolute or outside path could publish a
+    private path (REQ-011, R-AUTH-7). Only a regular, non-symlink file inside
+    the project root is accepted.
+    """
+    def refuse(reason: str) -> tuple[None, Issue]:
+        return None, Issue("EVIDENCE_FILE_REFUSED", f"{file_path}: {reason}")
+
+    root = project_root(graph_path)
+    if root is None:
+        return refuse("no project root (.git or .dev/) above the graph file")
+    if os.path.islink(file_path):
+        return refuse("is a symlink")
+    real = os.path.realpath(file_path)
+    rel = os.path.relpath(real, os.path.realpath(root)).replace(os.sep, "/")
+    if os.path.isabs(rel) or rel == ".." or rel.startswith("../"):
+        return refuse("resolves outside the project root")
+    try:
+        if not stat.S_ISREG(os.lstat(real).st_mode):  # also keeps a FIFO from blocking the open
+            return refuse("is not a regular file")
+        digest = hashlib.sha256()
+        with open(real, "rb") as fh:
+            for chunk in iter(lambda: fh.read(1 << 16), b""):
+                digest.update(chunk)
+    except OSError as exc:
+        return refuse(f"cannot read ({exc.strerror})")
+    return f"file:{rel} sha256:{digest.hexdigest()}", None
+
+
 def _atomic_write(path: str, text: str) -> None:
     folder = os.path.dirname(os.path.abspath(path))
     fd, tmp = tempfile.mkstemp(prefix=".graph-", suffix=".tmp", dir=folder)
@@ -721,7 +760,7 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("status", choices=sorted(STATUSES))
     ev = p.add_mutually_exclusive_group(required=True)
     ev.add_argument("--evidence", help="short reference: a commit SHA, a report path, a command")
-    ev.add_argument("--evidence-file", help="read the evidence text from a file (avoids shell quoting)")
+    ev.add_argument("--evidence-file", help="record a project file as evidence by relative path and SHA-256 (never its content)")
     p.add_argument("--actor", default="main-agent")
     p.add_argument("--requirements-dir")
     args = parser.parse_args(argv)
@@ -738,8 +777,10 @@ def main(argv: list[str] | None = None) -> int:
         if args.cmd == "transition":
             evidence = args.evidence
             if args.evidence_file:
-                with open(args.evidence_file, encoding="utf-8") as fh:
-                    evidence = fh.read().strip()
+                evidence, refused = evidence_file_ref(args.graph, args.evidence_file)
+                if refused:
+                    print(json.dumps({"ok": False, "errors": [refused]}, ensure_ascii=False), file=sys.stderr)
+                    return 2
             errs = transition(args.graph, args.node, args.status, evidence, args.actor, req_dir)
             if errs and errs[0]["code"] == "UNREADABLE":
                 print(json.dumps({"ok": False, "errors": errs}, ensure_ascii=False), file=sys.stderr)

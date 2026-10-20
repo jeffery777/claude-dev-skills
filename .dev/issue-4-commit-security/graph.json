@@ -1,0 +1,191 @@
+{
+  "schema": "claude-dev-graph/v1",
+  "objective": {
+    "id": "issue-4-commit-security",
+    "title": "PR-A: security review before commit/push (D-015), R-REV-1, --evidence-file fix",
+    "rigor": "strict",
+    "requirements": [
+      "REQ-011"
+    ]
+  },
+  "nodes": [
+    {
+      "id": "T1",
+      "title": "REQ-011 ingest",
+      "kind": "docs",
+      "requirements": [
+        "REQ-011"
+      ],
+      "depends_on": [],
+      "owns": [
+        "docs/requirements/**"
+      ],
+      "risk": "low",
+      "review": "routine",
+      "status": "done",
+      "dod": [
+        "REQ-011 quotes the user verbatim; index and log updated"
+      ],
+      "verify": [
+        "python3 scripts/check_pack.py"
+      ]
+    },
+    {
+      "id": "T2",
+      "title": "D-015 in design-proposal (zh + EN)",
+      "kind": "docs",
+      "requirements": [
+        "REQ-011"
+      ],
+      "depends_on": [
+        {
+          "node": "T1",
+          "consumes": "REQ-011 id and acceptance"
+        }
+      ],
+      "owns": [
+        "docs/design-proposal.md"
+      ],
+      "risk": "medium",
+      "review": "deep",
+      "status": "reviewing",
+      "dod": [
+        "zh and EN D-015 match in obligations and limits"
+      ],
+      "verify": []
+    },
+    {
+      "id": "T3",
+      "title": "dev-core R-REV-1 wording, R-REV-9, deltas DL-010, source-map",
+      "kind": "implement",
+      "requirements": [
+        "REQ-011"
+      ],
+      "depends_on": [
+        {
+          "node": "T1",
+          "consumes": "REQ-011 acceptance"
+        }
+      ],
+      "owns": [
+        "skills/dev-core/**"
+      ],
+      "risk": "high",
+      "review": "deep",
+      "status": "done",
+      "dod": [
+        "R-REV-9 cites review-and-security.md#review-security",
+        "R-REV-1 names dev-security-reviewer for required security review",
+        "no Core obligation relaxed"
+      ],
+      "verify": [
+        "python3 scripts/check_core_coverage.py"
+      ]
+    },
+    {
+      "id": "T4",
+      "title": "Apply R-REV-9 in dev-review, dev-gate, dev-implement, dev-deliver, dev-security-reviewer",
+      "kind": "implement",
+      "requirements": [
+        "REQ-011"
+      ],
+      "depends_on": [
+        {
+          "node": "T3",
+          "consumes": "R-REV-9 rule id and wording"
+        }
+      ],
+      "owns": [
+        "skills/dev-review/**",
+        "skills/dev-gate/**",
+        "skills/dev-implement/**",
+        "skills/dev-deliver/SKILL.md",
+        "agents/dev-security-reviewer.md"
+      ],
+      "risk": "high",
+      "review": "deep",
+      "status": "done",
+      "dod": [
+        "each commit/push step names the pre-commit/pre-push security scan"
+      ],
+      "verify": [
+        "python3 scripts/check_pack.py"
+      ]
+    },
+    {
+      "id": "T5",
+      "title": "graph.py --evidence-file: project-only, path + sha256",
+      "kind": "implement",
+      "requirements": [
+        "REQ-011"
+      ],
+      "depends_on": [
+        {
+          "node": "T4",
+          "consumes": "dev-deliver SKILL.md text that mentions --evidence-file"
+        }
+      ],
+      "owns": [
+        "skills/dev-plan/scripts/graph.py",
+        "skills/dev-plan/references/graph-schema.md",
+        "tests/test_graph.py",
+        "skills/dev-deliver/SKILL.md",
+        ".dev/followups.md"
+      ],
+      "risk": "high",
+      "review": "security",
+      "status": "reviewing",
+      "dod": [
+        "outside-root file refused",
+        "symlink refused",
+        "event records file:<rel> sha256:<hex>, never content",
+        "FU-003 recorded"
+      ],
+      "verify": [
+        "python3 -m unittest discover -s tests -q"
+      ]
+    },
+    {
+      "id": "T6",
+      "title": "Independent deep + security review of the branch",
+      "kind": "review",
+      "requirements": [],
+      "depends_on": [
+        {
+          "node": "T2",
+          "consumes": "design doc diff"
+        },
+        {
+          "node": "T5",
+          "consumes": "skills, script and test diff"
+        }
+      ],
+      "owns": [],
+      "risk": "high",
+      "review": "security",
+      "status": "planned",
+      "dod": [],
+      "verify": [
+        "./scripts/validate.sh"
+      ]
+    },
+    {
+      "id": "T7",
+      "title": "Merge approval",
+      "kind": "human_gate",
+      "requirements": [],
+      "depends_on": [
+        {
+          "node": "T6",
+          "consumes": "Merge Review and security review results"
+        }
+      ],
+      "owns": [],
+      "risk": "high",
+      "review": "none",
+      "status": "planned",
+      "dod": [],
+      "verify": []
+    }
+  ]
+}

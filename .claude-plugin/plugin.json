@@ -1,0 +1,11 @@
+{
+  "name": "dev-skills",
+  "displayName": "Dev Skills",
+  "version": "0.1.0",
+  "description": "Software development workflow for Claude Code and Cowork: plan, implement, independent review, gates, continuation and a requirement-anchored task graph, built on engineering-workflow-core.",
+  "author": { "name": "jeffery777" },
+  "homepage": "https://github.com/jeffery777/claude-dev-skills",
+  "repository": "https://github.com/jeffery777/claude-dev-skills",
+  "license": "MIT",
+  "keywords": ["workflow", "code-review", "planning", "task-graph", "requirements"]
+}

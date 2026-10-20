@@ -1,0 +1,119 @@
+{
+  "schema": "claude-dev-graph/v1",
+  "objective": {
+    "id": "OBJ-login-rate-limit",
+    "title": "Rate-limit login attempts",
+    "rigor": "standard",
+    "requirements": [
+      "REQ-001",
+      "REQ-002"
+    ]
+  },
+  "nodes": [
+    {
+      "id": "T1",
+      "title": "Explore auth flow",
+      "kind": "explore",
+      "requirements": [
+        "REQ-001"
+      ],
+      "depends_on": [],
+      "owns": [],
+      "risk": "low",
+      "review": "none",
+      "status": "done",
+      "dod": [],
+      "verify": []
+    },
+    {
+      "id": "T2",
+      "title": "Add limiter middleware",
+      "kind": "implement",
+      "requirements": [
+        "REQ-001"
+      ],
+      "depends_on": [
+        {
+          "node": "T1",
+          "consumes": "auth call-site list"
+        }
+      ],
+      "owns": [
+        "src/auth/limiter/**"
+      ],
+      "risk": "high",
+      "review": "security",
+      "status": "ready",
+      "dod": [
+        "6th attempt in 60s returns 429"
+      ],
+      "verify": [
+        "pytest tests/auth/test_limiter.py"
+      ]
+    },
+    {
+      "id": "T3",
+      "title": "Document limits",
+      "kind": "docs",
+      "requirements": [
+        "REQ-002"
+      ],
+      "depends_on": [
+        {
+          "node": "T1",
+          "consumes": "auth call-site list"
+        }
+      ],
+      "owns": [
+        "docs/auth.md"
+      ],
+      "risk": "low",
+      "review": "routine",
+      "status": "planned",
+      "dod": [
+        "docs state the limit and reset window"
+      ],
+      "verify": []
+    },
+    {
+      "id": "T4",
+      "title": "Independent review",
+      "kind": "review",
+      "requirements": [],
+      "depends_on": [
+        {
+          "node": "T2",
+          "consumes": "limiter diff"
+        },
+        {
+          "node": "T3",
+          "consumes": "docs diff"
+        }
+      ],
+      "owns": [],
+      "risk": "high",
+      "review": "security",
+      "status": "planned",
+      "dod": [],
+      "verify": []
+    },
+    {
+      "id": "T5",
+      "title": "Merge approval",
+      "kind": "human_gate",
+      "requirements": [],
+      "depends_on": [
+        {
+          "node": "T4",
+          "consumes": "review report with dispositions"
+        }
+      ],
+      "owns": [],
+      "risk": "high",
+      "review": "none",
+      "status": "planned",
+      "dod": [],
+      "verify": []
+    }
+  ]
+}

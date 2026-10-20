@@ -38,7 +38,7 @@ The fixes form a new head, which needs Merge Review 3.
 | MR2-14 | NIT | The MR-20 row held two dispositions | Fixed: the row now has a single Fixed disposition with context |
 | MR2-15 | NIT | Redundant second `rev-parse --show-toplevel` | Fixed |
 | MR2-16 | NIT | Each REQ file is parsed three times in check_pack | Rejected: about ten small files; the cost is negligible, and merging the passes would couple the schema check to graph internals |
-| MR2-17 | NIT | Rename records in `status -z` were mis-sliced | Fixed: rename and copy entries keep their original-path record; test with a staged rename |
+| MR2-17 | NIT | Rename records in `status -z` were mis-sliced | Fixed: rename and copy entries keep their original-path record; test with a staged rename (Completed under MR3-02: worktree-side renames are handled too.) |
 
 ## Verification after the fixes
 

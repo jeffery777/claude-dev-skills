@@ -106,7 +106,7 @@ def fingerprint(repo: str) -> str:
         i += 1
         if not e:
             continue
-        if e[:1] in (b"R", b"C"):  # rename/copy: the next record is the original path
+        if b"R" in e[:2] or b"C" in e[:2]:  # rename/copy (index or worktree side): next record is the original path
             entries.append(e + b"\0" + parts[i])
             i += 1
             continue

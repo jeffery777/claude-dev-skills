@@ -393,6 +393,14 @@ class Transitions(unittest.TestCase):
         g["nodes"][1]["owns"] = ["../../etc/**"]
         self.assertEqual({e["code"] for e in graph.check_graph(g)[0]}, {"SCHEMA"})
 
+    def test_transition_that_shrinks_status_dep_allowed(self):
+        g = graph.load(self.path)
+        st = {n["id"]: n for n in g["nodes"]}
+        st["T2"]["status"], st["T4"]["status"] = "reviewing", "in_progress"   # T4 waits on T2 and T3
+        with open(self.path, "w", encoding="utf-8") as fh:
+            json.dump(g, fh)
+        self.assertEqual(graph.transition(self.path, "T2", "done", "reviewed", "test"), [])
+
     def test_cannot_start_before_dependencies(self):
         errs = graph.transition(self.path, "T4", "ready", "early start", "test")
         self.assertEqual(errs[0]["code"], "STATUS_DEP")

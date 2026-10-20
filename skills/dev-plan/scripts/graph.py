@@ -512,7 +512,9 @@ def check_graph(g: dict[str, Any], requirements_dir: str | None = None) -> tuple
         if n["status"] in STARTED | {"ready"}:
             pending = [d["node"] for d in n["depends_on"] if nodes[d["node"]]["status"] not in SATISFIED]
             if pending:
-                errors.append(Issue("STATUS_DEP", f"status {n['status']} but dependencies not satisfied: {pending}", n["id"]))
+                issue = Issue("STATUS_DEP", f"status {n['status']} but dependencies not satisfied: {pending}", n["id"])
+                issue["pending"] = pending
+                errors.append(issue)
 
     for n in nodes.values():
         if n["status"] not in SATISFIED | {"cancelled"}:
@@ -535,6 +537,14 @@ def ready_nodes(g: dict[str, Any], waiting: set[str] | None = None) -> list[str]
         if n["status"] in {"planned", "ready"} and nid not in waiting
         and all(nodes[d["node"]]["status"] in SATISFIED for d in n["depends_on"])
     ]
+
+
+def _is_new_error(err: Issue, before: list[Issue]) -> bool:
+    """True when `err` was not already present. A STATUS_DEP is new only if its pending set grew."""
+    if err["code"] == "STATUS_DEP":
+        old = [b for b in before if b["code"] == "STATUS_DEP" and b.get("node") == err.get("node")]
+        return not old or not set(err.get("pending", [])) <= set(old[0].get("pending", []))
+    return (err["code"], err.get("node"), err["message"]) not in {(b["code"], b.get("node"), b["message"]) for b in before}
 
 
 def _refuse_symlink(path: str) -> Issue | None:
@@ -606,8 +616,7 @@ def transition(path: str, node: str, to: str, evidence: str, actor: str,
                 return [Issue("INVALID_GRAPH", f"resolve these errors before moving {node} to {to}", node)] + blocking
         nodes[node]["status"] = to
         after, _ = check_graph(g, requirements_dir)
-        seen = {(e["code"], e.get("node"), e["message"]) for e in before}
-        new = [e for e in after if (e["code"], e.get("node"), e["message"]) not in seen]
+        new = [e for e in after if _is_new_error(e, before)]
         if new:
             return [Issue("TRANSITION_BREAKS_GRAPH", f"{current} -> {to} would add errors; re-plan first", node)] + new
 

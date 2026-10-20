@@ -125,6 +125,24 @@ class Fingerprint(unittest.TestCase):
         finally:
             shutil.rmtree(wt, ignore_errors=True)
 
+    def test_subdirectory_argument_covers_whole_repo(self):
+        before = tf.fingerprint(os.path.join(self.repo, "notes"))
+        self.git("update-index", "--assume-unchanged", "tracked.txt")
+        self.write("tracked.txt", "changed\n")
+        self.assertNotEqual(tf.fingerprint(os.path.join(self.repo, "notes")), before)
+
+    def test_tool_caches_ignored_and_fifo_safe(self):
+        os.makedirs(os.path.join(self.repo, "build", "__pycache__"))
+        before = tf.fingerprint(self.repo)
+        self.write("build/__pycache__/m.cpython-313.pyc", "x")
+        self.assertEqual(tf.fingerprint(self.repo), before)
+        nested = os.path.join(self.repo, "sub")  # status lists a nested repository as one entry
+        os.makedirs(nested)
+        self.git("init", "-q", cwd=nested)
+        before = tf.fingerprint(self.repo)
+        os.mkfifo(os.path.join(nested, "pipe"))
+        self.assertNotEqual(tf.fingerprint(self.repo), before)  # recorded by type, never opened (no hang)
+
     def test_repo_without_commits(self):
         fresh = tempfile.mkdtemp()
         try:

@@ -230,9 +230,15 @@ def strip_comment(value: str) -> str:
     if value.startswith("#"):
         return ""
     if value.startswith("["):
-        close = value.find("]")  # a flow list ends at its bracket; '#' inside it is data
-        if close != -1:
-            return value[:close + 1]
+        quote = ""
+        for i, ch in enumerate(value):  # a flow list ends at its unquoted bracket
+            if quote:
+                quote = "" if ch == quote else quote
+            elif ch in "'\"":
+                quote = ch
+            elif ch == "]":
+                return value[:i + 1]
+        return value
     if value[:1] in {"'", '"'}:
         end = value.find(value[0], 1)
         return value[:end + 1] if end != -1 else value
@@ -288,6 +294,8 @@ def frontmatter(path: str) -> dict[str, Any]:
             result[key].append(_unquote(strip_comment(item.group(1))))
         elif key and line[:1].isspace() and line.strip() and isinstance(result.get(key), str):
             result[key] = _unquote(result[key] + " " + strip_comment(line))  # continued plain scalar
+        elif key and line[:1].isspace() and line.strip() and result.get(key) == []:
+            result[key] = _unquote(strip_comment(line))  # scalar starting on the next line
     if folded is not None and key:
         result[key] = " ".join(folded).strip()
     return result
@@ -371,7 +379,11 @@ def check_requirement_files(declared: set[str], nodes: dict[str, dict[str, Any]]
                             if req in n["requirements"] and n["status"] not in SATISFIED | {"cancelled"})
         if meta.get("status") == "conflict":
             for nid in open_users:
-                if nodes[nid]["kind"] in WRITE_KINDS:
+                if nodes[nid]["kind"] not in WRITE_KINDS:
+                    continue
+                if nodes[nid]["status"] in {"planned", "blocked"}:
+                    warnings.append(Issue("WAITING_ON_CONFLICT", f"{req} has conflicting sources; this node waits for the user's decision", nid))
+                else:
                     errors.append(Issue("REQUIREMENT_CONFLICT", f"{req} has conflicting sources; the user must decide before this node proceeds", nid))
         elif meta.get("status") in {"dropped", "superseded"} and open_users:
             warnings.append(Issue("INACTIVE_REQUIREMENT", f"{req} is {meta['status']} but open nodes cite it: {open_users}"))
@@ -476,7 +488,8 @@ def check_graph(g: dict[str, Any], requirements_dir: str | None = None) -> tuple
         return errors, warnings
 
     reach = _reachable(nodes)
-    writers = sorted(nid for nid, n in nodes.items() if n["kind"] in WRITE_KINDS and n["status"] != "cancelled")
+    writers = sorted(nid for nid, n in nodes.items()
+                     if n["kind"] in WRITE_KINDS and n["status"] not in SATISFIED | {"cancelled"})
     for i, a in enumerate(writers):
         for b in writers[i + 1:]:
             if a in reach[b] or b in reach[a]:
@@ -484,7 +497,9 @@ def check_graph(g: dict[str, Any], requirements_dir: str | None = None) -> tuple
             for pa in nodes[a]["owns"]:
                 for pb in nodes[b]["owns"]:
                     if patterns_overlap(pa, pb):
-                        errors.append(Issue("OWNERSHIP_OVERLAP", f"{a} ({pa}) and {b} ({pb}) are not ordered and own overlapping paths"))
+                        msg = f"{a} ({pa}) and {b} ({pb}) are not ordered and own overlapping paths"
+                        errors.append(Issue("OWNERSHIP_OVERLAP", msg, a))
+                        errors.append(Issue("OWNERSHIP_OVERLAP", msg, b))
 
     for n in nodes.values():
         if n["status"] in STARTED | {"ready"}:
@@ -504,11 +519,13 @@ def check_graph(g: dict[str, Any], requirements_dir: str | None = None) -> tuple
     return errors, warnings
 
 
-def ready_nodes(g: dict[str, Any]) -> list[str]:
+def ready_nodes(g: dict[str, Any], waiting: set[str] | None = None) -> list[str]:
+    """Nodes whose dependencies are satisfied, minus nodes waiting on a requirement conflict."""
     nodes = _node_map(g)
+    waiting = waiting or set()
     return [
         nid for nid, n in nodes.items()
-        if n["status"] in {"planned", "ready"}
+        if n["status"] in {"planned", "ready"} and nid not in waiting
         and all(nodes[d["node"]]["status"] in SATISFIED for d in n["depends_on"])
     ]
 
@@ -522,7 +539,12 @@ def _refuse_symlink(path: str) -> Issue | None:
 def transition(path: str, node: str, to: str, evidence: str, actor: str,
                requirements_dir: str | None = None) -> list[Issue]:
     """Apply one status change under an exclusive lock: graph first, then the event."""
+    if fcntl is None:
+        return [Issue("LOCK_UNAVAILABLE", "this platform has no fcntl file locking; transition is supported on POSIX only")]
     folder = os.path.dirname(os.path.abspath(path))
+    root = project_root(path)
+    if root is not None and not _inside(root, folder):
+        return [Issue("SYMLINK_REFUSED", f"{folder} resolves outside the project root {root} (symlinked parent folder)")]
     events_path = os.path.join(folder, "events.jsonl")
     lock_path = os.path.join(folder, ".graph.lock")
     for p in (path, events_path, lock_path):
@@ -531,8 +553,7 @@ def transition(path: str, node: str, to: str, evidence: str, actor: str,
             return [refused]
     lock_fd = os.open(lock_path, os.O_RDWR | os.O_CREAT | getattr(os, "O_NOFOLLOW", 0), 0o600)
     try:
-        if fcntl is not None:
-            fcntl.flock(lock_fd, fcntl.LOCK_EX)
+        fcntl.flock(lock_fd, fcntl.LOCK_EX)
         with open(path, encoding="utf-8") as fh:
             original_text = fh.read()
         g = json.loads(original_text)
@@ -699,7 +720,8 @@ def main(argv: list[str] | None = None) -> int:
     if errors:
         _emit({"ok": False, "errors": errors})
         return 1
-    print(json.dumps({"ready": ready_nodes(g)}))
+    waiting = {w["node"] for w in warnings if w["code"] == "WAITING_ON_CONFLICT"}
+    print(json.dumps({"ready": ready_nodes(g, waiting), "waiting_on_conflict": sorted(waiting)}))
     return 0
 
 

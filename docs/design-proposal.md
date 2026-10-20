@@ -49,7 +49,7 @@ Graph engineering 在原專案的定位（ADR OE-007）：
 
 | Agent | 預設模型 | 預設思考深度 | 工具 | 角色 |
 | --- | --- | --- | --- | --- |
-| `dev-explorer` | haiku | low | 唯讀 | 大範圍查讀，只回結論 |
+| `dev-explorer` | haiku | low | 只有讀取工具與 Bash（唯讀靠指示） | 大範圍查讀，只回結論 |
 | `dev-implementer` | sonnet | medium | 可寫，建議 worktree | 有界實作。不 commit、不 push，回傳一份結構化 receipt |
 | `dev-reviewer` | opus | high | 沒有 Edit/Write；保留 Bash（唯讀靠指示） | 一般與深入 review |
 | `dev-security-reviewer` | opus | xhigh | 沒有 Edit/Write；保留 Bash（唯讀靠指示） | 涉及信任邊界、權限、資料、依賴的變更 |
@@ -358,7 +358,7 @@ How the original project positions graph engineering (ADR OE-007):
 
 | Agent | Default model | Default effort | Tools | Role |
 | --- | --- | --- | --- | --- |
-| `dev-explorer` | haiku | low | Read-only | Broad searches; returns conclusions only |
+| `dev-explorer` | haiku | low | Read tools and Bash (read-only by instruction) | Broad searches; returns conclusions only |
 | `dev-implementer` | sonnet | medium | Can write; worktree recommended | Bounded implementation. Never commits or pushes; returns one structured receipt |
 | `dev-reviewer` | opus | high | No Edit/Write; keeps Bash (read-only by instruction) | Routine and deep review |
 | `dev-security-reviewer` | opus | xhigh | No Edit/Write; keeps Bash (read-only by instruction) | Changes to trust boundaries, permissions, data or dependencies |

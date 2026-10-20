@@ -13,6 +13,12 @@ ignored file, including files inside untracked nested repositories; and the
 common git directory's config, config.worktree, hooks/ and info/ (also for
 linked worktrees). Diffs run with --no-ext-diff and --no-textconv.
 
+The argument may be any folder inside the repository; the whole repository is
+fingerprinted. Tool caches (__pycache__, .pytest_cache, .mypy_cache,
+.ruff_cache, *.pyc) are excluded, so a substitute running the tests does not
+trigger a false alarm; a change hidden only in a cache folder is not detected.
+FIFOs, sockets and devices are recorded by type and mode, never opened.
+
 Not covered, by design: effects outside this repository, such as a push,
 comments on a forge, or writes to ~/.gitconfig or other folders. The brief
 forbids them; compare `git ls-remote` before and after when that matters.
@@ -37,10 +43,20 @@ def git(repo: str, *args: str, check: bool = True) -> bytes:
     return subprocess.run(["git", "-C", repo, *args], check=check, capture_output=True, env=env).stdout
 
 
+CACHE_DIRS = {"__pycache__", ".pytest_cache", ".mypy_cache", ".ruff_cache"}
+
+
+def _is_cache(rel: str) -> bool:
+    """Tool caches are excluded on purpose (see module docstring)."""
+    return bool(CACHE_DIRS & set(rel.rstrip("/").split("/"))) or rel.endswith(".pyc")
+
+
 def entry_digest(path: str) -> str:
     st = os.lstat(path)
     if stat.S_ISLNK(st.st_mode):
         return f"link:{os.readlink(path)}"
+    if not stat.S_ISREG(st.st_mode):
+        return f"special:{oct(st.st_mode)}"  # FIFOs, sockets, devices: never opened
     h = hashlib.sha256()
     with open(path, "rb") as fh:
         for chunk in iter(lambda: fh.read(1 << 20), b""):
@@ -56,13 +72,14 @@ def walk(root: str):
         yield "", entry_digest(root)
         return
     for dirpath, dirs, files in os.walk(root):
-        dirs.sort()
+        dirs[:] = sorted(d for d in dirs if d not in CACHE_DIRS)
         for name in sorted(files + [d for d in dirs if os.path.islink(os.path.join(dirpath, d))]):
             full = os.path.join(dirpath, name)
             yield os.path.relpath(full, root), entry_digest(full)
 
 
 def fingerprint(repo: str) -> str:
+    repo = git(repo, "rev-parse", "--show-toplevel").decode().strip()  # always fingerprint the whole repository
     h = hashlib.sha256()
 
     def add(label: str, data: bytes) -> None:
@@ -76,7 +93,9 @@ def fingerprint(repo: str) -> str:
     add("index", index)
     add("staged", git(repo, "diff", "--cached", "--binary", "--no-ext-diff", "--no-textconv"))
     add("worktree", git(repo, "diff", "--binary", "--no-ext-diff", "--no-textconv"))
-    status = git(repo, "status", "--porcelain=v1", "-z", "--untracked-files=all", "--ignored")
+    raw_status = git(repo, "status", "--porcelain=v1", "-z", "--untracked-files=all", "--ignored")
+    entries = [e for e in raw_status.split(b"\0") if e and not _is_cache(e[3:].decode("utf-8", "surrogateescape"))]
+    status = b"\0".join(entries)
     add("status", status)
     top = git(repo, "rev-parse", "--show-toplevel").decode().strip()
     # Files flagged assume-unchanged (lowercase tag) or skip-worktree (S) are

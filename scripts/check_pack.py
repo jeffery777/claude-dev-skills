@@ -46,24 +46,36 @@ def tool_set(value: Any) -> set[str]:
 
 
 def sources(block: list[str]) -> list[dict[str, str]]:
+    """Entries of the `sources:` list (a list of type/locator/quote mappings).
+
+    Items may start at column 0 or indented. A field value may continue on
+    the following, deeper-indented lines, or be a `>`/`|` block scalar.
+    """
     entries: list[dict[str, str]] = []
     current: dict[str, str] | None = None
+    field: str | None = None
     in_sources = False
     for line in block:
-        if line.startswith("sources:") and graph.strip_comment(line[len("sources:"):]) == "":
-            in_sources = True
+        if re.match(r"^[A-Za-z_][A-Za-z0-9_-]*:", line):
+            in_sources = line.startswith("sources:") and graph.strip_comment(line[len("sources:"):]) == ""
+            field = None
             continue
-        if in_sources and re.match(r"^\S", line):
-            in_sources = False
-        if not in_sources:
+        if not in_sources or not line.strip():
             continue
         m = re.match(r"^\s*(-\s+)?(type|locator|quote):\s*(.*?)\s*$", line)
         if m:
             if m.group(1):
                 current = {}
                 entries.append(current)
-            if current is not None:
-                current[m.group(2)] = graph._unquote(graph.strip_comment(m.group(3)))
+            if current is None:
+                continue
+            field = m.group(2)
+            value = graph.strip_comment(m.group(3))
+            current[field] = "" if value in {">", "|", ">-", "|-"} else graph._unquote(value)
+            continue
+        if current is not None and field:  # continuation of the last field
+            joined = (current[field] + " " + line.strip()).strip()
+            current[field] = graph._unquote(joined)
     return entries
 
 

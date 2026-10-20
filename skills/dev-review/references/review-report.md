@@ -4,6 +4,7 @@
 # Review <round> — <objective-id or target>
 
 - Target: <base>..<head> | working tree at <HEAD> (+ uncommitted)
+- Diff identity: sha256 of `git diff <base> <head> --binary` (or `git diff HEAD --binary` after `git add -N .`)
 - Mode: routine | deep | security
 - Reviewer: <agent> (requested model/effort: <model>/<effort>; effective: unknown)
 - Scope: <paths>  Requirements: REQ-…  DoD: <ref>

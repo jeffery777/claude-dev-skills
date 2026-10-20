@@ -98,6 +98,16 @@ class PackChecks(unittest.TestCase):
             shutil.rmtree(tmp)
 
 
+class SourcesParser(unittest.TestCase):
+    def test_variants(self):
+        mod = load("check_pack")
+        block = ["id: REQ-001", "sources:", "- type: chat", "  locator: \"x\"", "  quote:", "    long quote",
+                 "  - type: doc", "    locator: y", "    quote: >", "      folded text", "non_goals: []"]
+        self.assertEqual(mod.sources(block), [
+            {"type": "chat", "locator": "x", "quote": "long quote"},
+            {"type": "doc", "locator": "y", "quote": "folded text"}])
+
+
 class VendorLock(unittest.TestCase):
     def setUp(self):
         self.mod = load("verify_core")

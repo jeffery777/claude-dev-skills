@@ -99,6 +99,12 @@ class RequirementFiles(unittest.TestCase):
     def test_conflict_blocks_open_writers(self):
         path = os.path.join(self.tmp, "REQ-002-limit-docs.md")
         self.rewrite(path, "status: active", "status: conflict")
+        # T3 (docs, planned) only waits; it is left out of `ready`.
+        self.assertEqual(self.codes(self.tmp), (set(), {"WAITING_ON_CONFLICT"}))
+        waiting = {w["node"] for w in graph.check_graph(self.g, self.tmp)[1]}
+        self.assertNotIn("T3", graph.ready_nodes(self.g, waiting))
+        # Once it moves forward the conflict is an error.
+        self.g["nodes"][2]["status"] = "ready"
         self.assertEqual(self.codes(self.tmp)[0], {"REQUIREMENT_CONFLICT"})
 
     def set_field(self, name, old, new):
@@ -136,6 +142,10 @@ class RequirementFiles(unittest.TestCase):
             fh.write('---\na: [x, "b, c", y]\nb: [x, "c #d"]  # note\n---\n')
         self.assertEqual(graph.frontmatter(flow)["a"], ["x", "b, c", "y"])
         self.assertEqual(graph.frontmatter(flow)["b"], ["x", "c #d"])
+        nested = os.path.join(self.tmp, "z.md")
+        with open(nested, "w", encoding="utf-8") as fh:
+            fh.write('---\nk: ["a]b", c]\nd:\n  long text\n---\n')
+        self.assertEqual(graph.frontmatter(nested), {"k": ["a]b", "c"], "d": "long text"})
         self.assertEqual((meta["title"], meta["type"], meta["desc"], meta["ml"]),
                          ("Fix C#port", "chat", "line one line two", "short continued here"))
 
@@ -326,6 +336,23 @@ class Transitions(unittest.TestCase):
     def test_reopen_refused_when_dependent_ready(self):
         errs = graph.transition(self.path, "T1", "ready", "reopen", "test")
         self.assertEqual(errs[0]["code"], "TRANSITION_BREAKS_GRAPH")
+
+    def test_symlinked_parent_folder_refused(self):
+        project = os.path.join(self.tmp, "proj")
+        os.makedirs(os.path.join(project, ".dev"))
+        outside = os.path.join(self.tmp, "outside")
+        os.makedirs(outside)
+        shutil.copy(self.path, os.path.join(outside, "graph.json"))
+        os.symlink(outside, os.path.join(project, ".dev", "OBJ"))
+        errs = graph.transition(os.path.join(project, ".dev", "OBJ", "graph.json"), "T2", "in_progress", "x", "test")
+        self.assertEqual(errs[0]["code"], "SYMLINK_REFUSED")
+
+    def test_finished_writers_not_compared_for_overlap(self):
+        g = graph.load(self.path)
+        g["nodes"][2]["owns"] = ["src/auth/limiter/README.md"]   # T3 overlaps T2, no ordering
+        self.assertIn("OWNERSHIP_OVERLAP", {e["code"] for e in graph.check_graph(g)[0]})
+        g["nodes"][1]["status"] = "done"
+        self.assertNotIn("OWNERSHIP_OVERLAP", {e["code"] for e in graph.check_graph(g)[0]})
 
     def test_owns_outside_repo_is_schema_error(self):
         g = graph.load(self.path)

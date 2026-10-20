@@ -11,7 +11,8 @@ python3 scripts/check_core_coverage.py
 python3 scripts/check_pack.py
 python3 -m unittest discover -s tests -q
 if command -v claude >/dev/null 2>&1; then
-  claude plugin validate .
+  claude plugin validate .                            # marketplace manifest
+  claude plugin validate .claude-plugin/plugin.json   # plugin manifest
 else
   echo "validate.sh: INCOMPLETE - claude CLI not found, plugin manifest check NOT RUN"
   exit 2

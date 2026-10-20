@@ -1,0 +1,13 @@
+{
+  "name": "dev-skills",
+  "owner": { "name": "jeffery777" },
+  "description": "Marketplace for the claude-dev-skills plugin.",
+  "plugins": [
+    {
+      "name": "dev-skills",
+      "source": "./",
+      "description": "Software development workflow for Claude Code and Cowork.",
+      "version": "0.1.0"
+    }
+  ]
+}

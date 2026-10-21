@@ -385,5 +385,31 @@ class Main(unittest.TestCase):
                     self.assertEqual(pp.main(["--repo-dir", ".", "--repo", repo, "--pr", number, "--base", sha, "--head", HEAD]), 2)
 
 
+class GateRuleText(unittest.TestCase):
+    """The REQ-021 rules that live only in rule text (user decisions Q5, Q6, Q8) stay in every copy."""
+
+    @staticmethod
+    def text(*parts):
+        with open(os.path.join(ROOT, *parts), encoding="utf-8") as fh:
+            return " ".join(fh.read().split())
+
+    def test_no_profile_read_checks_base_and_pins_host(self):  # Q5 (a), Q8 (a)
+        gate = self.text("skills", "dev-gate", "SKILL.md")
+        self.assertIn("gh pr view <pr> --repo github.com/<owner/name> --json baseRefOid,headRefOid,statusCheckRollup", gate)
+        self.assertIn("If the read fails, `baseRefOid` is not the bound base, or `headRefOid` is not the reviewed head, the result is `UNVERIFIED`", gate)
+        ref = self.text("skills", "dev-gate", "references", "platform-profile.md")
+        self.assertIn("(`gh pr view --repo github.com/<owner/name>`, user decision Q8 (a)); a base that is not the bound base is `UNVERIFIED`", ref)
+
+    def test_checker_failure_is_unverified(self):  # Q6 (a)
+        gate = self.text("skills", "dev-gate", "SKILL.md")
+        self.assertIn("If the checker fails or prints no `platform_enforcement:` line, the result is `UNVERIFIED`, never `NOT_CONFIGURED`", gate)
+        ref = self.text("skills", "dev-gate", "references", "platform-profile.md")
+        self.assertIn("If the checker fails or prints no `platform_enforcement:` line, the gate result is `UNVERIFIED`, never `NOT_CONFIGURED`", ref)
+
+    def test_dev_core_r_exh_4_names_base_head_and_checker_failure(self):  # MR-001, R2-001
+        core = self.text("skills", "dev-core", "SKILL.md")
+        self.assertIn("when that read fails or shows another base or head, or the profile checker fails or prints no result, it is UNVERIFIED", core)
+
+
 if __name__ == "__main__":
     unittest.main()

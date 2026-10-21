@@ -43,6 +43,10 @@ interactive planning, use plan mode; this skill adds what plan mode lacks
      and never delete it.
    - Record the typed relations between REQs: `depends_on`, `refines`,
      `conflicts_with` and `superseded_by`, each a list of existing REQ ids.
+   - A review finding of type `REQ-GAP` becomes a requirement only after
+     the user decides to add it. Its `sources` then record the finding ID and
+     the user's decision, quoted verbatim. Never turn a `REQ-GAP` into a
+     requirement on your own (R-REV-3).
    - Update `index.md`, and append one line to `log.md` for every change.
      Never widen a requirement on your own.
    - Ingest applies to every tier. If the user declines to create the wiki,

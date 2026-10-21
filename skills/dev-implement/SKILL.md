@@ -47,7 +47,8 @@ When the user asked for it, use this order (R-REV-9):
 5. Pass the `dev-gate` push gate, then push with exactly those arguments.
 
 Any change after a scan needs a new scan. Scan and gate records go into a
-later commit or the PR, never into the commit they cover. Without
+later commit or the PR, never into the commit they cover. Once a PR exists,
+they never go into a commit on the PR branch (R-EXH-3). Without
 `dev-security-reviewer`, stop before the commit or push.
 
 ## Output

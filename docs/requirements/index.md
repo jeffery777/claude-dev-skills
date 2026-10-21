@@ -15,3 +15,6 @@ One row per requirement. Agents read this first, then open only the files they n
 | REQ-009 | Choose subagent model and effort per task | active | [[REQ-009-subagent-model-effort]] |
 | REQ-010 | Phase 1 scope | active | [[REQ-010-phase-1-scope]] |
 | REQ-011 | Security review before every commit and push | active | [[REQ-011-security-review-before-commit-push]] |
+| REQ-012 | Review convergence | active | [[REQ-012-review-convergence]] |
+| REQ-013 | Decision card for human decisions | active | [[REQ-013-decision-card]] |
+| REQ-014 | Review findings and their relation to requirements | active | [[REQ-014-requirement-relation]] |

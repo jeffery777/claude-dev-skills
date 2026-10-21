@@ -1,0 +1,24 @@
+{"seq": 1, "at": "2026-10-21T00:37:38+00:00", "actor": "main-agent", "node": "T1", "from": "planned", "to": "ready", "evidence": "REQ-012..014 written; 22 quotes checked verbatim against the session transcript; check_pack OK"}
+{"seq": 2, "at": "2026-10-21T00:37:38+00:00", "actor": "main-agent", "node": "T1", "from": "ready", "to": "in_progress", "evidence": "REQ-012..014 written; 22 quotes checked verbatim against the session transcript; check_pack OK"}
+{"seq": 3, "at": "2026-10-21T00:37:39+00:00", "actor": "main-agent", "node": "T1", "from": "in_progress", "to": "reviewing", "evidence": "REQ-012..014 written; 22 quotes checked verbatim against the session transcript; check_pack OK"}
+{"seq": 4, "at": "2026-10-21T00:37:48+00:00", "actor": "main-agent", "node": "T1", "from": "reviewing", "to": "done", "evidence": "quotes verified verbatim by script; independent review is node T6"}
+{"seq": 5, "at": "2026-10-21T00:37:48+00:00", "actor": "main-agent", "node": "T2", "from": "planned", "to": "ready", "evidence": "start dev-core edits"}
+{"seq": 6, "at": "2026-10-21T00:37:48+00:00", "actor": "main-agent", "node": "T2", "from": "ready", "to": "in_progress", "evidence": "start dev-core edits"}
+{"seq": 7, "at": "2026-10-21T00:40:27+00:00", "actor": "main-agent", "node": "T2", "from": "in_progress", "to": "reviewing", "evidence": "dev-core edits; check_core_coverage and check_pack OK"}
+{"seq": 8, "at": "2026-10-21T00:40:27+00:00", "actor": "main-agent", "node": "T2", "from": "reviewing", "to": "done", "evidence": "self-check; independent review is node T6"}
+{"seq": 9, "at": "2026-10-21T00:40:27+00:00", "actor": "main-agent", "node": "T3", "from": "planned", "to": "ready", "evidence": "dev-review, report, decision-card, agents; check_pack OK"}
+{"seq": 10, "at": "2026-10-21T00:40:27+00:00", "actor": "main-agent", "node": "T3", "from": "ready", "to": "in_progress", "evidence": "dev-review, report, decision-card, agents; check_pack OK"}
+{"seq": 11, "at": "2026-10-21T00:40:28+00:00", "actor": "main-agent", "node": "T3", "from": "in_progress", "to": "reviewing", "evidence": "dev-review, report, decision-card, agents; check_pack OK"}
+{"seq": 12, "at": "2026-10-21T00:40:28+00:00", "actor": "main-agent", "node": "T3", "from": "reviewing", "to": "done", "evidence": "self-check; independent review is node T6"}
+{"seq": 13, "at": "2026-10-21T00:40:28+00:00", "actor": "main-agent", "node": "T4", "from": "planned", "to": "ready", "evidence": "start gate/deliver/plan edits"}
+{"seq": 14, "at": "2026-10-21T00:40:28+00:00", "actor": "main-agent", "node": "T4", "from": "ready", "to": "in_progress", "evidence": "start gate/deliver/plan edits"}
+{"seq": 15, "at": "2026-10-21T00:41:14+00:00", "actor": "main-agent", "node": "T4", "from": "in_progress", "to": "reviewing", "evidence": "gate/deliver/plan edits; check_pack OK"}
+{"seq": 16, "at": "2026-10-21T00:41:14+00:00", "actor": "main-agent", "node": "T4", "from": "reviewing", "to": "done", "evidence": "self-check; independent review is node T6"}
+{"seq": 17, "at": "2026-10-21T00:41:14+00:00", "actor": "main-agent", "node": "T5", "from": "planned", "to": "ready", "evidence": "start design-proposal edits"}
+{"seq": 18, "at": "2026-10-21T00:41:14+00:00", "actor": "main-agent", "node": "T5", "from": "ready", "to": "in_progress", "evidence": "start design-proposal edits"}
+{"seq": 19, "at": "2026-10-21T00:41:48+00:00", "actor": "main-agent", "node": "T5", "from": "in_progress", "to": "reviewing", "evidence": "design-proposal D-013/014/016 zh+EN, README"}
+{"seq": 20, "at": "2026-10-21T00:41:48+00:00", "actor": "main-agent", "node": "T5", "from": "reviewing", "to": "done", "evidence": "self-check; independent review is node T6"}
+{"seq": 21, "at": "2026-10-21T00:41:48+00:00", "actor": "main-agent", "node": "T6", "from": "planned", "to": "ready", "evidence": "start content and security review round 1"}
+{"seq": 22, "at": "2026-10-21T00:41:48+00:00", "actor": "main-agent", "node": "T6", "from": "ready", "to": "in_progress", "evidence": "start content and security review round 1"}
+{"seq": 23, "at": "2026-10-21T01:00:58+00:00", "actor": "main-agent", "node": "T6", "from": "in_progress", "to": "reviewing", "evidence": "file:.dev/issue-6-review-convergence/reviews/round-1.md sha256:92597fcdd837e2e1b52b84ee9f9717581fa58e97201d00ccb6b4d0ac5441bae8"}
+{"seq": 24, "at": "2026-10-21T01:00:58+00:00", "actor": "main-agent", "node": "T6", "from": "reviewing", "to": "done", "evidence": "round 1 + narrow confirmation C1: all findings dispositioned (reviews/round-1.md); validate.sh OK"}

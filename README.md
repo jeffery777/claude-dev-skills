@@ -41,7 +41,7 @@ Cowork 有兩項尚未實測：技能能否執行 `graph.py`（需要 shell）�
 | `dev-core` | 共用規則。每條規則都對應到 Core 的錨點 |
 | `dev-plan` | 釐清需求並 ingest 成 REQ 檔，決定風險等級，產出 task graph |
 | `dev-implement` | 實作一個有界修改，驗證後自查 diff |
-| `dev-review` | 派獨立的唯讀 reviewer。finding 有 ID、嚴重度（含 `SCOPE-CREEP`）與處置 |
+| `dev-review` | 派獨立的唯讀 reviewer。finding 有 ID、與需求的關係、嚴重度（含 `SCOPE-CREEP`、`REQ-GAP`）與處置；需要使用者決定的事項用決策卡片 |
 | `dev-gate` | commit／push／PR／merge 前的正式關卡。content、platform、授權三項分開判定 |
 | `dev-docs` | 依已驗證的行為同步文件，並檢查 code 與文件是否一致 |
 | `dev-continue` | 存 checkpoint；接續時從 repo 狀態重建 |
@@ -133,7 +133,7 @@ Two things are not yet tested in Cowork: whether skills can run `graph.py` (a sh
 | `dev-core` | Shared rules. Each rule cites a Core anchor |
 | `dev-plan` | Clarify needs and ingest them as REQ files, choose the rigor tier, produce the task graph |
 | `dev-implement` | Implement one bounded change, verify it, and check the diff |
-| `dev-review` | Dispatch an independent read-only reviewer. Findings have IDs, severities (including `SCOPE-CREEP`) and dispositions |
+| `dev-review` | Dispatch an independent read-only reviewer. Findings have IDs, a requirement relation, severities (including `SCOPE-CREEP` and `REQ-GAP`) and dispositions; decisions for the user use a decision card |
 | `dev-gate` | Formal gate before a commit, push, PR or merge. Content, platform and authority are decided separately |
 | `dev-docs` | Sync the docs with verified behavior and check that code and docs agree |
 | `dev-continue` | Save a checkpoint, and rebuild from repository state when resuming |

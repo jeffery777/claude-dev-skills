@@ -38,12 +38,17 @@ commit, push, PR, merge or other external write (R-REV-5, R-AUTH-1).
    policy, stage, environment and freshness still match (R-CAP-3). For merge readiness, a pre-commit
    or previous-head review never satisfies the gate.
 3. For merge readiness, run or dispatch the complete base-to-head review:
-   - `dev-review` in deep mode over `base...head`;
+   - `dev-review` in deep mode over `base...head`. The review covers the
+     whole range; parts that are provably unaffected by every change since an
+     earlier review may reuse its evidence when the review records the reason and the coverage
+     (R-EXH-3);
    - the deterministic repo checks;
    - the code ↔ docs coherence checks (R-EXH-2).
 4. Check the blockers (R-REV-5, R-REV-7, R-AUTH-5). Any one blocks the gate:
    - an unresolved MUST-FIX, a missing or incomplete disposition, or an open
-     Needs Human Decision;
+     Needs Human Decision (including an undecided `REQ-GAP`);
+   - before a push: fixes without the narrow independent confirmation
+     (R-REV-4);
    - a required independent review, verification or scan that is missing,
      incomplete, failed, has insufficient coverage, or is `NOT_RUN`;
    - a missing R-REV-9 scan, or one that does not match the current staged
@@ -59,6 +64,11 @@ commit, push, PR, merge or other external write (R-REV-5, R-AUTH-1).
 7. State the authority boundary. Name the exact next action, such as
    "merge PR 12", and whether the user has authorized it. If the head changes,
    the gate is void: rerun it from step 1 (R-EXH-3).
+8. Record the result. Once a PR exists, never commit it to the PR branch: a
+   commit makes a new head (R-EXH-3). Post it as a PR comment after the
+   R-REV-9 scan of its text when the user has authorized that comment
+   (R-AUTH-2); otherwise keep it uncommitted and give it in the report. Give each open decision as a decision card
+   (`${CLAUDE_SKILL_DIR}/../dev-review/references/decision-card.md`).
 
 ## Output
 
@@ -72,6 +82,8 @@ Findings and dispositions: (table or link)
 Verification evidence: (commands and results)
 Commit / push security scan (R-REV-9): PASSED | FINDINGS | NOT_RUN — scope (staged diff, identity, message, commit range)
 Requirement trace: complete | gaps
+Open decisions: one decision card each | none
 Residual risk:
 Authority: <exact action> — authorized by <user message> | not authorized
+Writing: written per ASD-STE100 principles; full conformance not verified
 ```

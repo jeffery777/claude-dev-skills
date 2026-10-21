@@ -57,8 +57,13 @@ Repeat until the objective is complete or a stop condition holds (R-AUTH-5):
    project>`, which records the file's path and SHA-256, not its content:
    `graph.py transition <graph> <node> <status> --evidence '<sha or report path>'`.
 5. **Review** each write node through its `review` mode with `dev-review`.
-   The reviewer gets a fresh context and tries to disprove the change. Fix and
-   re-review. After two unfinished rounds, re-assess the approach (R-VER-2).
+   The reviewer gets a fresh context and tries to disprove the change.
+   Classify each finding before you fix it, and keep fixes inside the
+   requirements (R-REV-4). Fix and re-review. After two unfinished rounds,
+   re-assess the approach. When two consecutive rounds report new blockers,
+   or the same mechanism needed fixes and produced new problems in two
+   consecutive rounds, stop the fix loop and re-evaluate the spec, the
+   acceptance criteria and the approach (R-VER-2).
 6. **Docs sync** with `dev-docs` once behavior has settled.
 7. **Gate** with `dev-gate` before any commit, push, PR or merge the user
    asked for. The gate decides readiness, and the user's instruction decides
@@ -71,4 +76,5 @@ Repeat until the objective is complete or a stop condition holds (R-AUTH-5):
 
 Per iteration: the node advanced, the evidence, open findings, the next ready
 node and the gates. At the end: the requirement trace, the final gate result and
-residual risk.
+residual risk. Give every decision for the user, including each `REQ-GAP`, as
+a decision card (`${CLAUDE_SKILL_DIR}/../dev-review/references/decision-card.md`).

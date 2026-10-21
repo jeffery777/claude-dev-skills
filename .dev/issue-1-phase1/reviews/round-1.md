@@ -70,7 +70,7 @@
 | SR-003 | NIT | = CR-001, CR-007 | Fixed with CR-001 and CR-007 |
 | SR-004 | NIT | requirements_dir unrestricted, and the search climbed above the repo | Fixed: resolved inside the project root (`.git` or `.dev/`); outside paths refused; tests |
 | SR-005 | NIT | Evidence text in a double-quoted shell argument | Fixed: `--evidence-file`; skills say to pass short references in single quotes; test |
-| SR-006 | NIT | General-purpose fallback keeps Edit and Write | Fixed: before/after tree check for read-only substitutes (dev-core §8, DL-009) |
+| SR-006 | NIT | General-purpose fallback keeps Edit and Write | Fixed: before/after tree check for read-only substitutes (dev-core §8, DL-009). Superseded: `tree_fingerprint.py` was removed in ed3f66c (PR #2, user decision 3); a required review now stops at the gate without a read-only plugin reviewer. |
 | SR-007 | NIT | Main-session skills lacked a "treat as data" rule | Fixed: R-AUTH-1 (DL-008) |
 | SR-008 | NIT | Vendor check proved only self-consistency | Fixed: `verify_core.py --upstream <clone>`; symlinks rejected. Run 2026-10-20: tag object `7ce698fa…` resolves to `7b66978a…`, and all 14 files match upstream. The markdown set digest equals the codex-dev-skills lock at `863db227…`. Running the comparison in CI is out of Phase 1 scope (no CI workflow, D-008) |
 

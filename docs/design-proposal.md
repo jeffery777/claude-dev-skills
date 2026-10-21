@@ -283,7 +283,7 @@ Graph engineering 在原專案的定位（ADR OE-007）：
 | 打包 | `.claude-plugin/plugin.json`、`.claude-plugin/marketplace.json`、`scripts/validate.sh` | 本機一個指令跑完所有檢查 |
 
 - 需求 wiki 放在各目標專案自己的 `docs/requirements/`，不另外建一個專案。
-- `.dev/<objective-id>/` 是否 commit 由專案設定：`.dev/config.json` 的 `commit_state`，預設 `true`，也就是隨工作一起 commit，讓其他 session 可以接續。只有設成 JSON 的 `false` 才關閉；關閉後不 stage `.dev/<objective-id>/` 下的檔案，專案應把 `.dev/*/` 列入 gitignore，`.dev/config.json` 仍保留在版本控制中。裡面不得寫入 secrets、憑證、私有路徑或原始 log。lock 與暫存檔已列入 `.gitignore`。（2026-10-20 使用者決定，PR #2 交接第 6 項）
+- `.dev/<objective-id>/` 是否 commit 由專案設定：`.dev/config.json` 的 `commit_state`，預設 `true`，也就是隨工作一起 commit，讓其他 session 可以接續。例外：PR 建立後，該 PR head 的審查與 gate 紀錄不 commit 到 PR 分支（D-013 第 6 項）。只有設成 JSON 的 `false` 才關閉；關閉後不 stage `.dev/<objective-id>/` 下的檔案，專案應把 `.dev/*/` 列入 gitignore，`.dev/config.json` 仍保留在版本控制中。裡面不得寫入 secrets、憑證、私有路徑或原始 log。本 repo 的 `.gitignore` 已列入 lock 與暫存檔；目標專案要自己把 `.dev/**/.graph.lock` 與 `.dev/**/.graph-*.tmp` 加進 `.gitignore`。（2026-10-20 使用者決定，PR #2 交接第 6 項）
 - `scripts/check_pack.py` 只檢查本 repo REQ 檔的格式（欄位與關係 ID），不是需求 lint；矛盾、孤兒與過期需求的 lint 仍在 Phase 2。
 - Plugin 名稱是 `dev-skills`。`claude plugin validate` 不接受以 `claude-` 開頭的第三方 plugin 名稱，所以 repo 名稱維持 `claude-dev-skills`，plugin 改名。安裝指令為 `claude plugin install dev-skills@dev-skills`。
 - 不在 Phase 1：G1–G3、hooks、需求 wiki 的 lint 腳本（留到 Phase 2；Phase 1 只定格式並做 ingest）、CI workflow。
@@ -334,12 +334,12 @@ Graph engineering 在原專案的定位（ADR OE-007）：
   4. PR 建立後，checkpoint 不 commit，因為 commit 到 PR 分支會產生新的 head，新的 head 需要新的完整審查（R-EXH-3）。checkpoint 留在工作目錄，重點改貼成 PR comment，讓其他 clone 也能接手。貼出前由 `dev-security-reviewer` 掃描要貼出的原文（R-REV-9）。沒有這項掃描就不貼出。checkpoint 只指向審查與 gate 紀錄，不重複這些紀錄。這一項是使用者對 PR-C1 決策卡片 1 的回答，只涵蓋這則 comment，不涵蓋其他 comment。
   5. 接著提出新 session 的卡片，附上完整交接說明。使用者按下確認後，新 session 才開始。
   6. 使用者確認後就完成交接，原 session 停止寫入。使用者確認之前，或使用者拒絕時，沒有發生交接，原 session 繼續工作。
-- 與 Core 的差異：Core `wf-stages` 已規定暫停前存 checkpoint，以及接續時重新讀取來源。D-012 只加上評估時機與交接步驟，沒有改 `dev-core` 的規則。
+- 與 Core 的差異：Core `wf-stages` 已規定暫停前存 checkpoint，以及接續時重新讀取來源；接續工作時，Core 也規定優先使用原本的 session。D-012 只加上評估時機與交接步驟，沒有改 `dev-core` 的規則。D-012 的切換要等使用者確認才發生；沒有確認時，原本的 session 繼續工作。
 - Core 回饋：否。理由：換對話的方式取決於各接口的 session 能力；Core `wf-stages` 已涵蓋 checkpoint 與接續。
 
 ### D-013 Review 收斂規則（已決定，2026-10-20）
 
-- 來源：PR #2 的 Merge Review 1 到 7 一直出現新的 finding，沒有收斂。PR-A（Issue #4）在第 2 輪之後先套用這些規則重新評估，移除了沒有需求對應的檢查（`.dev/issue-4-commit-security/reviews/round-2.md`）。需求見 REQ-012。
+- 來源：PR #2 的 Merge Review 1 到 5 一直出現新的 finding，沒有收斂；Merge Review 6 與 7 沒有 finding。PR-A（Issue #4）在第 2 輪之後先套用這些規則重新評估，移除了沒有需求對應的檢查（`.dev/issue-4-commit-security/reviews/round-2.md`）。需求見 REQ-012。
 - 規則（`dev-core` R-REV-3、R-REV-4、R-VER-2、R-EXH-3）：
   1. 嚴重度門檻：MUST-FIX 只限 Core 的阻擋項；判斷不出是不是阻擋項時，算 MUST-FIX。SHOULD-FIX 必須有可重現的失敗，並影響需求、DoD 或文件寫明的行為。NIT 只限這次變更造成的回歸，或不實的文件內容。其餘列為剩餘風險（residual risk），不列為 finding。
   2. 修補前先分類：每個 finding 判讀為必要修正、值得改善、維持現狀或需要人類決策。修補要在需求範圍內；需求沒考量到的缺陷，先交給使用者決定（見 D-016）。Core 的阻擋項例外：先修正。管理措施（流程、文件、人工檢查）是有效的修補方式，但要寫明責任人、可驗證的前提與失效時的處理。
@@ -374,14 +374,14 @@ D-009 到 D-016 是同一天的決定。D-015 由 PR #5（Issue #4）記錄；D-
   - 貼出 PR 或 MR 的標題、內文、留言或審查紀錄之前：掃描要貼出的原文。
   - 合併前：base..head 範圍內的每一個 commit，不只看最後的 diff；以及平台合併時會建立的 merge 或 squash commit：合併方式、作者、訊息與 trailer（例如由分支 commit 產生的 `Co-authored-by:`）。
   - 要找的東西：金鑰、密碼、token、私人檔案、私人路徑、主機名稱、私人 email，以及作者沒有選擇公開的真實姓名。有發現就擋下 commit 或 push，修正後重新掃描。
-  - 掃描後只要 stage 的內容、身分、訊息或要貼出的文字有變，就是新的候選，要重新掃描。掃描與 gate 的紀錄不放進它們所涵蓋的那個 commit，而是放進之後的 commit（由那個 commit 自己的掃描涵蓋）或 PR。
+  - 掃描後只要 stage 的內容、身分、訊息或要貼出的文字有變，就是新的候選，要重新掃描。掃描與 gate 的紀錄不放進它們所涵蓋的那個 commit，而是放進之後的 commit（由那個 commit 自己的掃描涵蓋）或 PR。PR 建立後，這些紀錄不 commit 到 PR 分支（D-013 第 6 項細化了這一點）。
   - 找不到 `dev-security-reviewer` 時，在 commit 或 push 之前停下。
 - R-REV-1 補充：必要的安全審查或 Security Diff Scan 一律使用 `dev-security-reviewer`，不能用 `dev-reviewer`。
 - 建議（不在本 PR 實作）：用 gitleaks 之類的 secret scanner，掛在 pre-commit 或 pre-push hook，作為確定性的補充檢查；並設定 `git config user.useConfigOnly true`，讓 Git 不會用主機名稱猜身分。安裝工具或 hook、改 Git 設定都需要使用者同意；它們都不能取代獨立審查。
 - 審查報告也會 commit 或貼到 PR，所以兩個 reviewer agent 回報時一律遮蔽金鑰與私人識別資訊：只寫種類、位置與長度或類別；email 只說是不是 noreply 與提供者；路徑與主機名稱中的帳號或主機部分換成代稱。
 - 與 Core 的差異：Core 只在變更碰到信任邊界時要求 Security Diff Scan；這裡改成每次 commit 與 push 都要掃。這是收緊，記錄在 `skills/dev-core/deltas.md` 的 DL-010。
 - Core 回饋：是。理由：在公開 repo 中，每次 commit 與 push 都會公開內容與中繼資料，這和接口無關。證據是 PR #2 的 SEC-01（見 `docs/core-feedback.md`）。
-- 同一個 PR 修正 `graph.py transition --evidence-file`：原本會把任何可讀檔案的內容複製進預設會被 commit 的 `events.jsonl`。現在只接受專案根目錄內的一般檔案（不接受 symlink 或 FIFO 之類的非一般檔案），而且只記錄相對路徑與 SHA-256，不記錄內容（使用者選擇的選項，2026-10-20）。剩下的風險：專案內短而好猜的秘密檔（例如被 gitignore 的 `.env`）的雜湊會被 commit，可以離線猜測。專案內任何一般檔案（包括 `.git/` 底下的檔案或 hardlink）都只會記下路徑與雜湊，不會記下內容；這些情況沒有對應的需求，所以不另外擋（2026-10-20 使用者決定）。追蹤項目是 `.dev/followups.md` 的 FU-003。
+- 同一個 PR 修正 `graph.py transition --evidence-file`：原本會把任何可讀檔案的內容複製進預設會被 commit 的 `events.jsonl`。現在只接受專案根目錄內的一般檔案（路徑的最後一段不得是 symlink，也不接受 FIFO 之類的非一般檔案），而且只記錄相對路徑與 SHA-256，不記錄內容（使用者選擇的選項，2026-10-20）。剩下的風險：專案內短而好猜的秘密檔（例如被 gitignore 的 `.env`）的雜湊會被 commit，可以離線猜測。專案內任何一般檔案（包括 `.git/` 底下的檔案或 hardlink）都只會記下路徑與雜湊，不會記下內容；這些情況沒有對應的需求，所以不另外擋（2026-10-20 使用者決定）。追蹤項目是 `.dev/followups.md` 的 FU-003。
 
 ### D-016 Review 範圍與需求的關係（已決定，2026-10-20）
 
@@ -819,12 +819,15 @@ records the mapping.
   `docs/requirements/`. There is no separate requirements project.
 - Whether `.dev/<objective-id>/` is committed is a project setting:
   `commit_state` in `.dev/config.json`. The default is `true`: the folder is
-  committed with the work so another session can resume. Only the JSON value
+  committed with the work so another session can resume. Exception: once a
+  PR exists, the review and gate records of its head never go into a commit
+  on the PR branch (D-013 item 6). Only the JSON value
   `false` turns it off. Then the files under `.dev/<objective-id>/` are never
   staged, and the project should gitignore `.dev/*/` and keep
   `.dev/config.json` tracked. The folder must not contain secrets,
-  credentials, private paths or raw logs. The lock and temporary files are in
-  `.gitignore`. (User decision, 2026-10-20, PR #2 handoff item 6.)
+  credentials, private paths or raw logs. This repository's `.gitignore` lists the
+  lock and temporary files; a target project adds `.dev/**/.graph.lock` and
+  `.dev/**/.graph-*.tmp` to its own `.gitignore`. (User decision, 2026-10-20, PR #2 handoff item 6.)
 - `scripts/check_pack.py` checks only the format of this repository's REQ files
   (fields and relation IDs). It is not the requirements lint; the lint for
   contradictions, orphans and stale requirements stays in Phase 2.
@@ -937,16 +940,18 @@ records the mapping.
      stops writing. Before the user confirms, or when the user declines, no
      handoff has happened and the old session continues.
 - Difference from Core: Core `wf-stages` already requires a checkpoint before
-  a pause and a re-read of the sources on resume. D-012 adds only when to
-  evaluate and the handoff steps; no `dev-core` rule changes.
+  a pause and a re-read of the sources on resume, and prefers the original
+  session when work resumes. D-012 adds only when to evaluate and the
+  handoff steps; no `dev-core` rule changes. A D-012 switch happens only
+  after the user confirms it; otherwise the original session continues.
 - Core feedback: no. Reason: how to switch sessions depends on the session
   capabilities of each interface; Core `wf-stages` already covers the
   checkpoint and the resume.
 
 ### D-013 Review convergence (decided, 2026-10-20)
 
-- Origin: PR #2 Merge Reviews 1 to 7 kept producing new findings and did not
-  converge. After round 2, PR-A (Issue #4) applied these rules early,
+- Origin: PR #2 Merge Reviews 1 to 5 kept producing new findings and did not
+  converge; Merge Reviews 6 and 7 had none. After round 2, PR-A (Issue #4) applied these rules early,
   re-evaluated its findings and removed the checks that no requirement
   covered (`.dev/issue-4-commit-security/reviews/round-2.md`). The
   requirement is REQ-012.
@@ -1061,7 +1066,8 @@ records D-009 to D-012.
   - Any change to the staged content, identity, message or text after the
     scan is a new candidate and needs a new scan. The records of a scan and
     its gate never go into the commit they cover. They go into a later commit,
-    whose own scan covers them, or into the PR.
+    whose own scan covers them, or into the PR. Once a PR exists, they never
+    go into a commit on the PR branch (D-013 item 6 refines this).
   - Without `dev-security-reviewer`, stop before the commit or push.
 - R-REV-1 clarification: a required security review or Security Diff Scan
   uses `dev-security-reviewer`, never `dev-reviewer`.
@@ -1084,8 +1090,9 @@ records D-009 to D-012.
   PR #2 SEC-01 (see `docs/core-feedback.md`).
 - The same PR fixes `graph.py transition --evidence-file`. It copied the
   content of any readable file into `events.jsonl`, which is committed by
-  default. Now it accepts only a regular file inside the project root (no
-  symlink, and no FIFO or other non-regular file), and it records only the
+  default. Now it accepts only a regular file inside the project root (the last
+  component of the path must not be a symlink, and no FIFO or other
+  non-regular file), and it records only the
   relative path and the SHA-256, never the content (the option the user
   chose, 2026-10-20). Remaining risk: the hash of a short, guessable secret
   file inside the project (for example a gitignored `.env`) is committed and

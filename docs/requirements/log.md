@@ -29,3 +29,6 @@ Append-only. Never rewrite earlier lines; add a new line for each change.
 | 2026-10-21 | REQ-018 | created (CHANGELOG with the upstream Core version; Issue #8) | Claude Code session 2026-10-20 (PR #2 merge), user message at 08:14 UTC |
 | 2026-10-21 | REQ-019 | created (Core feedback; Issue #8) | Claude Code session 2026-10-20 (PR #2 merge), user message at 08:25 UTC |
 | 2026-10-21 | REQ-017 | added the user's answer to PR-C1 decision card 1 (REQ-GAP from finding B1-002): no checkpoint commit once a PR exists; key points posted as a PR comment after the R-REV-9 scan | Claude Code session 2026-10-21 (PR-C, Issue #8), user answer to PR-C1 review decision card 1 |
+| 2026-10-21 | REQ-011 | acceptance wording: `--evidence-file` refuses a path whose last component is a symlink (MR-A-001, PR #5; no behavior change; Issue #10) | PR #5 Merge Review comment, finding MR-A-001 (Deferred to PR-C) |
+| 2026-10-21 | REQ-012 | notes and acceptance wording: Merge Reviews 1 to 5 did not converge (6 and 7 had none); evidence reuse only for provably unaffected parts (no new obligation; Issue #10) | PR #9 review record B1-005; PR #7 Merge Review comment, residual risk |
+| 2026-10-21 | REQ-016 | added the source for D-011 item 4 (runtime check of plugin agent tools; Issue #10) | Claude Code session 2026-10-20 (PR #2 Merge Review 5), user message at 07:37 UTC |

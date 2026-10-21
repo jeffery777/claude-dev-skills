@@ -124,7 +124,9 @@ without its event (an accepted trade-off of writing the graph first). Compare
 `transition` runs the same checks, including `REQUIREMENT_CONFLICT`, under an
 exclusive lock (`.graph.lock`). It refuses to write through symlinks, writes
 `graph.json` atomically through a temporary file, then appends the event. If the
-event cannot be written, the graph is restored.
+event cannot be written, the graph is restored. Add `.dev/**/.graph.lock` and
+`.dev/**/.graph-*.tmp` to the project's `.gitignore` so that the lock and
+temporary files are never committed.
 
 ## Commands
 
@@ -141,7 +143,7 @@ shell argument. For longer evidence, save it as a report in the project (for
 example under `.dev/<objective-id>/reviews/`) and pass `--evidence-file`.
 `events.jsonl` is committed by default, so `--evidence-file` never copies the
 file's content: it records the project-relative path and the SHA-256. It
-refuses a symlink, a file that is not a regular file (such as a FIFO), a
+refuses a path whose last component is a symlink, a file that is not a regular file (such as a FIFO), a
 missing file, and a path that resolves outside the project root
 (`EVIDENCE_FILE_REFUSED`, exit 2) (REQ-011). It needs a project root. Do not
 point it at a secret file: the hash of a short, guessable file can be guessed

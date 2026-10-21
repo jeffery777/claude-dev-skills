@@ -82,9 +82,9 @@ inferences or give each option all four lines; this version does.
     - Cost: none now.
 - **Recommendation:** (a) — this workflow posts review records as PR
   comments, and those records can quote findings.
-- **If you do not decide:** the rule change is blocked, and PR text stays
-  out of the rules / implementation and the commit scan can continue, and the
-  agent still scans this PR's own comments by hand.
+- **If you do not decide:** the rule change is blocked, so PR text stays
+  out of the rules. / The implementation and the commit scan can continue.
+  The agent still scans this PR's own comments by hand.
 - **Evidence:**
   - Facts: finding SR-A-002 in
     `.dev/issue-4-commit-security/reviews/round-1.md`; REQ-011 sources quote

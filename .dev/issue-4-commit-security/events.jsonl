@@ -16,3 +16,13 @@
 {"seq": 16, "at": "2026-10-20T08:56:27+00:00", "actor": "main-agent", "node": "T5", "from": "planned", "to": "ready", "evidence": "T4 done"}
 {"seq": 17, "at": "2026-10-20T08:56:27+00:00", "actor": "main-agent", "node": "T5", "from": "ready", "to": "in_progress", "evidence": "editing"}
 {"seq": 18, "at": "2026-10-20T08:56:27+00:00", "actor": "main-agent", "node": "T5", "from": "in_progress", "to": "reviewing", "evidence": "75 tests OK; 6 new tests fail on old graph.py"}
+{"seq": 19, "at": "2026-10-21T03:32:11+00:00", "actor": "main-agent", "node": "T2", "from": "reviewing", "to": "done", "evidence": "merged in PR #5 (1debfab); Merge Review PASSED at 2ae268d"}
+{"seq": 20, "at": "2026-10-21T03:32:11+00:00", "actor": "main-agent", "node": "T5", "from": "reviewing", "to": "done", "evidence": "merged in PR #5 (1debfab); Merge Review and merge-time security review PASSED at 2ae268d"}
+{"seq": 21, "at": "2026-10-21T03:32:11+00:00", "actor": "main-agent", "node": "T6", "from": "planned", "to": "ready", "evidence": "PR #5 Merge Review and merge-time security review PASSED at 2ae268d (PR comment); recorded in PR-C2 (Issue #10)"}
+{"seq": 22, "at": "2026-10-21T03:32:11+00:00", "actor": "main-agent", "node": "T6", "from": "ready", "to": "in_progress", "evidence": "PR #5 Merge Review and merge-time security review PASSED at 2ae268d (PR comment); recorded in PR-C2 (Issue #10)"}
+{"seq": 23, "at": "2026-10-21T03:32:11+00:00", "actor": "main-agent", "node": "T6", "from": "in_progress", "to": "reviewing", "evidence": "PR #5 Merge Review and merge-time security review PASSED at 2ae268d (PR comment); recorded in PR-C2 (Issue #10)"}
+{"seq": 24, "at": "2026-10-21T03:32:12+00:00", "actor": "main-agent", "node": "T6", "from": "reviewing", "to": "done", "evidence": "PR #5 Merge Review and merge-time security review PASSED at 2ae268d (PR comment); recorded in PR-C2 (Issue #10)"}
+{"seq": 25, "at": "2026-10-21T03:32:12+00:00", "actor": "main-agent", "node": "T7", "from": "planned", "to": "ready", "evidence": "user approved the merge of PR #5 (1debfab); recorded in PR-C2 (Issue #10)"}
+{"seq": 26, "at": "2026-10-21T03:32:12+00:00", "actor": "main-agent", "node": "T7", "from": "ready", "to": "in_progress", "evidence": "user approved the merge of PR #5 (1debfab); recorded in PR-C2 (Issue #10)"}
+{"seq": 27, "at": "2026-10-21T03:32:17+00:00", "actor": "main-agent", "node": "T7", "from": "in_progress", "to": "reviewing", "evidence": "user approved the merge of PR #5 (1debfab); recorded in PR-C2 (Issue #10)"}
+{"seq": 28, "at": "2026-10-21T03:32:17+00:00", "actor": "main-agent", "node": "T7", "from": "reviewing", "to": "done", "evidence": "user approved the merge of PR #5 (1debfab); recorded in PR-C2 (Issue #10)"}

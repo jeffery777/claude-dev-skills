@@ -39,8 +39,8 @@ round, or a stage), evaluate whether the work continues in a new session.
 2. To switch:
    - Save the checkpoint (above). Before a PR exists, commit it without
      asking first. D-012 covers this checkpoint commit and no other commit.
-     Every commit rule still applies: the R-REV-9 scan before the commit,
-     and the `commit_state` setting (`dev-core` section 8; with `false`, do
+     Every commit rule still applies: the `dev-gate` commit gate, the R-REV-9
+     scan before the commit, and the `commit_state` setting (`dev-core` section 8; with `false`, do
      not commit the checkpoint).
    - Once a PR exists, never commit the checkpoint: a commit on the PR
      branch makes a new head that needs a new complete review (R-EXH-3).

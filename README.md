@@ -51,7 +51,7 @@ Subagents：`dev-explorer`（haiku）、`dev-implementer`（sonnet）、`dev-rev
 
 ## 適度嚴謹
 
-- `light`：低風險的局部修改，不建 graph 檔。若要 commit 或開 PR，仍須先經獨立 review 與 commit gate。
+- `light`：低風險的局部修改，不建 graph 檔。若要 commit、push 或開 PR，仍須先經獨立 review 與 commit gate。
 - `standard`：一般功能。要有 task graph 和獨立 reviewer。
 - `strict`：涉及安全、資料、migration、對外契約或 release。要初期就做深入或安全審查，並通過 exact-head 關卡與 human gate。
 - 所有等級：每次 commit 與 push 之前，由 `dev-security-reviewer` 掃描已 stage 的 diff 與 commit 的身分和訊息，或 push 要送出的全部內容（D-015）。
@@ -143,7 +143,7 @@ Subagents: `dev-explorer` (haiku), `dev-implementer` (sonnet), `dev-reviewer` (o
 
 ## Proportionate rigor
 
-- `light`: a low-risk local change, with no graph file. Before a commit or PR, it still needs an independent review and the commit gate.
+- `light`: a low-risk local change, with no graph file. Before a commit, push or PR, it still needs an independent review and the commit gate.
 - `standard`: a normal feature. It needs a task graph and an independent reviewer.
 - `strict`: security, data, migration, public contract or release work. It needs early deep or security review, the exact-head gate and a human gate.
 - Every tier: before every commit and push, `dev-security-reviewer` scans the staged diff and the commit identity and message, or everything the push sends (D-015).

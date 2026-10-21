@@ -48,7 +48,7 @@
       ],
       "risk": "medium",
       "review": "deep",
-      "status": "reviewing",
+      "status": "done",
       "dod": [
         "zh and EN D-015 match in obligations and limits"
       ],
@@ -134,7 +134,7 @@
       ],
       "risk": "high",
       "review": "security",
-      "status": "reviewing",
+      "status": "done",
       "dod": [
         "outside-root file refused",
         "symlink refused",
@@ -163,7 +163,7 @@
       "owns": [],
       "risk": "high",
       "review": "security",
-      "status": "planned",
+      "status": "done",
       "dod": [],
       "verify": [
         "./scripts/validate.sh"
@@ -183,7 +183,7 @@
       "owns": [],
       "risk": "high",
       "review": "none",
-      "status": "planned",
+      "status": "done",
       "dod": [],
       "verify": []
     }

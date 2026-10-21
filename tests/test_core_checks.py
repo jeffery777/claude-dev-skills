@@ -48,14 +48,14 @@ class Coverage(unittest.TestCase):
         self.assertEqual(run(self.mod)[0], 0)
 
     def test_missing_anchor_row_fails(self):
-        self.edit("SOURCE_MAP", "| `workflow.md#wf-writing` | R-WRT-1 | covered | |\n", "")
+        self.edit("SOURCE_MAP", "| `authorization-and-stops.md#auth-data` | R-AUTH-7 | covered | |\n", "")
         code, out = run(self.mod)
         self.assertEqual(code, 1)
-        self.assertIn("anchor without source-map row: workflow.md#wf-writing", out)
+        self.assertIn("anchor without source-map row: authorization-and-stops.md#auth-data", out)
 
     def test_not_applicable_needs_reason(self):
-        self.edit("SOURCE_MAP", "| `workflow.md#wf-writing` | R-WRT-1 | covered | |",
-                  "| `workflow.md#wf-writing` | | not-applicable | |")
+        self.edit("SOURCE_MAP", "| `authorization-and-stops.md#auth-data` | R-AUTH-7 | covered | |",
+                  "| `authorization-and-stops.md#auth-data` | | not-applicable | |")
         code, out = run(self.mod)
         self.assertEqual(code, 1)
         self.assertIn("not-applicable without a reason", out)
@@ -98,6 +98,55 @@ class PackChecks(unittest.TestCase):
             shutil.rmtree(tmp)
 
 
+class FrontMatterGuards(unittest.TestCase):
+    """check_pack rejects a bad agent model or effort and a bad REQ status (PR-C2 A3)."""
+
+    def check(self, rel, old, new):
+        mod = load("check_pack")
+        tmp = tempfile.mkdtemp()
+        try:
+            for sub in ("skills", "agents", "vendor", os.path.join("docs", "requirements")):
+                shutil.copytree(os.path.join(ROOT, sub), os.path.join(tmp, sub))
+            path = os.path.join(tmp, rel)
+            with open(path, encoding="utf-8") as fh:
+                text = fh.read()
+            self.assertIn(old, text)
+            with open(path, "w", encoding="utf-8") as fh:
+                fh.write(text.replace(old, new, 1))
+            mod.ROOT = tmp
+            code, out = run(mod)
+            self.assertEqual(out.count("\n  - "), 1, out)  # the edit is the only problem
+            return code, out
+        finally:
+            shutil.rmtree(tmp)
+
+    def test_bad_model_fails(self):
+        code, out = self.check(os.path.join("agents", "dev-explorer.md"), "\nmodel: haiku\n", "\nmodel: claude-haiku-5-5\n")
+        self.assertEqual(code, 1)
+        self.assertIn("agents/dev-explorer.md: model must be an alias", out)
+
+    def test_bad_effort_fails(self):
+        code, out = self.check(os.path.join("agents", "dev-explorer.md"), "\neffort: low\n", "\neffort: think-harder\n")
+        self.assertEqual(code, 1)
+        self.assertIn("agents/dev-explorer.md: effort must be one of", out)
+
+    def test_empty_values_fail_without_crash(self):  # MR4-02: an empty value parsed as a list crashed with TypeError
+        for rel, old, new, message in (
+                (os.path.join("agents", "dev-explorer.md"), "\nmodel: haiku\n", "\nmodel:\n", "model must be an alias"),
+                (os.path.join("agents", "dev-explorer.md"), "\neffort: low\n", "\neffort:\n", "effort must be one of"),
+                (os.path.join("docs", "requirements", "REQ-001-claude-skill-pack.md"), "\nstatus: active\n", "\nstatus:\n",
+                 "status must be one of")):
+            with self.subTest(rel=rel, field=new.strip()):
+                code, out = self.check(rel, old, new)
+                self.assertEqual(code, 1)
+                self.assertIn(message, out)
+
+    def test_bad_req_status_fails(self):
+        code, out = self.check(os.path.join("docs", "requirements", "REQ-001-claude-skill-pack.md"), "\nstatus: active\n", "\nstatus: finished\n")
+        self.assertEqual(code, 1)
+        self.assertIn("REQ-001-claude-skill-pack.md: status must be one of", out)
+
+
 class SourcesParser(unittest.TestCase):
     def test_variants(self):
         mod = load("check_pack")
@@ -120,6 +169,14 @@ class SourcesParser(unittest.TestCase):
         self.assertEqual(mod.sources(block), ([
             {"type": "chat", "locator": "x", "quote": "# Heading line two"},
             {"type": "doc", "locator": "y", "quote": "one # two three"}], []))
+
+    def test_keep_chomping_block_scalar(self):  # PR-C2 A4: the old parser kept "|+" as text and skipped "# a"
+        mod = load("check_pack")
+        block = ["sources:", "  - type: chat", "    locator: x", "    quote: |+", "      # a", "      b",
+                 "  - type: doc", "    locator: y", "    quote: >+", "      c"]
+        self.assertEqual(mod.sources(block), ([
+            {"type": "chat", "locator": "x", "quote": "# a b"},
+            {"type": "doc", "locator": "y", "quote": "c"}], []))
 
     def test_comment_line_outside_block_scalar_is_skipped(self):
         mod = load("check_pack")

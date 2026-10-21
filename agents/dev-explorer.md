@@ -1,6 +1,6 @@
 ---
 name: dev-explorer
-description: Read-only explorer for broad codebase or document searches. Returns conclusions with file:line references, not file dumps. Use for discovery, call-site lists, impact surveys and requirement lookups.
+description: Read-only explorer for broad codebase or document searches. Has no Edit or Write tools; read-only Bash use is enforced by instructions only. Returns conclusions with file:line references, not file dumps. Use for discovery, call-site lists, impact surveys and requirement lookups.
 model: haiku
 effort: low
 tools: Read, Grep, Glob, Bash

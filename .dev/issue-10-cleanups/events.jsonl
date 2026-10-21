@@ -1,0 +1,11 @@
+{"seq": 1, "at": "2026-10-21T03:34:12+00:00", "actor": "main-agent", "node": "T1", "from": "ready", "to": "in_progress", "evidence": "editing"}
+{"seq": 2, "at": "2026-10-21T03:34:12+00:00", "actor": "main-agent", "node": "T3", "from": "ready", "to": "in_progress", "evidence": "editing"}
+{"seq": 3, "at": "2026-10-21T03:34:12+00:00", "actor": "main-agent", "node": "T3", "from": "in_progress", "to": "reviewing", "evidence": "unittest OK (82); keep-chomping test fails on old check_pack"}
+{"seq": 4, "at": "2026-10-21T03:37:49+00:00", "actor": "main-agent", "node": "T2", "from": "ready", "to": "in_progress", "evidence": "editing"}
+{"seq": 5, "at": "2026-10-21T03:38:16+00:00", "actor": "main-agent", "node": "T1", "from": "in_progress", "to": "reviewing", "evidence": "validate.sh passed"}
+{"seq": 6, "at": "2026-10-21T03:38:16+00:00", "actor": "main-agent", "node": "T2", "from": "in_progress", "to": "reviewing", "evidence": "validate.sh passed"}
+{"seq": 7, "at": "2026-10-21T03:49:31+00:00", "actor": "main-agent", "node": "T1", "from": "reviewing", "to": "done", "evidence": ".dev/issue-10-cleanups/reviews/round-1.md (R1 and C1)"}
+{"seq": 8, "at": "2026-10-21T03:49:31+00:00", "actor": "main-agent", "node": "T2", "from": "reviewing", "to": "done", "evidence": ".dev/issue-10-cleanups/reviews/round-1.md (R1 and C1)"}
+{"seq": 9, "at": "2026-10-21T03:49:31+00:00", "actor": "main-agent", "node": "T3", "from": "reviewing", "to": "done", "evidence": ".dev/issue-10-cleanups/reviews/round-1.md (R1 and C1)"}
+{"seq": 10, "at": "2026-10-21T03:49:31+00:00", "actor": "main-agent", "node": "T4", "from": "planned", "to": "ready", "evidence": "T1 to T3 done"}
+{"seq": 11, "at": "2026-10-21T03:49:32+00:00", "actor": "main-agent", "node": "T4", "from": "ready", "to": "in_progress", "evidence": "round 1 and C1 done; R-REV-9 scans pending"}

@@ -59,14 +59,28 @@ commit, push, PR, merge or other external write (R-REV-5, R-AUTH-1).
 5. Decide `content_review`.
 6. Decide `platform_enforcement` (R-EXH-4). Never infer it from the content
    result, and re-read it right before a merge.
-   - A project selects a provider profile only through an explicit project
-     setting. This pack does not define that setting yet (FU-009), so the
-     result is `NOT_CONFIGURED`.
-   - When a PR exists, read its head and checks in one call:
-     `gh pr view <pr> --json headRefOid,statusCheckRollup`. List each check
-     with its result; an empty list means the PR has no checks. If the read
-     fails, or `headRefOid` is not the reviewed head, the result is
-     `UNVERIFIED`. A failed or unrun check is never Passed (R-EXH-2).
+   - A project selects a provider profile only with `platform_profile` in
+     `.dev/config.json`, read at the bound base commit, never at the PR head
+     or in the working tree. The format, the read-back and its limits are in
+     `${CLAUDE_SKILL_DIR}/references/platform-profile.md`; read it in full.
+   - Run the checker with the bound values:
+     `python3 -I <checker> --repo-dir . --repo <owner/name> --pr <n> --base <base> --head <head> --pack-dir ${CLAUDE_SKILL_DIR}/../..`.
+     `<checker>` is `${CLAUDE_SKILL_DIR}/scripts/platform_profile.py`, or
+     its copy from the bound base when the pack lies inside the repository
+     under review (see the reference). Report its result line, every item,
+     the policy-change line and the list of changed check files. If the
+     checker fails or prints no `platform_enforcement:` line, the result is
+     `UNVERIFIED`, never `NOT_CONFIGURED`.
+   - No profile (`NOT_CONFIGURED`): when a PR exists, read its base, head and
+     checks in one call:
+     `gh pr view <pr> --repo github.com/<owner/name> --json baseRefOid,headRefOid,statusCheckRollup`.
+     List each check with its result; an empty list means the PR has no
+     checks. If the read fails, `baseRefOid` is not the bound base, or
+     `headRefOid` is not the reviewed head, the result is `UNVERIFIED`: a
+     stale base may lack a profile that the PR's real base has. A failed or unrun check is never Passed (R-EXH-2).
+   - A policy change (`.dev/config.json` differs between base and head) needs
+     the user's decision (R-AUTH-2): give a decision card; the gate result is
+     `NEEDS HUMAN DECISION` until the user answers for that head blob.
 7. State the authority boundary. Name the exact next action, such as
    "merge PR 12", and whether the user has authorized it. If the head changes,
    the gate is void: rerun it from step 1 (R-EXH-3).
@@ -82,7 +96,7 @@ commit, push, PR, merge or other external write (R-REV-5, R-AUTH-1).
 Gate: commit | push | pr | merge
 Gate result: PASS | BLOCKED | NEEDS HUMAN DECISION        (R-REV-5)
 Content Review: PASSED | BLOCKED | NEEDS_HUMAN_DECISION   (merge gate, R-EXH-4)
-Platform Enforcement: VERIFIED | UNVERIFIED | BLOCKED | NOT_CONFIGURED (merge gate)
+Platform Enforcement: VERIFIED (checks ran this PR's own definitions) | UNVERIFIED | BLOCKED | NOT_CONFIGURED (merge gate; items, policy change, changed check files)
 Identity: repo, base, head, merge-base, diff hash, PR
 Findings and dispositions: (table or link)
 Verification evidence: (commands and results)

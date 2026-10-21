@@ -1,0 +1,11 @@
+{
+  "platform_profile": {
+    "provider": "github",
+    "repository": "jeffery777/claude-dev-skills",
+    "base_branch": "main",
+    "required_checks": [
+      {"name": "validate", "app_id": 15368},
+      {"name": "gitleaks", "app_id": 15368}
+    ]
+  }
+}

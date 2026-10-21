@@ -75,6 +75,19 @@ Cowork runtime test). At that release,
   accepted risk; Git LFS, push options and release notes stay deferred.
   New follow-ups FU-008 (a PR can change its own checks) and FU-009 (the
   provider-profile setting), deferred and designed together.
+- `dev-gate` platform read-back (REQ-021, D-018, Issue #14): a project selects
+  a GitHub provider profile with `platform_profile` in `.dev/config.json`,
+  read only at the bound base commit. The new read-only checker
+  `skills/dev-gate/scripts/platform_profile.py` (with
+  `tests/test_platform_profile.py`) reads the required checks back: only
+  `success` passes, profile and platform checks are joined, each check is
+  pinned to an app id, an invalid setting fails closed, and the result is
+  `BLOCKED`, then `UNVERIFIED`, then `VERIFIED`. A change of the setting in a
+  PR goes to the user. With a profile, `VERIFIED` says that the checks ran
+  the PR's own definitions, and the gate lists changed check files (FU-008,
+  report only). `dev-core` R-EXH-4 states when the result is
+  `NOT_CONFIGURED` (MR-001). This repository selects `validate` and
+  `gitleaks` from GitHub Actions.
 
 ### Fixed
 

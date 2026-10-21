@@ -1,6 +1,6 @@
 ---
 name: dev-review
-description: Independent read-only review of code, docs or mixed changes - routine, deep, or security - with stable finding IDs, severities including SCOPE-CREEP, and dispositions. Use for review requests and for the Review-and-Fix stage of standard or strict work.
+description: Independent read-only review of code, docs or mixed changes - routine, deep, or security - with stable finding IDs, requirement relations, severities including SCOPE-CREEP and REQ-GAP, and dispositions. Use for review requests and for the Review-and-Fix stage of standard or strict work.
 ---
 
 # dev-review
@@ -40,7 +40,10 @@ secret or private identifier they report.
 3. Dispatch the reviewer subagent with a brief (R-DEL-1). Give the target, the
    context paths, the mode, and the output format in
    `${CLAUDE_SKILL_DIR}/references/review-report.md`. Never review your own
-   change as the required reviewer.
+   change as the required reviewer. The brief tells the reviewer to look for
+   problems beyond the requirements, to give every finding a
+   `requirement_relation`, and to rate severity by the R-REV-3 thresholds;
+   items below the thresholds go to residual risk.
    - Native option (D-005): `/code-review` and `/security-review` can be the
      primary review pass. Run it in a context that did not write the change,
      for example a fresh subagent; when the author's own session runs it, it
@@ -53,12 +56,23 @@ secret or private identifier they report.
      stops at the gate (dev-core §8).
 4. Read the report back. Check that each finding has a file and line and
    evidence. Mark claims you could not reproduce as unverified.
-5. Assign IDs (`F-001`, …) and propose a disposition for each finding
-   (R-REV-3). Save the report to `.dev/<objective-id>/reviews/<round>.md` for
-   standard and strict work.
+5. Assign IDs (`F-001`, …). Before any fix, classify each finding and
+   propose a disposition (R-REV-3, R-REV-4). Raise each `REQ-GAP` and each
+   Needs Human Decision as a decision card
+   (`${CLAUDE_SKILL_DIR}/references/decision-card.md`); do not fix a
+   `REQ-GAP` in the same round. Save the report to
+   `.dev/<objective-id>/reviews/<round>.md` for standard and strict work.
+   Once a PR exists, never commit the records of a review of its head to
+   the PR branch (R-EXH-3). Post them as a PR comment after the R-REV-9 scan
+   when the user has authorized that comment; otherwise keep them
+   uncommitted and give them in the report.
 6. When fixes follow, apply them with `dev-implement` or `dev-docs`, then
-   re-review proportionally (R-REV-4). After two unfinished rounds,
-   re-assess the approach (R-VER-2).
+   re-review proportionally (R-REV-4). Before a push, an independent
+   reviewer confirms the fixes in a narrow review. After two unfinished
+   rounds, re-assess the approach. When two consecutive rounds report new
+   blockers, or the same mechanism needed fixes and produced new problems in
+   two consecutive rounds, stop the fix loop and re-evaluate the spec, the
+   acceptance criteria and the approach (R-VER-2).
 
 ## Output
 

@@ -275,6 +275,31 @@ Graph engineering 在原專案的定位（ADR OE-007）：
 - Plugin 名稱是 `dev-skills`。`claude plugin validate` 不接受以 `claude-` 開頭的第三方 plugin 名稱，所以 repo 名稱維持 `claude-dev-skills`，plugin 改名。安裝指令為 `claude plugin install dev-skills@dev-skills`。
 - 不在 Phase 1：G1–G3、hooks、需求 wiki 的 lint 腳本（留到 Phase 2；Phase 1 只定格式並做 ingest）、CI workflow。
 
+### D-013 Review 收斂規則（已決定，2026-10-20）
+
+- 來源：PR #2 的 Merge Review 1 到 7 一直出現新的 finding，沒有收斂。PR-A（Issue #4）在第 2 輪之後先套用這些規則重新評估，移除了沒有需求對應的檢查（`.dev/issue-4-commit-security/reviews/round-2.md`）。需求見 REQ-012。
+- 規則（`dev-core` R-REV-3、R-REV-4、R-VER-2、R-EXH-3）：
+  1. 嚴重度門檻：MUST-FIX 只限 Core 的阻擋項；判斷不出是不是阻擋項時，算 MUST-FIX。SHOULD-FIX 必須有可重現的失敗，並影響需求、DoD 或文件寫明的行為。NIT 只限這次變更造成的回歸，或不實的文件內容。其餘列為剩餘風險（residual risk），不列為 finding。
+  2. 修補前先分類：每個 finding 判讀為必要修正、值得改善、維持現狀或需要人類決策。修補要在需求範圍內；需求沒考量到的缺陷，先交給使用者決定（見 D-016）。Core 的阻擋項例外：先修正。管理措施（流程、文件、人工檢查）是有效的修補方式，但要寫明責任人、可驗證的前提與失效時的處理。
+  3. 新增機制前，要說明它的獨特作用，以及對應哪一條需求；說不出來就列為 SCOPE-CREEP。`dev-core` R-RIG-3 已經有這條規則，所以本次不改。
+  4. 修正後、push 前，由獨立 reviewer 做窄範圍的確認。完整 Merge Review 仍涵蓋整個 base..head 範圍；可證未受之後任何變更影響的部分，可以重用先前的證據，但要寫明理由與覆蓋範圍。
+  5. 連續兩輪 review 仍出現新的阻擋項，或同一個機制連續兩輪修了又出新問題時，停止修正循環，不進入下一輪修正。先重新評估規格、驗收標準與做法；範圍問題用決策卡片（D-014）交給使用者。第二個條件由使用者在 PR-B 的決策卡片 1 加入。
+  6. PR 建立後，這個 head 的審查與 gate 紀錄不 commit 到 PR 分支。commit 會產生新的 head，新的 head 又需要一次完整審查，這就是結構性的循環。使用者授權貼 comment 時，紀錄寫成 PR comment（貼出前先做 R-REV-9 掃描）；沒有授權時，紀錄不 commit，放進給使用者的報告。
+- 與 Core 的差異：Core 沒有定義嚴重度門檻；Core 把連續兩輪未完成的 review 視為重新評估的時機，而不是停止。這些都是收緊，記錄在 `skills/dev-core/deltas.md` 的 DL-011、DL-012、DL-013。Core 的阻擋項一律保留為 MUST-FIX。
+- Core 回饋：是。理由：Codex 版與 Grok 版用同一份 Core，同樣可能遇到 review 不收斂，以及紀錄 commit 造成的循環；嚴重度門檻與停止規則都不依賴特定接口。
+
+### D-014 需要人類決策的描述格式（已決定，2026-10-20）
+
+- 來源：PR #2 與 PR-A 交給使用者的決策，每次的格式都不同。需求見 REQ-013。
+- 規則（`dev-core` R-AUTH-6、R-WRT-1）：
+  1. 每個 Needs Human Decision 的 finding，以及每個交給使用者的決策，都使用固定的決策卡片。欄位：問題（一句）、為什麼需要你決定、選項（每個選項分別寫做什麼、結果、風險、成本）、建議與理由、不決定的後果（會擋住什麼、什麼可以繼續）、證據（檔案和行號、指令輸出；事實與推論分開）。
+  2. 英文依 ASD-STE100 原則撰寫。繁體中文依 Core 的簡明寫作原則調適：一句只講一件事、寫明主詞、術語保持一致、技術詞第一次出現時用白話解釋、不用模糊詞、不套用英文字數規則。
+  3. 審查報告與 gate 報告註明「依 ASD-STE100 原則編寫，未完成完整符合性驗證」，不得宣稱符合 STE。
+  4. 範本與一個正例放在 `skills/dev-review/references/decision-card.md`。正例改寫自 PR-A 的決策卡片 1（貼出 PR 文字前要不要掃描）。
+- `dev-review`、`dev-gate`、`dev-deliver` 的輸出規則都使用這張卡片。
+- 與 Core 的差異：Core 列出提出決策時要寫的內容，但沒有固定格式。這是收緊，記錄在 DL-014。
+- Core 回饋：是。理由：這是 Core `wf-writing` 與 `auth-stops` 的格式問題；三個接口都要把決策交給使用者。
+
 ### D-015 每次 commit 與 push 前做安全審查（已決定，2026-10-20）
 
 D-009 到 D-014 與 D-016 是同一天的決定，分別在後續的 PR-B 和 PR-C 記錄。本 PR（Issue #4）只記錄 D-015。
@@ -294,6 +319,18 @@ D-009 到 D-014 與 D-016 是同一天的決定，分別在後續的 PR-B 和 PR
 - 審查報告也會 commit 或貼到 PR，所以兩個 reviewer agent 回報時一律遮蔽金鑰與私人識別資訊：只寫種類、位置與長度或類別；email 只說是不是 noreply 與提供者；路徑與主機名稱中的帳號或主機部分換成代稱。
 - 與 Core 的差異：Core 只在變更碰到信任邊界時要求 Security Diff Scan；這裡改成每次 commit 與 push 都要掃。這是收緊，記錄在 `skills/dev-core/deltas.md` 的 DL-010。
 - 同一個 PR 修正 `graph.py transition --evidence-file`：原本會把任何可讀檔案的內容複製進預設會被 commit 的 `events.jsonl`。現在只接受專案根目錄內的一般檔案（不接受 symlink 或 FIFO 之類的非一般檔案），而且只記錄相對路徑與 SHA-256，不記錄內容（使用者選擇的選項，2026-10-20）。剩下的風險：專案內短而好猜的秘密檔（例如被 gitignore 的 `.env`）的雜湊會被 commit，可以離線猜測。專案內任何一般檔案（包括 `.git/` 底下的檔案或 hardlink）都只會記下路徑與雜湊，不會記下內容；這些情況沒有對應的需求，所以不另外擋（2026-10-20 使用者決定）。追蹤項目是 `.dev/followups.md` 的 FU-003。
+
+### D-016 Review 範圍與需求的關係（已決定，2026-10-20）
+
+- 來源：PR-A 第 2 輪之後的重新評估。每個 finding 先標明和需求的關係，再決定怎麼處理；沒有需求對應的檢查被移除，需求的缺口變成決策卡片 1。需求見 REQ-014。
+- 規則（`dev-core` R-REV-3；`dev-review` 的 brief 規則與 finding 格式）：
+  1. Review 找問題的範圍不限於需求，但每個 finding 都標明 `requirement_relation`，值為 `in-scope`、`gap`、`no-requirement` 或 `unrelated` 之一。
+  2. 新增 finding 類別 `REQ-GAP`：需求沒有涵蓋、但看起來應該涵蓋的問題。`REQ-GAP` 不在當次修正，而是做成決策卡片（D-014），由使用者選擇：新增需求、延後處理或不採納。
+  3. 只有使用者能新增需求。使用者同意後，`dev-plan` 把它 ingest 成新的 REQ（ingest 指把使用者的原話寫成需求 wiki 裡的 REQ 檔），sources 記下 finding ID 與使用者的決定。agent 不能自己把 `REQ-GAP` 寫成需求。
+  4. `no-requirement` 歸為 `SCOPE-CREEP`；`unrelated` 列為剩餘風險或後續項目，不阻擋當次交付。
+  5. 例外：Core 規定的阻擋項（安全、資料遺失、授權、完整性）不論 `requirement_relation` 為何都照樣阻擋；需求沒寫到不構成豁免。
+- 與 Core 的差異：Core 沒有把 finding 和需求連起來。這是收緊，記錄在 DL-011。
+- Core 回饋：是。理由：Codex 曾把專案需求改寫成通用需求（D-003）；這個欄位讓三個接口都能分辨需求範圍內的修正與範圍擴張。
 
 ---
 
@@ -710,6 +747,83 @@ records the mapping.
   Phase 2; Phase 1 only defines the format and does the ingest), and a CI
   workflow.
 
+### D-013 Review convergence (decided, 2026-10-20)
+
+- Origin: PR #2 Merge Reviews 1 to 7 kept producing new findings and did not
+  converge. After round 2, PR-A (Issue #4) applied these rules early,
+  re-evaluated its findings and removed the checks that no requirement
+  covered (`.dev/issue-4-commit-security/reviews/round-2.md`). The
+  requirement is REQ-012.
+- Rules (`dev-core` R-REV-3, R-REV-4, R-VER-2, R-EXH-3):
+  1. Severity thresholds: `MUST-FIX` only for Core blockers. When it is
+     unclear whether an item is a Core blocker, it is `MUST-FIX`.
+     `SHOULD-FIX` needs a reproducible failure that affects a requirement,
+     the DoD or documented behavior. `NIT` is only a regression that this
+     change causes, or false documentation. Everything else is residual
+     risk, not a finding.
+  2. Classify before fixing: each finding is a necessary fix, worth
+     improving, keep as is, or needs human decision. A fix stays inside the
+     requirements. A defect that the requirements did not foresee goes to
+     the user first (see D-016). Exception: a Core blocker is fixed first.
+     A management measure (a process,
+     documentation or a manual check) is a valid fix when it names an owner,
+     a verifiable premise and what happens when it fails.
+  3. A new mechanism states its unique role and the requirement it serves;
+     otherwise it is `SCOPE-CREEP`. `dev-core` R-RIG-3 already has this
+     rule, so this PR does not change it.
+  4. After the fixes and before a push, an independent reviewer confirms
+     them in a narrow review. The complete Merge Review still covers the
+     whole base..head range. Parts that are provably unaffected by every later
+     change may reuse earlier evidence when the review records the reason and the coverage.
+  5. When two consecutive review rounds still report new blockers, or the
+     same mechanism needed fixes and produced new problems in two
+     consecutive rounds, stop the fix loop and do not start the next fix
+     round. The user added the second trigger in PR-B decision card 1. First re-evaluate the spec, the acceptance criteria and the
+     approach, and take scope questions to the user as decision cards
+     (D-014).
+  6. Once a PR exists, the review and gate records of its head never go into
+     a commit on the PR branch. A commit makes a new head, and a new head
+     needs a new complete review: a structural loop. When the user has
+     authorized the comment, the records go into a PR comment (scanned by
+     R-REV-9 before posting); otherwise they stay uncommitted and go into
+     the report to the user.
+- Difference from Core: Core defines no severity thresholds, and Core treats
+  two unfinished review rounds as a time to re-assess, not to stop. These
+  are tightenings, recorded as DL-011, DL-012 and DL-013 in
+  `skills/dev-core/deltas.md`. Every Core blocker stays `MUST-FIX`.
+- Core feedback: yes. Reason: the Codex and Grok versions use the same Core
+  and can meet the same non-converging reviews and the same loop from
+  committed records; the thresholds and the stop rule do not depend on one
+  interface.
+
+### D-014 Format for human decisions (decided, 2026-10-20)
+
+- Origin: the decisions that PR #2 and PR-A handed to the user had a
+  different format each time. The requirement is REQ-013.
+- Rules (`dev-core` R-AUTH-6, R-WRT-1):
+  1. Every Needs Human Decision finding, and every decision handed to the
+     user, uses a fixed decision card. Fields: the question (one sentence),
+     why you must decide, the options (for each: what it does, the result,
+     the risk, the cost), the recommendation and its reason, the consequence
+     of no decision (what is blocked, what can continue), and the evidence
+     (file and line, command output; facts apart from inferences).
+  2. English follows the ASD-STE100 principles. Traditional Chinese uses the
+     plain-writing adaptation of Core: one idea per sentence, an explicit
+     subject, consistent terms, a plain explanation of each technical term at
+     first use, no vague words, and no English word-count rules.
+  3. Review and gate reports state "written per ASD-STE100 principles; full
+     conformance not verified" and never claim STE conformance.
+  4. The template and one positive example are in
+     `skills/dev-review/references/decision-card.md`. The example is adapted
+     from PR-A decision card 1 (scan PR text before posting or not).
+- The output rules of `dev-review`, `dev-gate` and `dev-deliver` use the
+  card.
+- Difference from Core: Core lists what a decision request contains, but no
+  fixed format. This is a tightening, recorded as DL-014.
+- Core feedback: yes. Reason: this is a format question for Core
+  `wf-writing` and `auth-stops`, and all three interfaces hand decisions to
+  the user.
+
 ### D-015 Security review before every commit and push (decided, 2026-10-20)
 
 D-009 to D-014 and D-016 were decided on the same day. Later PRs (PR-B and
@@ -780,5 +894,35 @@ PR-C) record them. This PR (Issue #4) records only D-015.
   never the content. No requirement covers these cases, so they are not
   blocked separately (user decision, 2026-10-20). The tracking entry is
   FU-003 in `.dev/followups.md`.
+
+### D-016 Review scope and requirements (decided, 2026-10-20)
+
+- Origin: the PR-A re-evaluation after round 2. Each finding was first
+  related to the requirements and then handled. Checks with no requirement
+  behind them were removed, and the requirement gap became decision card 1.
+  The requirement is REQ-014.
+- Rules (`dev-core` R-REV-3; the brief rules and finding format of
+  `dev-review`):
+  1. A review looks for problems beyond the requirements, but every finding
+     states its `requirement_relation`: `in-scope`, `gap`, `no-requirement`
+     or `unrelated`.
+  2. New finding category `REQ-GAP`: a problem that no requirement covers
+     but one seemingly should. A `REQ-GAP` is not fixed in the same round. It
+     becomes a decision card (D-014), and the user chooses: add a
+     requirement, defer, or reject.
+  3. Only the user adds requirements. After the user agrees, `dev-plan`
+     ingests it as a new REQ, and its sources record the finding ID and the
+     user's decision. An agent never turns a `REQ-GAP` into a requirement
+     itself.
+  4. `no-requirement` is `SCOPE-CREEP`. `unrelated` is residual risk or a
+     follow-up and does not block the delivery.
+  5. Exception: Core blockers (security, data loss, authorization,
+     integrity) block for every `requirement_relation`. A missing
+     requirement is no exemption.
+- Difference from Core: Core does not relate findings to requirements. This
+  is a tightening, recorded as DL-011.
+- Core feedback: yes. Reason: Codex rewrote project requirements into
+  generic ones (D-003); this field lets all three interfaces tell a fix
+  inside the requirements from a scope expansion.
 
 </details>

@@ -1,0 +1,189 @@
+{
+  "schema": "claude-dev-graph/v1",
+  "objective": {
+    "id": "issue-6-review-convergence",
+    "title": "PR-B: review convergence (D-013), decision card (D-014), requirement relation (D-016)",
+    "rigor": "strict",
+    "requirements": [
+      "REQ-012",
+      "REQ-013",
+      "REQ-014"
+    ]
+  },
+  "nodes": [
+    {
+      "id": "T1",
+      "title": "REQ-012..014 ingest",
+      "kind": "docs",
+      "requirements": [
+        "REQ-012",
+        "REQ-013",
+        "REQ-014"
+      ],
+      "depends_on": [],
+      "owns": [
+        "docs/requirements/**"
+      ],
+      "risk": "low",
+      "review": "routine",
+      "status": "done",
+      "dod": [
+        "Every quote is verbatim from the user's messages; index and log updated"
+      ],
+      "verify": [
+        "python3 scripts/check_pack.py"
+      ]
+    },
+    {
+      "id": "T2",
+      "title": "dev-core rules, deltas DL-011..DL-014, source-map",
+      "kind": "implement",
+      "requirements": [
+        "REQ-012",
+        "REQ-013",
+        "REQ-014"
+      ],
+      "depends_on": [
+        {
+          "node": "T1",
+          "consumes": "REQ-012..014 acceptance"
+        }
+      ],
+      "owns": [
+        "skills/dev-core/**"
+      ],
+      "risk": "high",
+      "review": "deep",
+      "status": "done",
+      "dod": [
+        "Thresholds, requirement_relation, REQ-GAP, classify-before-fix, narrow confirmation, stop rule, record storage, decision card, zh writing rules",
+        "No Core obligation relaxed; each difference has a delta"
+      ],
+      "verify": [
+        "python3 scripts/check_core_coverage.py",
+        "python3 scripts/check_pack.py"
+      ]
+    },
+    {
+      "id": "T3",
+      "title": "dev-review skill, report format, decision-card reference, reviewer agents",
+      "kind": "implement",
+      "requirements": [
+        "REQ-012",
+        "REQ-013",
+        "REQ-014"
+      ],
+      "depends_on": [
+        {
+          "node": "T2",
+          "consumes": "dev-core rule ids and wording"
+        }
+      ],
+      "owns": [
+        "skills/dev-review/**",
+        "agents/dev-reviewer.md",
+        "agents/dev-security-reviewer.md"
+      ],
+      "risk": "high",
+      "review": "deep",
+      "status": "done",
+      "dod": [
+        "Report has requirement_relation and classification; REQ-GAP; decision-card template plus one positive example"
+      ],
+      "verify": [
+        "python3 scripts/check_pack.py"
+      ]
+    },
+    {
+      "id": "T4",
+      "title": "dev-gate, dev-deliver, dev-plan output and ingest rules",
+      "kind": "implement",
+      "requirements": [
+        "REQ-012",
+        "REQ-013",
+        "REQ-014"
+      ],
+      "depends_on": [
+        {
+          "node": "T3",
+          "consumes": "decision-card reference path"
+        }
+      ],
+      "owns": [
+        "skills/dev-gate/**",
+        "skills/dev-deliver/SKILL.md",
+        "skills/dev-plan/SKILL.md"
+      ],
+      "risk": "medium",
+      "review": "deep",
+      "status": "done",
+      "dod": [
+        "Gate and deliver outputs use the card; dev-plan ingests REQ-GAP only after the user decides"
+      ],
+      "verify": [
+        "python3 scripts/check_pack.py"
+      ]
+    },
+    {
+      "id": "T5",
+      "title": "design-proposal D-013, D-014, D-016 (zh + EN) and README",
+      "kind": "docs",
+      "requirements": [
+        "REQ-012",
+        "REQ-013",
+        "REQ-014"
+      ],
+      "depends_on": [
+        {
+          "node": "T2",
+          "consumes": "rule and delta ids"
+        },
+        {
+          "node": "T3",
+          "consumes": "reference paths"
+        }
+      ],
+      "owns": [
+        "docs/design-proposal.md",
+        "README.md"
+      ],
+      "risk": "medium",
+      "review": "deep",
+      "status": "done",
+      "dod": [
+        "zh and EN match in obligations and limits; each decision has a Core-feedback note"
+      ],
+      "verify": []
+    },
+    {
+      "id": "T6",
+      "title": "Content review (deep) and security review of the working tree",
+      "kind": "review",
+      "requirements": [
+        "REQ-012",
+        "REQ-013",
+        "REQ-014"
+      ],
+      "depends_on": [
+        {
+          "node": "T4",
+          "consumes": "final skill text"
+        },
+        {
+          "node": "T5",
+          "consumes": "final docs text"
+        }
+      ],
+      "owns": [],
+      "risk": "high",
+      "review": "deep",
+      "status": "done",
+      "dod": [
+        "All findings classified and dispositioned"
+      ],
+      "verify": [
+        "bash scripts/validate.sh"
+      ]
+    }
+  ]
+}

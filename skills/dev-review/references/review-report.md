@@ -9,14 +9,31 @@
 - Commit / push scan only (R-REV-9): sha256 of `git diff --cached --binary`, or the refs and commit range the push sends, or the PR text; the author, committer and message checked (masked)
 - Reviewer: <agent> (requested model/effort: <model>/<effort>; effective: unknown)
 - Scope: <paths>  Requirements: REQ-…  DoD: <ref>
+- Writing: written per ASD-STE100 principles; full conformance not verified (R-WRT-1)
 
 ## Findings
 
-| ID | Severity | Location | Finding | Evidence | Impact | Disposition |
-| --- | --- | --- | --- | --- | --- | --- |
-| F-001 | MUST-FIX | src/a.py:42 | … | … | … | Fixed / Deferred / Rejected / Needs Human Decision |
+| ID | Relation | Severity | Location | Finding | Evidence | Impact | Class | Disposition |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| F-001 | in-scope | MUST-FIX | src/a.py:42 | … | … | … | necessary fix | Fixed / Deferred / Rejected / Needs Human Decision |
 
-Severity: MUST-FIX, SHOULD-FIX, NIT, SCOPE-CREEP.
+Relation (`requirement_relation`, R-REV-3): `in-scope`, `gap`,
+`no-requirement` or `unrelated`. The reviewer fills it in.
+
+Severity (R-REV-3 thresholds): `MUST-FIX` only for Core blockers (an unclear
+case counts as `MUST-FIX`); `SHOULD-FIX` a reproducible failure that affects a
+requirement, the DoD or documented behavior; `NIT` only a regression of this
+change or false documentation; `SCOPE-CREEP` for `no-requirement`; `REQ-GAP`
+for `gap`. A Core blocker is `MUST-FIX` for every relation. Items below the
+thresholds go to residual risk, not to this table. An `unrelated` item goes to
+residual risk or a follow-up and does not block.
+
+Class (R-REV-4, filled in before any fix): necessary fix, worth improving,
+keep as is, or needs human decision.
+
+`REQ-GAP` covers a problem that no requirement covers but one seemingly
+should. It is not fixed in the same round: it gets a decision card
+(`decision-card.md`) with the options add a requirement, defer, or reject.
 
 `SCOPE-CREEP` covers an addition that no requirement covers: an abstraction,
 an option, a fallback, a validator, a layer, or a generalized requirement.
@@ -51,4 +68,5 @@ such a value.
 - `Rejected` needs the source and the reason.
 - `Deferred` needs a target, an owner, the reason, the remaining risk, a
   verification plan, and a trigger that makes it blocking.
-- `Needs Human Decision` needs the exact question.
+- `Needs Human Decision` needs the exact question as a decision card
+  (`decision-card.md`).

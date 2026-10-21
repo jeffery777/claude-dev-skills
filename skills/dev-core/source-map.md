@@ -19,20 +19,20 @@ cited Core section (see review round 1, DR-001 to DR-008, in
 | `workflow.md#wf-writing` | R-WRT-1 | covered | |
 | `workflow.md#wf-capability` | R-CAP-1, R-CAP-2, R-CAP-3 | covered | Native Claude Code capabilities named explicitly |
 | `workflow.md#wf-delegation` | R-DEL-1, R-DEL-2 | covered | Model/effort floor tightened (D-007) |
-| `workflow.md#wf-verification` | R-VER-1, R-VER-2, R-VER-3 | covered | |
+| `workflow.md#wf-verification` | R-VER-1, R-VER-2, R-VER-3 | covered | R-VER-2 adds the stop rule for the fix loop (DL-012) |
 | `workflow.md#wf-assumptions-and-options` | R-RIG-3, R-RIG-4 | covered | R-RIG-3 adds requirement tracing and SCOPE-CREEP (D-003); R-RIG-4 carries the premise and option rules |
 | `workflow.md#wf-evidence-lifecycle` | R-EVD-1, R-EVD-2 | covered | Illustrative scenario table not copied; read Core for cases |
 | `authorization-and-stops.md#auth-scope` | R-AUTH-1, R-AUTH-2 | covered | |
 | `authorization-and-stops.md#auth-destructive` | R-AUTH-3, R-AUTH-4 | covered | |
-| `authorization-and-stops.md#auth-stops` | R-AUTH-5, R-AUTH-6 | covered | |
+| `authorization-and-stops.md#auth-stops` | R-AUTH-5, R-AUTH-6 | covered | R-AUTH-6 uses the decision card (DL-014) |
 | `authorization-and-stops.md#auth-data` | R-AUTH-7 | covered | |
 | `review-and-security.md#review-independent` | R-REV-1, R-REV-2 | covered | Edit/Write removed by the tool allowlist; read-only Bash use is by instruction (DL-004) |
-| `review-and-security.md#review-findings` | R-RIG-2, R-REV-3, R-REV-4, R-REV-5 | covered | Adds SCOPE-CREEP severity |
+| `review-and-security.md#review-findings` | R-RIG-2, R-REV-3, R-REV-4, R-REV-5 | covered | Adds SCOPE-CREEP severity; severity thresholds, `requirement_relation` and `REQ-GAP` (DL-011); classification before fixing and narrow confirmation before a push (DL-012) |
 | `review-and-security.md#review-risk-timing` | R-RIG-1, R-RIG-2, R-REV-6 | covered | Rigor tiers map Core risk timing (D-004) |
 | `review-and-security.md#review-security` | R-REV-7, R-REV-9 | covered | R-REV-9 tightens: a scan before every commit, push and PR post, including commit identity and message (DL-010) |
 | `review-and-security.md#review-evidence` | R-REV-8 | covered | |
 | `exact-head-and-evidence.md#exact-identity` | R-EXH-1 | covered | |
 | `exact-head-and-evidence.md#exact-coherence` | R-EXH-2 | covered | |
-| `exact-head-and-evidence.md#exact-transition` | R-EXH-3 | covered | |
+| `exact-head-and-evidence.md#exact-transition` | R-EXH-3 | covered | Records of a PR head are never committed to the PR branch; a PR comment only with the user's authority, otherwise uncommitted in the report; evidence reuse only for provably unaffected parts, with reason and coverage (DL-013) |
 | `exact-head-and-evidence.md#exact-dimensions` | R-EXH-4 | covered | |
 | `exact-head-and-evidence.md#exact-pinning` | R-EXH-5 | covered | Lock records source, consumer, assembler, layout, environment, sections used and closure; `scripts/verify_core.py` checks digests and, with `--upstream`, the tag |

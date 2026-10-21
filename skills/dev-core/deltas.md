@@ -2,15 +2,16 @@
 
 Each entry records where `dev-core` differs from the vendored Core text.
 Allowed types: `rephrase`, `compress`, `tighten` (D-001). A delta that would
-relax or remove an obligation is a defect. Evidence column collects observed
-effects for possible feedback to Core; it starts empty.
+relax or remove an obligation is a defect. The Evidence column cites observed
+effects from the review records for possible feedback to Core
+(`docs/core-feedback.md`). An empty cell means no evidence is recorded yet.
 
 | ID | Rules | Type | Difference | Reason | Evidence |
 | --- | --- | --- | --- | --- | --- |
-| DL-001 | all | compress | Core prose (zh-TW, ~43 KB in 4 contracts) condensed to English rules with anchors | Context cost; D-001, D-002 | |
+| DL-001 | all | compress | Core prose (zh-TW, ~43 KB in 4 contracts) condensed to English rules with anchors | Context cost; D-001, D-002 | None recorded yet. The context cost is not measured; D-011 measures it (FU-004, `docs/core-feedback.md` CF-007) |
 | DL-002 | R-RIG-1, R-RIG-2 | tighten | Named rigor tiers `light/standard/strict`; unknown risk forces `standard` or higher; light work needs independent review and the commit gate before any commit, push or PR, and otherwise stays uncommitted with "not independently reviewed" as residual risk | Core states risk-proportional timing without named tiers; tiers make the choice explicit and auditable (D-004). Round 1 DR-001 found the first wording relaxed Core; corrected | Review round 1, DR-001 |
-| DL-003 | R-RIG-3, R-REV-3 | tighten | Every added mechanism must trace to a `REQ-…`; new finding severity `SCOPE-CREEP` | Counter over-engineering observed with Codex; extends `wf-assumptions-and-options` (D-003) | |
-| DL-004 | R-REV-1 | tighten | Independent reviewer must be a separate subagent without Edit/Write tools; Bash remains, so read-only Bash use is enforced by instructions only | The tool allowlist removes file-edit tools; Core does not require it. It is not technical isolation (Core review-independent) | |
+| DL-003 | R-RIG-3, R-REV-3 | tighten | Every added mechanism must trace to a `REQ-…`; new finding severity `SCOPE-CREEP` | Counter over-engineering observed with Codex; extends `wf-assumptions-and-options` (D-003) | PR-A round 2 (`.dev/issue-4-commit-security/reviews/round-2.md`): the `--evidence-file` checks that no requirement covered were classified `no-requirement` and removed. PR #2: `tree_fingerprint.py` collected more than 15 findings after round 2 added it and was removed (`.dev/handoff/pr-2-checkpoint.md`) |
+| DL-004 | R-REV-1 | tighten | Independent reviewer must be a separate subagent without Edit/Write tools; Bash remains, so read-only Bash use is enforced by instructions only | The tool allowlist removes file-edit tools; Core does not require it. It is not technical isolation (Core review-independent) | PR #2 SEC-02 (`.dev/issue-1-phase1/reviews/security-review-merge.md`): the reviewer descriptions said "Cannot edit files" although both keep Bash; fixed. Runtime enforcement of `tools`/`disallowedTools` is not tested yet (FU-004) |
 | DL-005 | R-DEL-2 | tighten | Floor `opus`/`high` for security, data, migration and public-contract work; aliases instead of model IDs | D-007; Core forbids fixed permanent model IDs and fixed maximum effort, floor is compatible with both | |
 | DL-006 | R-CAP-1 | rephrase | Names concrete native capabilities (`/code-review`, `/security-review`, worktree, Workflow, ToolSearch) | D-005 | |
 | DL-007 | R-EVD-1 | compress | Core's illustrative scenario table omitted | Examples are non-normative in Core; cited anchor stays authoritative | |

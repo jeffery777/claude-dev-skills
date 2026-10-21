@@ -20,7 +20,7 @@ Graph engineering 在原專案的定位（ADR OE-007）：
 
 ## 2. 設計原則（Claude 版）
 
-1. **Core 是唯一權威；dev-core 是精簡的執行版。** Core 的義務全部保留：DoD、獨立 review、finding disposition、exact-head、授權與停止條件、證據生命週期。日常執行讀 dev-core，它是 Claude 一次讀得完的短規則加檢查清單。法條式重複是 Codex 版最大的 context 成本。兩者衝突時以 Core 原文為準（見第 7 節）。
+1. **Core 是唯一權威；dev-core 是精簡的執行版。** Core 的義務全部保留：DoD、獨立 review、finding disposition、exact-head、授權與停止條件、證據生命週期。日常執行讀 dev-core，它是 Claude 一次讀得完的短規則加檢查清單。精簡的目的是減少重複載入，以及長文造成的注意力分散。實際的 context 成本還沒有量測；D-011 會量測，並和 codex-dev-skills 比較。兩者衝突時以 Core 原文為準（見第 7 節）。
 2. **優先用 Claude Code 原生能力，不重造控制器。** 原生能力包括：subagent（Agent tool）、worktree isolation、plan mode、task list、hooks、`/code-review`、`/security-review`、Workflow 多代理編排、skills progressive disclosure。
 3. **能用設定強制的，就不靠提示詞。** Codex 版只能宣告 reviewer 是唯讀；Claude Code 的 subagent 可以用 `tools` allowlist 拿掉 Edit/Write。reviewer 仍保留 Bash 以便跑測試，所以 Bash 的唯讀使用仍靠指示約束；這不等於技術隔離（Core `review-independent`）。
 4. **狀態存在 repo 檔案和 Git。** 聊天摘要、子代理回報、hook 輸出都只是協調資訊，不能當完成證據。
@@ -92,7 +92,19 @@ Graph engineering 在原專案的定位（ADR OE-007）：
 | **G0 Task graph + 需求錨點** | `.dev/<objective>/graph.json`：task node 帶 `requirements: [REQ-…]`、ownership paths、DoD、verification、review mode、risk；edge 用 `depends_on` 表示。另有 append-only 的 `events.jsonl`。`graph.py`（只用標準庫）負責驗證 schema、偵測循環、計算 ready set、檢查 ownership 是否重疊、執行 fake-edge 檢查，並追溯需求（找出沒對應到任何 REQ 的 task）。Phase 1 也已提供：GitNexus 唯讀查詢（`impact`／`detect-changes`，結果只供參考）與 `SCOPE-CREEP` finding（REQ-003、REQ-004） | `dev-plan` 能產出 graph；`dev-deliver` 依 ready set 逐一推進（單一 writer）；validator 有正反兩面的 fixtures |
 | **G1 程式圖與需求圖整合** | 把需求圖、task graph 與 GitNexus 符號接起來：`graph.py render` 輸出 Mermaid 追溯圖（來源 → REQ → task，之後再接 GitNexus 符號）；review 依追溯圖系統化地檢查 scope 是否偏移 | review 能指出「這段改動對應哪條需求」和「影響了哪些符號」 |
 | **G2 圖驅動並行** | 把 ready set 中 ownership 互不重疊的 task 編成 Workflow 腳本或並行的 Agent 呼叫，搭配 worktree 隔離；reducer 用程式碼做；每個 fan-out 後接 verifier node | 有界並行能跑通；不會有兩個 writer 改同一個檔案；派出與收回的數量對得上 |
-| **G3 Evidence projection 與自我改進** | 驗證、review、finding、commit 也成為 typed node；互動式 HTML 視圖（可發佈為 Artifact），包含 finding 與 commit 節點；evals 與改善提案（只產出提案） | 待 G0–G2 實際使用後再定 |
+| **G3 Evidence projection 與自我改進** | 驗證、review、finding、commit 也成為 typed node；互動式 HTML 視圖（可發佈為 Artifact），包含 finding 與 commit 節點；evals 與改善提案（只產出提案） | 暫定（G3 開工前依 G0–G2 的實際使用結果修正）：驗證、review、finding、commit 的 typed node 能從 Git 與 review 紀錄重新產生；HTML 視圖能從這些資料重新產生，而且不回寫成來源；evals 產出的改善提案只交給使用者決定，不自動套用 |
+
+以下規則來自 D-009：
+
+- G1、G2、G3 各自是一輪獨立交付：Issue → 分支 → review 與掃描 → PR → Merge Review。前一階段合併後，下一階段才開始。
+- 每個階段開工前，先依前一階段的實際使用結果，修正上表該階段的交付物與完成判準。
+- 每個階段的產出分屬兩層：
+  - **runtime 中立層**：graph 與 REQ 的 schema、`graph.py`、fixtures。這一層不得依賴 Claude 專用工具，讓 Codex 和 Grok 也能使用。
+  - **Claude 專用層**：用 Agent 與 Workflow 執行的方式。這一層供日後 Codex、Grok 參考，或提回 Core。
+- 依目前的設計，各階段的分層如下；每個階段開工前一併修正：
+  - G1：`graph.py render` 與追溯資料屬中立層；review 如何使用追溯圖屬 Claude 專用層。
+  - G2：ready set 與 ownership 檢查屬中立層；Workflow 腳本、並行的 Agent 呼叫與 worktree 隔離屬 Claude 專用層。
+  - G3：evidence node 的 schema 屬中立層；HTML 視圖與 Artifact 屬 Claude 專用層。
 
 每個 graph 檔案都只是協調資料，不能當完成證據。完成仍以 Git、驗證結果、獨立 review 為準（Core `exact-head-and-evidence.md`）。
 
@@ -102,7 +114,7 @@ Graph engineering 在原專案的定位（ADR OE-007）：
 
 - 不做 installer：改用 plugin marketplace。
 - 不做 model/effort 路由引擎或完整矩陣：只用第 4 節那張對照表，由主代理依任務挑選（D-007）。
-- 不做 memory backend：使用 Claude Code 原生 memory 與 repo 檔案。
+- 不做 memory backend，也不做記憶契約：專案狀態以 repo 為準；原生 memory 只當參考（D-010）。
 - 不做事件 hash chain 和 fencing token：先靠 Git 歷史加單一 writer；G2 需要並行時再評估。`graph.py transition` 以檔案鎖序列化寫入。
 - 不做並行 writer：`dev-deliver` 依序執行 ready 的 task；只有唯讀的 task（探索、review）可以並行。並行 writer 與 worktree 整合屬 G2。
 - 不做 Desktop／CLI session 控制適配：直接使用原生 session 和 worktree 能力。
@@ -142,6 +154,7 @@ Graph engineering 在原專案的定位（ADR OE-007）：
    - **增量型（優先）**：在 Core 新增一份非權威的精簡伴讀文件，權威原文不動。Codex 和 Grok 可以不採用。
    - **修改型**：改動權威原文。必須先讓 codex-dev-skills 和 grok-build-dev-skills 各自 pin 候選版本並跑過 evals，確認沒有退化才合併。
 4. Core 合併不代表 Codex 或 Grok 已採用。各接口什麼時候重新 pin，由各接口自己決定、自己驗證。
+5. 回饋項目與證據記錄在 `docs/core-feedback.md`（REQ-019）。
 
 **本專案這次的範圍**
 
@@ -275,6 +288,55 @@ Graph engineering 在原專案的定位（ADR OE-007）：
 - Plugin 名稱是 `dev-skills`。`claude plugin validate` 不接受以 `claude-` 開頭的第三方 plugin 名稱，所以 repo 名稱維持 `claude-dev-skills`，plugin 改名。安裝指令為 `claude plugin install dev-skills@dev-skills`。
 - 不在 Phase 1：G1–G3、hooks、需求 wiki 的 lint 腳本（留到 Phase 2；Phase 1 只定格式並做 ingest）、CI workflow。
 
+### D-009 Graph engineering 分階段完成（已決定，2026-10-20）
+
+- 來源：使用者 2026-10-20 的決定。需求見 REQ-002（補上 D-009 的原話）。
+- 規則寫在第 5.2 節：
+  1. G1、G2、G3 各自是一輪獨立交付；前一階段合併後，下一階段才開始。
+  2. 每個階段開工前，先依前一階段的實際使用結果修正設計。
+  3. 第 5.2 節列出各階段的交付物與完成判準。
+  4. graph 與 REQ 的 schema、`graph.py`、fixtures 屬 runtime 中立層，不得依賴 Claude 專用工具；用 Agent 與 Workflow 執行的方式屬 Claude 專用層。
+- Core 回饋：目前否。理由：graph engineering 不在 Core 的契約內。中立層在 G1 之後才成形；之後若要提回 Core，依 D-001 的流程另外記錄在 `docs/core-feedback.md`。
+
+### D-010 不做 agent memory（已決定，2026-10-20）
+
+- 來源：使用者 2026-10-20 的決定。需求見 REQ-015。
+- 不建立任何 memory backend 或記憶契約。
+- 專案狀態以 repo 為準：REQ wiki、`graph.json`、`events.jsonl`、Git 與 review 紀錄。
+- 原生記憶只當參考資料。原生記憶與 repo 衝突時，以 repo 為準。原生記憶不得作為需求來源、授權或完成證據。
+- `dev-core` R-AUTH-1 與 R-AUTH-7 已經把記憶當成參考資料，所以技能規則不需要修改。第 6 節已同步改寫。
+- Core 回饋：否。理由：Core 已涵蓋這些規則：`auth-scope` 規定記憶不得覆蓋指示順序，`wf-stages` 規定 session 記憶只供參考，`auth-data` 規定 native recall 不是合格的管理 backend，而且 Core 沒有資料 backend。D-010 只是本專案選擇不建 backend。
+
+### D-011 部署與量測（已決定，2026-10-20）
+
+- 來源：使用者 2026-10-20 的決定，以及同一天對原則 1 那句 context 成本說法的提問。需求見 REQ-016。
+- 部署：下列步驟在 repo 之外，由使用者執行。本 PR 只記錄，不執行。
+  1. 以 user scope 安裝到 Claude Code，只在個人專案使用。Cowork 要等 FU-001（GitHub Issue #3）驗證之後再說。
+  2. 在 `~/.claude/CLAUDE.md` 加一段簡短指引：開發任務先用 `dev-deliver` 判斷等級。
+- 量測計畫：
+  1. 挑 3 到 5 個真實任務。每個任務在有裝技能包與沒裝技能包的情況下各跑一次。
+  2. 每次執行記錄四項：漏掉的錯誤、不在需求內的改動、token 用量與耗時。
+  3. Token 比較：同一個任務在 claude-dev-skills 與 codex-dev-skills 各跑一次，比較 token 用量，並記錄 `dev-core`（Codex 版是 Core 的參考文件）被讀取的次數。原則 1 的 context 成本以這項結果為準。
+  4. 同時確認 plugin agent 的 `tools` 與 `disallowedTools` 在實際執行時有生效（2026-10-20 約定的後續項目）。
+  5. Token 用量與耗時以平台提供的用量紀錄為準。agent 不自行估算，也不宣稱能精確讀取 context 用量。
+  6. 依結果決定加強或刪減技能。修改走新的 Issue 與 PR。
+- 追蹤項目是 `.dev/followups.md` 的 FU-004。
+- 拆分 `dev-core` 的評估記錄在 `docs/core-feedback.md`。拆分的意思是：一份每次都讀的短核心，加上依階段需要時才讀的參考文件，類似 Codex 版的做法。要不要實作，等量測結果出來後，由使用者用決策卡片決定（FU-005）。
+- Core 回饋：否。理由：部署與量測是 Claude 端的工作。量測結果會成為 D-001 回饋流程第 2 步的證據（`docs/core-feedback.md`）。
+
+### D-012 自動交接（已決定，2026-10-20）
+
+- 來源：使用者 2026-10-20 的決定。需求見 REQ-017。
+- 規則（`dev-continue`）：
+  1. 每個工作項目完成時，評估要不要換到新的對話（session）。工作項目例如一個 graph node、一輪 review 與修正，或一個階段。
+  2. 評估依據是 review 與修正的輪數、階段邊界與工作量。context 用量只當參考。agent 不宣稱能精確讀取 context 用量。
+  3. 決定要換時，自動寫好 checkpoint。PR 建立前，自動 commit，不先詢問使用者。D-012 是使用者的決定，涵蓋這個 checkpoint commit，不涵蓋其他 commit。這個 commit 仍遵守所有 commit 規則：先做 R-REV-9 掃描；`commit_state` 為 `false` 時不 stage 狀態檔。
+  4. PR 建立後，checkpoint 不 commit，因為 commit 到 PR 分支會產生新的 head，新的 head 需要新的完整審查（R-EXH-3）。checkpoint 留在工作目錄，重點改貼成 PR comment，讓其他 clone 也能接手。貼出前由 `dev-security-reviewer` 掃描要貼出的原文（R-REV-9）。沒有這項掃描就不貼出。checkpoint 只指向審查與 gate 紀錄，不重複這些紀錄。這一項是使用者對 PR-C1 決策卡片 1 的回答，只涵蓋這則 comment，不涵蓋其他 comment。
+  5. 接著提出新 session 的卡片，附上完整交接說明。使用者按下確認後，新 session 才開始。
+  6. 使用者確認後就完成交接，原 session 停止寫入。使用者確認之前，或使用者拒絕時，沒有發生交接，原 session 繼續工作。
+- 與 Core 的差異：Core `wf-stages` 已規定暫停前存 checkpoint，以及接續時重新讀取來源。D-012 只加上評估時機與交接步驟，沒有改 `dev-core` 的規則。
+- Core 回饋：否。理由：換對話的方式取決於各接口的 session 能力；Core `wf-stages` 已涵蓋 checkpoint 與接續。
+
 ### D-013 Review 收斂規則（已決定，2026-10-20）
 
 - 來源：PR #2 的 Merge Review 1 到 7 一直出現新的 finding，沒有收斂。PR-A（Issue #4）在第 2 輪之後先套用這些規則重新評估，移除了沒有需求對應的檢查（`.dev/issue-4-commit-security/reviews/round-2.md`）。需求見 REQ-012。
@@ -302,7 +364,7 @@ Graph engineering 在原專案的定位（ADR OE-007）：
 
 ### D-015 每次 commit 與 push 前做安全審查（已決定，2026-10-20）
 
-D-009 到 D-014 與 D-016 是同一天的決定，分別在後續的 PR-B 和 PR-C 記錄。本 PR（Issue #4）只記錄 D-015。
+D-009 到 D-016 是同一天的決定。D-015 由 PR #5（Issue #4）記錄；D-013、D-014、D-016 由 PR #7（Issue #6）記錄；D-009 到 D-012 由 PR-C1（Issue #8）記錄。
 
 - 來源：PR #2 的 SEC-01。分支上 10 個 commit 的作者與 committer 是由本機帳號與主機名稱推導出來的，push 後已經公開。內容審查沒有檢查 commit 的中繼資料，到合併前的安全掃描才發現。需求見 REQ-011。
 - 規則（`dev-core` R-REV-9）：每次 commit 與每次 push 之前，由獨立的 `dev-security-reviewer` 掃描「實際要公開的內容」。小改動或只改文件也不例外，這項掃描永遠不能標為「不適用」。
@@ -318,6 +380,7 @@ D-009 到 D-014 與 D-016 是同一天的決定，分別在後續的 PR-B 和 PR
 - 建議（不在本 PR 實作）：用 gitleaks 之類的 secret scanner，掛在 pre-commit 或 pre-push hook，作為確定性的補充檢查；並設定 `git config user.useConfigOnly true`，讓 Git 不會用主機名稱猜身分。安裝工具或 hook、改 Git 設定都需要使用者同意；它們都不能取代獨立審查。
 - 審查報告也會 commit 或貼到 PR，所以兩個 reviewer agent 回報時一律遮蔽金鑰與私人識別資訊：只寫種類、位置與長度或類別；email 只說是不是 noreply 與提供者；路徑與主機名稱中的帳號或主機部分換成代稱。
 - 與 Core 的差異：Core 只在變更碰到信任邊界時要求 Security Diff Scan；這裡改成每次 commit 與 push 都要掃。這是收緊，記錄在 `skills/dev-core/deltas.md` 的 DL-010。
+- Core 回饋：是。理由：在公開 repo 中，每次 commit 與 push 都會公開內容與中繼資料，這和接口無關。證據是 PR #2 的 SEC-01（見 `docs/core-feedback.md`）。
 - 同一個 PR 修正 `graph.py transition --evidence-file`：原本會把任何可讀檔案的內容複製進預設會被 commit 的 `events.jsonl`。現在只接受專案根目錄內的一般檔案（不接受 symlink 或 FIFO 之類的非一般檔案），而且只記錄相對路徑與 SHA-256，不記錄內容（使用者選擇的選項，2026-10-20）。剩下的風險：專案內短而好猜的秘密檔（例如被 gitignore 的 `.env`）的雜湊會被 commit，可以離線猜測。專案內任何一般檔案（包括 `.git/` 底下的檔案或 hardlink）都只會記下路徑與雜湊，不會記下內容；這些情況沒有對應的需求，所以不另外擋（2026-10-20 使用者決定）。追蹤項目是 `.dev/followups.md` 的 FU-003。
 
 ### D-016 Review 範圍與需求的關係（已決定，2026-10-20）
@@ -369,9 +432,10 @@ How the original project positions graph engineering (ADR OE-007):
    Every Core obligation stays: DoD, independent review, finding
    dispositions, exact-head, authority and stop conditions, and the evidence
    lifecycle. Day-to-day work reads `dev-core`, a set of short rules and
-   checklists that Claude can read in one pass. The repeated legal-style text
-   was the largest context cost in the Codex version. When the two conflict,
-   the Core text wins (section 7).
+   checklists that Claude can read in one pass. The compact form aims to cut
+   repeated loading and the loss of attention in long text. The real context
+   cost is not measured yet; D-011 measures it and compares it with
+   codex-dev-skills. When the two conflict, the Core text wins (section 7).
 2. **Use native Claude Code capabilities first; do not rebuild controllers.**
    Native capabilities include subagents (the Agent tool), worktree
    isolation, plan mode, the task list, hooks, `/code-review`,
@@ -466,7 +530,29 @@ It comes down to three graph layers:
 | **G0 Task graph + requirement anchors** | `.dev/<objective>/graph.json`: task nodes with `requirements: [REQ-…]`, owned paths, DoD, verification, review mode and risk; edges as `depends_on`. An append-only `events.jsonl`. `graph.py` (standard library only) validates the schema, detects cycles, computes the ready set, checks for overlapping ownership, runs the fake-edge test, and traces requirements (finds tasks that map to no REQ). Phase 1 also ships read-only GitNexus queries (`impact`, `detect-changes`; advisory results) and the `SCOPE-CREEP` finding (REQ-003, REQ-004) | `dev-plan` can produce a graph; `dev-deliver` advances through the ready set one node at a time (single writer); the validator has positive and negative fixtures |
 | **G1 Code graph and requirement graph** | Connect the requirement graph, the task graph and GitNexus symbols: `graph.py render` outputs a Mermaid traceability graph (source → REQ → task, later extended to GitNexus symbols); review uses the trace to check scope drift systematically | A review can say which requirement a change serves and which symbols it affects |
 | **G2 Graph-driven parallelism** | Tasks in the ready set with disjoint ownership become a Workflow script or parallel Agent calls with worktree isolation; the reducer is code; each fan-out is followed by a verifier node | Bounded parallel runs work; no two writers change the same file; dispatched and returned counts match |
-| **G3 Evidence projection and self-improvement** | Verification, reviews, findings and commits also become typed nodes; an interactive HTML view (publishable as an Artifact) that includes finding and commit nodes; evals and improvement proposals (proposals only) | To be defined after G0–G2 are in real use |
+| **G3 Evidence projection and self-improvement** | Verification, reviews, findings and commits also become typed nodes; an interactive HTML view (publishable as an Artifact) that includes finding and commit nodes; evals and improvement proposals (proposals only) | Provisional (revised from the real use of G0–G2 before G3 starts): the typed nodes for verification, reviews, findings and commits can be regenerated from Git and the review records; the HTML view can be regenerated from them and is never written back as a source; the improvement proposals from evals go to the user for a decision and are never applied automatically |
+
+These rules come from D-009:
+
+- G1, G2 and G3 are each one independent delivery: Issue → branch → review
+  and scan → PR → Merge Review. The next stage starts only after the previous
+  stage is merged.
+- Before a stage starts, revise that stage's deliverables and done criteria
+  in the table above from the real use of the previous stage.
+- The output of each stage belongs to one of two layers:
+  - **Runtime-neutral layer**: the graph and REQ schemas, `graph.py` and the
+    fixtures. This layer must not depend on Claude-only tools, so that Codex
+    and Grok can use it too.
+  - **Claude-specific layer**: execution with Agent and Workflow. Codex and
+    Grok can use it later as a reference, or it can go back to Core.
+- In the current design, the stages split into these layers; revise this
+  before each stage starts:
+  - G1: `graph.py render` and the trace data are runtime-neutral; how a
+    review uses the trace is Claude-specific.
+  - G2: the ready set and the ownership checks are runtime-neutral; Workflow
+    scripts, parallel Agent calls and worktree isolation are Claude-specific.
+  - G3: the schema of the evidence nodes is runtime-neutral; the HTML view
+    and the Artifact are Claude-specific.
 
 Every graph file is coordination data only. It is not completion evidence.
 Completion still rests on Git, verification results and independent review
@@ -483,7 +569,8 @@ prove completion, or be written back as a source.
 - No installer; use the plugin marketplace.
 - No model/effort routing engine or full matrix; only the table in section
   4, chosen per task by the main agent (D-007).
-- No memory backend; use Claude Code's native memory and repository files.
+- No memory backend and no memory contract: project state lives in the
+  repository; native memory is reference only (D-010).
 - No event hash chain or fencing tokens; rely on Git history and a single
   writer for now, and re-evaluate when G2 needs parallelism. `graph.py
   transition` serializes writes with a file lock.
@@ -540,6 +627,8 @@ prove completion, or be written back as a source.
      with no regression before it merges.
 4. A merge into Core does not mean Codex or Grok adopted it. Each interface
    decides and verifies its own re-pin.
+5. The feedback items and their evidence are in `docs/core-feedback.md`
+   (REQ-019).
 
 **Scope of this project for now**
 
@@ -747,6 +836,113 @@ records the mapping.
   Phase 2; Phase 1 only defines the format and does the ingest), and a CI
   workflow.
 
+### D-009 Graph engineering in stages (decided, 2026-10-20)
+
+- Origin: the user's decision of 2026-10-20. The requirement is REQ-002 (with
+  the D-009 words added).
+- The rules are in section 5.2:
+  1. G1, G2 and G3 are each one independent delivery. The next stage starts
+     only after the previous stage is merged.
+  2. Before a stage starts, revise the design from the real use of the
+     previous stage.
+  3. Section 5.2 gives the deliverables and done criteria of each stage.
+  4. The graph and REQ schemas, `graph.py` and the fixtures are the
+     runtime-neutral layer and must not depend on Claude-only tools.
+     Execution with Agent and Workflow is the Claude-specific layer.
+- Core feedback: no for now. Reason: graph engineering is not in the Core
+  contracts. The runtime-neutral layer takes shape only after G1. If it goes
+  back to Core later, record it in `docs/core-feedback.md` through the D-001
+  process.
+
+### D-010 No agent memory (decided, 2026-10-20)
+
+- Origin: the user's decision of 2026-10-20. The requirement is REQ-015.
+- Build no memory backend and no memory contract.
+- Project state lives in the repository: the REQ wiki, `graph.json`,
+  `events.jsonl`, Git and the review records.
+- Native memory is reference material only. When native memory conflicts with
+  the repository, the repository wins. Native memory is never a requirement
+  source, authority or completion evidence.
+- `dev-core` R-AUTH-1 and R-AUTH-7 already treat memory as reference data, so
+  no skill rule changes. Section 6 now says the same.
+- Core feedback: no. Reason: Core already covers these rules: `auth-scope`
+  keeps memory from overriding the instruction order, `wf-stages` makes
+  session memory advisory, and `auth-data` says that native recall is not a
+  qualified managed backend and that Core has no data backend. D-010 only
+  records that this project builds no backend.
+
+### D-011 Deploy and measure (decided, 2026-10-20)
+
+- Origin: the user's decision of 2026-10-20, and the user's question on the
+  same day about the context-cost sentence in principle 1. The requirement is
+  REQ-016.
+- Deployment: these steps are outside the repository, and the user does them.
+  This PR records them and does not do them.
+  1. Install the pack at user scope in Claude Code, for personal projects
+     only. Cowork waits until FU-001 (GitHub Issue #3) is verified.
+  2. Add a short note to `~/.claude/CLAUDE.md`: development tasks start with
+     `dev-deliver` to choose the tier.
+- Measurement plan:
+  1. Pick 3 to 5 real tasks. Run each task once with the pack and once
+     without it.
+  2. Record four measures for each run: missed errors, changes outside the
+     requirements, token use and time.
+  3. Token comparison: run the same task once in claude-dev-skills and once
+     in codex-dev-skills. Compare the token use, and count the reads of
+     `dev-core` (in the Codex version, the Core reference files). The
+     context cost in principle 1 is set from this result.
+  4. Also check that the `tools` and `disallowedTools` of the plugin agents
+     take effect at run time (a follow-up agreed on 2026-10-20).
+  5. Token use and time come from the usage records of the platform. The
+     agent does not estimate them, and it does not claim that it can read
+     its exact context usage.
+  6. The results decide what to strengthen or trim in the skills. Changes go
+     through a new Issue and PR.
+- The tracking entry is FU-004 in `.dev/followups.md`.
+- `docs/core-feedback.md` records an evaluation of a split of `dev-core`: a
+  short core that is always read, plus references for each stage that are
+  read only when needed, as in the Codex version. Whether to implement it
+  waits for the measurements; the user decides with a decision card (FU-005).
+- Core feedback: no. Reason: deployment and measurement are work on the
+  Claude side. The results become evidence for step 2 of the D-001 feedback
+  process (`docs/core-feedback.md`).
+
+### D-012 Automatic handoff (decided, 2026-10-20)
+
+- Origin: the user's decision of 2026-10-20. The requirement is REQ-017.
+- Rules (`dev-continue`):
+  1. When a work item is complete, evaluate whether to switch to a new
+     session. A work item is, for example, one graph node, one review and
+     fix round, or one stage.
+  2. The basis is the number of review and fix rounds, stage boundaries and
+     the workload. Context usage is a reference only. The agent does not
+     claim that it can read its exact context usage.
+  3. When it decides to switch, it writes the checkpoint. Before a PR
+     exists, it commits the checkpoint without asking first. D-012 is the
+     user's decision; it covers this checkpoint commit and no other commit.
+     The commit keeps every commit rule: the R-REV-9 scan first; with
+     `commit_state` set to `false`, do not stage state files.
+  4. Once a PR exists, the checkpoint is not committed, because a commit on
+     the PR branch makes a new head, and the new head needs a new complete
+     review (R-EXH-3). The checkpoint stays in the working tree, and its key
+     points are posted as a PR comment so that another clone can take over.
+     `dev-security-reviewer` scans the exact text before it is posted
+     (R-REV-9); without that scan, it is not posted. The checkpoint points
+     to the review and gate records and does not repeat them. This item is
+     the user's answer to PR-C1 decision card 1; it covers this comment and
+     no other comment.
+  5. Then it offers a new-session card with a full handoff brief. The new
+     session starts only after the user confirms.
+  6. The handoff is complete when the user confirms; then the old session
+     stops writing. Before the user confirms, or when the user declines, no
+     handoff has happened and the old session continues.
+- Difference from Core: Core `wf-stages` already requires a checkpoint before
+  a pause and a re-read of the sources on resume. D-012 adds only when to
+  evaluate and the handoff steps; no `dev-core` rule changes.
+- Core feedback: no. Reason: how to switch sessions depends on the session
+  capabilities of each interface; Core `wf-stages` already covers the
+  checkpoint and the resume.
+
 ### D-013 Review convergence (decided, 2026-10-20)
 
 - Origin: PR #2 Merge Reviews 1 to 7 kept producing new findings and did not
@@ -826,8 +1022,9 @@ records the mapping.
 
 ### D-015 Security review before every commit and push (decided, 2026-10-20)
 
-D-009 to D-014 and D-016 were decided on the same day. Later PRs (PR-B and
-PR-C) record them. This PR (Issue #4) records only D-015.
+D-009 to D-016 were decided on the same day. PR #5 (Issue #4) records
+D-015; PR #7 (Issue #6) records D-013, D-014 and D-016; PR-C1 (Issue #8)
+records D-009 to D-012.
 
 - Origin: PR #2 SEC-01. The author and committer of all 10 branch commits were
   derived from the local account and the machine hostname, and the push
@@ -882,6 +1079,9 @@ PR-C) record them. This PR (Issue #4) records only D-015.
 - Difference from Core: Core requires a Security Diff Scan only when a change
   touches a trust boundary. Here every commit and push needs the scan. This
   is a tightening, recorded as DL-010 in `skills/dev-core/deltas.md`.
+- Core feedback: yes. Reason: in a public repository, every commit and push
+  publishes content and metadata, whatever the interface. The evidence is
+  PR #2 SEC-01 (see `docs/core-feedback.md`).
 - The same PR fixes `graph.py transition --evidence-file`. It copied the
   content of any readable file into `events.jsonl`, which is committed by
   default. Now it accepts only a regular file inside the project root (no

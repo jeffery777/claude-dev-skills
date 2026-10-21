@@ -22,3 +22,10 @@ Append-only. Never rewrite earlier lines; add a new line for each change.
 | 2026-10-21 | REQ-013 | created (D-014 decision card; Issue #6) | Claude Code session 2026-10-20 (PR #2 Merge Review 5), user message at 07:18 UTC |
 | 2026-10-21 | REQ-014 | created (D-016 requirement relation; Issue #6) | Claude Code session 2026-10-20 (PR #2 Merge Review 5), user message queued at 07:58 UTC |
 | 2026-10-21 | REQ-012 | added the user's answer to PR-B decision card 1 (REQ-GAP G-001, finding B1-004): second stop-rule trigger | Claude Code session 2026-10-21 (PR-B, Issue #6), user answer to decision card 1 |
+| 2026-10-21 | REQ-002 | added the D-009 sources (graph engineering stages; PR-C1, Issue #8) | Claude Code session 2026-10-20 (PR #2 Merge Review 5), user message at 07:18 UTC (pasted decisions D-009 to D-014), D-009 |
+| 2026-10-21 | REQ-015 | created (D-010 no agent memory; Issue #8) | Claude Code session 2026-10-20 (PR #2 Merge Review 5), user message at 07:18 UTC (pasted decisions D-009 to D-014), D-010 |
+| 2026-10-21 | REQ-016 | created (D-011 deploy and measure, context-cost claim and token comparison; Issue #8) | Claude Code session 2026-10-20 (PR #2 Merge Review 5), user message at 07:18 UTC (pasted decisions D-009 to D-014), D-011; Claude Code side session 2026-10-20 (question on the context cost of Core), user messages at 08:41, 08:44 and 08:54 UTC |
+| 2026-10-21 | REQ-017 | created (D-012 automatic handoff; Issue #8) | Claude Code session 2026-10-20 (PR #2 Merge Review 5), user message at 07:18 UTC (pasted decisions D-009 to D-014), D-012 |
+| 2026-10-21 | REQ-018 | created (CHANGELOG with the upstream Core version; Issue #8) | Claude Code session 2026-10-20 (PR #2 merge), user message at 08:14 UTC |
+| 2026-10-21 | REQ-019 | created (Core feedback; Issue #8) | Claude Code session 2026-10-20 (PR #2 merge), user message at 08:25 UTC |
+| 2026-10-21 | REQ-017 | added the user's answer to PR-C1 decision card 1 (REQ-GAP from finding B1-002): no checkpoint commit once a PR exists; key points posted as a PR comment after the R-REV-9 scan | Claude Code session 2026-10-21 (PR-C, Issue #8), user answer to PR-C1 review decision card 1 |

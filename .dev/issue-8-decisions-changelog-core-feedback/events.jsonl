@@ -1,0 +1,24 @@
+{"seq": 1, "at": "2026-10-21T02:09:24+00:00", "actor": "main", "node": "T1", "from": "planned", "to": "ready", "evidence": "plan accepted (cards 1a 2b 3a)"}
+{"seq": 2, "at": "2026-10-21T02:09:24+00:00", "actor": "main", "node": "T1", "from": "ready", "to": "in_progress", "evidence": "start ingest"}
+{"seq": 3, "at": "2026-10-21T02:09:24+00:00", "actor": "main", "node": "T1", "from": "in_progress", "to": "reviewing", "evidence": "check_pack OK; quotes generated from transcripts by script; independent review in T6"}
+{"seq": 4, "at": "2026-10-21T02:09:29+00:00", "actor": "main", "node": "T1", "from": "reviewing", "to": "done", "evidence": "check_pack OK; quotes generated from transcripts by script; independent review is T6"}
+{"seq": 5, "at": "2026-10-21T02:09:29+00:00", "actor": "main", "node": "T2", "from": "planned", "to": "ready", "evidence": "T1 done"}
+{"seq": 6, "at": "2026-10-21T02:09:29+00:00", "actor": "main", "node": "T2", "from": "ready", "to": "in_progress", "evidence": "start"}
+{"seq": 7, "at": "2026-10-21T02:09:29+00:00", "actor": "main", "node": "T3", "from": "planned", "to": "ready", "evidence": "T1 done"}
+{"seq": 8, "at": "2026-10-21T02:09:29+00:00", "actor": "main", "node": "T3", "from": "ready", "to": "in_progress", "evidence": "start"}
+{"seq": 9, "at": "2026-10-21T02:09:30+00:00", "actor": "main", "node": "T4", "from": "planned", "to": "ready", "evidence": "T1 done"}
+{"seq": 10, "at": "2026-10-21T02:09:30+00:00", "actor": "main", "node": "T4", "from": "ready", "to": "in_progress", "evidence": "start"}
+{"seq": 11, "at": "2026-10-21T02:14:36+00:00", "actor": "main", "node": "T2", "from": "in_progress", "to": "reviewing", "evidence": "validate.sh passed; self-check of diff"}
+{"seq": 12, "at": "2026-10-21T02:14:36+00:00", "actor": "main", "node": "T2", "from": "reviewing", "to": "done", "evidence": "validate.sh passed; independent review is T6"}
+{"seq": 13, "at": "2026-10-21T02:14:36+00:00", "actor": "main", "node": "T3", "from": "in_progress", "to": "reviewing", "evidence": "validate.sh passed; self-check of diff"}
+{"seq": 14, "at": "2026-10-21T02:14:36+00:00", "actor": "main", "node": "T3", "from": "reviewing", "to": "done", "evidence": "validate.sh passed; independent review is T6"}
+{"seq": 15, "at": "2026-10-21T02:14:36+00:00", "actor": "main", "node": "T4", "from": "in_progress", "to": "reviewing", "evidence": "validate.sh passed; self-check of diff"}
+{"seq": 16, "at": "2026-10-21T02:14:36+00:00", "actor": "main", "node": "T4", "from": "reviewing", "to": "done", "evidence": "validate.sh passed; independent review is T6"}
+{"seq": 17, "at": "2026-10-21T02:14:36+00:00", "actor": "main", "node": "T5", "from": "planned", "to": "ready", "evidence": "T1, T2 done"}
+{"seq": 18, "at": "2026-10-21T02:14:36+00:00", "actor": "main", "node": "T5", "from": "ready", "to": "in_progress", "evidence": "start"}
+{"seq": 19, "at": "2026-10-21T02:14:37+00:00", "actor": "main", "node": "T5", "from": "in_progress", "to": "reviewing", "evidence": "validate.sh passed"}
+{"seq": 20, "at": "2026-10-21T02:14:37+00:00", "actor": "main", "node": "T5", "from": "reviewing", "to": "done", "evidence": "validate.sh passed; independent review is T6"}
+{"seq": 21, "at": "2026-10-21T02:14:37+00:00", "actor": "main", "node": "T6", "from": "planned", "to": "ready", "evidence": "T2-T5 done"}
+{"seq": 22, "at": "2026-10-21T02:14:37+00:00", "actor": "main", "node": "T6", "from": "ready", "to": "in_progress", "evidence": "round 1 dispatched"}
+{"seq": 23, "at": "2026-10-21T02:32:22+00:00", "actor": "main", "node": "T6", "from": "in_progress", "to": "reviewing", "evidence": "reviews/round-1.md (round 1 + C1)"}
+{"seq": 24, "at": "2026-10-21T02:32:22+00:00", "actor": "main", "node": "T6", "from": "reviewing", "to": "done", "evidence": "reviews/round-1.md: all findings dispositioned; C1 confirmed"}

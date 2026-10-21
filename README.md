@@ -44,7 +44,7 @@ Cowork 有兩項尚未實測：技能能否執行 `graph.py`（需要 shell）�
 | `dev-review` | 派獨立的唯讀 reviewer。finding 有 ID、與需求的關係、嚴重度（含 `SCOPE-CREEP`、`REQ-GAP`）與處置；需要使用者決定的事項用決策卡片 |
 | `dev-gate` | commit／push／PR／merge 前的正式關卡。content、platform、授權三項分開判定 |
 | `dev-docs` | 依已驗證的行為同步文件，並檢查 code 與文件是否一致 |
-| `dev-continue` | 存 checkpoint；接續時從 repo 狀態重建 |
+| `dev-continue` | 存 checkpoint；工作項目完成時評估是否換對話（D-012）；接續時從 repo 狀態重建 |
 | `dev-deliver` | 外層編排：依 task graph 派工、整合、審查，再跑關卡 |
 
 Subagents：`dev-explorer`（haiku）、`dev-implementer`（sonnet）、`dev-reviewer`（opus），以及 `dev-security-reviewer`（opus）。兩個 reviewer 沒有 Edit 和 Write 工具，但保留 Bash 以便跑測試；Bash 的唯讀使用靠指示約束，不是技術隔離。
@@ -136,7 +136,7 @@ Two things are not yet tested in Cowork: whether skills can run `graph.py` (a sh
 | `dev-review` | Dispatch an independent read-only reviewer. Findings have IDs, a requirement relation, severities (including `SCOPE-CREEP` and `REQ-GAP`) and dispositions; decisions for the user use a decision card |
 | `dev-gate` | Formal gate before a commit, push, PR or merge. Content, platform and authority are decided separately |
 | `dev-docs` | Sync the docs with verified behavior and check that code and docs agree |
-| `dev-continue` | Save a checkpoint, and rebuild from repository state when resuming |
+| `dev-continue` | Save a checkpoint, evaluate a session handoff when a work item is complete (D-012), and rebuild from repository state when resuming |
 | `dev-deliver` | Outer loop: dispatch work from the task graph, integrate it, review it, then run the gates |
 
 Subagents: `dev-explorer` (haiku), `dev-implementer` (sonnet), `dev-reviewer` (opus) and `dev-security-reviewer` (opus). Neither reviewer has the Edit or Write tool. They keep Bash to run tests, so read-only Bash use depends on their instructions; it is not technical isolation.

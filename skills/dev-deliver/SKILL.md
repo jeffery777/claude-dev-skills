@@ -65,6 +65,9 @@ Repeat until the objective is complete or a stop condition holds (R-AUTH-5):
    consecutive rounds, stop the fix loop and re-evaluate the spec, the
    acceptance criteria and the approach (R-VER-2).
 6. **Docs sync** with `dev-docs` once behavior has settled.
+   When a node, a review and fix round or a stage is complete, run the
+   handoff evaluation of `dev-continue` (D-012) before you select the next
+   node.
 7. **Gate** with `dev-gate` before any commit, push, PR or merge the user
    asked for. The gate decides readiness, and the user's instruction decides
    the authority. Before every commit and every push, `dev-security-reviewer`

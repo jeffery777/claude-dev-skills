@@ -1,0 +1,202 @@
+{
+  "schema": "claude-dev-graph/v1",
+  "objective": {
+    "id": "issue-8-decisions-changelog-core-feedback",
+    "title": "PR-C1: decisions D-009 to D-012, context-cost wording, CHANGELOG, Core feedback",
+    "rigor": "strict",
+    "requirements": [
+      "REQ-002",
+      "REQ-015",
+      "REQ-016",
+      "REQ-017",
+      "REQ-018",
+      "REQ-019"
+    ]
+  },
+  "nodes": [
+    {
+      "id": "T1",
+      "title": "REQ-002 source, REQ-015..019 ingest",
+      "kind": "docs",
+      "requirements": [
+        "REQ-002",
+        "REQ-015",
+        "REQ-016",
+        "REQ-017",
+        "REQ-018",
+        "REQ-019"
+      ],
+      "depends_on": [],
+      "owns": [
+        "docs/requirements/**"
+      ],
+      "risk": "low",
+      "review": "routine",
+      "status": "done",
+      "dod": [
+        "Every quote is verbatim from the user's messages (checked by script against the session transcripts); index and log updated"
+      ],
+      "verify": [
+        "python3 scripts/check_pack.py"
+      ]
+    },
+    {
+      "id": "T2",
+      "title": "design-proposal: D-009..D-012, principle 1, sections 5.2 and 6 (zh and EN)",
+      "kind": "docs",
+      "requirements": [
+        "REQ-002",
+        "REQ-015",
+        "REQ-016",
+        "REQ-017",
+        "REQ-019"
+      ],
+      "depends_on": [
+        {
+          "node": "T1",
+          "consumes": "REQ-002 and REQ-015..017 acceptance"
+        }
+      ],
+      "owns": [
+        "docs/design-proposal.md",
+        "README.md"
+      ],
+      "risk": "medium",
+      "review": "deep",
+      "status": "done",
+      "dod": [
+        "D-009..D-012 in zh and EN with Core-feedback notes; principle 1 claims no unmeasured cost; D-011 measurement plan with the claude-vs-codex token comparison; zh and EN match"
+      ],
+      "verify": [
+        "bash scripts/validate.sh"
+      ]
+    },
+    {
+      "id": "T3",
+      "title": "dev-continue: automatic handoff evaluation (D-012)",
+      "kind": "docs",
+      "requirements": [
+        "REQ-017"
+      ],
+      "depends_on": [
+        {
+          "node": "T1",
+          "consumes": "REQ-017 acceptance"
+        }
+      ],
+      "owns": [
+        "skills/dev-continue/**",
+        "skills/dev-deliver/SKILL.md"
+      ],
+      "risk": "high",
+      "review": "deep",
+      "status": "done",
+      "dod": [
+        "Trigger, basis, checkpoint commit after the R-REV-9 scan, new-session offer with brief, user confirmation, old session stops writing; no claim of exact context reading; no Core obligation relaxed"
+      ],
+      "verify": [
+        "bash scripts/validate.sh"
+      ]
+    },
+    {
+      "id": "T4",
+      "title": "CHANGELOG.md with the upstream Core pin",
+      "kind": "docs",
+      "requirements": [
+        "REQ-018"
+      ],
+      "depends_on": [
+        {
+          "node": "T1",
+          "consumes": "REQ-018 acceptance"
+        }
+      ],
+      "owns": [
+        "CHANGELOG.md"
+      ],
+      "risk": "low",
+      "review": "routine",
+      "status": "done",
+      "dod": [
+        "Keep a Changelog; [Unreleased] covers PR #2, #5, #7 and this change; Core v0.1.1 tag object and commit match the vendor lock"
+      ],
+      "verify": [
+        "bash scripts/validate.sh"
+      ]
+    },
+    {
+      "id": "T5",
+      "title": "core-feedback.md, deltas Evidence, follow-ups",
+      "kind": "docs",
+      "requirements": [
+        "REQ-016",
+        "REQ-019"
+      ],
+      "depends_on": [
+        {
+          "node": "T1",
+          "consumes": "REQ-016 and REQ-019 acceptance"
+        },
+        {
+          "node": "T2",
+          "consumes": "Core-feedback notes of D-009..D-012"
+        }
+      ],
+      "owns": [
+        "docs/core-feedback.md",
+        "skills/dev-core/deltas.md",
+        ".dev/followups.md"
+      ],
+      "risk": "medium",
+      "review": "deep",
+      "status": "done",
+      "dod": [
+        "Each Core-level item has problem, evidence, proposed change, additive or modifying, impact on Codex and Grok; dev-core split evaluation; deltas Evidence cites recorded evidence only; follow-ups for D-011 deployment, dev-core split and card 2"
+      ],
+      "verify": [
+        "bash scripts/validate.sh"
+      ]
+    },
+    {
+      "id": "T6",
+      "title": "Independent review round 1 (deep + security scan)",
+      "kind": "review",
+      "requirements": [
+        "REQ-002",
+        "REQ-015",
+        "REQ-016",
+        "REQ-017",
+        "REQ-018",
+        "REQ-019"
+      ],
+      "depends_on": [
+        {
+          "node": "T2",
+          "consumes": "design-proposal diff"
+        },
+        {
+          "node": "T3",
+          "consumes": "dev-continue diff"
+        },
+        {
+          "node": "T4",
+          "consumes": "CHANGELOG"
+        },
+        {
+          "node": "T5",
+          "consumes": "core-feedback and deltas diff"
+        }
+      ],
+      "owns": [],
+      "risk": "medium",
+      "review": "deep",
+      "status": "done",
+      "dod": [
+        "Every finding classified and dispositioned; record in reviews/round-1.md"
+      ],
+      "verify": [
+        "bash scripts/validate.sh"
+      ]
+    }
+  ]
+}

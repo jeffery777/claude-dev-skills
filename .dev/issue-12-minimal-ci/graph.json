@@ -1,0 +1,122 @@
+{
+  "schema": "claude-dev-graph/v1",
+  "objective": {
+    "id": "issue-12-minimal-ci",
+    "title": "Minimal CI: validate.sh and gitleaks on GitHub Actions (D-017)",
+    "rigor": "strict",
+    "requirements": [
+      "REQ-011",
+      "REQ-020"
+    ]
+  },
+  "nodes": [
+    {
+      "id": "T1",
+      "title": "CI workflow: validate job and gitleaks job",
+      "kind": "implement",
+      "requirements": [
+        "REQ-020"
+      ],
+      "depends_on": [],
+      "owns": [
+        ".github/workflows/ci.yml"
+      ],
+      "risk": "high",
+      "review": "security",
+      "status": "done",
+      "dod": [
+        "Every REQ-020 workflow acceptance item met; actions pinned by SHA; no secrets; contents: read"
+      ],
+      "verify": [
+        "bash scripts/validate.sh",
+        "CI run on the PR"
+      ]
+    },
+    {
+      "id": "T2",
+      "title": "dev-gate platform_enforcement read-back (no profile setting; FU-009); R-REV-9 Issue text",
+      "kind": "docs",
+      "requirements": [
+        "REQ-011",
+        "REQ-020"
+      ],
+      "depends_on": [],
+      "owns": [
+        "skills/dev-gate/SKILL.md",
+        "skills/dev-core/SKILL.md",
+        "skills/dev-core/deltas.md",
+        "skills/dev-review/SKILL.md",
+        "skills/dev-review/references/review-report.md",
+        "skills/dev-core/source-map.md",
+        "agents/dev-security-reviewer.md"
+      ],
+      "risk": "medium",
+      "review": "deep",
+      "status": "done",
+      "dod": [
+        "Faithful to Core exact-dimensions; NOT_CONFIGURED without a profile setting; a failed read or another head is UNVERIFIED; Issue text in R-REV-9 and every restated copy"
+      ],
+      "verify": [
+        "bash scripts/validate.sh"
+      ]
+    },
+    {
+      "id": "T3",
+      "title": "Docs and records: README CI, D-017, CHANGELOG, REQ-011, REQ-020, FU-007, FU-008, FU-009",
+      "kind": "docs",
+      "requirements": [
+        "REQ-011",
+        "REQ-020"
+      ],
+      "depends_on": [],
+      "owns": [
+        "README.md",
+        "docs/design-proposal.md",
+        "CHANGELOG.md",
+        "docs/requirements/**",
+        ".dev/followups.md",
+        ".dev/issue-12-minimal-ci/**",
+        "docs/core-feedback.md"
+      ],
+      "risk": "low",
+      "review": "deep",
+      "status": "done",
+      "dod": [
+        "zh and EN match; claims match the workflow and dev-gate; user decisions quoted verbatim"
+      ],
+      "verify": [
+        "bash scripts/validate.sh"
+      ]
+    },
+    {
+      "id": "T4",
+      "title": "Independent deep review and security review; R-REV-9 scans",
+      "kind": "review",
+      "requirements": [],
+      "depends_on": [
+        {
+          "node": "T1",
+          "consumes": "workflow diff"
+        },
+        {
+          "node": "T2",
+          "consumes": "skill diff"
+        },
+        {
+          "node": "T3",
+          "consumes": "docs diff"
+        }
+      ],
+      "owns": [],
+      "risk": "high",
+      "review": "deep",
+      "status": "done",
+      "dod": [
+        "Every finding has requirement_relation, class and disposition"
+      ],
+      "verify": [
+        "bash scripts/validate.sh"
+      ]
+    }
+  ]
+}

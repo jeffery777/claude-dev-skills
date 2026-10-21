@@ -52,7 +52,7 @@ Graph engineering 在原專案的定位（ADR OE-007）：
 | `dev-explorer` | haiku | low | 只有讀取工具與 Bash（唯讀靠指示） | 大範圍查讀，只回結論 |
 | `dev-implementer` | sonnet | medium | 可寫，建議 worktree | 有界實作。不 commit、不 push，回傳一份結構化 receipt |
 | `dev-reviewer` | opus | high | 沒有 Edit/Write；保留 Bash（唯讀靠指示） | 一般與深入 review |
-| `dev-security-reviewer` | opus | xhigh | 沒有 Edit/Write；保留 Bash（唯讀靠指示） | 涉及信任邊界、權限、資料、依賴的變更；以及每次 commit、push 與貼出 PR 文字前的掃描（D-015） |
+| `dev-security-reviewer` | opus | xhigh | 沒有 Edit/Write；保留 Bash（唯讀靠指示） | 涉及信任邊界、權限、資料、依賴的變更；以及每次 commit、push 與貼出 PR 或 Issue 文字前的掃描（D-015） |
 
 共用 brief 契約：目標、ownership（路徑）、DoD、驗證、升級條件，加上一份最終 receipt。子代理沒有外部寫入權；主代理負責整合與驗收。
 
@@ -286,7 +286,7 @@ Graph engineering 在原專案的定位（ADR OE-007）：
 - `.dev/<objective-id>/` 是否 commit 由專案設定：`.dev/config.json` 的 `commit_state`，預設 `true`，也就是隨工作一起 commit，讓其他 session 可以接續。例外：PR 建立後，該 PR head 的審查與 gate 紀錄不 commit 到 PR 分支（D-013 第 6 項）。只有設成 JSON 的 `false` 才關閉；關閉後不 stage `.dev/<objective-id>/` 下的檔案，專案應把 `.dev/*/` 列入 gitignore，`.dev/config.json` 仍保留在版本控制中。裡面不得寫入 secrets、憑證、私有路徑或原始 log。本 repo 的 `.gitignore` 已列入 lock 與暫存檔；目標專案要自己把 `.dev/**/.graph.lock` 與 `.dev/**/.graph-*.tmp` 加進 `.gitignore`。（2026-10-20 使用者決定，PR #2 交接第 6 項）
 - `scripts/check_pack.py` 只檢查本 repo REQ 檔的格式（欄位與關係 ID），不是需求 lint；矛盾、孤兒與過期需求的 lint 仍在 Phase 2。
 - Plugin 名稱是 `dev-skills`。`claude plugin validate` 不接受以 `claude-` 開頭的第三方 plugin 名稱，所以 repo 名稱維持 `claude-dev-skills`，plugin 改名。安裝指令為 `claude plugin install dev-skills@dev-skills`。
-- 不在 Phase 1：G1–G3、hooks、需求 wiki 的 lint 腳本（留到 Phase 2；Phase 1 只定格式並做 ingest）、CI workflow。
+- 不在 Phase 1：G1–G3、hooks、需求 wiki 的 lint 腳本（留到 Phase 2；Phase 1 只定格式並做 ingest）、CI workflow。CI 之後由 D-017 加入。
 
 ### D-009 Graph engineering 分階段完成（已決定，2026-10-20）
 
@@ -371,7 +371,7 @@ D-009 到 D-016 是同一天的決定。D-015 由 PR #5（Issue #4）記錄；D-
   - commit 前：已 stage 的 diff，以及這個 commit 會帶的作者、committer（用 `git var GIT_AUTHOR_IDENT` 與 `git var GIT_COMMITTER_IDENT` 讀出）、訊息與 trailer。掃描後不得再覆寫身分；commit 後立刻用 `git log -1 --format=fuller` 讀回。
   - push 前：這次 push 要送出的全部內容。主代理用和實際 push 完全相同的參數執行 `git push --dry-run --porcelain`，之後也用完全相同的參數 push。掃描它列出的每個 ref 上遠端還沒有的每一個 commit，包含身分、訊息、解決 merge 衝突時加入的內容，以及 annotated tag 的 tagger 與訊息。並確認實際記錄的身分與訊息和掃描時相同。
   - 掃描要看到內容，而不是編碼後的資料：每個掃描指令加上 `--text --no-textconv --no-ext-diff`。
-  - 貼出 PR 或 MR 的標題、內文、留言或審查紀錄之前：掃描要貼出的原文。
+  - 貼出 PR 或 MR 的標題、內文、留言或審查紀錄之前：掃描要貼出的原文。（Issue #12 把 Issue 的標題、內文與留言也加進來，見 FU-007 與 REQ-011。）
   - 合併前：base..head 範圍內的每一個 commit，不只看最後的 diff；以及平台合併時會建立的 merge 或 squash commit：合併方式、作者、訊息與 trailer（例如由分支 commit 產生的 `Co-authored-by:`）。
   - 要找的東西：金鑰、密碼、token、私人檔案、私人路徑、主機名稱、私人 email，以及作者沒有選擇公開的真實姓名。有發現就擋下 commit 或 push，修正後重新掃描。
   - 掃描後只要 stage 的內容、身分、訊息或要貼出的文字有變，就是新的候選，要重新掃描。掃描與 gate 的紀錄不放進它們所涵蓋的那個 commit，而是放進之後的 commit（由那個 commit 自己的掃描涵蓋）或 PR。PR 建立後，這些紀錄不 commit 到 PR 分支（D-013 第 6 項細化了這一點）。
@@ -394,6 +394,21 @@ D-009 到 D-016 是同一天的決定。D-015 由 PR #5（Issue #4）記錄；D-
   5. 例外：Core 規定的阻擋項（安全、資料遺失、授權、完整性）不論 `requirement_relation` 為何都照樣阻擋；需求沒寫到不構成豁免。
 - 與 Core 的差異：Core 沒有把 finding 和需求連起來。這是收緊，記錄在 DL-011。
 - Core 回饋：是。理由：Codex 曾把專案需求改寫成通用需求（D-003）；這個欄位讓三個接口都能分辨需求範圍內的修正與範圍擴張。
+
+### D-017 最小 CI（已決定，2026-10-21）
+
+- 來源：PR #11 合併後，使用者同意加入最小 CI：「CI的部份也同意你的建議」。需求見 REQ-020。Phase 1 不含 CI（D-008），所以這是新範圍。
+- 目的：先前每次 review 的 `platform_enforcement` 都是 `NOT_CONFIGURED`，因為 repo 沒有 CI，也沒有 branch protection。CI 讓 `validate.sh` 與 secret 掃描在 GitHub 平台上執行；Auto-fix 也需要 CI 的結果才有東西可修。
+- 做法（`.github/workflows/ci.yml`）：
+  1. 觸發：送往 `main` 的每個 pull request，以及每次 push 到 `main`。不用 `pull_request_target`。
+  2. Job `validate`：用固定的 npm 版本安裝 Claude CLI（不登入），再執行 `scripts/validate.sh`。`claude plugin validate` 不需要登入，所以 CI 也執行它。
+  3. Job `gitleaks`：下載固定版本的 gitleaks release，先用 workflow 裡寫死的 SHA-256 核對，再掃描從 checkout 的 commit 可到達的每個 commit。PR 時 checkout 的是 merge commit，所以涵蓋 PR 的每個 commit。輸出遮蔽（redact）secret，因為公開 repo 的 log 是公開的。限制：merge commit 本身的 patch 不掃；PR 可以修改 workflow、`.gitleaks.toml` 與 `.gitleaksignore` 而改變掃描內容；CI 找到的值已經公開，必須更換。
+  4. 每個 action 都用完整 commit SHA 固定，註解寫 release tag。Workflow 層級只給 `permissions: contents: read`；checkout 不保留 token；不用任何 secret。
+- `dev-gate` 的平台結果（R-EXH-4）：專案只能用明確的專案設定選定 provider profile（使用者決定 Q3 (b)）。這個 PR 不定義那個設定，所以結果仍是 `NOT_CONFIGURED`。`dev-gate` 用一次讀取取得 PR 的 head 與 check，並列出每個 check 的結果；讀取失敗或 head 不是受審的 head 時，結果是 `UNVERIFIED`。
+- 第二輪 review 在 profile 讀回機制又找到新的阻擋問題（ES2-001 到 003），觸發停止規則。使用者決定把 profile 設定移到 FU-009，並和 FU-008（PR 可以削弱自己的 check，ES-004）一起設計（Q5 (a)）。
+- 合併後由使用者把 `validate` 與 `gitleaks` 設成必要檢查；步驟見 README 的「CI」一節。
+- CI 不取代 R-REV-9 的獨立掃描：gitleaks 只看 commit 內容，不看 commit 身分、訊息與 PR 文字。
+- Core 回饋：否。理由：CI 與 provider profile 是各專案自選的 overlay（Core auth-scope 與 exact-dimensions）。`dev-core` R-EXH-4 只補上 Core 原文已有的規則：「已選或有相關狀態卻無當前成功讀回為 UNVERIFIED」。也就是說，有相關的平台狀態，卻沒有當前成功的讀回時，結果是 UNVERIFIED。
 
 ---
 
@@ -482,7 +497,7 @@ How the original project positions graph engineering (ADR OE-007):
 | `dev-explorer` | haiku | low | Read tools and Bash (read-only by instruction) | Broad searches; returns conclusions only |
 | `dev-implementer` | sonnet | medium | Can write; worktree recommended | Bounded implementation. Never commits or pushes; returns one structured receipt |
 | `dev-reviewer` | opus | high | No Edit/Write; keeps Bash (read-only by instruction) | Routine and deep review |
-| `dev-security-reviewer` | opus | xhigh | No Edit/Write; keeps Bash (read-only by instruction) | Changes to trust boundaries, permissions, data or dependencies; and the scan before every commit, push and PR post (D-015) |
+| `dev-security-reviewer` | opus | xhigh | No Edit/Write; keeps Bash (read-only by instruction) | Changes to trust boundaries, permissions, data or dependencies; and the scan before every commit, push, PR post and Issue post (D-015) |
 
 Shared brief contract: objective, ownership (paths), DoD, verification and
 escalation conditions, plus one final receipt. Subagents have no
@@ -837,7 +852,7 @@ records the mapping.
   with `claude plugin install dev-skills@dev-skills`.
 - Not in Phase 1: G1–G3, hooks, the requirements wiki lint script (moved to
   Phase 2; Phase 1 only defines the format and does the ingest), and a CI
-  workflow.
+  workflow. D-017 added CI later.
 
 ### D-009 Graph engineering in stages (decided, 2026-10-20)
 
@@ -1054,7 +1069,8 @@ records D-009 to D-012.
   - The scan shows content, not encoded data: every scan command uses
     `--text --no-textconv --no-ext-diff`.
   - Before posting a PR or MR title, body or comment, or a review record: the
-    exact text.
+    exact text. (Issue #12 adds Issue titles, bodies and comments; see FU-007
+    and REQ-011.)
   - At merge readiness: every commit in base..head, not only the final diff,
     and the merge or squash commit that the platform will create: the merge
     method, author, message and trailers (for example `Co-authored-by:` lines
@@ -1131,5 +1147,51 @@ records D-009 to D-012.
 - Core feedback: yes. Reason: Codex rewrote project requirements into
   generic ones (D-003); this field lets all three interfaces tell a fix
   inside the requirements from a scope expansion.
+
+
+### D-017 Minimal CI (decided, 2026-10-21)
+
+- Origin: after PR #11 merged, the user agreed to add minimal CI
+  ("CI的部份也同意你的建議"). The requirement is REQ-020. Phase 1 excluded
+  CI (D-008), so this is new scope.
+- Purpose: every earlier review reported `platform_enforcement` as
+  `NOT_CONFIGURED`, because the repository had no CI and no branch
+  protection. CI runs `validate.sh` and a secret scan on the GitHub platform.
+  Auto-fix also needs a CI result to act on.
+- Design (`.github/workflows/ci.yml`):
+  1. Triggers: every pull request to `main` and every push to `main`. No
+     `pull_request_target`.
+  2. Job `validate`: install the Claude CLI at an exact npm version (no
+     login), then run `scripts/validate.sh`. `claude plugin validate` needs
+     no login, so CI runs it too.
+  3. Job `gitleaks`: download an exact gitleaks release, check it against a
+     SHA-256 written in the workflow, then scan every commit reachable from
+     the checked-out commit. On a pull request that commit is the merge
+     commit, so the scan covers every commit of the PR. The output redacts
+     secrets, because the log of a public repository is public. Limits: the
+     patch of a merge commit is not scanned; a PR can change the workflow,
+     `.gitleaks.toml` and `.gitleaksignore` and so change the scan; a value
+     that CI finds is already public and must be rotated.
+  4. Every action is pinned by full commit SHA, with the release tag in a
+     comment. The workflow has only `permissions: contents: read`; checkout
+     does not keep the token; no secrets are used.
+- Platform result in `dev-gate` (R-EXH-4): a project selects a provider
+  profile only through an explicit project setting (the user's decision
+  Q3 (b)). This PR does not define that setting, so the result stays
+  `NOT_CONFIGURED`. `dev-gate` reads the head and the checks of a PR in one
+  call and lists each check; a failed read or another head gives
+  `UNVERIFIED`.
+- Review round 2 found new blockers in the profile read-back again
+  (ES2-001 to ES2-003), and the stop rule applied. The user moved the
+  profile setting to FU-009, designed together with FU-008 (a PR can weaken
+  its own checks, ES-004) (Q5 (a)).
+- After the merge, the user makes `validate` and `gitleaks` required checks;
+  the steps are in the README section "CI".
+- CI replaces no R-REV-9 independent scan: gitleaks reads commit content
+  only, not the commit identity, the message or PR text.
+- Core feedback: no. Reason: CI and provider profiles are overlays that each
+  project selects (Core auth-scope and exact-dimensions). `dev-core` R-EXH-4
+  only adds what the Core text already says: platform state without a
+  current successful read-back is UNVERIFIED.
 
 </details>

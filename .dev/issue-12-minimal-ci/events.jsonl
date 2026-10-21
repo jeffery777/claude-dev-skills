@@ -1,0 +1,13 @@
+{"seq": 1, "at": "2026-10-21T05:27:30+00:00", "actor": "main-agent", "node": "T1", "from": "ready", "to": "in_progress", "evidence": "draft on branch 12-minimal-ci"}
+{"seq": 2, "at": "2026-10-21T05:27:30+00:00", "actor": "main-agent", "node": "T1", "from": "in_progress", "to": "reviewing", "evidence": "early deep review R1 and security review ES; fixes applied; validate.sh passes"}
+{"seq": 3, "at": "2026-10-21T05:27:30+00:00", "actor": "main-agent", "node": "T2", "from": "ready", "to": "in_progress", "evidence": "draft on branch 12-minimal-ci"}
+{"seq": 4, "at": "2026-10-21T05:27:30+00:00", "actor": "main-agent", "node": "T2", "from": "in_progress", "to": "reviewing", "evidence": "early deep review R1 and security review ES; fixes applied; validate.sh passes"}
+{"seq": 5, "at": "2026-10-21T05:27:30+00:00", "actor": "main-agent", "node": "T3", "from": "ready", "to": "in_progress", "evidence": "draft on branch 12-minimal-ci"}
+{"seq": 6, "at": "2026-10-21T05:27:30+00:00", "actor": "main-agent", "node": "T3", "from": "in_progress", "to": "reviewing", "evidence": "early deep review R1 and security review ES; fixes applied; validate.sh passes"}
+{"seq": 7, "at": "2026-10-21T05:54:15+00:00", "actor": "main-agent", "node": "T1", "from": "reviewing", "to": "done", "evidence": "review rounds 1-3 (reviews/round-1.md to round-3.md); validate.sh passes"}
+{"seq": 8, "at": "2026-10-21T05:54:16+00:00", "actor": "main-agent", "node": "T2", "from": "reviewing", "to": "done", "evidence": "review rounds 1-3 (reviews/round-1.md to round-3.md); validate.sh passes"}
+{"seq": 9, "at": "2026-10-21T05:54:16+00:00", "actor": "main-agent", "node": "T3", "from": "reviewing", "to": "done", "evidence": "review rounds 1-3 (reviews/round-1.md to round-3.md); validate.sh passes"}
+{"seq": 10, "at": "2026-10-21T05:54:16+00:00", "actor": "main-agent", "node": "T4", "from": "planned", "to": "ready", "evidence": "T1-T3 done"}
+{"seq": 11, "at": "2026-10-21T05:54:16+00:00", "actor": "main-agent", "node": "T4", "from": "ready", "to": "in_progress", "evidence": "rounds 1-3"}
+{"seq": 12, "at": "2026-10-21T05:54:27+00:00", "actor": "main-agent", "node": "T4", "from": "in_progress", "to": "reviewing", "evidence": "rounds 1-3 recorded in reviews/"}
+{"seq": 13, "at": "2026-10-21T05:54:27+00:00", "actor": "main-agent", "node": "T4", "from": "reviewing", "to": "done", "evidence": "rounds 1-3: no open MUST-FIX or SHOULD-FIX; REQ-GAPs decided by the user (Q3, Q4, Q5)"}

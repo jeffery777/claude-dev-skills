@@ -57,10 +57,16 @@ commit, push, PR, merge or other external write (R-REV-5, R-AUTH-1).
    - a write change without a requirement, or a `SCOPE-CREEP` finding without
      a disposition.
 5. Decide `content_review`.
-6. Decide `platform_enforcement`. It is `NOT_CONFIGURED` unless the project
-   selects a provider profile. Read GitHub checks (`gh pr checks`) only when
-   one is selected, and never infer the platform result from the content
-   result.
+6. Decide `platform_enforcement` (R-EXH-4). Never infer it from the content
+   result, and re-read it right before a merge.
+   - A project selects a provider profile only through an explicit project
+     setting. This pack does not define that setting yet (FU-009), so the
+     result is `NOT_CONFIGURED`.
+   - When a PR exists, read its head and checks in one call:
+     `gh pr view <pr> --json headRefOid,statusCheckRollup`. List each check
+     with its result; an empty list means the PR has no checks. If the read
+     fails, or `headRefOid` is not the reviewed head, the result is
+     `UNVERIFIED`. A failed or unrun check is never Passed (R-EXH-2).
 7. State the authority boundary. Name the exact next action, such as
    "merge PR 12", and whether the user has authorized it. If the head changes,
    the gate is void: rerun it from step 1 (R-EXH-3).

@@ -23,3 +23,4 @@ One row per requirement. Agents read this first, then open only the files they n
 | REQ-017 | Automatic handoff evaluation in dev-continue | active | [[REQ-017-automatic-handoff]] |
 | REQ-018 | CHANGELOG with the upstream Core version | active | [[REQ-018-changelog]] |
 | REQ-019 | Feed Core-level changes back to engineering-workflow-core | active | [[REQ-019-core-feedback]] |
+| REQ-020 | Minimal CI - validate.sh and a gitleaks scan on GitHub Actions | active | [[REQ-020-minimal-ci]] |

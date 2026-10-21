@@ -1,0 +1,134 @@
+{
+  "schema": "claude-dev-graph/v1",
+  "objective": {
+    "id": "issue-10-cleanups",
+    "title": "PR-C2: cleanups (A1 to A13, B1 to B11, FU-007)",
+    "rigor": "standard",
+    "requirements": [
+      "REQ-007",
+      "REQ-008",
+      "REQ-009",
+      "REQ-011",
+      "REQ-012",
+      "REQ-013",
+      "REQ-016",
+      "REQ-017",
+      "REQ-018",
+      "REQ-019"
+    ]
+  },
+  "nodes": [
+    {
+      "id": "T1",
+      "title": "Record notes: superseded rows, SEC-02 fix commit, plain words, FU-003, FU-007, Issue #4 graph",
+      "kind": "docs",
+      "requirements": [
+        "REQ-011",
+        "REQ-012"
+      ],
+      "depends_on": [],
+      "owns": [
+        ".dev/issue-1-phase1/**",
+        ".dev/handoff/**",
+        ".dev/followups.md",
+        ".dev/issue-4-commit-security/**"
+      ],
+      "risk": "low",
+      "review": "deep",
+      "status": "done",
+      "dod": [
+        "A1, A6, A12, A13 and FU-007 done; no private identifier or fragment remains in security-review-merge.md"
+      ],
+      "verify": [
+        "bash scripts/validate.sh"
+      ]
+    },
+    {
+      "id": "T2",
+      "title": "Skills, docs and requirements wording (A2, A5, A7 to A11, B1 to B11)",
+      "kind": "docs",
+      "requirements": [
+        "REQ-007",
+        "REQ-011",
+        "REQ-012",
+        "REQ-013",
+        "REQ-016",
+        "REQ-017",
+        "REQ-018",
+        "REQ-019"
+      ],
+      "depends_on": [],
+      "owns": [
+        "skills/**/*.md",
+        "agents/dev-explorer.md",
+        "docs/**",
+        "README.md",
+        "CHANGELOG.md",
+        "skills/dev-plan/scripts/graph.py"
+      ],
+      "risk": "low",
+      "review": "deep",
+      "status": "done",
+      "dod": [
+        "Each item says what the code and records show; zh and EN match; no rule obligation changed"
+      ],
+      "verify": [
+        "bash scripts/validate.sh"
+      ]
+    },
+    {
+      "id": "T3",
+      "title": "check_pack: >+ and |+ block scalars; guard regression tests (A3, A4)",
+      "kind": "implement",
+      "requirements": [
+        "REQ-007",
+        "REQ-008",
+        "REQ-009"
+      ],
+      "depends_on": [],
+      "owns": [
+        "scripts/check_pack.py",
+        "tests/test_core_checks.py"
+      ],
+      "risk": "low",
+      "review": "deep",
+      "status": "done",
+      "dod": [
+        "sources() reads >+ and |+ as block scalars; tests for model, effort and status guards; the new block-scalar test fails on the old code"
+      ],
+      "verify": [
+        "python3 -m unittest discover -s tests -q"
+      ]
+    },
+    {
+      "id": "T4",
+      "title": "Independent review round 1 (deep) and R-REV-9 scans",
+      "kind": "review",
+      "requirements": [],
+      "depends_on": [
+        {
+          "node": "T1",
+          "consumes": "record diff"
+        },
+        {
+          "node": "T2",
+          "consumes": "wording diff"
+        },
+        {
+          "node": "T3",
+          "consumes": "check_pack and test diff"
+        }
+      ],
+      "owns": [],
+      "risk": "low",
+      "review": "deep",
+      "status": "in_progress",
+      "dod": [
+        "Every finding has requirement_relation, class and disposition; record in reviews/round-1.md"
+      ],
+      "verify": [
+        "bash scripts/validate.sh"
+      ]
+    }
+  ]
+}

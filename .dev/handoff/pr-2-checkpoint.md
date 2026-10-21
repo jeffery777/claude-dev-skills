@@ -2,6 +2,8 @@
 
 這份 checkpoint 是交接摘要，不是證據。所有判定以 Git、`.dev/issue-1-phase1/` 下的紀錄，以及實際執行的指令輸出為準（`dev-core` R-STG-5、R-EVD-2）。接手的 session 必須先重新讀取這些來源。
 
+> 後續狀態（PR-C2，Issue #10）：本文件是歷史紀錄。PR #2 已用 squash merge 合併為 4b75360。依第 5 節待決事項 3 的使用者決定，`tree_fingerprint.py` 已在 ed3f66c 移除；沒有唯讀的 plugin reviewer 時，必要的審查停在關卡。下文提到 `tree_fingerprint.py` 的修正與計畫都已被取代（Superseded）。
+
 ## 1. 識別資訊
 
 | 項目 | 值 |

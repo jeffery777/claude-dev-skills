@@ -50,7 +50,8 @@ def sources(block: list[str]) -> tuple[list[dict[str, str]], list[str]]:
 
     Items may start at column 0 or indented. A field value may continue on
     following lines indented deeper than the field's key, or be a `>`/`|`
-    block scalar. Any other key inside an item is reported as a problem.
+    block scalar with an optional `-` or `+` chomping indicator. Any other
+    key inside an item is reported as a problem.
     """
     entries: list[dict[str, str]] = []
     problems: list[str] = []
@@ -82,7 +83,7 @@ def sources(block: list[str]) -> tuple[list[dict[str, str]], list[str]]:
             field = m.group(3)
             field_indent = len(m.group(1)) + (len(m.group(2)) if m.group(2) else 0)
             value = graph.strip_comment(m.group(4))
-            block_scalar = value in {">", "|", ">-", "|-"}
+            block_scalar = value in {">", "|", ">-", "|-", ">+", "|+"}
             current[field] = "" if block_scalar else graph._unquote(value)
             continue
         if current is not None and field and indent > field_indent:  # continuation of the last field

@@ -15,7 +15,7 @@
 | MR4-01 | SHOULD-FIX | `ready` dropped the STRANDED warning that dev-deliver tells the agent to act on (R2C-02 only partly fixed) | Fixed: `ready` output includes `warnings`; dev-deliver names the field; test; R2C-02 annotated |
 | MR4-02 | SHOULD-FIX | An empty REQ `status`, or an empty agent `model` or `effort`, crashed with TypeError | Fixed: string-type guards in graph.py and check_pack.py; test |
 | MR4-03 | SHOULD-FIX | `sources()` read a sibling key as the continuation of an empty `quote:` | Fixed: a line continues a field only when it is indented deeper than the field's key; unknown keys and stray lines are reported as errors; test |
-| MR4-04 | NIT | The MR3-02 test also passed on the old code | Fixed: the parser is factored out as `status_entries()` and tested directly with a worktree rename whose original path looks like a cache path; MR3-02 annotated |
+| MR4-04 | NIT | The MR3-02 test also passed on the old code | Fixed: the parser is factored out as `status_entries()` and tested directly with a worktree rename whose original path looks like a cache path; MR3-02 annotated. Superseded: `tree_fingerprint.py` was removed in ed3f66c (PR #2, user decision 3); a required review now stops at the gate without a read-only plugin reviewer. |
 
 ## Verification after the fixes
 

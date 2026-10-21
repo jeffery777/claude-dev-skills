@@ -52,9 +52,9 @@ committed by default.
   never `dev-reviewer`.
 - `dev-review`, `dev-gate`, `dev-implement` and `dev-deliver` apply the rule at
   their commit and push steps.
-- `graph.py transition --evidence-file` accepts only a regular, non-symlink
-  file inside the project root and records its relative path and SHA-256,
-  never its content. Tests cover each refusal and the recorded form.
+- `graph.py transition --evidence-file` accepts only a regular file inside the
+  project root, given by a path whose last component is not a symlink. It
+  records the file's relative path and SHA-256, never its content. Tests cover each refusal and the recorded form.
 
 ## Notes
 

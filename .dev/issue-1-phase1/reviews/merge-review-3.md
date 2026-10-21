@@ -14,7 +14,7 @@
 | ID | Sev | Finding | Disposition |
 | --- | --- | --- | --- |
 | MR3-01 | SHOULD-FIX | `TRANSITION_BREAKS_GRAPH` compared error text, so a transition that reduced a STATUS_DEP's pending list was refused | Fixed: a STATUS_DEP counts as new only when its pending set grows; other errors are still compared by code, node and message; regression test with the reviewer's scenario |
-| MR3-02 | NIT | MR2-17 handled only index-side renames | Fixed: R or C in either status column marks a two-record entry; test with `git add -N` after a move; MR2-17 row annotated (Test strengthened under MR4-04.) |
+| MR3-02 | NIT | MR2-17 handled only index-side renames | Fixed: R or C in either status column marks a two-record entry; test with `git add -N` after a move; MR2-17 row annotated (Test strengthened under MR4-04.) Superseded: `tree_fingerprint.py` was removed in ed3f66c (PR #2, user decision 3); a required review now stops at the gate without a read-only plugin reviewer. |
 
 Records also annotated: merge-review-1.md MR-04 (superseded by MR2-02) and MR-05 (narrowed by MR2-06).
 

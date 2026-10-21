@@ -12,16 +12,14 @@ Cowork runtime test). At that release,
 
 ## [Unreleased]
 
-### Upstream
+### Added
 
-- `engineering-workflow-core` v0.1.1 (`jeffery777/engineering-workflow-core`),
-  tag object `7ce698fa853106c8ef44c4240c9334762da5ffb0`, commit
+- Upstream: `engineering-workflow-core` v0.1.1
+  (`jeffery777/engineering-workflow-core`), tag object
+  `7ce698fa853106c8ef44c4240c9334762da5ffb0`, commit
   `7b66978a76597d09be1b55ad199a969b4ee59c0f`. The pin is in
   `vendor/engineering-workflow-core.lock.json` and is checked by
   `scripts/verify_core.py`.
-
-### Added
-
 - Phase 1 (PR #2, Issue #1):
   - The vendored Core v0.1.1 (14 files) with a digest lock.
   - `dev-core`: an execution digest of Core whose rules cite Core anchors,
@@ -58,6 +56,14 @@ Cowork runtime test). At that release,
   `dev-reviewer` (PR #5).
 - Design principle 1 no longer states an unmeasured context cost; D-011
   measures it (PR-C1).
+- Cleanups (PR-C2, Issue #10): wording that now matches the code and the
+  records, notes on superseded review records, and follow-up FU-007.
+
+### Fixed
+
+- `scripts/check_pack.py` reads `>+` and `|+` block scalars in REQ `sources`
+  (PR-C2), with regression tests for the agent model and effort checks and
+  the REQ status check.
 
 ### Security
 

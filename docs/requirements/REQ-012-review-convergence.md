@@ -56,7 +56,7 @@ in a row, stop the fix loop for a re-evaluation. Review records never create a n
 
 - `dev-core` defines the severity thresholds, classification before fixing,
   the narrow confirmation before a push, evidence reuse in the Merge Review
-  with reason and coverage, the stop rule, and record storage without a new
+  for provably unaffected parts with reason and coverage, the stop rule, and record storage without a new
   head; `deltas.md` records each difference from Core.
 - `dev-review` and `dev-gate` apply these rules.
 - `docs/design-proposal.md` records D-013 in zh and EN with a Core-feedback
@@ -64,7 +64,8 @@ in a row, stop the fix loop for a re-evaluation. Review records never create a n
 
 ## Notes
 
-Origin: PR #2 Merge Reviews 1 to 7 did not converge. Evidence: the PR-A
+Origin: PR #2 Merge Reviews 1 to 5 did not converge (Merge Reviews 6 and 7
+had no findings). Evidence: the PR-A
 re-evaluation in `.dev/issue-4-commit-security/reviews/round-2.md` applied
 these rules before they were in the pack. The second stop-rule trigger was
 added by the user's answer to decision card 1 of PR-B (finding B1-004,

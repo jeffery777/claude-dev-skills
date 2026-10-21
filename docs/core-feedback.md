@@ -198,7 +198,7 @@ adopt it and the other two projects can re-pin it themselves (REQ-019).
   The self-made mechanism to detect such changes (`tree_fingerprint.py`) kept
   growing.
 - Evidence: PR #2 round 1 SR-006 (`.dev/issue-1-phase1/reviews/round-1.md`);
-  `tree_fingerprint.py` collected more than 15 findings after round 2 added
+  `tree_fingerprint.py` collected 15 or more findings after round 2 added
   it, and was then removed by user decision (`.dev/handoff/pr-2-checkpoint.md`,
   decision 3). PR #2 SEC-02: the reviewer descriptions said "Cannot edit
   files", but the reviewers keep Bash (`security-review-merge.md`).

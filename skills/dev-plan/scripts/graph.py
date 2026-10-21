@@ -12,8 +12,9 @@ Commands:
              [--actor NAME] [--requirements-dir DIR]
 
 --evidence-file never copies file content into events.jsonl, which is
-committed by default. The file must be a regular, non-symlink file inside the
-project root; the event records "file:<relative path> sha256:<hex>". A refused file exits 2 with
+committed by default. The file must be a regular file inside the project root,
+and the last component of its path must not be a symlink. The event records
+"file:<relative path> sha256:<hex>". A refused file exits 2 with
 EVIDENCE_FILE_REFUSED. A graph without a project root cannot use it.
 
 `ready` lists nodes whose dependencies are satisfied; a listed node that is
@@ -699,8 +700,8 @@ def evidence_file_ref(graph_path: str, file_path: str) -> tuple[str | None, Issu
 
     events.jsonl is committed by default, so copying file text into it could
     publish a private file, and an absolute or outside path could publish a
-    private path (REQ-011, R-AUTH-7). Only a regular, non-symlink file inside
-    the project root is accepted.
+    private path (REQ-011, R-AUTH-7). Only a regular file inside the project
+    root is accepted, and the last component of its path must not be a symlink.
     """
     def refuse(reason: str) -> tuple[None, Issue]:
         return None, Issue("EVIDENCE_FILE_REFUSED", f"{file_path}: {reason}")

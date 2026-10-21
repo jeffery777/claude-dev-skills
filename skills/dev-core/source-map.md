@@ -16,7 +16,7 @@ cited Core section (see review round 1, DR-001 to DR-008, in
 | Core anchor | dev-core rules | Status | Note |
 | --- | --- | --- | --- |
 | `workflow.md#wf-stages` | R-STG-1, R-STG-2, R-STG-3, R-STG-4, R-STG-5 | covered | Stage table compressed into five rules |
-| `workflow.md#wf-writing` | R-WRT-1 | covered | |
+| `workflow.md#wf-writing` | R-WRT-1 | covered | Traditional Chinese plain-writing rules spelled out; every review and gate report carries the ASD-STE100 note (DL-014) |
 | `workflow.md#wf-capability` | R-CAP-1, R-CAP-2, R-CAP-3 | covered | Native Claude Code capabilities named explicitly |
 | `workflow.md#wf-delegation` | R-DEL-1, R-DEL-2 | covered | Model/effort floor tightened (D-007) |
 | `workflow.md#wf-verification` | R-VER-1, R-VER-2, R-VER-3 | covered | R-VER-2 adds the stop rule for the fix loop (DL-012) |
@@ -29,7 +29,7 @@ cited Core section (see review round 1, DR-001 to DR-008, in
 | `review-and-security.md#review-independent` | R-REV-1, R-REV-2 | covered | Edit/Write removed by the tool allowlist; read-only Bash use is by instruction (DL-004) |
 | `review-and-security.md#review-findings` | R-RIG-2, R-REV-3, R-REV-4, R-REV-5 | covered | Adds SCOPE-CREEP severity; severity thresholds, `requirement_relation` and `REQ-GAP` (DL-011); classification before fixing and narrow confirmation before a push (DL-012) |
 | `review-and-security.md#review-risk-timing` | R-RIG-1, R-RIG-2, R-REV-6 | covered | Rigor tiers map Core risk timing (D-004) |
-| `review-and-security.md#review-security` | R-REV-7, R-REV-9 | covered | R-REV-9 tightens: a scan before every commit, push and PR post, including commit identity and message (DL-010) |
+| `review-and-security.md#review-security` | R-REV-7, R-REV-9 | covered | R-REV-9 tightens: a scan before every commit, push and PR post, including commit identity and message (DL-010); once a PR exists, scan and gate records never go into a commit on the PR branch (DL-013) |
 | `review-and-security.md#review-evidence` | R-REV-8 | covered | |
 | `exact-head-and-evidence.md#exact-identity` | R-EXH-1 | covered | |
 | `exact-head-and-evidence.md#exact-coherence` | R-EXH-2 | covered | |

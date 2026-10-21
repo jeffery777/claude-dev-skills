@@ -45,7 +45,7 @@
 | R2C-20 | NIT | = CR-016 reopened | Fixed |
 | R2C-21 | NIT | check_pack duplicated `REQ_ID` and the delimiter logic | Fixed |
 | R2C-22 | NIT | Test helpers were duplicated; `rewrite` did not assert the target was present | Fixed |
-| R2S-01 | SHOULD-FIX | The substitute-reviewer tree check missed untracked, ignored and `.git` changes | Fixed: `skills/dev-core/scripts/tree_fingerprint.py` covers untracked and ignored contents, `.git/config` and `.git/hooks`; without a shell, no substitute for a required review; tests |
+| R2S-01 | SHOULD-FIX | The substitute-reviewer tree check missed untracked, ignored and `.git` changes | Fixed: `skills/dev-core/scripts/tree_fingerprint.py` covers untracked and ignored contents, `.git/config` and `.git/hooks`; without a shell, no substitute for a required review; tests. Superseded: `tree_fingerprint.py` was removed in ed3f66c (PR #2, user decision 3); a required review now stops at the gate without a read-only plugin reviewer. |
 | R2S-02 | SHOULD-FIX | Formal-exception limits dropped | Fixed: R-REV-8 (policy must allow it, recorded basis, no override of non-waivable rules), R-REV-7 (full non-waivable list) |
 | R2S-03 | SHOULD-FIX | Gate blockers listed only a `NOT_RUN` scan | Fixed: dev-gate step 4 lists incomplete, failed and insufficient-coverage checks, missing reviews and unresolved security risk |
 | R2S-04 | SHOULD-FIX | Gate review reuse checked only revision and scope | Fixed: dev-gate cites the full R-CAP-3 list |

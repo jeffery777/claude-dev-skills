@@ -19,6 +19,9 @@ sources:
     locator: "Claude Code side session 2026-10-20 (question on the context cost of Core), user message at 08:54 UTC"
     quote: "我懂了，因為工具特性不同。同樣一份core，codex按需載入。但在claude這邊的做法可能不同，但仍有機會可以達成類似的效果。"
   - type: chat
+    locator: "Claude Code session 2026-10-20 (PR #2 Merge Review 5), user message at 07:37 UTC (the user let the assistant choose between fixing the other risks now or recording them as follow-ups; at 07:49 UTC the assistant scheduled the runtime check of plugin agent tools with the D-011 deployment; it is item 4 of the D-011 measurement plan; the choice was the assistant's)"
+    quote: "其它的風險，你可以選擇現在修？或記入follow up後續再安排修、一併測。"
+  - type: chat
     locator: "Claude Code session 2026-10-20 (post-merge PR split), user message 1"
     quote: "先用 dev-plan 拆成 PR-A（D-015、R-REV-1、--evidence-file）、PR-B（D-013、D-014、D-016）、PR-C（D-009 到 D-012、context 成本那句話、CHANGELOG、core-feedback、清理項目），一次只做一個，從 PR-A 開始。"
   - type: chat

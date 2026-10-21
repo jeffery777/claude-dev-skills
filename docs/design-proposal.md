@@ -410,6 +410,19 @@ D-009 到 D-016 是同一天的決定。D-015 由 PR #5（Issue #4）記錄；D-
 - CI 不取代 R-REV-9 的獨立掃描：gitleaks 只看 commit 內容，不看 commit 身分、訊息與 PR 文字。
 - Core 回饋：否。理由：CI 與 provider profile 是各專案自選的 overlay（Core auth-scope 與 exact-dimensions）。`dev-core` R-EXH-4 只補上 Core 原文已有的規則：「已選或有相關狀態卻無當前成功讀回為 UNVERIFIED」。也就是說，有相關的平台狀態，卻沒有當前成功的讀回時，結果是 UNVERIFIED。
 
+### D-018 平台設定（provider profile）的讀回（已決定，2026-10-21）
+
+- 來源：FU-009 與 FU-008（使用者決定 Q5 (a)：兩者一起設計）。設計先寫成規格與威脅模型，經一輪獨立設計審查（DR-001 到 DR-008、ES0-001 到 ES0-008）後由使用者核准：「Q1 a。但 script 只實作規格列出的性質；review 若找到規格以外的新邊界情況，一律做成需求缺口卡片交給我決定，不可直接加程式。Q2 a。」需求見 REQ-021。
+- 設定：`.dev/config.json` 的 `platform_profile`（provider `github`、repository、base branch、必要 check 名稱與 GitHub App id）。只從 bound base commit 讀，不讀 PR head，也不讀工作樹。選了設定就是 required profile。格式錯誤、未知 key、重複 key 等一律 fail closed，並顯示原因。
+- 讀回：唯讀 checker `skills/dev-gate/scripts/platform_profile.py`。每個 `gh` 呼叫都用 `--hostname github.com` 與 bound repository；只有 `success` 算通過；必要 check 是 profile 與平台規則（ruleset 全部分頁、classic protection）的聯集；check 綁定 app id；同一 head 的重複 run 依 check suite 分組，每組最新的都要成功；讀完再確認 head 沒變；結果依 BLOCKED、UNVERIFIED、VERIFIED 的順序決定。理由：前兩輪的純文字規則沒有收斂；分頁、分組與優先順序是機器能檢查的事實（R-REV-8），負向案例寫成 `tests/test_platform_profile.py`，由 CI 執行。
+- PR 修改 `.dev/config.json`：屬於平台政策變更（R-AUTH-2），gate 給使用者決策卡，答覆綁定 head 上該檔的 blob。
+- FU-008（只回報，不阻擋；Q2 (a)）：GitHub 用 PR 自己的 workflow 跑 check，所以有 profile 時 `VERIFIED` 一律寫成「checks ran this PR's own definitions」，gate 也列出 PR 在固定路徑清單內改到的檔案。清單只是提示，任何被 check 讀到的檔案都可能削弱 check。
+- 不保護的範圍：PR 削弱自己的 check、同一 GitHub App 的同名 check、admin 或 bypass 合併、`strict` 關閉時的 base 漂移、其他 ruleset 規則、GitHub API 回答的真實性、其他 forge。
+- MR-001：`dev-core` R-EXH-4 寫明何時是 `NOT_CONFIGURED`、何時是 `UNVERIFIED`。
+- 實作審查第 1 輪後觸發停止規則（設計審查與實作審查連續兩輪都有新的 blocker）。三個 blocker 都是「誤報 `NOT_CONFIGURED`」。使用者決定（「Q4 a；Q5 a；Q6 a」）：再修一輪；沒有 profile 時也比對 PR 的 base；checker 失敗或沒有結果行時一律是 `UNVERIFIED`。
+- 這個 repo 的設定：`validate` 與 `gitleaks`，來源 GitHub Actions（app 15368），base `main`，與 2026-10-21 讀回的 ruleset 一致。這個 PR 本身的 base 還沒有設定，所以它的 merge gate 結果是 `NOT_CONFIGURED`，並因新增 `.dev/config.json` 給使用者一張政策變更卡；第一次 `VERIFIED` 要等下一個 PR。
+- Core 回饋：否。理由：profile 是各專案自選的 overlay（Core exact-dimensions）；`dev-core` 的差異記在 DL-015。
+
 ---
 
 <a id="english"></a>
@@ -1193,5 +1206,56 @@ records D-009 to D-012.
   project selects (Core auth-scope and exact-dimensions). `dev-core` R-EXH-4
   only adds what the Core text already says: platform state without a
   current successful read-back is UNVERIFIED.
+
+### D-018 Provider profile read-back (decided, 2026-10-21)
+
+- Origin: FU-009 and FU-008 (the user's decision Q5 (a): design them
+  together). The design was first written as a spec and threat model, had one
+  independent design review (DR-001 to DR-008, ES0-001 to ES0-008), and the
+  user approved it: "Q1 a。但 script 只實作規格列出的性質；review
+  若找到規格以外的新邊界情況，一律做成需求缺口卡片交給我決定，不可直接加程式。Q2 a。"
+  (the checker implements only the listed properties; a new edge case from a
+  review becomes a REQ-GAP card for the user, never code). The requirement is
+  REQ-021.
+- Setting: `platform_profile` in `.dev/config.json` (provider `github`,
+  repository, base branch, required check names with their GitHub App id).
+  It is read only at the bound base commit, never at the PR head or in the
+  working tree. A selected profile is a required profile. An invalid format,
+  an unknown key or a duplicate key fails closed with a message.
+- Read-back: the read-only checker `skills/dev-gate/scripts/platform_profile.py`.
+  Every `gh` call uses `--hostname github.com` and the bound repository; only
+  `success` passes; the required checks are the union of the profile and the
+  platform rules (rulesets, all pages, and classic protection); each check is
+  pinned to an app id; duplicate runs on one head are grouped by check suite
+  and the newest of each must succeed; the head is read again at the end; the
+  result is BLOCKED, then UNVERIFIED, then VERIFIED. Reason: the prose rules
+  did not converge in two rounds; pagination, grouping and precedence are
+  facts a machine can check (R-REV-8), and the negative cases are in
+  `tests/test_platform_profile.py`, which CI runs.
+- A PR that changes `.dev/config.json` makes a provider-policy change
+  (R-AUTH-2): the gate gives the user a decision card, and the answer binds to
+  the head blob of that file.
+- FU-008 (report only, no block; Q2 (a)): GitHub runs the checks from the PR's
+  own workflow, so with a profile `VERIFIED` always reads "checks ran this
+  PR's own definitions", and the gate lists the files the PR changed under a
+  fixed path list. The list is a hint: any file a check reads can weaken it.
+- Not protected: a PR that weakens its own checks, a same-named check from the
+  same GitHub App, admin or bypass merges, base drift with `strict` off, other
+  ruleset rules, the truth of GitHub API answers, other forges.
+- MR-001: `dev-core` R-EXH-4 states when the result is `NOT_CONFIGURED` and
+  when it is `UNVERIFIED`.
+- After implementation review round 1 the stop rule applied (the design
+  review and implementation review round 1 both found new blockers). All
+  three blockers were a false `NOT_CONFIGURED`. The user decided
+  ("Q4 a；Q5 a；Q6 a"): one more fix round; without a profile, the PR's base
+  is compared too; a checker failure or a missing result line is always
+  `UNVERIFIED`.
+- This repository's profile: `validate` and `gitleaks` from GitHub Actions
+  (app 15368) on `main`, matching the ruleset read back on 2026-10-21. The
+  base of this PR has no profile yet, so its merge gate reports
+  `NOT_CONFIGURED` and gives the user a policy-change card for the new
+  `.dev/config.json`; the first `VERIFIED` comes with the next PR.
+- Core feedback: no. Reason: a profile is an overlay that each project
+  selects (Core exact-dimensions); the `dev-core` difference is DL-015.
 
 </details>

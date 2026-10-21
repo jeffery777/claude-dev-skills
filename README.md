@@ -105,7 +105,7 @@ Workflow 只有 `contents: read` 權限，不用任何 secret；每個 action �
 5. 勾選 Require status checks to pass，按 Add checks，加入 `validate` 與 `gitleaks`（來源 GitHub Actions）。
 6. 按 Create。之後 `main` 只接受通過這兩個 check 的變更，所以變更要經由 PR 合併。通過的 check 只證明它實際檢查到的內容（見上面的限制）。
 7. 讀回確認：`gh api repos/<owner>/<repo>/rules/branches/main` 的輸出要有 `required_status_checks`，並列出這兩個 check。
-8. 目前 `dev-gate` 的 `platform_enforcement` 仍是 `NOT_CONFIGURED`，但會列出 PR 上每個 check 的結果。讓專案選定平台設定（provider profile）的專案設定，留給 FU-009 設計。
+8. 專案用 `.dev/config.json` 的 `platform_profile` 選定平台設定（provider profile，REQ-021）。`dev-gate` 只從 PR 的 base commit 讀這個設定，並在 merge gate 讀回 GitHub 上的必要檢查：只有 `success` 算通過；結果是 `VERIFIED`、`UNVERIFIED` 或 `BLOCKED`。沒有這個設定時結果是 `NOT_CONFIGURED`；但讀不到 PR，或 PR 的 base 或 head 不是受審的版本時，結果是 `UNVERIFIED`。格式與限制見 `skills/dev-gate/references/platform-profile.md`。這個 repo 的設定列出 `validate` 與 `gitleaks`（GitHub Actions，app 15368）。GitHub 用 PR 自己的 workflow 跑 check，所以 `VERIFIED` 一律標註「checks ran this PR's own definitions」，gate 也會列出 PR 改到的 check 相關檔案（FU-008，只回報、不阻擋）。
 
 ## 授權
 
@@ -219,7 +219,7 @@ To make the two checks required (the maintainer does this on GitHub):
 5. Select Require status checks to pass, click Add checks, and add `validate` and `gitleaks` (source GitHub Actions).
 6. Click Create. From then on `main` accepts only changes that passed both checks, so changes go in through PRs. A passed check proves only what it actually examined (see the limits above).
 7. Read it back: the output of `gh api repos/<owner>/<repo>/rules/branches/main` must contain `required_status_checks` with both checks.
-8. For now `dev-gate` still reports `platform_enforcement` as `NOT_CONFIGURED`, and it lists the result of each check on the PR. The project setting that selects a provider profile is designed in FU-009.
+8. A project selects a provider profile with `platform_profile` in `.dev/config.json` (REQ-021). `dev-gate` reads this setting only from the PR's base commit and, at the merge gate, reads the required checks back from GitHub: only `success` passes, and the result is `VERIFIED`, `UNVERIFIED` or `BLOCKED`. Without the setting the result is `NOT_CONFIGURED`, but `UNVERIFIED` when the PR read fails or shows another base or head than the reviewed one. The format and the limits are in `skills/dev-gate/references/platform-profile.md`. This repository's setting lists `validate` and `gitleaks` (GitHub Actions, app 15368). GitHub runs the checks from the PR's own workflow, so `VERIFIED` always says "checks ran this PR's own definitions", and the gate lists the check-related files that the PR changed (FU-008, report only, no block).
 
 ## License
 

@@ -1,0 +1,108 @@
+{
+  "schema": "claude-dev-graph/v1",
+  "objective": {
+    "id": "issue-14-platform-profile",
+    "title": "Platform profile read-back in dev-gate (FU-009, FU-008, MR-001)",
+    "rigor": "strict",
+    "requirements": [
+      "REQ-021"
+    ]
+  },
+  "nodes": [
+    {
+      "id": "T1",
+      "title": "Checker script and negative-case tests",
+      "kind": "implement",
+      "requirements": [
+        "REQ-021"
+      ],
+      "depends_on": [],
+      "owns": [
+        "skills/dev-gate/scripts/platform_profile.py",
+        "tests/test_platform_profile.py"
+      ],
+      "risk": "high",
+      "review": "security",
+      "status": "reviewing",
+      "dod": [
+        "Implements exactly the approved spec v2; a negative test for each REQ-021 acceptance item; read-only calls only"
+      ],
+      "verify": [
+        "bash scripts/validate.sh"
+      ]
+    },
+    {
+      "id": "T2",
+      "title": "Rule text: dev-gate step 6, platform-profile reference, dev-core R-EXH-4 (MR-001), DL-015, requirements-wiki keys",
+      "kind": "docs",
+      "requirements": [
+        "REQ-021"
+      ],
+      "depends_on": [],
+      "owns": [
+        "skills/dev-gate/SKILL.md",
+        "skills/dev-gate/references/platform-profile.md",
+        "skills/dev-core/SKILL.md",
+        "skills/dev-core/deltas.md",
+        "skills/dev-plan/references/requirements-wiki.md"
+      ],
+      "risk": "high",
+      "review": "deep",
+      "status": "reviewing",
+      "dod": [
+        "Matches the checker and Core exact-dimensions; never relaxes Core; NOT_CONFIGURED and UNVERIFIED cases stated consistently"
+      ],
+      "verify": [
+        "bash scripts/validate.sh"
+      ]
+    },
+    {
+      "id": "T3",
+      "title": "Repository profile and records: .dev/config.json, REQ-021, README, CHANGELOG, D-018, FU-008, FU-009",
+      "kind": "docs",
+      "requirements": [
+        "REQ-021"
+      ],
+      "depends_on": [],
+      "owns": [
+        ".dev/config.json",
+        "docs/requirements/**",
+        "README.md",
+        "CHANGELOG.md",
+        "docs/design-proposal.md",
+        ".dev/followups.md",
+        ".dev/issue-14-platform-profile/**"
+      ],
+      "risk": "medium",
+      "review": "deep",
+      "status": "reviewing",
+      "dod": [
+        "Profile matches the live ruleset; zh and EN match; user decisions quoted verbatim"
+      ],
+      "verify": [
+        "bash scripts/validate.sh"
+      ]
+    },
+    {
+      "id": "T4",
+      "title": "Independent deep review and security review; R-REV-9 scans",
+      "kind": "review",
+      "requirements": [],
+      "depends_on": [
+        {"node": "T1", "consumes": "checker diff"},
+        {"node": "T2", "consumes": "rule diff"},
+        {"node": "T3", "consumes": "records diff"}
+      ],
+      "owns": [],
+      "risk": "high",
+      "review": "deep",
+      "status": "planned",
+      "dod": [
+        "Every finding has requirement_relation, class and disposition; edge cases outside the spec become REQ-GAP cards"
+      ],
+      "verify": [
+        "bash scripts/validate.sh"
+      ]
+    }
+  ]
+}

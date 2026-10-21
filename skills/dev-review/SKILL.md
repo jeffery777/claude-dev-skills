@@ -24,7 +24,7 @@ the stronger mode. A required security review or scan always uses
 
 For a commit / push scan, the target is exactly what will be published: the
 staged diff plus the author, committer, message and trailers the commit will
-carry, or everything the push sends, or the PR text to be posted (R-REV-9).
+carry, or everything the push sends, or the PR or Issue text to be posted (R-REV-9).
 Review records are committed or posted too, so both reviewer agents mask any
 secret or private identifier they report.
 

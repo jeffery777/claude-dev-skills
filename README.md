@@ -85,6 +85,28 @@ Subagents：`dev-explorer`（haiku）、`dev-implementer`（sonnet）、`dev-rev
 
 需要 Python 3（只用標準庫）與 `claude` CLI。找不到 `claude` CLI 時，第 5 項不會執行，腳本會顯示 INCOMPLETE 並以代碼 2 結束，不會判定為通過。
 
+### CI
+
+`.github/workflows/ci.yml` 在送往 `main` 的每個 pull request 與每次 push 到 `main` 時執行兩個 job（D-017）：
+
+- `validate`：安裝固定版本的 Claude CLI（不登入），執行 `scripts/validate.sh`。
+- `gitleaks`：下載固定版本的 gitleaks，先核對 SHA-256，再掃描從 checkout 的 commit 可到達的每個 commit。輸出會遮蔽 secret。
+
+限制：gitleaks 不掃 merge commit 本身的 patch，也不讀 commit 身分、訊息與 PR 文字。PR 可以修改 workflow、`.gitleaks.toml`、`.gitleaksignore`，進而改變掃描內容，所以 review 要檢查這類變更。CI 在 push 之後才執行：CI 找到的值已經公開，必須更換（rotate）。
+
+Workflow 只有 `contents: read` 權限，不用任何 secret；每個 action 都用完整 commit SHA 固定。CI 不取代每次 commit 與 push 前的獨立安全審查（D-015）。
+
+把兩個 check 設成必要檢查（由維護者在 GitHub 上設定）：
+
+1. 先讓 CI 在 `main` 或某個 PR 上至少跑完一次，GitHub 才列得出 check 名稱。
+2. 開啟 repo 的 Settings → Rules → Rulesets → New ruleset → New branch ruleset。
+3. Ruleset name 填 `main`，Enforcement status 選 Active。Bypass list 保持空白，規則也適用於維護者自己。
+4. Target branches → Add target → Include default branch。
+5. 勾選 Require status checks to pass，按 Add checks，加入 `validate` 與 `gitleaks`（來源 GitHub Actions）。
+6. 按 Create。之後 `main` 只接受通過這兩個 check 的變更，所以變更要經由 PR 合併。通過的 check 只證明它實際檢查到的內容（見上面的限制）。
+7. 讀回確認：`gh api repos/<owner>/<repo>/rules/branches/main` 的輸出要有 `required_status_checks`，並列出這兩個 check。
+8. 目前 `dev-gate` 的 `platform_enforcement` 仍是 `NOT_CONFIGURED`，但會列出 PR 上每個 check 的結果。讓專案選定平台設定（provider profile）的專案設定，留給 FU-009 設計。
+
 ## 授權
 
 MIT。`vendor/engineering-workflow-core/` 保留原 LICENSE 與上游 notices。
@@ -176,6 +198,28 @@ The script runs these checks in order:
 5. `claude plugin validate`.
 
 It needs Python 3 (standard library only) and the `claude` CLI. If the `claude` CLI is missing, check 5 does not run: the script prints INCOMPLETE and exits with code 2. It never reports that as a pass.
+
+### CI
+
+`.github/workflows/ci.yml` runs two jobs on every pull request to `main` and every push to `main` (D-017):
+
+- `validate`: installs the Claude CLI at an exact version (no login) and runs `scripts/validate.sh`.
+- `gitleaks`: downloads an exact gitleaks version, checks its SHA-256, and scans every commit reachable from the checked-out commit. The output redacts secrets.
+
+Limits: gitleaks does not scan the patch of a merge commit, and it does not read the commit identity, the message or PR text. A PR can change the workflow, `.gitleaks.toml` or `.gitleaksignore` and so change what is scanned, so the review must examine such changes. CI runs after the push: a value that CI finds is already public and must be rotated.
+
+The workflow has only the `contents: read` permission and uses no secrets; every action is pinned by full commit SHA. CI does not replace the independent security review before every commit and push (D-015).
+
+To make the two checks required (the maintainer does this on GitHub):
+
+1. Let CI finish at least once on `main` or on a PR, so that GitHub can list the check names.
+2. Open the repository's Settings → Rules → Rulesets → New ruleset → New branch ruleset.
+3. Set Ruleset name to `main` and Enforcement status to Active. Keep the bypass list empty, so the rules also apply to the maintainer.
+4. Target branches → Add target → Include default branch.
+5. Select Require status checks to pass, click Add checks, and add `validate` and `gitleaks` (source GitHub Actions).
+6. Click Create. From then on `main` accepts only changes that passed both checks, so changes go in through PRs. A passed check proves only what it actually examined (see the limits above).
+7. Read it back: the output of `gh api repos/<owner>/<repo>/rules/branches/main` must contain `required_status_checks` with both checks.
+8. For now `dev-gate` still reports `platform_enforcement` as `NOT_CONFIGURED`, and it lists the result of each check on the PR. The project setting that selects a provider profile is designed in FU-009.
 
 ## License
 

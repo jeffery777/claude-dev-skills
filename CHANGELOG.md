@@ -49,6 +49,13 @@ Cowork runtime test). At that release,
   graph engineering in stages, no agent memory, a deployment and measurement
   plan, and the handoff evaluation in `dev-continue`. Also this changelog and
   `docs/core-feedback.md`.
+- Minimal CI (D-017, REQ-020): `.github/workflows/ci.yml` runs on every pull
+  request to `main` and every push to `main`. Job `validate` runs
+  `scripts/validate.sh` with the Claude CLI at an exact npm version (no
+  login). Job `gitleaks` runs gitleaks 8.30.1, checked against a SHA-256 in
+  the workflow, over every commit reachable from the checked-out commit, with
+  redacted output. Actions are pinned by full commit SHA; the workflow has
+  `permissions: contents: read` and uses no secrets.
 
 ### Changed
 
@@ -58,6 +65,16 @@ Cowork runtime test). At that release,
   measures it (PR-C1).
 - Cleanups (PR-C2, Issue #10): wording that now matches the code and the
   records, notes on superseded review records, and follow-up FU-007.
+- `dev-gate` reads the checks of a PR back (R-EXH-4): one read of the head
+  and the checks, each check listed; a failed read or another head gives
+  `UNVERIFIED`. `platform_enforcement` stays `NOT_CONFIGURED`: the project
+  setting that selects a provider profile is designed in FU-009, together
+  with FU-008 (D-017).
+- R-REV-9 also scans Issue titles, bodies and comments before they are
+  posted (REQ-011, FU-007 part (a)). FU-007: commit timestamps are an
+  accepted risk; Git LFS, push options and release notes stay deferred.
+  New follow-ups FU-008 (a PR can change its own checks) and FU-009 (the
+  provider-profile setting), deferred and designed together.
 
 ### Fixed
 

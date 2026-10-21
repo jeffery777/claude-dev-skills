@@ -1,0 +1,65 @@
+# Minimal CI (REQ-020, D-017). No secrets, no pull_request_target.
+# Every action is pinned by full commit SHA; the release tag is in the comment.
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: validate
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    env:
+      # claude plugin validate needs no login; keep the CLI offline otherwise.
+      DISABLE_AUTOUPDATER: "1"
+      CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC: "1"
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: "22"
+      - name: Install the Claude CLI (exact npm version)
+        run: npm install --global --no-audit --no-fund @anthropic-ai/claude-code@2.1.304
+      - name: Run scripts/validate.sh
+        run: ./scripts/validate.sh
+
+  gitleaks:
+    name: gitleaks
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    env:
+      GITLEAKS_VERSION: "8.30.1"
+      # SHA-256 of gitleaks_8.30.1_linux_x64.tar.gz, from the release checksums file.
+      GITLEAKS_SHA256: "551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb"
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Download gitleaks and check its SHA-256
+        run: |
+          set -euo pipefail
+          dir="$RUNNER_TEMP/gitleaks"
+          mkdir -p "$dir"
+          curl --fail --silent --show-error --location --proto '=https' \
+            --output "$dir/gitleaks.tar.gz" \
+            "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz"
+          echo "${GITLEAKS_SHA256}  $dir/gitleaks.tar.gz" | sha256sum --check --strict
+          tar -xzf "$dir/gitleaks.tar.gz" -C "$dir" gitleaks
+      # On a pull request, HEAD is the merge commit, so the scan covers the
+      # commits of the PR and of main. Output is redacted: the log is public.
+      # --text: diffs of files marked binary are scanned too. Limits: the
+      # patch of a merge commit is not scanned, and .gitleaks.toml,
+      # .gitleaksignore and this workflow in the checked-out tree can change
+      # the scan. A finding here means the value is already public.
+      - name: Scan every commit reachable from HEAD
+        run: '"$RUNNER_TEMP/gitleaks/gitleaks" git --log-opts="--text HEAD" --ignore-gitleaks-allow --redact --verbose --no-banner .'

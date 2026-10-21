@@ -1,6 +1,6 @@
 ---
 name: dev-security-reviewer
-description: Independent read-only security reviewer for changes touching trust boundaries, auth, permissions, sensitive data, dependencies, installers, executables or deploy paths, and for the scan before every commit, push and PR post (staged diff, commit identity and message). Performs a proportional Security Diff Scan and reports findings with evidence. Has no Edit or Write tools; read-only Bash use is enforced by instructions only.
+description: Independent read-only security reviewer for changes touching trust boundaries, auth, permissions, sensitive data, dependencies, installers, executables or deploy paths, and for the scan before every commit, push, PR post and Issue post (staged diff, commit identity and message). Performs a proportional Security Diff Scan and reports findings with evidence. Has no Edit or Write tools; read-only Bash use is enforced by instructions only.
 model: opus
 effort: xhigh
 tools: Read, Grep, Glob, Bash

@@ -34,7 +34,7 @@
 - 來源決策：D-015（REQ-011）；delta DL-010。
 - 問題：Core 只在變更碰到信任邊界時要求 Security Diff Scan。在公開 repo 中，每次 commit 與 push 都會公開內容，也會公開作者、committer 與訊息。
 - 證據：PR #2 的 SEC-01。分支上 10 個 commit 的作者與 committer 由本機帳號與主機名稱推導出來，push 後已經公開；內容審查沒有檢查中繼資料（`.dev/issue-1-phase1/reviews/security-review-merge.md`）。
-- 提議的 Core 修改：在 `review-and-security.md#review-security` 規定公開 repo 的每次 commit、push 與 PR 文字都要掃描，範圍包含身分、訊息與 trailer。
+- 提議的 Core 修改：在 `review-and-security.md#review-security` 規定公開 repo 的每次 commit、push，以及 PR 與 Issue 文字都要掃描，範圍包含身分、訊息與 trailer。
 - 類型：修改型（新增義務）。
 - 對其他專案的影響：Codex 與 Grok 的 commit 與 push 步驟要加上這項掃描。
 
@@ -183,7 +183,7 @@ adopt it and the other two projects can re-pin it themselves (REQ-019).
   published them. No content review checked the metadata
   (`.dev/issue-1-phase1/reviews/security-review-merge.md`).
 - Proposed Core change: in `review-and-security.md#review-security`, scan
-  every commit, push and PR text of a public repository, including identity,
+  every commit, push, and PR and Issue text of a public repository, including identity,
   message and trailers.
 - Kind: modifying (a new obligation).
 - Impact on the other projects: the commit and push steps of Codex and Grok

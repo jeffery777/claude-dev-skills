@@ -21,6 +21,9 @@ sources:
   - type: chat
     locator: "Claude Code session 2026-10-20 (post-merge PR split), user message 2, answer to decision card 1 (scan PR text before posting)"
     quote: "Card1，我選a"
+  - type: chat
+    locator: "Claude Code session 2026-10-21 (CI PR), user answer to decision cards Q1 to Q4 (Q2 = FU-007 split; Q3 = R1-002 provider profile; Q4 = ES-004 a PR can change its own checks); FU-007 (PR #5 review gap list) part (a): Issue text"
+    quote: "Q1 yes；Q2 分開處理：Issue 文字加進 REQ-011（a），commit 時區接受、不處理（c），LFS、push options、release notes 延後（b）；Q3 b；Q4 b"
 non_goals:
   - Installing gitleaks or Git hooks without the user's approval
   - Review convergence, decision cards and REQ-GAP (PR-B, D-013, D-014, D-016)
@@ -46,7 +49,8 @@ committed by default.
 - `dev-core` requires a `dev-security-reviewer` scan of what will be
   published: the staged diff and the commit author, committer, message and
   trailers before every commit; everything a push sends (commits and
-  annotated tags) before every push; PR text before it is posted; and every
+  annotated tags) before every push; PR text and Issue text before it is
+  posted; and every
   commit in the range plus the merge or squash commit at merge.
 - R-REV-1 says that a required security review uses `dev-security-reviewer`,
   never `dev-reviewer`.
@@ -61,7 +65,10 @@ committed by default.
 The first quote has a slip; the user's correction (second source) gives the
 intended meaning: such files must **not** be uploaded. Decision card 1 (a):
 PR or MR titles, bodies and comments are scanned before posting, because they
-are published too.
+are published too. FU-007 decision (Q2, 2026-10-21): Issue titles, bodies and
+comments are scanned too (a); commit timestamps with the UTC offset are an
+accepted risk and not added (c); Git LFS objects, push options and release
+notes are deferred (b).
 
 Origin: PR #2 SEC-01 (a hostname-derived author email was pushed). Design
 record: D-015 in `docs/design-proposal.md`. Related: [[REQ-003]], [[REQ-007]].

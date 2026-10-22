@@ -117,6 +117,13 @@ Cowork runtime test). At that release,
   design (FU-005). Core-feedback candidates in CF-009. Follow-ups FU-013
   (reviewer test caches; implementer deletions) and FU-014 (the `--prune`
   of the push fetch).
+- Agent write and delete rules (REQ-024, FU-013, Issue #20). The reviewer
+  agents run Python tests with `PYTHONDONTWRITEBYTECODE=1` and pytest
+  `-p no:cacheprovider`, so tests create no files in the repository
+  (card 3d), and write no file anywhere, including the session scratchpad
+  (card 9b). The implementer never deletes an untracked or ignored file, even
+  inside its owned paths; it reports the file and the main agent asks the
+  user (card 6a, R-AUTH-3). FU-004 gains an official-tools-only arm.
 
 - `scripts/check_pack.py` reads `>+` and `|+` block scalars in REQ `sources`
   (PR-C2), with regression tests for the agent model and effort checks and

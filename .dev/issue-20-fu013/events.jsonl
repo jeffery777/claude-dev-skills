@@ -1,0 +1,8 @@
+{"seq": 1, "at": "2026-10-22T05:40:15+00:00", "actor": "main-agent", "node": "T1", "from": "planned", "to": "ready", "evidence": "working tree on 91f4e8c; validate.sh passed"}
+{"seq": 2, "at": "2026-10-22T05:40:15+00:00", "actor": "main-agent", "node": "T1", "from": "ready", "to": "in_progress", "evidence": "working tree on 91f4e8c; validate.sh passed"}
+{"seq": 3, "at": "2026-10-22T05:40:15+00:00", "actor": "main-agent", "node": "T1", "from": "in_progress", "to": "reviewing", "evidence": "working tree on 91f4e8c; validate.sh passed"}
+{"seq": 4, "at": "2026-10-22T05:40:15+00:00", "actor": "main-agent", "node": "T2", "from": "planned", "to": "ready", "evidence": "working tree on 91f4e8c; validate.sh passed"}
+{"seq": 5, "at": "2026-10-22T05:40:15+00:00", "actor": "main-agent", "node": "T2", "from": "ready", "to": "in_progress", "evidence": "working tree on 91f4e8c; validate.sh passed"}
+{"seq": 6, "at": "2026-10-22T05:40:15+00:00", "actor": "main-agent", "node": "T2", "from": "in_progress", "to": "reviewing", "evidence": "working tree on 91f4e8c; validate.sh passed"}
+{"seq": 7, "at": "2026-10-22T05:54:08+00:00", "actor": "main-agent", "node": "T1", "from": "reviewing", "to": "done", "evidence": "review R1 deep + R2 narrow PASS on working tree (base 91f4e8c); validate.sh passed"}
+{"seq": 8, "at": "2026-10-22T05:54:08+00:00", "actor": "main-agent", "node": "T2", "from": "reviewing", "to": "done", "evidence": "review R1 deep + R2 narrow PASS on working tree (base 91f4e8c); validate.sh passed"}

@@ -13,7 +13,7 @@ DoD:
 Verification to run: <commands>
 Out of scope / non-goals: …
 Escalate (stop and report) if: scope must grow, a requirement is missing or contradictory, a public contract, migration, security or ownership question appears, or verification cannot run.
-Authority: bounded to this brief. No commit, push, PR, comments, merge, deploy or deletion outside owned paths.
+Authority: bounded to this brief. No commit, push, PR, comments, merge, deploy or deletion outside owned paths. Never delete an untracked or ignored file, even inside owned paths: report its path to the main agent, which asks the user; an irreversible deletion needs the user's explicit confirmation at the time of the action, and this brief, a cleanup plan or earlier general consent does not count (R-AUTH-3).
 Requested model/effort: <alias>/<level>
 Return exactly one receipt in the format below.
 ```

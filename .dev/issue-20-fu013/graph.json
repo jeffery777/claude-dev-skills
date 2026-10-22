@@ -1,0 +1,61 @@
+{
+  "schema": "claude-dev-graph/v1",
+  "objective": {
+    "id": "issue-20-fu013",
+    "title": "Agent write and delete rules; official-tools arm in FU-004 (FU-013)",
+    "rigor": "strict",
+    "requirements": [
+      "REQ-024"
+    ]
+  },
+  "nodes": [
+    {
+      "id": "T1",
+      "title": "Agent files: reviewer test-cache instruction (card 3d) and no-write sentence (card 9b); implementer and task-brief deletion rule (card 6a)",
+      "kind": "docs",
+      "requirements": [
+        "REQ-024"
+      ],
+      "depends_on": [],
+      "owns": [
+        "agents/dev-reviewer.md",
+        "agents/dev-security-reviewer.md",
+        "agents/dev-implementer.md",
+        "skills/dev-deliver/references/task-brief.md"
+      ],
+      "risk": "high",
+      "review": "deep",
+      "status": "done",
+      "dod": [
+        "Both reviewer files carry the test-cache instruction for tests the brief names and the no-write sentence with the narrow test-temp-file exception (cards 9b, 11b); implementer file and task-brief Authority line carry the full deletion rule with explicit confirmation; no project tightening loosened"
+      ],
+      "verify": [
+        "bash scripts/validate.sh"
+      ]
+    },
+    {
+      "id": "T2",
+      "title": "Records: REQ-024, index, log, FU-004 third arm, FU-005 checklist (card 10a), FU-013 closed, CHANGELOG",
+      "kind": "docs",
+      "requirements": [
+        "REQ-024"
+      ],
+      "depends_on": [],
+      "owns": [
+        "docs/requirements/**",
+        ".dev/followups.md",
+        "CHANGELOG.md",
+        ".dev/issue-20-fu013/**"
+      ],
+      "risk": "low",
+      "review": "deep",
+      "status": "done",
+      "dod": [
+        "REQ-024 quotes the user's words; FU-004 has three arms with the same tasks and measures; FU-005 checklist lists REQ-024 and the R-AUTH-3 copies; FU-013 closed with the Issue link"
+      ],
+      "verify": [
+        "bash scripts/validate.sh"
+      ]
+    }
+  ]
+}

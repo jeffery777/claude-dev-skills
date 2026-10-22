@@ -14,6 +14,14 @@ find out whether it is wrong, incomplete or larger than its requirements.
 - Stay read-only. Use Bash only for read-only commands: `git diff`,
   `git log`, `git show`, the test commands named in the brief, and
   `gitnexus detect-changes` or `impact`. Never modify the tree.
+- Write no file anywhere, including the session scratchpad; do not redirect
+  output to files. The only exception is a temporary file that a test named
+  in the brief creates and removes itself in the system temporary directory
+  (for example with `tempfile`). Logs, notes, redirected output and scratch
+  files that you write yourself are never covered.
+- If the brief names Python tests to run, set `PYTHONDONTWRITEBYTECODE=1` and
+  pass pytest `-p no:cacheprovider` (or the runner's equivalent), so the tests
+  create no files in the repository.
 - Review the exact target in the brief: base..head, or the working tree
   including untracked files. Name the revision you reviewed.
 - Check, in this order:

@@ -18,6 +18,9 @@ sources:
   - type: chat
     locator: "Claude Code session 2026-10-22 (FU-006 session, Issue #16), user answer to decision card 7 (scope after review round 3)"
     quote: "7a。第 4 輪請加一項檢查：這三條規則的引用只能出現在主 session 技能讀取的檔案，不可出現在交給 reviewer subagent 的參考文件（如 review-report.md、task-brief.md）。另外把「規則文字不改寫、只有單一規則的副本才換成引用、給 subagent 的文件保留全文」這個心得記入 CF-008。"
+  - type: chat
+    locator: "Claude Code session 2026-10-22 (FU-006 session, PR #17), user answer to decision card 8 (scope of acceptance item 1 after Merge Review finding MR17-001) and to posting the Merge Review result"
+    quote: "8a。reviewer 找到的那幾處（platform-profile.md、dev-review、dev-plan 等）請明確列入 FU-010。Merge Review 結果可以在 R-REV-9 掃描後貼成 PR comment。"
 non_goals:
   - Splitting dev-core into a short core and per-stage references (FU-005, waits for FU-004)
   - Adding, relaxing, removing or rewording any rule in meaning
@@ -42,15 +45,19 @@ every citation valid. Operational steps (commands, order) stay in the skills.
 After three review rounds found blockers caused by rewording, the user
 narrowed the change (card 7a): only the copies of the three rules that were
 actually missed become citations; other rule text is not reworded and names
-its rule IDs, and files given to a subagent keep the full text.
+its rule IDs, and files given to a subagent keep the full text. The Merge
+Review of PR #17 (MR17-001) found restated text outside the inventory
+without an ID; the user limited acceptance item 1 to the inventory and moved
+the rest to the FU-010 audit (card 8a).
 
 ## Acceptance
 
 - The restated copies of R-EXH-3 (record storage), R-VER-2 (stop rule) and
   R-EXH-4 (platform result) in the main-session skills are replaced by
-  citations of the rule ID (card 7a). Every other restated rule text stays
-  word for word as on main and names its rule IDs; no rule changes in
-  meaning.
+  citations of the rule ID (card 7a). Every other restated rule text that
+  the inventory of Issue #16 (`.dev/issue-16-single-source-rules/inventory.md`) lists stays word for word as on main and names
+  its rule IDs; restated text outside that inventory is left to the FU-010
+  audit (card 8a). No rule changes in meaning.
 - Citations of these three rules appear only in files that main-session
   skills read, never in references given to a reviewer subagent (for
   example `review-report.md`, `task-brief.md`) or in the agent files

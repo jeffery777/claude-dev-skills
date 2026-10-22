@@ -19,6 +19,7 @@ CORE_SECTION_RE = re.compile(r"\bsections?\s*\d|§\s*\d", re.IGNORECASE)
 
 def files():
     return sorted(glob.glob(os.path.join(ROOT, "skills", "**", "*.md"), recursive=True)
+                  + glob.glob(os.path.join(ROOT, "skills", "**", "*.py"), recursive=True)
                   + glob.glob(os.path.join(ROOT, "agents", "*.md")))
 
 

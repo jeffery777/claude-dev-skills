@@ -101,8 +101,8 @@
 - 提議的 Core 修改：在給接口作者的伴讀說明中，建議每條規則只在摘要中寫一次，其他地方只引用規則 ID。
 - 類型：增量型。
 - 對其他專案的影響：只影響各接口自己的技能結構。
-- 狀態：使用者在 2026-10-21 決定先做，不再等 D-011 量測（「FU-009 合併後 FU-006 優先處理」）。本專案在 Issue #16 實作（REQ-022）：只有三條規則（R-EXH-3 紀錄存放、R-VER-2 停止規則、R-EXH-4 平台結果）的副本換成引用，其他規則文字逐字保留並加上規則 ID。agent 檔保留自己的副本，留給 CF-007（FU-005）處理。Core 的伴讀說明仍是「未提出」。
-- 心得（使用者 2026-10-22，card 7a 原話）：「規則文字不改寫、只有單一規則的副本才換成引用、給 subagent 的文件保留全文」。理由（本專案的推論）：subagent 不讀 `dev-core`，例如 review-report.md、task-brief.md 與 agent 檔的讀者。證據：Issue #16 審查三輪都找到改寫造成的阻擋問題（FR1-001、FR1-002、FR1-005、FR2-001、FR3-001 到 FR3-004）：改寫掉了條件、執行者或讀者，或引用了錯的規則。
+- 狀態：使用者在 2026-10-21 決定先做，不再等 D-011 量測（「FU-009 合併後 FU-006 優先處理」）。本專案在 Issue #16 實作（REQ-022）：只有三條規則（R-EXH-3 紀錄存放、R-VER-2 停止規則、R-EXH-4 平台結果）的副本換成引用，盤點清單內的其他規則文字逐字保留並加上規則 ID；清單外的轉述文字留給 FU-010 的完整盤點（card 8a）。agent 檔保留自己的副本，留給 CF-007（FU-005）處理。Core 的伴讀說明仍是「未提出」。
+- 心得（使用者 2026-10-22，card 7a 原話）：「規則文字不改寫、只有單一規則的副本才換成引用、給 subagent 的文件保留全文」。理由（本專案的推論）：subagent 不讀 `dev-core`，例如 review-report.md、task-brief.md 與 agent 檔的讀者。證據：Issue #16 的前三輪審查都找到改寫造成的阻擋問題（FR1-001、FR1-002、FR1-005、FR2-001、FR3-001 到 FR3-004）：改寫掉了條件、執行者或讀者，或引用了錯的規則。
 
 ## 不回饋給 Core 的決策
 
@@ -309,16 +309,17 @@ adopt it and the other two projects can re-pin it themselves (REQ-019).
   the D-011 measurements ("FU-009 合併後 FU-006 優先處理": do FU-006 first
   after FU-009 merges). This project implements it in Issue #16 (REQ-022):
   only the copies of three rules (R-EXH-3 record storage, R-VER-2 stop rule,
-  R-EXH-4 platform result) became citations; other rule text stays word for
-  word and names its rule IDs. The agent files keep their own copies;
+  R-EXH-4 platform result) became citations; other rule text that the
+  inventory lists stays word for word and names its rule IDs, and restated
+  text outside the inventory goes to the FU-010 audit (card 8a). The agent files keep their own copies;
   CF-007 (FU-005) handles them. The Core companion note is still "not
   proposed".
 - Lesson (user, 2026-10-22, card 7a): 「規則文字不改寫、只有單一規則的副本才換成引用、給 subagent 的文件保留全文」
   (translation: do not reword rule text; replace only a copy of a single
   rule with a citation; files given to a subagent keep the full text). Reason (this project's inference): a
   subagent does not read `dev-core`, for example the readers of
-  review-report.md, task-brief.md and the agent files. Evidence: all
-  three review rounds of Issue #16 found blockers caused by rewording
+  review-report.md, task-brief.md and the agent files. Evidence: review rounds 1
+  to 3 of Issue #16 found blockers caused by rewording
   (FR1-001, FR1-002, FR1-005, FR2-001, FR3-001 to FR3-004): the rewording
   lost a condition, an actor or a reader, or cited the wrong rule.
 

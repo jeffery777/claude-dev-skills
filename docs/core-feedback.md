@@ -104,6 +104,22 @@
 - 狀態：使用者在 2026-10-21 決定先做，不再等 D-011 量測（「FU-009 合併後 FU-006 優先處理」）。本專案在 Issue #16 實作（REQ-022）：只有三條規則（R-EXH-3 紀錄存放、R-VER-2 停止規則、R-EXH-4 平台結果）的副本換成引用，盤點清單內的其他規則文字逐字保留並加上規則 ID；清單外的轉述文字留給 FU-010 的完整盤點（card 8a）。agent 檔保留自己的副本，留給 CF-007（FU-005）處理。Core 的伴讀說明仍是「未提出」。
 - 心得（使用者 2026-10-22，card 7a 原話）：「規則文字不改寫、只有單一規則的副本才換成引用、給 subagent 的文件保留全文」。理由（本專案的推論）：subagent 不讀 `dev-core`，例如 review-report.md、task-brief.md 與 agent 檔的讀者。證據：Issue #16 的前三輪審查都找到改寫造成的阻擋問題（FR1-001、FR1-002、FR1-005、FR2-001、FR3-001 到 FR3-004）：改寫掉了條件、執行者或讀者，或引用了錯的規則。
 
+### CF-009 FU-010 盤點時發現的 Core 用語問題（候選）
+
+- 來源：FU-010 的完整盤點與審查第 1 到 3 輪（Issue #18，REQ-023；`.dev/issue-18-core-audit/audit.md` 與 `reviews/`）。使用者要求：「原始的core並非沒缺陷，有些條文沒寫得很明確，…應該在上游的core中開Issue回饋給core」。
+- 問題與證據（行號依 v0.1.1）：
+  1. `authorization-and-stops.md:52`：「共用庫不收 … runtime state」。本專案推論「共用庫」指 Core 本身的 repo。Core 沒有寫清楚：使用端專案 commit 進自己 repo 的協調狀態（graph、event 檔；本專案 CB-1、D-010）算不算 runtime state。
+  2. `review-and-security.md:9`：「Review request 保持唯讀，只有明確轉為修正／實作才修改受審內容」。Core 沒有寫清楚「唯讀」是只不改受審內容，還是完全不寫任何檔案（例如 repo 外的暫存檔、跑測試產生的 cache）。本專案維持 reviewer 什麼都不寫，並在測試設定避免 cache（使用者決定 3d，FU-013）；第 3 輪的 reviewer 仍在 repo 外寫了一個 log 檔。
+  3. `workflow.md:35`：中文註記是「依 ASD-STE100 原則編寫，尚未完成完整符合性驗證」。本專案用使用者在 REQ-013 寫的「…，未完成完整符合性驗證」，意思相同、字面不同。Core 如果把註記定成固定字面，各接口就能逐字比對。
+  4. `authorization-and-stops.md:35`：「必要能力、獨立 review、必要 scan、驗證或 gate 缺失／未完成／失敗／覆蓋不足；缺安全 fallback。」「缺安全 fallback」可以讀成獨立的停止條件，也可以讀成前半句的限定條件。兩位 reviewer 的讀法不同（Issue #18 第 1 輪 S1）。
+  5. `workflow.md:76`：「狀態或旁支問題先簡答再續行，除非明確取消／替換目標」。例外是限制「續行」，還是也限制同段前面「保留仍適用成果並重查受影響證據」？第 2 輪（R2-001）與第 3 輪（R3-004）的 reviewer 讀法不同。
+  6. `authorization-and-stops.md:21`：破壞性操作列出「刪除／purge／prune」。Core 沒有寫清楚：push 前為了正確判斷要掃描哪些 commit 而 prune 本機 remote-tracking refs（`git fetch --prune`）算不算。使用者在卡片 4 同意記為專案規則；之後的審查（R3-006、MR19-001、MR19-002）又找到 preview、設定讀回與當下確認的問題，所以使用者把它移到 FU-014 另外設計（卡片 8a）。
+  7. 摘要的做法（沒有單一 Core 行；相關的是 `exact-head-and-evidence.md:58`：衍生副本保留唯一來源，共享 Markdown 不能證明等價）：壓縮過的摘要無法保住 Core 每一句的條件。Issue #18 的三輪審查，每輪都找到新的漏寫義務或少了條件的句子（R-VER-2 停止規則兩次觸發）。建議 Core 在給接口作者的說明中寫明：接口應引用或按需載入權威原文，不要改寫；比 Core 嚴格的接口規則另外列出（與 CF-007、FU-005 相關）。
+- 提議的 Core 修改：在伴讀說明中補上第 1 到 6 點的明確讀法，以及第 7 點的建議；權威原文要改時，走修改型流程。
+- 類型：第 1 到 6 點是增量型（說明）；如果 Core 決定改寫原文，則是修改型。第 7 點是增量型。
+- 對其他專案的影響：codex-dev-skills 與 grok-build-dev-skills 可以照同樣的讀法核對自己的摘要；在它們重新 pin 之前沒有影響。
+- 狀態：未提出。到 Core 開 Issue 需要使用者另外授權；由協調 session 與使用者一起依本項起草。
+
 ## 不回饋給 Core 的決策
 
 | 決策 | 理由 |
@@ -322,6 +338,70 @@ adopt it and the other two projects can re-pin it themselves (REQ-019).
   to 3 of Issue #16 found blockers caused by rewording
   (FR1-001, FR1-002, FR1-005, FR2-001, FR3-001 to FR3-004): the rewording
   lost a condition, an actor or a reader, or cited the wrong rule.
+
+### CF-009 Core wording questions found in the FU-010 audit (candidates)
+
+- Origin: the FU-010 full audit and review rounds 1 to 3 (Issue #18, REQ-023;
+  `.dev/issue-18-core-audit/audit.md` and `reviews/`). The user asked for it:
+  「原始的core並非沒缺陷，有些條文沒寫得很明確，…應該在上游的core中開Issue回饋給core」
+  (translation: the original Core has defects, some clauses are not clear;
+  give feedback to Core through Issues upstream).
+- Problems and evidence (line numbers at v0.1.1):
+  1. `authorization-and-stops.md:52` says the shared repository takes no
+     runtime state. This project's inference: "shared repository" means the
+     Core repository itself. Core does not say whether coordination state that
+     a consumer project commits to its own repository (graph and event files;
+     CB-1, D-010 here) counts as runtime state.
+  2. `review-and-security.md:9` says a review request stays read-only and
+     changes the reviewed content only when it is explicitly turned into a
+     fix. Core does not say whether read-only means only "do not change the
+     reviewed content" or "write no file at all" (for example temporary files
+     outside the repository, or caches from test runs). This project keeps
+     "reviewers write nothing" and prevents caches through the test settings
+     (user decision 3d, FU-013); a round-3 reviewer still wrote a log file
+     outside the repository.
+  3. `workflow.md:35`: the Traditional Chinese note is
+     「依 ASD-STE100 原則編寫，尚未完成完整符合性驗證」. This project uses the
+     user's REQ-013 wording 「…，未完成完整符合性驗證」: the same meaning, a
+     different literal. A fixed literal in Core would let each interface
+     compare it word for word.
+  4. `authorization-and-stops.md:35` lists a missing, incomplete, failed or
+     insufficient required capability, review, scan, verification or gate,
+     then 「；缺安全 fallback」. The missing safe fallback can be read as a stop
+     condition of its own or as a qualifier of the first part; two reviewers
+     read it differently (Issue #18 round 1, S1).
+  5. `workflow.md:76`: "answer status or side questions briefly, then
+     continue, unless the objective is explicitly cancelled or replaced". Does
+     the exception limit only "continue", or also the earlier "keep the
+     results that still apply and re-check the affected evidence"? The
+     round-2 (R2-001) and round-3 (R3-004) reviewers read it differently.
+  6. `authorization-and-stops.md:21` lists delete, purge and prune as
+     destructive. Core does not say whether pruning local remote-tracking refs
+     before a push (`git fetch --prune`, so that the scan finds every commit
+     the remote does not have) counts. The user first approved it as a
+     project rule (card 4); later reviews (R3-006, MR19-001, MR19-002) found
+     gaps in the preview, the read-back of the settings and the confirmation
+     at the time, so the user moved it to FU-014 for a design of its own
+     (card 8a).
+  7. Digest method (no single Core line; related: `exact-head-and-evidence.md:58`,
+     derived copies keep one source, and shared Markdown never proves
+     equivalence): a compressed digest cannot keep every condition of Core.
+     Each of the three review rounds of Issue #18 found new missing
+     obligations or sentences with fewer conditions (the R-VER-2 stop rule
+     applied twice). Suggest that Core tells interface authors to quote or
+     load the authoritative text on demand instead of rewording it, and to
+     list the interface rules that are stricter than Core separately (related
+     to CF-007 and FU-005).
+- Proposed Core change: a companion note with a clear reading of points 1 to
+  6 and the advice of point 7; a change of the authoritative text follows the
+  modifying process.
+- Kind: points 1 to 6 are additive (explanations), or modifying if Core
+  decides to reword its text; point 7 is additive.
+- Impact on the other projects: codex-dev-skills and grok-build-dev-skills
+  can check their digests against the same readings; no effect before they
+  re-pin.
+- Status: not proposed. An Issue on Core needs a separate authorization by
+  the user; the orchestrator session drafts it with the user from this item.
 
 ## Decisions not fed back to Core
 

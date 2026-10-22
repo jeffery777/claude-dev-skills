@@ -8,7 +8,12 @@ description: Shared engineering rules that the other dev-* skills load first - s
 This file is the execution digest of the vendored
 `engineering-workflow-core` v0.1.1 contracts. **The vendored Core is the only
 authority.** This digest may rephrase, compress or tighten Core. It never
-relaxes or removes an obligation and never creates authority. Each rule cites
+relaxes or removes an obligation and never creates authority. Where a rule here
+is shorter or looser than its cited Core section, that Core section governs: an
+omission or a looser wording never relaxes Core. Where a rule here is stricter
+than Core (for example the tightenings in `deltas.md`, the bindings CB-1 to
+CB-5 and the user decisions that they record), the stricter rule applies; Core never voids a
+project tightening. Each rule cites
 its Core anchor. When a rule is unclear, conflicts with something else, or a
 case is at the edge, read the cited section in
 `${CLAUDE_SKILL_DIR}/../../vendor/engineering-workflow-core/contracts/` and follow it.
@@ -166,7 +171,17 @@ Every path in this file starts from the parent of the skill folder (`../dev-core
 
 ## 7. Writing and evidence lifecycle
 
-- **R-WRT-1** Write for a known reader and purpose. Use direct sentences with an explicit actor, one term per concept, and ordered steps. Never cut safety, authority, evidence, prerequisites, risks or limits for brevity. Keep code, commands, paths and quoted license text unchanged. Bilingual versions must match in obligations and limits. English technical text follows the principles of ASD-STE100 Issue 9. Without a full check of the rules and dictionary, state "written per ASD-STE100 principles; full conformance not verified" (in Traditional Chinese: 「依 ASD-STE100 原則編寫，未完成完整符合性驗證」) in the document or the review, always in every review and gate report, and never record it as Passed. Never claim STE conformance. Traditional Chinese uses the plain-writing adaptation: one idea per sentence, an explicit subject, consistent terms, a plain explanation of each technical term at first use, and no vague words. It applies no English word-count rules and never claims ASD-STE100 conformance. Record the writing spot-check (scope, results, limits) in the existing review report. [core: workflow.md#wf-writing]
+- **R-WRT-1** These rules apply to the natural-language documents and delivery summaries that the workflow produces.
+  - Write for a known reader and purpose, at the depth of operation the reader needs. By document type, state the purpose, the required prerequisites, the next step and the completion criteria; a short reply may combine them.
+  - Use direct sentences with an explicit actor, one topic per sentence, and ordered steps. Use one term per concept. Explain a necessary technical term at first use as the reader needs it, and keep the required technical detail.
+  - Never cut safety, authority, evidence, prerequisites, risks or limits for brevity, and never lose technical precision. Keep requirements, recommendations and optional items distinguishable.
+  - The writing rules never change machine literals (code, commands, flags, APIs, paths, logs and the like) or the quotations and license text that must be kept. Masking under R-REV-8 still applies.
+  - Bilingual versions must match in obligations, risks, limits and important information. A translation never changes which version is authoritative.
+  - English technical text follows the principles of ASD-STE100 Issue 9 (2025-01-15). Without a full check of the rules, the controlled dictionary and the applicable technical terms, state "written per ASD-STE100 principles; full conformance not verified" (in Traditional Chinese: 「依 ASD-STE100 原則編寫，未完成完整符合性驗證」) in the document or the review, always in every review and gate report, and never record it as Passed. Never claim STE conformance. A tool check or a model self-assessment never replaces the full check.
+  - Traditional Chinese uses the plain-writing adaptation: one idea per sentence, an explicit subject, consistent terms, a plain explanation of each technical term at first use, and no vague words. It applies no English word-count rules and no numeric rules without a source, never claims ASD-STE100 conformance, and is never called an official Chinese ASD standard.
+  - In the existing review, spot-check the writing by the scope of the change: the fit for the reader and the document type, clear terms and steps, important information kept, bilingual consistency, and the basis of any conformance claim. Record the writing spot-check (scope, results, limits) in the existing review report. A problem found is a finding (R-REV-3); the spot-check adds no gate.
+
+  [core: workflow.md#wf-writing]
 - **R-EVD-1** Classify evidence as Active, Superseded or Unresolved. A replacement must cover the original failure and the boundary it affected. An unrelated or one-off PASS never closes a failure or an intermittent problem. Keep the record of unresolved, security and data-loss events, and evidence that is shared or still referenced. [core: workflow.md#wf-evidence-lifecycle]
 - **R-EVD-2** Load indexes and summaries first and read the sources on demand. Making context smaller is not deletion. A summary is not original evidence, and a missing source means the claim is unverified. Summarize or archive only at a safe close. A missing retention policy means keep the data. [core: workflow.md#wf-evidence-lifecycle]
 

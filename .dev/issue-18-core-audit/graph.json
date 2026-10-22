@@ -1,0 +1,63 @@
+{
+  "schema": "claude-dev-graph/v1",
+  "objective": {
+    "id": "issue-18-core-audit",
+    "title": "dev-core is never weaker than Core: full audit and R-WRT-1 (FU-010, PR-A)",
+    "rigor": "strict",
+    "requirements": [
+      "REQ-023"
+    ]
+  },
+  "nodes": [
+    {
+      "id": "T1",
+      "title": "Audit table; dev-core header (Core governs where shorter or looser; stricter rules apply), R-WRT-1 (cards 5, 7a; prune rule to FU-014, card 8a); deltas DL-017, source-map",
+      "kind": "docs",
+      "requirements": [
+        "REQ-023"
+      ],
+      "depends_on": [],
+      "owns": [
+        "skills/dev-core/**",
+        ".dev/issue-18-core-audit/audit.md"
+      ],
+      "risk": "high",
+      "review": "deep",
+      "status": "reviewing",
+      "dod": [
+        "Every rule rated against Core with evidence; header hands shorter or looser rules to Core and keeps every project tightening; no regression; gaps listed for FU-005; DL-017 records it"
+      ],
+      "verify": [
+        "bash scripts/validate.sh"
+      ]
+    },
+    {
+      "id": "T2",
+      "title": "Records: REQ-023, index, log, FU-006/FU-010 rows, FU-011 to FU-013, CF-009, CHANGELOG",
+      "kind": "docs",
+      "requirements": [
+        "REQ-023"
+      ],
+      "depends_on": [],
+      "owns": [
+        "docs/requirements/REQ-023-core-audit.md",
+        "docs/requirements/index.md",
+        "docs/requirements/log.md",
+        ".dev/followups.md",
+        "docs/core-feedback.md",
+        "CHANGELOG.md",
+        ".dev/issue-18-core-audit/graph.json",
+        ".dev/issue-18-core-audit/reviews/**"
+      ],
+      "risk": "medium",
+      "review": "deep",
+      "status": "reviewing",
+      "dod": [
+        "MR17B-001 fixed; FU-005 design step, FU-011/FU-012 re-decided after it, FU-013 with card 6; CF-009 in both languages, status not proposed"
+      ],
+      "verify": [
+        "bash scripts/validate.sh"
+      ]
+    }
+  ]
+}

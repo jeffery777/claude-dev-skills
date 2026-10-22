@@ -16,7 +16,7 @@ cited Core section (see review round 1, DR-001 to DR-008, in
 | Core anchor | dev-core rules | Status | Note |
 | --- | --- | --- | --- |
 | `workflow.md#wf-stages` | R-STG-1, R-STG-2, R-STG-3, R-STG-4, R-STG-5 | covered | Stage table compressed into five rules |
-| `workflow.md#wf-writing` | R-WRT-1 | covered | Traditional Chinese plain-writing rules spelled out; every review and gate report carries the ASD-STE100 note (DL-014) |
+| `workflow.md#wf-writing` | R-WRT-1 | covered | Items 1 to 6 and the spot-check, one bullet each (FU-010, DL-017); Traditional Chinese plain-writing rules spelled out; every review and gate report carries the ASD-STE100 note (DL-014) |
 | `workflow.md#wf-capability` | R-CAP-1, R-CAP-2, R-CAP-3 | covered | Native Claude Code capabilities named explicitly |
 | `workflow.md#wf-delegation` | R-DEL-1, R-DEL-2 | covered | Model/effort floor tightened (D-007) |
 | `workflow.md#wf-verification` | R-VER-1, R-VER-2, R-VER-3 | covered | R-VER-2 adds the stop rule for the fix loop (DL-012) |

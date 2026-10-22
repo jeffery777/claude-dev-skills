@@ -59,11 +59,8 @@ Repeat until the objective is complete or a stop condition holds (R-AUTH-5):
 5. **Review** each write node through its `review` mode with `dev-review`.
    The reviewer gets a fresh context and tries to disprove the change.
    Classify each finding before you fix it, and keep fixes inside the
-   requirements (R-REV-4). Fix and re-review. After two unfinished rounds,
-   re-assess the approach. When two consecutive rounds report new blockers,
-   or the same mechanism needed fixes and produced new problems in two
-   consecutive rounds, stop the fix loop and re-evaluate the spec, the
-   acceptance criteria and the approach (R-VER-2).
+   requirements (R-REV-4). Fix and re-review. Apply the re-assessment and
+   the stop rule of R-VER-2.
    When a review and fix round is complete, run the handoff evaluation of
    `dev-continue` (D-012).
 6. **Docs sync** with `dev-docs` once behavior has settled.
@@ -71,7 +68,7 @@ Repeat until the objective is complete or a stop condition holds (R-AUTH-5):
    `dev-continue` (D-012) before you select the next node.
 7. **Gate** with `dev-gate` before any commit, push, PR or merge the user
    asked for. The gate decides readiness, and the user's instruction decides
-   the authority. Before every commit and every push, `dev-security-reviewer`
+   the authority (R-REV-5, R-AUTH-1). Before every commit and every push, `dev-security-reviewer`
    scans what will be published (the staged diff and the commit identity and
    message, or everything the push sends), in the order that `dev-implement`
    gives; PR text is scanned before it is posted (R-REV-9).
@@ -81,4 +78,5 @@ Repeat until the objective is complete or a stop condition holds (R-AUTH-5):
 Per iteration: the node advanced, the evidence, open findings, the next ready
 node and the gates. At the end: the requirement trace, the final gate result and
 residual risk. Give every decision for the user, including each `REQ-GAP`, as
-a decision card (`${CLAUDE_SKILL_DIR}/../dev-review/references/decision-card.md`).
+a decision card (`${CLAUDE_SKILL_DIR}/../dev-review/references/decision-card.md`)
+(R-AUTH-6, R-REV-3).

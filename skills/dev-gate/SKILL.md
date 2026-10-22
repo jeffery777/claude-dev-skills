@@ -36,7 +36,7 @@ commit, push, PR, merge or other external write (R-REV-5, R-AUTH-1).
    state, and the requirement trace. Reuse an earlier review only when its
    content (including the uncommitted diff), revision, scope, assumptions,
    policy, stage, environment and freshness still match (R-CAP-3). For merge readiness, a pre-commit
-   or previous-head review never satisfies the gate.
+   or previous-head review never satisfies the gate (R-EXH-1, R-EXH-3).
 3. For merge readiness, run or dispatch the complete base-to-head review:
    - `dev-review` in deep mode over `base...head`. The review covers the
      whole range; parts that are provably unaffected by every change since an
@@ -46,16 +46,19 @@ commit, push, PR, merge or other external write (R-REV-5, R-AUTH-1).
    - the code ↔ docs coherence checks (R-EXH-2).
 4. Check the blockers (R-REV-5, R-REV-7, R-AUTH-5). Any one blocks the gate:
    - an unresolved MUST-FIX, a missing or incomplete disposition, or an open
-     Needs Human Decision (including an undecided `REQ-GAP`);
+     Needs Human Decision (including an undecided `REQ-GAP`) (R-REV-3,
+     R-REV-5);
    - before a push: fixes without the narrow independent confirmation
      (R-REV-4);
    - a required independent review, verification or scan that is missing,
-     incomplete, failed, has insufficient coverage, or is `NOT_RUN`;
+     incomplete, failed, has insufficient coverage, or is `NOT_RUN`
+     (R-AUTH-5, R-REV-7);
    - a missing R-REV-9 scan, or one that does not match the current staged
      content, commit identity and message, or commit range (R-REV-9);
-   - an unresolved substantive security risk, with or without a finding ID;
+   - an unresolved substantive security risk, with or without a finding ID
+     (R-REV-7);
    - a write change without a requirement, or a `SCOPE-CREEP` finding without
-     a disposition.
+     a disposition (R-RIG-3, R-REV-5).
 5. Decide `content_review`.
 6. Decide `platform_enforcement` (R-EXH-4). Never infer it from the content
    result, and re-read it right before a merge.
@@ -68,27 +71,25 @@ commit, push, PR, merge or other external write (R-REV-5, R-AUTH-1).
      `<checker>` is `${CLAUDE_SKILL_DIR}/scripts/platform_profile.py`, or
      its copy from the bound base when the pack lies inside the repository
      under review (see the reference). Report its result line, every item,
-     the policy-change line and the list of changed check files. If the
-     checker fails or prints no `platform_enforcement:` line, the result is
-     `UNVERIFIED`, never `NOT_CONFIGURED`.
+     the policy-change line and the list of changed check files. A checker
+     failure or a missing result line gives the result of R-EXH-4.
    - No profile (`NOT_CONFIGURED`): when a PR exists, read its base, head and
      checks in one call:
      `gh pr view <pr> --repo github.com/<owner/name> --json baseRefOid,headRefOid,statusCheckRollup`.
      List each check with its result; an empty list means the PR has no
-     checks. If the read fails, `baseRefOid` is not the bound base, or
-     `headRefOid` is not the reviewed head, the result is `UNVERIFIED`: a
-     stale base may lack a profile that the PR's real base has. A failed or unrun check is never Passed (R-EXH-2).
+     checks. Compare `baseRefOid` with the bound base and `headRefOid` with
+     the reviewed head; R-EXH-4 gives the result when the read fails or
+     either differs: a stale base may lack a profile that the PR's real base
+     has. A failed or unrun check is never Passed (R-EXH-2).
    - A policy change (`.dev/config.json` differs between base and head) needs
      the user's decision (R-AUTH-2): give a decision card; the gate result is
      `NEEDS HUMAN DECISION` until the user answers for that head blob.
 7. State the authority boundary. Name the exact next action, such as
    "merge PR 12", and whether the user has authorized it. If the head changes,
    the gate is void: rerun it from step 1 (R-EXH-3).
-8. Record the result. Once a PR exists, never commit it to the PR branch: a
-   commit makes a new head (R-EXH-3). Post it as a PR comment after the
-   R-REV-9 scan of its text when the user has authorized that comment
-   (R-AUTH-2); otherwise keep it uncommitted and give it in the report. Give each open decision as a decision card
-   (`${CLAUDE_SKILL_DIR}/../dev-review/references/decision-card.md`).
+8. Record the result. Once a PR exists, store it by R-EXH-3. Give each open
+   decision as a decision card
+   (`${CLAUDE_SKILL_DIR}/../dev-review/references/decision-card.md`) (R-AUTH-6).
 
 ## Output
 

@@ -48,9 +48,9 @@ When the user asked for it, use this order (R-REV-9):
 
 Any change after a scan needs a new scan. Scan and gate records go into a
 later commit or into a PR comment that the user has authorized, never into
-the commit they cover. Once a PR exists, they never go into a commit on the
+the commit they cover (R-REV-9). Once a PR exists, they never go into a commit on the
 PR branch (R-EXH-3). Without `dev-security-reviewer`, stop before the commit
-or push.
+or push (CB-4).
 
 ## Output
 

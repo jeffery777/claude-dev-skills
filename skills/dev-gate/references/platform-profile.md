@@ -2,8 +2,7 @@
 
 A project selects a provider profile only with `platform_profile` in
 `.dev/config.json` (Core: a profile is an opt-in project overlay). Without it,
-`platform_enforcement` is `NOT_CONFIGURED`, unless the no-profile read of
-`dev-gate` step 6 fails or shows another base or head (then `UNVERIFIED`). This file defines the format and
+R-EXH-4 gives the result of the no-profile read of `dev-gate` step 6. This file defines the format and
 the GitHub read-back of the merge gate (`dev-gate` step 6). The checker
 `${CLAUDE_SKILL_DIR}/scripts/platform_profile.py` implements exactly these
 rules and nothing more. A new edge case goes to the user as a `REQ-GAP`
@@ -93,12 +92,12 @@ default repository or `GH_HOST` changes the target. All calls are reads.
 6. Result: `BLOCKED` if any item is `BLOCKED`, else `UNVERIFIED` if any item
    is `UNVERIFIED`, else `VERIFIED`. The report lists every item with its
    reason.
-7. If the checker fails or prints no `platform_enforcement:` line, the gate
-   result is `UNVERIFIED`, never `NOT_CONFIGURED` (user decision Q6 (a)).
+7. A checker failure or a missing `platform_enforcement:` line: the gate
+   result follows R-EXH-4 (user decision Q6 (a)).
 
 Without a profile, `dev-gate` step 6 reads the PR's base, head and checks in
-one call (`gh pr view --repo github.com/<owner/name>`, user decision Q8 (a)); a base that is not the bound base is `UNVERIFIED`, because a stale
-base may lack a profile that the PR's real base has (user decision Q5 (a)).
+one call (`gh pr view --repo github.com/<owner/name>`, user decision Q8 (a)). R-EXH-4 gives the result when the PR's base is not the bound base,
+because a stale base may lack a profile that the PR's real base has (user decision Q5 (a)).
 
 The read-back is valid only for that head. Run it again right before a merge,
 and pin the merge to the head (`gh pr merge --match-head-commit <head>`).

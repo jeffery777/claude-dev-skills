@@ -17,10 +17,10 @@ R-WRT-1.
    verified facts apart from inferences (R-EXH-2).
 3. Update only the docs in scope. Keep the required technical detail, the
    prerequisites, the safety notes and the limits. Do not change code,
-   commands, paths or license text for style.
+   commands, paths or license text for style (R-WRT-1).
 4. For bilingual docs, compare the obligations, risks and limits in both
    languages. The authoritative language wins. Do not claim ASD-STE100
-   conformance.
+   conformance (R-WRT-1).
 5. Do not add private paths, credentials, machine-specific details or runtime
    state (R-AUTH-7).
 6. Run the cheap checks that exist: link checks, a markdown lint, or `grep`

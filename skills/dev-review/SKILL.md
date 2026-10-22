@@ -18,7 +18,7 @@ Review stays read-only unless the user asks for fixes (R-REV-1).
 | security | trust boundaries, auth, permissions, sensitive data, dependencies, installers (R-REV-7) | `dev-security-reviewer`, model `opus`, effort `xhigh` or `max` |
 | commit / push scan | before every commit and every push, at any tier (R-REV-9) | `dev-security-reviewer`, model `opus`, effort `high` or more |
 
-Decide the mode from the actual impact, not the file type. When unsure, use
+Decide the mode from the actual impact, not the file type (R-REV-7). When unsure, use
 the stronger mode. A required security review or scan always uses
 `dev-security-reviewer`, never `dev-reviewer` (R-REV-1).
 
@@ -26,7 +26,7 @@ For a commit / push scan, the target is exactly what will be published: the
 staged diff plus the author, committer, message and trailers the commit will
 carry, or everything the push sends, or the PR or Issue text to be posted (R-REV-9).
 Review records are committed or posted too, so both reviewer agents mask any
-secret or private identifier they report.
+secret or private identifier they report (R-REV-8).
 
 ## Workflow
 
@@ -40,7 +40,7 @@ secret or private identifier they report.
 3. Dispatch the reviewer subagent with a brief (R-DEL-1). Give the target, the
    context paths, the mode, and the output format in
    `${CLAUDE_SKILL_DIR}/references/review-report.md`. Never review your own
-   change as the required reviewer. The brief tells the reviewer to look for
+   change as the required reviewer (R-REV-1). The brief tells the reviewer to look for
    problems beyond the requirements, to give every finding a
    `requirement_relation`, and to rate severity by the R-REV-3 thresholds;
    items below the thresholds go to residual risk.
@@ -53,26 +53,21 @@ secret or private identifier they report.
      and in which context. A native pass that runs in a context with write
      tools is an extra pass only; the required review still needs
      `dev-reviewer` (`dev-security-reviewer` for a security review or scan), and without them the work
-     stops at the gate (dev-core §8).
+     stops at the gate (R-REV-1, CB-4).
 4. Read the report back. Check that each finding has a file and line and
    evidence. Mark claims you could not reproduce as unverified.
 5. Assign IDs (`F-001`, …). Before any fix, classify each finding and
    propose a disposition (R-REV-3, R-REV-4). Raise each `REQ-GAP` and each
    Needs Human Decision as a decision card
    (`${CLAUDE_SKILL_DIR}/references/decision-card.md`); do not fix a
-   `REQ-GAP` in the same round. Save the report to
+   `REQ-GAP` in the same round (R-REV-3, R-AUTH-6). Save the report to
    `.dev/<objective-id>/reviews/<round>.md` for standard and strict work.
-   Once a PR exists, never commit the records of a review of its head to
-   the PR branch (R-EXH-3). Post them as a PR comment after the R-REV-9 scan
-   when the user has authorized that comment; otherwise keep them
-   uncommitted and give them in the report.
+   Once a PR exists, store the records of a review of its head by
+   R-EXH-3.
 6. When fixes follow, apply them with `dev-implement` or `dev-docs`, then
    re-review proportionally (R-REV-4). Before a push, an independent
-   reviewer confirms the fixes in a narrow review. After two unfinished
-   rounds, re-assess the approach. When two consecutive rounds report new
-   blockers, or the same mechanism needed fixes and produced new problems in
-   two consecutive rounds, stop the fix loop and re-evaluate the spec, the
-   acceptance criteria and the approach (R-VER-2).
+   reviewer confirms the fixes in a narrow review. Apply the re-assessment
+   and the stop rule of R-VER-2.
 
 ## Output
 

@@ -386,29 +386,42 @@ class Main(unittest.TestCase):
 
 
 class GateRuleText(unittest.TestCase):
-    """The REQ-021 rules that live only in rule text (user decisions Q5, Q6, Q8) stay in every copy."""
+    """The REQ-021 rules that live only in rule text: the Q5 and Q6 results are written once, in dev-core
+    R-EXH-4, and dev-gate and its reference cite R-EXH-4; the Q8 host pin stays in dev-gate step 6 and
+    its reference (REQ-022, card 4b)."""
+
+    CORE_SENTENCE = ("when that read fails or shows another base or head, or the profile checker fails or prints no "
+                     "result, it is UNVERIFIED")
 
     @staticmethod
     def text(*parts):
         with open(os.path.join(ROOT, *parts), encoding="utf-8") as fh:
             return " ".join(fh.read().split())
 
+    def test_dev_core_r_exh_4_names_base_head_and_checker_failure(self):  # MR-001, R2-001, Q5, Q6
+        core = self.text("skills", "dev-core", "SKILL.md")
+        self.assertEqual(core.count(self.CORE_SENTENCE), 1)
+
     def test_no_profile_read_checks_base_and_pins_host(self):  # Q5 (a), Q8 (a)
         gate = self.text("skills", "dev-gate", "SKILL.md")
         self.assertIn("gh pr view <pr> --repo github.com/<owner/name> --json baseRefOid,headRefOid,statusCheckRollup", gate)
-        self.assertIn("If the read fails, `baseRefOid` is not the bound base, or `headRefOid` is not the reviewed head, the result is `UNVERIFIED`", gate)
+        self.assertIn("Compare `baseRefOid` with the bound base and `headRefOid` with the reviewed head; R-EXH-4 gives "
+                      "the result when the read fails or either differs", gate)
         ref = self.text("skills", "dev-gate", "references", "platform-profile.md")
-        self.assertIn("(`gh pr view --repo github.com/<owner/name>`, user decision Q8 (a)); a base that is not the bound base is `UNVERIFIED`", ref)
+        self.assertIn("(`gh pr view --repo github.com/<owner/name>`, user decision Q8 (a)). R-EXH-4 gives the result "
+                      "when the PR's base is not the bound base", ref)
 
-    def test_checker_failure_is_unverified(self):  # Q6 (a)
+    def test_checker_failure_cites_r_exh_4(self):  # Q6 (a)
         gate = self.text("skills", "dev-gate", "SKILL.md")
-        self.assertIn("If the checker fails or prints no `platform_enforcement:` line, the result is `UNVERIFIED`, never `NOT_CONFIGURED`", gate)
+        self.assertIn("A checker failure or a missing result line gives the result of R-EXH-4", gate)
         ref = self.text("skills", "dev-gate", "references", "platform-profile.md")
-        self.assertIn("If the checker fails or prints no `platform_enforcement:` line, the gate result is `UNVERIFIED`, never `NOT_CONFIGURED`", ref)
+        self.assertIn("A checker failure or a missing `platform_enforcement:` line: the gate result follows R-EXH-4", ref)
 
-    def test_dev_core_r_exh_4_names_base_head_and_checker_failure(self):  # MR-001, R2-001
-        core = self.text("skills", "dev-core", "SKILL.md")
-        self.assertIn("when that read fails or shows another base or head, or the profile checker fails or prints no result, it is UNVERIFIED", core)
+    def test_no_restated_copy_outside_dev_core(self):
+        for parts in (("skills", "dev-gate", "SKILL.md"), ("skills", "dev-gate", "references", "platform-profile.md")):
+            text = self.text(*parts)
+            self.assertNotIn("never `NOT_CONFIGURED`", text, parts)
+            self.assertNotIn("is not the bound base is `UNVERIFIED`", text, parts)
 
 
 if __name__ == "__main__":

@@ -20,10 +20,10 @@ every other decision handed to the user (R-AUTH-6, R-REV-3).
 - Keep facts apart from inferences in the evidence. A fact has a source: a
   `path:line`, a command and its output, or a quote. Mark everything else as
   an inference.
-- Mask secrets and private identifiers, as in the review report.
+- Mask secrets and private identifiers, as in the review report (R-REV-8).
 - The card grants no authority. Only the user's answer decides. When the
   answer adds a requirement, `dev-plan` ingests it, and the REQ sources record
-  the finding ID and the user's answer.
+  the finding ID and the user's answer (R-AUTH-1, R-REV-3).
 
 ## Template
 

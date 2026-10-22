@@ -101,6 +101,13 @@ Cowork runtime test). At that release,
   and Python files) and `agents/` exists in `dev-core`, and searches `skills/`, `agents/` and
   `tests/` for the known ways of citing `dev-core` by section number.
   New follow-up FU-010: R-WRT-1 lists fewer machine literals than Core.
+- On-demand Core loading, PR-1 records (REQ-025, D-020, FU-005, Issue #22).
+  `dev-core` R-AUTH-5 and R-VER-3 state the project reading of two Core
+  sentences that can be read two ways (`authorization-and-stops.md:35`,
+  `workflow.md:76`; DL-028, DL-029). DL-018 to DL-027 record existing
+  tightenings that had no row; no other rule text changes. CB-1 to CB-5 name
+  their origin. `docs/core-feedback.md` records the upstream Issues
+  engineering-workflow-core#21 to #27.
 
 ### Fixed
 

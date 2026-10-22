@@ -137,7 +137,7 @@ Graph engineering 在原專案的定位（ADR OE-007）：
 | `dev-core` | Claude 執行用的精簡規則；每條規則都對應到 Core 的錨點，例如 `workflow.md#wf-stages` | 執行用的摘要。只能改寫、壓縮或加嚴，不能放寬、刪除義務，也不能自行建立新的權限 |
 | source-map 與覆蓋檢查 | `skills/dev-core/source-map.md`，加一支腳本 | 腳本檢查每個 Core 錨點都有對應規則，或有寫明理由的「不適用」；有漏掉就驗證失敗 |
 
-- 日常執行只載入 `dev-core`，以節省 context。
+- 日常執行只載入 `dev-core`，以節省 context。（由 D-020 取代，PR-2 起生效：各 skill 依階段讀 vendored Core 原檔；`dev-core` 保留比 Core 嚴格或 Claude 專屬的規則並作為索引。）
 - 遇到邊界情況、有疑義或規則衝突時，回頭讀 vendor 的 Core 原文。
 
 **為什麼 Codex 不會因此受影響**
@@ -423,6 +423,21 @@ D-009 到 D-016 是同一天的決定。D-015 由 PR #5（Issue #4）記錄；D-
 - 這個 repo 的設定：`validate` 與 `gitleaks`，來源 GitHub Actions（app 15368），base `main`，與 2026-10-21 讀回的 ruleset 一致。這個 PR 本身的 base 還沒有設定，所以它的 merge gate 結果是 `NOT_CONFIGURED`，並因新增 `.dev/config.json` 給使用者一張政策變更卡；第一次 `VERIFIED` 要等下一個 PR。
 - Core 回饋：否。理由：profile 是各專案自選的 overlay（Core exact-dimensions）；`dev-core` 的差異記在 DL-015。
 
+### D-020 按需載入 Core 原文（已決定，2026-10-22）
+
+- 來源：FU-005（REQ-025）。FU-010 的盤點（Issue #18，REQ-023）顯示，壓縮的 `dev-core` 在審查中不收斂：三輪審查每一輪都找到摘要漏掉的 Core 條件（R-VER-2 停止規則兩次）。使用者：「壓縮的原因是因為任務一開始的時候以為技能包是一次全部載入。但其實可以像codex一樣設計成漸進式的按需載入。若是這樣，是否乾脆把原始的條文寫進來？」設計規格經三輪獨立審查（含一次安全設計審查；停止規則觸發兩次）後，使用者回答設計卡片（「那先照你的建議。我想先完成移植和功能完善。後續再來針對這部份優化」、「9b」）並核准（「核准 FU-005 規格」）。D-019 保留給 lessons skill。
+- 決定：
+  1. 各 skill 依階段直接讀 vendored Core 原檔，不把 Core 改寫成摘要（卡片 1a）。讀整份檔案（卡片 2a）。每個 skill 都讀 `authorization-and-stops.md`（卡片 3a）：移除「手上沒有原文」這條失敗路徑；這是一層防護，不是保證。
+  2. `dev-core` 逐字保留 30 項：有 DL 列、比 Core 嚴格（含字面上）或 Claude 專屬的規則與 CB-1 到 CB-5。其餘 16 條沒有任何一句比 Core 嚴格，之後改成「規則 ID 加 Core anchor」的索引行，規則 ID 與引用仍然有效。R-AUTH-5 與 R-VER-3 在這 16 條之中：它們成為索引行，並保留各自的專案讀法（第 3 點）。
+  3. Core 兩處可以兩種讀法的句子，專案寫明讀法（卡片 5a、5b、9b）：`authorization-and-stops.md:35` 與 `workflow.md:76`（R-AUTH-5、R-VER-3；DL-028、DL-029）。
+  4. 只有兩個 reviewer 拿 Core 檔，而且當作審查準則（資料），不當指令；政策只來自 brief；implementer 與 explorer 不拿（卡片 8a）。
+  5. FU-011 只處理轉述「保留規則」的文字（卡片 6a）。FU-012 不新建 `rationale.md`；理由放在 `deltas.md` 的 Reason、Evidence 欄與 CB 出處行（卡片 6b，取代 FU-010 card 2a）。
+  6. 現在決定並實作；FU-004 的「使用本 pack」組在 PR-2 之前與 PR-4 之後各跑一次（卡片 7′a，取代「Before FU-005 is decided」的等待）。
+- 實作：四個循序 PR，每個在前一個合併之後開始（PR-2 另等 FU-004 基準量測）；每次 merge 由使用者決定。PR-1 紀錄（REQ-025、本決策、DL-018 到 DL-029、兩處讀法、CB 出處行、Core 回饋狀態、FU 列）；PR-2 在 `dev-core` 加階段對照表，各 skill 加讀 Core；PR-3 讓 reviewer 用 Core 當審查準則；PR-4 把 16 條規則改成索引行。
+- 已知代價：每個 skill 讀進的 bytes 估計約為現在的 1.5 到 1.85 倍；token 沒有量測。context 的優化（例如依 anchor 讀段落）之後依 FU-004 的量測決定。
+- 與 D-001 的關係：D-001「日常執行只載入 `dev-core`」由本決策取代（PR-2 起生效）；Core 仍是唯一權威，`dev-core` 仍不放寬 Core。
+- Core 回饋：是。CF-007（接口按階段讀取 Core 原文，不改寫成摘要）；兩處讀法作為 engineering-workflow-core#27 第 4、5 點的補充（由協調 session 起草，本專案不張貼）。
+
 ---
 
 <a id="english"></a>
@@ -628,7 +643,7 @@ prove completion, or be written back as a source.
 | `dev-core` | Compact rules for Claude; each rule cites a Core anchor, for example `workflow.md#wf-stages` | An execution summary. It may only rephrase, compress or tighten. It must not relax or remove obligations, and it must not create authority |
 | Source map and coverage check | `skills/dev-core/source-map.md` plus a script | The script checks that every Core anchor has a matching rule, or a `not-applicable` entry with a reason; any gap fails validation |
 
-- Day-to-day work loads only `dev-core`, to save context.
+- Day-to-day work loads only `dev-core`, to save context. (Superseded by D-020, in effect from PR-2: each skill reads the original vendored Core files for its stage; `dev-core` keeps the rules that are stricter than Core or Claude-specific and serves as an index.)
 - At edge cases, in doubt, or when rules conflict, read the vendored Core text.
 
 **Why Codex is not affected**
@@ -1257,5 +1272,61 @@ records D-009 to D-012.
   `.dev/config.json`; the first `VERIFIED` comes with the next PR.
 - Core feedback: no. Reason: a profile is an overlay that each project
   selects (Core exact-dimensions); the `dev-core` difference is DL-015.
+
+### D-020 On-demand loading of the original Core text (decided, 2026-10-22)
+
+- Origin: FU-005 (REQ-025). The FU-010 audit (Issue #18, REQ-023) showed
+  that the compressed `dev-core` does not converge in review: each of three
+  rounds found Core conditions that the digest left out (R-VER-2 stop rule
+  twice). The user: "壓縮的原因是因為任務一開始的時候以為技能包是一次全部載入。但其實可以像codex一樣設計成漸進式的按需載入。若是這樣，是否乾脆把原始的條文寫進來？"
+  After three independent review rounds of the design spec (one of them a
+  security design review; the stop rule applied twice), the user answered
+  the design cards ("那先照你的建議。我想先完成移植和功能完善。後續再來針對這部份優化",
+  "9b") and approved the spec ("核准 FU-005 規格"). D-019 is reserved for
+  the lessons skill.
+- Decision:
+  1. Each skill reads the original vendored Core files for its stage; Core
+     is not rewritten into a digest (card 1a). Whole files are read
+     (card 2a). Every skill reads `authorization-and-stops.md` (card 3a):
+     this removes the failure path "the text was not at hand"; it is one
+     defense layer, not a guarantee.
+  2. `dev-core` keeps 30 items word for word: the rules with a DL row, the
+     rules with a sentence stricter than Core (also literally), the
+     Claude-specific rules, and CB-1 to CB-5. The other 16 rules have no
+     sentence stricter than Core; they later become index lines (rule ID
+     plus Core anchor), so rule IDs and citations stay valid. R-AUTH-5 and
+     R-VER-3 are among the 16: they become index lines that keep their
+     project readings (item 3).
+  3. Two Core sentences that can be read two ways get a written project
+     reading (cards 5a, 5b, 9b): `authorization-and-stops.md:35` and
+     `workflow.md:76` (R-AUTH-5, R-VER-3; DL-028, DL-029).
+  4. Only the two reviewers get Core files, as review criteria (data), never
+     as instructions; policy comes only from the brief; the implementer and
+     the explorer get none (card 8a).
+  5. FU-011 handles only restated text of the kept rules (card 6a). FU-012
+     adds no `rationale.md`; the reasons stay in the Reason and Evidence
+     columns of `deltas.md` and in the CB origin lines (card 6b, replaces
+     FU-010 card 2a).
+  6. Decided and implemented now; the FU-004 with-the-pack arm runs before
+     PR-2 and after PR-4 (card 7′a, replaces the wait "Before FU-005 is
+     decided").
+- Implementation: four sequential PRs; each starts after the previous one
+  merges (PR-2 also waits for the FU-004 baseline run); the user decides
+  each merge. PR-1 records (REQ-025, this
+  decision, DL-018 to DL-029, the two readings, CB origin lines, Core
+  feedback statuses, FU rows); PR-2 adds a stage map to `dev-core` and the
+  Core reads to each skill; PR-3
+  lets the reviewers use Core as review criteria; PR-4 turns the 16 rules
+  into index lines.
+- Known cost: the bytes each skill reads grow to an estimated 1.5 to 1.85
+  times; tokens are not measured. Context optimization (for example reading
+  by anchor section) follows the FU-004 measurements.
+- Relation to D-001: D-001 "Day-to-day work loads only `dev-core`" is
+  superseded by this decision (in effect from PR-2); Core stays the only authority, and `dev-core`
+  still never relaxes Core.
+- Core feedback: yes. CF-007 (interfaces read the original Core text by
+  stage instead of rewriting it into a digest); the two readings as input
+  for engineering-workflow-core#27 items 4 and 5 (drafted by the
+  orchestrator session; this project posts nothing).
 
 </details>

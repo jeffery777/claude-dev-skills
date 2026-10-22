@@ -1,0 +1,60 @@
+{
+  "schema": "claude-dev-graph/v1",
+  "objective": {
+    "id": "issue-24-fu014",
+    "title": "Push scan without prune: ls-remote basis for R-REV-9 (FU-014)",
+    "rigor": "strict",
+    "requirements": [
+      "REQ-011"
+    ]
+  },
+  "nodes": [
+    {
+      "id": "T1",
+      "title": "R-REV-9 push bullet, dev-implement step 4 and dev-gate push binding use git ls-remote --heads --tags (cards 1a, 4a)",
+      "kind": "docs",
+      "requirements": [
+        "REQ-011"
+      ],
+      "depends_on": [],
+      "owns": [
+        "skills/dev-core/SKILL.md",
+        "skills/dev-implement/SKILL.md",
+        "skills/dev-gate/SKILL.md"
+      ],
+      "risk": "high",
+      "review": "deep",
+      "status": "reviewing",
+      "dod": [
+        "No git fetch --prune or --remotes= left in the normative push text; the three places agree; a temporary-repository test shows the new scan finds the commits that a stale or hidden ref hid and scans the full history for an empty list; no project tightening loosened"
+      ],
+      "verify": [
+        "bash scripts/validate.sh"
+      ]
+    },
+    {
+      "id": "T2",
+      "title": "Records: REQ-011 source and acceptance, log, FU-014 closed, FU-015 row (cards 3a, 4a), CHANGELOG",
+      "kind": "docs",
+      "requirements": [
+        "REQ-011"
+      ],
+      "depends_on": [],
+      "owns": [
+        "docs/requirements/**",
+        ".dev/followups.md",
+        "CHANGELOG.md",
+        ".dev/issue-24-fu014/**"
+      ],
+      "risk": "low",
+      "review": "deep",
+      "status": "reviewing",
+      "dod": [
+        "REQ-011 quotes the user's words; FU-014 closed with the Issue link; FU-015 lists the deferred gaps with evidence; nothing private"
+      ],
+      "verify": [
+        "bash scripts/validate.sh"
+      ]
+    }
+  ]
+}

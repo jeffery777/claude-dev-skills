@@ -30,7 +30,7 @@ commit, push, PR, merge or other external write (R-REV-5, R-AUTH-1).
    `git diff HEAD` with untracked files included (`git add -N` first). Also
    bind what the R-REV-9 scan covered: for a commit, the hash of
    `git diff --cached --binary` and the author, committer and message; for a
-   push, the exact push command and the refs and commit range its dry-run lists. The scan record must show the
+   push, the exact push command, the refs and commit range its dry-run lists, and the remote object IDs given to the scan. The scan record must show the
    same values.
 2. Collect the evidence: the review reports, verification output, the graph
    state, and the requirement trace. Reuse an earlier review only when its

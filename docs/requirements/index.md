@@ -28,3 +28,4 @@ One row per requirement. Agents read this first, then open only the files they n
 | REQ-022 | Each rule in one place - skills cite dev-core rule IDs (FU-006) | active | [[REQ-022-single-source-rules]] |
 | REQ-023 | dev-core is never weaker than Core - full audit and R-WRT-1 (FU-010) | active | [[REQ-023-core-audit]] |
 | REQ-024 | Reviewer tests write no files; the implementer never deletes untracked or ignored files; official-tools arm in FU-004 (FU-013) | active | [[REQ-024-agent-write-and-delete]] |
+| REQ-025 | On-demand loading of the original Core text; project readings of two unclear Core sentences (FU-005) | active | [[REQ-025-on-demand-core-loading]] |

@@ -13,7 +13,7 @@
 - 流程依 `docs/design-proposal.md` 的 D-001：增量型提案優先，也就是在 Core 新增非權威的伴讀文件，權威原文不動。修改型提案要先讓 codex-dev-skills 與 grok-build-dev-skills 各自 pin 候選版本並跑過 evals。
 - 本文件只是紀錄。本專案不修改 Core、codex-dev-skills 或 grok-build-dev-skills。到 Core 開 Issue 需要使用者另外授權。
 - 依據的 Core 版本：v0.1.1（commit `7b66978a76597d09be1b55ad199a969b4ee59c0f`）。
-- 每個項目的狀態都是「未提出」。
+- CF-001 到 CF-006 與 CF-009 已在 Core 開 Issue（engineering-workflow-core#21 到 #27，2026-10-22；對應見各項的狀態）。CF-007 與 CF-008 未提出。
 
 ## 項目
 
@@ -28,6 +28,7 @@
 - 提議的 Core 修改：在 `review-and-security.md#review-findings` 加上嚴重度門檻；在 `workflow.md#wf-verification` 加上停止規則；在 `exact-head-and-evidence.md#exact-transition` 規定 PR 建立後的紀錄不 commit 到 PR 分支。
 - 類型：修改型（停止規則與紀錄位置會改變義務）。可以先用增量型伴讀文件試行。
 - 對其他專案的影響：codex-dev-skills 與 grok-build-dev-skills 採用後，review 輪數可能減少；兩者都要檢查自己的 gate 與紀錄流程。在它們重新 pin 之前沒有影響。
+- 狀態：已提出（engineering-workflow-core#21，2026-10-22）。
 
 ### CF-002 每次 commit 與 push 前的安全審查，包含 commit 中繼資料
 
@@ -37,6 +38,7 @@
 - 提議的 Core 修改：在 `review-and-security.md#review-security` 規定公開 repo 的每次 commit、push，以及 PR 與 Issue 文字都要掃描，範圍包含身分、訊息與 trailer。
 - 類型：修改型（新增義務）。
 - 對其他專案的影響：Codex 與 Grok 的 commit 與 push 步驟要加上這項掃描。
+- 狀態：已提出（engineering-workflow-core#22，2026-10-22）。
 
 ### CF-003 有寫入工具的替代者不能當獨立 reviewer
 
@@ -46,6 +48,7 @@
 - 提議的 Core 修改：在 `review-and-security.md#review-independent` 寫明：必要的 review 不使用有寫入工具的替代者；找不到唯讀 reviewer 時停在 gate。
 - 類型：修改型（收緊）。
 - 對其他專案的影響：Codex 版的 reviewer 只靠宣告維持唯讀（`docs/design-proposal.md` 原則 3）；採用後，它要說明在沒有唯讀 reviewer 時怎麼停下。
+- 狀態：已提出（engineering-workflow-core#23，2026-10-22）。
 
 ### CF-004 每個 finding 標明和需求的關係（`requirement_relation`、`REQ-GAP`）
 
@@ -55,6 +58,7 @@
 - 提議的 Core 修改：在 `review-and-security.md#review-findings` 加上 `requirement_relation` 欄位與 `REQ-GAP` 類別；Core 的阻擋項不論關係都照樣阻擋。
 - 類型：修改型（finding 格式改變）。
 - 對其他專案的影響：Codex 與 Grok 的 review 報告格式要多一個欄位；它們需要有需求來源才能填寫。
+- 狀態：已提出（engineering-workflow-core#24，2026-10-22）。
 
 ### CF-005 決策卡片
 
@@ -64,6 +68,7 @@
 - 提議的 Core 修改：在 `workflow.md#wf-writing` 與 `authorization-and-stops.md#auth-stops` 附上卡片範本。
 - 類型：增量型（範本放在伴讀文件，權威原文不動）。
 - 對其他專案的影響：可以不採用；採用時只改輸出格式。
+- 狀態：已提出（engineering-workflow-core#25，2026-10-22）。
 
 ### CF-006 新增機制要對應需求（防止機制擴張）
 
@@ -73,6 +78,7 @@
 - 提議的 Core 修改：在 `workflow.md#wf-assumptions-and-options` 規定新增的機制要對應一條需求，否則列為範圍擴張。
 - 類型：修改型（收緊）。
 - 對其他專案的影響：Codex 與 Grok 需要有需求來源（例如 REQ wiki）才能檢查。
+- 狀態：已提出（engineering-workflow-core#26，2026-10-22）。
 
 ### CF-007 Context 載入方式：短核心加按需讀取的參考文件（評估）
 
@@ -118,7 +124,10 @@
 - 提議的 Core 修改：在伴讀說明中補上第 1 到 6 點的明確讀法，以及第 7 點的建議；權威原文要改時，走修改型流程。
 - 類型：第 1 到 6 點是增量型（說明）；如果 Core 決定改寫原文，則是修改型。第 7 點是增量型。
 - 對其他專案的影響：codex-dev-skills 與 grok-build-dev-skills 可以照同樣的讀法核對自己的摘要；在它們重新 pin 之前沒有影響。
-- 狀態：未提出。到 Core 開 Issue 需要使用者另外授權；由協調 session 與使用者一起依本項起草。
+- 本專案的讀法（REQ-025，使用者核准的 FU-005 設計卡片 5a、5b、9b；作為 engineering-workflow-core#27 第 4、5 點的補充，上游留言由協調 session 起草，本專案不張貼）：
+  - 第 4 點（`dev-core` R-AUTH-5，DL-028）：必要的獨立 review、scan、驗證或 gate，以及必要的平台或安全執行能力，只要缺失、未完成、失敗或覆蓋不足，就一律停止相依工作，fallback 不能取代（`workflow.md:62`）；其他能力（例如委派、session 或排程 API）缺失時，用 Core 列出的安全 fallback 繼續（單一 writer、手動 checkpoint），沒有安全 fallback 時才停止。
+  - 第 5 點（`dev-core` R-VER-3，DL-029）：「保留仍適用成果並重查受影響證據」一律適用；例外「除非明確取消／替換目標」只限制「先簡答再續行」。
+- 狀態：已提出（engineering-workflow-core#27，2026-10-22）。
 
 ## 不回饋給 Core 的決策
 
@@ -157,7 +166,7 @@ adopt it and the other two projects can re-pin it themselves (REQ-019).
   codex-dev-skills or grok-build-dev-skills. Opening an Issue in Core needs
   separate approval from the user.
 - Core version: v0.1.1 (commit `7b66978a76597d09be1b55ad199a969b4ee59c0f`).
-- The status of every item is "not proposed".
+- CF-001 to CF-006 and CF-009 are proposed as Core Issues (engineering-workflow-core#21 to #27, 2026-10-22; see the status of each item). CF-007 and CF-008 are not proposed.
 
 ## Items
 
@@ -188,6 +197,7 @@ adopt it and the other two projects can re-pin it themselves (REQ-019).
 - Impact on the other projects: after adoption, codex-dev-skills and
   grok-build-dev-skills may need fewer review rounds; both must check their
   gates and record handling. No effect before they re-pin.
+- Status: proposed (engineering-workflow-core#21, 2026-10-22).
 
 ### CF-002 Security review before every commit and push, including commit metadata
 
@@ -205,6 +215,7 @@ adopt it and the other two projects can re-pin it themselves (REQ-019).
 - Kind: modifying (a new obligation).
 - Impact on the other projects: the commit and push steps of Codex and Grok
   add this scan.
+- Status: proposed (engineering-workflow-core#22, 2026-10-22).
 
 ### CF-003 A substitute with write tools is not an independent reviewer
 
@@ -226,6 +237,7 @@ adopt it and the other two projects can re-pin it themselves (REQ-019).
 - Impact on the other projects: the Codex reviewer is read-only by
   declaration only (`docs/design-proposal.md`, principle 3); after adoption,
   Codex must state how it stops when no read-only reviewer is available.
+- Status: proposed (engineering-workflow-core#23, 2026-10-22).
 
 ### CF-004 Every finding states its relation to the requirements (`requirement_relation`, `REQ-GAP`)
 
@@ -243,6 +255,7 @@ adopt it and the other two projects can re-pin it themselves (REQ-019).
 - Kind: modifying (the finding format changes).
 - Impact on the other projects: the review reports of Codex and Grok get one
   more field; they need a requirement source to fill it.
+- Status: proposed (engineering-workflow-core#24, 2026-10-22).
 
 ### CF-005 Decision card
 
@@ -258,6 +271,7 @@ adopt it and the other two projects can re-pin it themselves (REQ-019).
   authoritative text does not change).
 - Impact on the other projects: optional; adoption changes only the output
   format.
+- Status: proposed (engineering-workflow-core#25, 2026-10-22).
 
 ### CF-006 A new mechanism traces to a requirement (against mechanism creep)
 
@@ -272,6 +286,7 @@ adopt it and the other two projects can re-pin it themselves (REQ-019).
 - Kind: modifying (a tightening).
 - Impact on the other projects: Codex and Grok need a requirement source (for
   example a REQ wiki) to check it.
+- Status: proposed (engineering-workflow-core#26, 2026-10-22).
 
 ### CF-007 How context is loaded: a short core plus references read on demand (evaluation)
 
@@ -400,8 +415,23 @@ adopt it and the other two projects can re-pin it themselves (REQ-019).
 - Impact on the other projects: codex-dev-skills and grok-build-dev-skills
   can check their digests against the same readings; no effect before they
   re-pin.
-- Status: not proposed. An Issue on Core needs a separate authorization by
-  the user; the orchestrator session drafts it with the user from this item.
+- This project's readings (REQ-025, FU-005 design cards 5a, 5b and 9b that
+  the user approved; input for engineering-workflow-core#27 items 4 and 5;
+  the orchestrator session drafts the upstream comment, this project posts
+  nothing):
+  - Item 4 (`dev-core` R-AUTH-5, DL-028): a required independent review,
+    scan, verification or gate, or a required platform or security execution
+    capability, that is missing, incomplete, failed or has insufficient
+    coverage always stops the dependent work; a fallback never replaces it
+    (`workflow.md:62`). When another capability is missing (for example
+    delegation or a session or schedule API), continue with the safe fallback
+    that Core names (one writer, a manual checkpoint); stop only when no safe
+    fallback exists.
+  - Item 5 (`dev-core` R-VER-3, DL-029): "keep the results that still apply
+    and re-check the affected evidence" applies in every case; the exception
+    "unless the objective is explicitly cancelled or replaced" limits only
+    "answer briefly and continue".
+- Status: proposed (engineering-workflow-core#27, 2026-10-22).
 
 ## Decisions not fed back to Core
 

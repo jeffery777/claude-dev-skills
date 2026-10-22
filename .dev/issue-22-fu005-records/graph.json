@@ -1,0 +1,61 @@
+{
+  "schema": "claude-dev-graph/v1",
+  "objective": {
+    "id": "issue-22-fu005-records",
+    "title": "On-demand Core loading, PR-1: records and project readings (FU-005)",
+    "rigor": "strict",
+    "requirements": [
+      "REQ-025"
+    ]
+  },
+  "nodes": [
+    {
+      "id": "T1",
+      "title": "dev-core: project readings in R-AUTH-5 and R-VER-3 (cards 5a, 5b, 9b); CB origin lines (card 6b); DL-018 to DL-029",
+      "kind": "docs",
+      "requirements": [
+        "REQ-025"
+      ],
+      "depends_on": [],
+      "owns": [
+        "skills/dev-core/SKILL.md",
+        "skills/dev-core/deltas.md"
+      ],
+      "risk": "high",
+      "review": "deep",
+      "status": "done",
+      "dod": [
+        "The two readings are exactly the approved card 5a and 5b text; no other rule text changes; every existing DL row is unchanged; each new DL row records an existing tightening or a reading"
+      ],
+      "verify": [
+        "bash scripts/validate.sh"
+      ]
+    },
+    {
+      "id": "T2",
+      "title": "Records: REQ-025, index, log, D-020 (zh/EN), core-feedback statuses (zh/EN), FU-004/005/011/012, CHANGELOG",
+      "kind": "docs",
+      "requirements": [
+        "REQ-025"
+      ],
+      "depends_on": [],
+      "owns": [
+        "docs/requirements/**",
+        "docs/design-proposal.md",
+        "docs/core-feedback.md",
+        ".dev/followups.md",
+        "CHANGELOG.md",
+        ".dev/issue-22-fu005-records/**"
+      ],
+      "risk": "low",
+      "review": "deep",
+      "status": "done",
+      "dod": [
+        "REQ-025 quotes the user's words; D-020 in zh and EN with the same obligations; CF statuses match engineering-workflow-core#21 to #27; FU rows follow cards 6a, 6b and 7′a"
+      ],
+      "verify": [
+        "bash scripts/validate.sh"
+      ]
+    }
+  ]
+}

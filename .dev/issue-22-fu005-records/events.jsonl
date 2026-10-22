@@ -1,0 +1,8 @@
+{"seq": 1, "at": "2026-10-22T07:13:51+00:00", "actor": "main-agent", "node": "T1", "from": "planned", "to": "ready", "evidence": "working tree on 0fc4e5f"}
+{"seq": 2, "at": "2026-10-22T07:13:51+00:00", "actor": "main-agent", "node": "T1", "from": "ready", "to": "in_progress", "evidence": "working tree on 0fc4e5f"}
+{"seq": 3, "at": "2026-10-22T07:13:51+00:00", "actor": "main-agent", "node": "T1", "from": "in_progress", "to": "reviewing", "evidence": "working tree on 0fc4e5f"}
+{"seq": 4, "at": "2026-10-22T07:13:51+00:00", "actor": "main-agent", "node": "T2", "from": "planned", "to": "ready", "evidence": "working tree on 0fc4e5f"}
+{"seq": 5, "at": "2026-10-22T07:13:51+00:00", "actor": "main-agent", "node": "T2", "from": "ready", "to": "in_progress", "evidence": "working tree on 0fc4e5f"}
+{"seq": 6, "at": "2026-10-22T07:13:51+00:00", "actor": "main-agent", "node": "T2", "from": "in_progress", "to": "reviewing", "evidence": "working tree on 0fc4e5f"}
+{"seq": 7, "at": "2026-10-22T07:42:53+00:00", "actor": "main-agent", "node": "T1", "from": "reviewing", "to": "done", "evidence": "reviews/round-1.md"}
+{"seq": 8, "at": "2026-10-22T07:42:53+00:00", "actor": "main-agent", "node": "T2", "from": "reviewing", "to": "done", "evidence": "reviews/round-1.md"}

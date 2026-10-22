@@ -113,11 +113,10 @@ Cowork runtime test). At that release,
   CB-5, user decisions) still applies (DL-017). R-WRT-1 now follows Core `wf-writing`
   items 1 to 6 and the spot-check, including the machine literals flags,
   APIs, logs and kept quotations, the required technical detail and
-  technical precision. R-REV-9 records the `--prune` of the push fetch as a
-  rule the user approved, limited to the default refspec without tag
-  pruning. The other gaps are input for the on-demand loading design
-  (FU-005). Core-feedback candidates in CF-009. Follow-up FU-013 (reviewer
-  test caches; implementer deletions).
+  technical precision. The other gaps are input for the on-demand loading
+  design (FU-005). Core-feedback candidates in CF-009. Follow-ups FU-013
+  (reviewer test caches; implementer deletions) and FU-014 (the `--prune`
+  of the push fetch).
 
 - `scripts/check_pack.py` reads `>+` and `|+` block scalars in REQ `sources`
   (PR-C2), with regression tests for the agent model and effort checks and

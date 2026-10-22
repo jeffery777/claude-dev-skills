@@ -11,13 +11,13 @@ Issue #18, REQ-023. Base `a1d42a6`. Coordination data, not completion evidence (
   stop condition with fewer conditions than Core; an **omission** leaves out a Core duty or prohibition. Review
   rounds 1 to 3 each found new items of both kinds; a compressed digest does not converge on "never weaker"
   (R-VER-2 stop rule in rounds 2 and 3). User decisions 「卡片5改走縮小PR-A＋先做按需載入設計，6a」 and
-  「繼續，7a」: PR-A changes only the header, R-WRT-1 (FU-010) and the R-REV-9 `--prune` rule (card 4). The
+  「繼續，7a」: PR-A changes only the header and R-WRT-1 (FU-010). The R-REV-9 `--prune` rule (card 4) moved to FU-014 (card 8a). The
   header says that where a rule is shorter or looser than its cited Core section, that Core section governs,
   and that a stricter rule (for example DL tightenings, CB-1 to CB-5, the user decisions) still applies. Every other gap
   stays in this table as input for the on-demand loading design (FU-005).
 - No regression of project tightenings: PR-A changes no DL row except the new DL-017, no CB binding, no other
   skill and no agent file; `git diff` against the base shows only `skills/dev-core/SKILL.md` (header,
-  R-WRT-1, sentences added to one R-REV-9 bullet), `deltas.md` (DL-017) and `source-map.md` (two notes).
+  R-WRT-1), `deltas.md` (DL-017) and `source-map.md` (one note).
 - The "Missing Core text" column lists every gap that review rounds 1 to 3 named. The "PR-A" column gives
   the action.
 
@@ -50,7 +50,7 @@ Issue #18, REQ-023. Base `a1d42a6`. Coordination data, not completion evidence (
 | R-REV-6 | rev:33-39 | weaker | re-assess on implementation or impact change; depth covers data flows, controls and failure modes (rev:35) | omission: design input (FU-005); Core governs (header) |
 | R-REV-7 | rev:45-57 | weaker | an ordinary code review includes a baseline security check (rev:47); the policy basis "by PoC, use and risk" (rev:45) | omission: design input (FU-005); Core governs (header) |
 | R-REV-8 | rev:63-69 | weaker + tighter | a human or model review never replaces a deterministic check; tests never replace a semantic-consistency review (rev:63); continue only independent, authorized and safe work (rev:69) (R3-007) | omission: design input (FU-005); Core governs (header) |
-| R-REV-9 | rev:47 | tighter (DL-010) | — (R1-004: the `--prune` of the push fetch vs the destructive-action list of auth:21; round 3, R3-006: preview, refspec and tag pruning) | tighter: the `--prune` rule that the user approved (card 4), limited to the default refspec without tag pruning (DL-017) |
+| R-REV-9 | rev:47 | tighter (DL-010) | — (R1-004: the `--prune` of the push fetch vs the destructive-action list of auth:21; round 3, R3-006: preview, refspec and tag pruning) | tighter; the `--prune` question (R1-004, R3-006, MR19-001, MR19-002; user card 4) is deferred to FU-014 (card 8a); R-REV-9 keeps its base text |
 | R-EXH-1 | exh:9-16 | weaker | the review mode in the bound identity (exh:12); reuse of pre-commit evidence only while content, revision, scope, assumptions, stage, policy and environment still match (exh:9) | omission: design input (FU-005); Core governs (header) |
 | R-EXH-2 | exh:22-24 | weaker | compatibility claims, release scope, superseded descriptions; tests do not prove docs consistency; empty inventory or missing status is not Passed; list applicable, not applicable, unverified | omission: design input (FU-005); Core governs (header) |
 | R-EXH-3 | exh:30-32 | tighter (DL-013) | — | tighter |

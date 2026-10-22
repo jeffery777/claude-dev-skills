@@ -27,11 +27,15 @@ sources:
   - type: chat
     locator: "Claude Code session 2026-10-22 (FU-010 session, Issue #18), user answer to decision card 7 (R-VER-2 stop rule after review round 3)"
     quote: "繼續，7a"
+  - type: chat
+    locator: "Claude Code session 2026-10-22 (FU-010 session, PR #19), user answer to decision card 8 (Merge Review findings MR19-001 and MR19-002 on the `--prune` rule) and to posting the Merge Review records"
+    quote: "繼續，8a，同意貼紀錄"
   - type: doc
     locator: ".dev/followups.md, FU-010 row (FR1-R10, Issue #16 review round 1; MR17-001, PR #17)"
     quote: "Compare R-WRT-1 with Core wf-writing items 1 to 6 sentence by sentence; tighten R-WRT-1 and record the correction in `deltas.md`"
 non_goals:
   - Adding Core obligations or conditions that the digest leaves out or states more loosely (cards 5 and 7a: input for the on-demand loading design, FU-005)
+  - The `--prune` rule of the push fetch (card 4; moved to FU-014 by card 8a)
   - Opening Issues on engineering-workflow-core (the orchestrator session drafts them with the user from CF-009)
   - Rule IDs on restated rule text outside the Issue #16 inventory (FU-011; scope re-decided after the design)
   - A per-rule note on why each rule exists (FU-012; scope re-decided after the design)
@@ -59,7 +63,9 @@ the sentences that are looser than Core and R-WRT-1, state in `dev-core` that
 a left-out Core obligation still applies, and design on-demand loading of the
 original Core text next (FU-005). Review round 3 found more looser sentences
 (the stop rule again); the user chose card 7a: the header hands every shorter or
-looser rule to its Core section, and keeps every stricter project rule.
+looser rule to its Core section, and keeps every stricter project rule. The
+Merge Review of PR #19 found that the `--prune` rule of card 4 still needs a
+design of its own; the user moved it to FU-014 (card 8a).
 
 ## Acceptance
 
@@ -76,8 +82,8 @@ looser rule to its Core section, and keeps every stricter project rule.
   `deltas.md` (DL-017).
 - No project tightening regresses: no DL row except the new DL-017, no CB
   binding, no other skill and no agent file changes.
-- `git fetch --prune` before a push is recorded in R-REV-9 as a project
-  policy (card 4).
+- R-REV-9 keeps its base text; the `--prune` rule of card 4 and its review
+  findings are recorded in FU-014 (card 8a).
 - The FU-006 row in `.dev/followups.md` states the card 8a limit (MR17B-001).
 - Core-level observations are recorded as Core-feedback candidates in
   `docs/core-feedback.md` (CF-009), each with the Core file and line, in both

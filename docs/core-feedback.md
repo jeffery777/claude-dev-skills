@@ -113,7 +113,7 @@
   3. `workflow.md:35`：中文註記是「依 ASD-STE100 原則編寫，尚未完成完整符合性驗證」。本專案用使用者在 REQ-013 寫的「…，未完成完整符合性驗證」，意思相同、字面不同。Core 如果把註記定成固定字面，各接口就能逐字比對。
   4. `authorization-and-stops.md:35`：「必要能力、獨立 review、必要 scan、驗證或 gate 缺失／未完成／失敗／覆蓋不足；缺安全 fallback。」「缺安全 fallback」可以讀成獨立的停止條件，也可以讀成前半句的限定條件。兩位 reviewer 的讀法不同（Issue #18 第 1 輪 S1）。
   5. `workflow.md:76`：「狀態或旁支問題先簡答再續行，除非明確取消／替換目標」。例外是限制「續行」，還是也限制同段前面「保留仍適用成果並重查受影響證據」？第 2 輪（R2-001）與第 3 輪（R3-004）的 reviewer 讀法不同。
-  6. `authorization-and-stops.md:21`：破壞性操作列出「刪除／purge／prune」。Core 沒有寫清楚：push 前為了正確判斷要掃描哪些 commit 而 prune 本機 remote-tracking refs（`git fetch --prune`）算不算。本專案由使用者決定，記為只限預設 refspec、不 prune tags 的專案規則（第 1 輪 R1-004，卡片 4）。
+  6. `authorization-and-stops.md:21`：破壞性操作列出「刪除／purge／prune」。Core 沒有寫清楚：push 前為了正確判斷要掃描哪些 commit 而 prune 本機 remote-tracking refs（`git fetch --prune`）算不算。使用者在卡片 4 同意記為專案規則；之後的審查（R3-006、MR19-001、MR19-002）又找到 preview、設定讀回與當下確認的問題，所以使用者把它移到 FU-014 另外設計（卡片 8a）。
   7. 摘要的做法（沒有單一 Core 行；相關的是 `exact-head-and-evidence.md:58`：衍生副本保留唯一來源，共享 Markdown 不能證明等價）：壓縮過的摘要無法保住 Core 每一句的條件。Issue #18 的三輪審查，每輪都找到新的漏寫義務或少了條件的句子（R-VER-2 停止規則兩次觸發）。建議 Core 在給接口作者的說明中寫明：接口應引用或按需載入權威原文，不要改寫；比 Core 嚴格的接口規則另外列出（與 CF-007、FU-005 相關）。
 - 提議的 Core 修改：在伴讀說明中補上第 1 到 6 點的明確讀法，以及第 7 點的建議；權威原文要改時，走修改型流程。
 - 類型：第 1 到 6 點是增量型（說明）；如果 Core 決定改寫原文，則是修改型。第 7 點是增量型。
@@ -378,9 +378,11 @@ adopt it and the other two projects can re-pin it themselves (REQ-019).
   6. `authorization-and-stops.md:21` lists delete, purge and prune as
      destructive. Core does not say whether pruning local remote-tracking refs
      before a push (`git fetch --prune`, so that the scan finds every commit
-     the remote does not have) counts. Here the user decided it and it is a
-     project rule limited to the default refspec without tag pruning (round 1,
-     R1-004, card 4).
+     the remote does not have) counts. The user first approved it as a
+     project rule (card 4); later reviews (R3-006, MR19-001, MR19-002) found
+     gaps in the preview, the read-back of the settings and the confirmation
+     at the time, so the user moved it to FU-014 for a design of its own
+     (card 8a).
   7. Digest method (no single Core line; related: `exact-head-and-evidence.md:58`,
      derived copies keep one source, and shared Markdown never proves
      equivalence): a compressed digest cannot keep every condition of Core.

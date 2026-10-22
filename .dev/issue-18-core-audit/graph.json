@@ -11,7 +11,7 @@
   "nodes": [
     {
       "id": "T1",
-      "title": "Audit table; dev-core header (Core governs where shorter or looser; stricter rules apply), R-WRT-1, R-REV-9 prune rule (cards 4, 5, 7a); deltas DL-017, source-map",
+      "title": "Audit table; dev-core header (Core governs where shorter or looser; stricter rules apply), R-WRT-1 (cards 5, 7a; prune rule to FU-014, card 8a); deltas DL-017, source-map",
       "kind": "docs",
       "requirements": [
         "REQ-023"

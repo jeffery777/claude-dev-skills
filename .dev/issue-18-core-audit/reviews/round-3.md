@@ -40,7 +40,7 @@ the user's 「繼續」.
 
 User decision card 7: 「繼續，7a」. The header says that where a rule is shorter or looser than its cited Core
 section, that Core section governs, and that a stricter rule (DL rows, CB-1 to CB-5, user decisions) still
-applies; PR-A keeps only that header, R-WRT-1 and the card-4 `--prune` rule. The user also required
+applies; PR-A keeps only that header and R-WRT-1 (the card-4 `--prune` rule left PR-A by card 8a after the Merge Review of PR #19). The user also required
 (2026-10-22) that no project tightening regresses: PR-A changes no DL row except the new DL-017, no CB binding,
 no other skill and no agent file. R-AUTH-7 (dry-run before moving, archiving and cleaning, stricter than Core)
 is back to its base wording.
@@ -53,7 +53,7 @@ owner jeffery777 (maintainer); reason, remaining risk, verification plan and pro
 | R1-001 | Deferred to FU-005 (omissions; the R-AUTH-3 conditions are a looser sentence that the header now hands to Core) |
 | R1-002 | Deferred to FU-005 (R-EXH-5 omission) |
 | R1-003 | Fixed: R-WRT-1 keeps machine literals unchanged for the writing rules; R-REV-8 masking still applies |
-| R1-004 | Fixed: user card 4 (a); scope and preconditions per R3-006 |
+| R1-004 | Deferred to FU-014 (user card 8a; the card-4 rule left PR-A) |
 | R1-005 | Fixed (audit text) |
 | R1 S1 to S6 | Deferred to FU-005 |
 | R1 S7 | Deferred to FU-013 (card 6 (a)) |
@@ -64,9 +64,9 @@ owner jeffery777 (maintainer); reason, remaining risk, verification plan and pro
 | R2 S1, S2, S3, S5, S6 | Deferred to FU-005 |
 | R2 S4 | Deferred to FU-013 (card 6 (a)) |
 | R3-001 to R3-005, R3-007, R3-008 | Deferred to FU-005 (looser sentences; Core governs by the header) |
-| R3-006 | Fixed: the rule names the default refspec, no tag pruning, a stop and ask otherwise, no recovery needed, and the fetch output as the read-back. A separate preview was option (b) of card 4, which the user did not choose |
+| R3-006 | Deferred to FU-014 (user card 8a) |
 | R3-009 | Fixed: R-AUTH-7 base wording restored (no regression of the dry-run tightening) |
-| R3-010 | Fixed: audit (no R-VER-4, PR-A column, R-REV-9 row, R-WRT-1 copies), DL-017 lists R-REV-9, source-map note, one final disposition per finding (this table), CHANGELOG wording |
+| R3-010 | Fixed: audit (no R-VER-4, PR-A column, R-REV-9 row, R-WRT-1 copies), DL-017 consistent with the rules it lists, source-map note, one final disposition per finding (this table), CHANGELOG wording |
 | R3-011 | Fixed: the FU-005 row has the Deferred fields for these findings |
 | R3 suspicions | Deferred to FU-005 (CB-1 runtime state: CF-009 item 1) |
 

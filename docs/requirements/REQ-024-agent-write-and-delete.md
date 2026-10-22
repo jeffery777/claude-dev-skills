@@ -15,6 +15,9 @@ sources:
   - type: chat
     locator: "Claude Code session 2026-10-22 (orchestrator session, relayed to the FU-013 session), user answer to FU-013 decision cards 9 (an explicit no-write sentence in both reviewer agent files: option b) and 10 (REQ-024 and the R-AUTH-3 copies in the FU-005 no-regression checklist: option a); the CF-009 part concerns the orchestrator's upstream Issue draft"
     quote: "9b 10a，CF-009第2點照你的建議改寫"
+  - type: chat
+    locator: "Claude Code session 2026-10-22 (orchestrator session, relayed to the FU-013 session), user answer to FU-013 decision card 11 (Merge Review security findings SR21-001 and SR21-002 on PR #21: option b, fix both) and to posting the review records as PR comments"
+    quote: "11b，同意貼紀錄"
   - type: doc
     locator: ".dev/followups.md, FU-013 row (from FU-010 cards 3d and 6a, Issue #18)"
     quote: "Keep the rule that reviewers write nothing."
@@ -44,11 +47,15 @@ third arm next to with and without the pack: official tools only.
 ## Acceptance
 
 - `agents/dev-reviewer.md` and `agents/dev-security-reviewer.md` tell the
-  reviewer to run Python tests with `PYTHONDONTWRITEBYTECODE=1` and pytest
+  reviewer, when the brief names Python tests to run (card 11b, SR21-001), to
+  run them with `PYTHONDONTWRITEBYTECODE=1` and pytest
   `-p no:cacheprovider` (or the runner's equivalent), so the tests create no
   files in the repository. Both files also state that the reviewer writes no
   file anywhere, including the session scratchpad, and redirects no output
-  to files (card 9b). The read-only rules stay as they are.
+  to files (card 9b). The only exception is a temporary file that a test
+  named in the brief creates and removes itself in the system temporary
+  directory; files the reviewer writes itself are never covered (card 11b,
+  SR21-002). The read-only rules stay as they are.
 - `agents/dev-implementer.md` and the Authority line of
   `skills/dev-deliver/references/task-brief.md` state in full that the
   implementer never deletes an untracked or ignored file, even inside its
@@ -72,5 +79,8 @@ redirect to a file is a write. That reading was the FU-013 session's
 judgement, not part of card 3d, and the same wording did not stop the write
 in round 3. The user therefore chose an explicit sentence (card 9b): write no
 file anywhere, including the session scratchpad. Card 3d itself keeps the
-rule, with no scratchpad allowance and no cleanup mechanism.
+rule, with no scratchpad allowance and no cleanup mechanism. The repository's
+own tests create and remove temporary files with `tempfile`; without a narrow
+exception a reviewer running `validate.sh` would break the sentence, so the
+user chose card 11b: such self-removed test files are not reviewer writes.
 Related: [[REQ-016-deploy-and-measure]], [[REQ-023-core-audit]].

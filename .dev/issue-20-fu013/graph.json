@@ -27,7 +27,7 @@
       "review": "deep",
       "status": "done",
       "dod": [
-        "Both reviewer files carry the test-cache instruction and the no-write sentence (card 9b); implementer file and task-brief Authority line carry the full deletion rule with explicit confirmation; no project tightening loosened"
+        "Both reviewer files carry the test-cache instruction for tests the brief names and the no-write sentence with the narrow test-temp-file exception (cards 9b, 11b); implementer file and task-brief Authority line carry the full deletion rule with explicit confirmation; no project tightening loosened"
       ],
       "verify": [
         "bash scripts/validate.sh"

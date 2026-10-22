@@ -40,7 +40,7 @@ When the user asked for it, use this order (R-REV-9):
 3. Pass the `dev-gate` commit gate, then commit without overriding the
    identity. Read back `git log -1 --format=fuller`.
 4. Before the push, confirm that the recorded identity and message match what
-   was scanned. Run `git fetch --prune <remote>`, then
+   was scanned. Run `git ls-remote --heads --tags <remote>` (no `git fetch`), then
    `git push --dry-run --porcelain` with the exact arguments
    of the real push, and have `dev-security-reviewer` scan everything it
    lists: every commit the remote does not have yet and any annotated tag.

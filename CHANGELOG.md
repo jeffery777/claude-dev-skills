@@ -140,6 +140,14 @@ Cowork runtime test). At that release,
 
 ### Security
 
+- Push scan without prune (REQ-011, FU-014, Issue #24). Before a push,
+  R-REV-9, `dev-implement` step 4 and the `dev-gate` push binding get the
+  remote state from `git ls-remote --heads --tags <remote>` and run no
+  `git fetch`. The old `git fetch --prune` could delete local tags or
+  branches (with `fetch.pruneTags` or a non-default refspec). New follow-up
+  FU-015: a push URL that differs from the fetch URL, `.mailmap` and replace
+  refs in the scan commands, nested or blob tags, quoting of ref names, and
+  heads or tags that the remote hides from pushes.
 - `graph.py transition --evidence-file` records only the project-relative
   path and the SHA-256 of a regular file inside the project, never its
   content (PR #5, FU-003).

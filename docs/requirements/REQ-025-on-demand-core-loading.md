@@ -24,6 +24,9 @@ sources:
   - type: chat
     locator: "Claude Code session 2026-10-22 (orchestrator session, relayed to the FU-005 session), user answer to decision card PR1-006 (REQ-GAP from review round 1 of Issue #22: where the approved design record is kept; option a, in `.dev/issue-22-fu005-records/`)"
     quote: "PR1-006 選 a"
+  - type: chat
+    locator: "Claude Code session 2026-10-22 (orchestrator session, relayed to the FU-005 session), user answer after the PR #23 Merge Review: continue with the fixes of MR23-001 and MR23-002; decision card MR23-003 (REQ-GAP: CF-007 in docs/core-feedback.md still says to wait for the measurements; option a, one status line); approval to post the review and gate records of PR #23 as PR comments"
+    quote: "繼續，MR23-003 選 a，同意貼紀錄"
   - type: doc
     locator: ".dev/followups.md, FU-005 row (from FU-010 cards 5 and 7, Issue #18)"
     quote: "Moved forward (FU-010 card 5): design progressive on-demand loading."
@@ -49,7 +52,8 @@ review: each of three rounds found Core conditions that it left out. The
 user chose progressive on-demand loading: skills read the original Core text
 at the stage that needs it. `dev-core` keeps the header, a stage map, every
 rule that is stricter than Core or Claude-specific (word for word), and an
-index line for each other rule. No project tightening regresses.
+index line for each other rule. R-AUTH-5 and R-VER-3 become index lines that
+keep their project readings. No project tightening regresses.
 
 Two Core sentences can be read two ways (`authorization-and-stops.md:35`,
 `workflow.md:76`; CF-009 items 4 and 5). The project writes its reading of
@@ -78,7 +82,8 @@ run); the user decides each merge.
   - `docs/core-feedback.md` (zh and EN) records the upstream Issues
     engineering-workflow-core#21 to #27 for CF-001 to CF-006 and CF-009,
     and the two readings as input for engineering-workflow-core#27 items 4
-    and 5.
+    and 5; CF-007 gets one status line that points to D-020 (decision card
+    MR23-003).
   - `.dev/followups.md`: FU-004 runs the with-the-pack arm before PR-2 and
     after PR-4 (design card 7′a); FU-005, FU-011 (design card 6a) and
     FU-012 (design card 6b) are updated; SR21B-001 (PR #21) is recorded as

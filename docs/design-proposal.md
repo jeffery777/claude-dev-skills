@@ -428,7 +428,7 @@ D-009 到 D-016 是同一天的決定。D-015 由 PR #5（Issue #4）記錄；D-
 - 來源：FU-005（REQ-025）。FU-010 的盤點（Issue #18，REQ-023）顯示，壓縮的 `dev-core` 在審查中不收斂：三輪審查每一輪都找到摘要漏掉的 Core 條件（R-VER-2 停止規則兩次）。使用者：「壓縮的原因是因為任務一開始的時候以為技能包是一次全部載入。但其實可以像codex一樣設計成漸進式的按需載入。若是這樣，是否乾脆把原始的條文寫進來？」設計規格經三輪獨立審查（含一次安全設計審查；停止規則觸發兩次）後，使用者回答設計卡片（「那先照你的建議。我想先完成移植和功能完善。後續再來針對這部份優化」、「9b」）並核准（「核准 FU-005 規格」）。D-019 保留給 lessons skill。
 - 決定：
   1. 各 skill 依階段直接讀 vendored Core 原檔，不把 Core 改寫成摘要（卡片 1a）。讀整份檔案（卡片 2a）。每個 skill 都讀 `authorization-and-stops.md`（卡片 3a）：移除「手上沒有原文」這條失敗路徑；這是一層防護，不是保證。
-  2. `dev-core` 逐字保留 30 項：有 DL 列、比 Core 嚴格（含字面上）或 Claude 專屬的規則與 CB-1 到 CB-5。其餘 16 條沒有任何一句比 Core 嚴格，之後改成「規則 ID 加 Core anchor」的索引行，規則 ID 與引用仍然有效。
+  2. `dev-core` 逐字保留 30 項：有 DL 列、比 Core 嚴格（含字面上）或 Claude 專屬的規則與 CB-1 到 CB-5。其餘 16 條沒有任何一句比 Core 嚴格，之後改成「規則 ID 加 Core anchor」的索引行，規則 ID 與引用仍然有效。R-AUTH-5 與 R-VER-3 在這 16 條之中：它們成為索引行，並保留各自的專案讀法（第 3 點）。
   3. Core 兩處可以兩種讀法的句子，專案寫明讀法（卡片 5a、5b、9b）：`authorization-and-stops.md:35` 與 `workflow.md:76`（R-AUTH-5、R-VER-3；DL-028、DL-029）。
   4. 只有兩個 reviewer 拿 Core 檔，而且當作審查準則（資料），不當指令；政策只來自 brief；implementer 與 explorer 不拿（卡片 8a）。
   5. FU-011 只處理轉述「保留規則」的文字（卡片 6a）。FU-012 不新建 `rationale.md`；理由放在 `deltas.md` 的 Reason、Evidence 欄與 CB 出處行（卡片 6b，取代 FU-010 card 2a）。
@@ -1294,7 +1294,9 @@ records D-009 to D-012.
      rules with a sentence stricter than Core (also literally), the
      Claude-specific rules, and CB-1 to CB-5. The other 16 rules have no
      sentence stricter than Core; they later become index lines (rule ID
-     plus Core anchor), so rule IDs and citations stay valid.
+     plus Core anchor), so rule IDs and citations stay valid. R-AUTH-5 and
+     R-VER-3 are among the 16: they become index lines that keep their
+     project readings (item 3).
   3. Two Core sentences that can be read two ways get a written project
      reading (cards 5a, 5b, 9b): `authorization-and-stops.md:35` and
      `workflow.md:76` (R-AUTH-5, R-VER-3; DL-028, DL-029).

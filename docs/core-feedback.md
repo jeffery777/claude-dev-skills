@@ -95,6 +95,7 @@
   - 好處：每次讀取的內容變少；Claude 與 Codex 的載入方式一致。
   - 風險：技能可能漏讀需要的參考文件；規則分散後更容易出現副本不一致（見 CF-008）。拆分會動到所有技能，review 成本高。
   - 結論：等 D-011 的量測結果。要不要實作，由使用者用決策卡片決定（FU-005）。
+- 狀態：已決定：D-020（REQ-025）；使用者沒有等量測就決定（FU-005 設計卡片 7′a）；上游提案由協調 session 起草。
 - 提議的 Core 修改：在 Core 新增一份載入方式的伴讀說明，讓三個接口用同一種載入模型。
 - 類型：增量型。
 - 對其他專案的影響：Codex 版已經按需讀取；採用後主要是對齊名稱與分段。
@@ -316,6 +317,9 @@ adopt it and the other two projects can re-pin it themselves (REQ-019).
     cost is high.
   - Conclusion: wait for the D-011 measurements. The user decides with a
     decision card whether to implement it (FU-005).
+- Status: decided: D-020 (REQ-025); the user decided without waiting for
+  the measurements (FU-005 design card 7′a); the orchestrator session drafts
+  the upstream proposal.
 - Proposed Core change: a companion note in Core on how to load the
   contracts, so that the three interfaces use one loading model.
 - Kind: additive.

@@ -104,6 +104,21 @@ Cowork runtime test). At that release,
 
 ### Fixed
 
+- `dev-core` and Core (REQ-023, FU-010, Issue #18). A rule-by-rule audit
+  against Core v0.1.1 (`.dev/issue-18-core-audit/audit.md`) found rules
+  that leave out Core obligations or state them more loosely; three review
+  rounds each found new ones. The `dev-core` header now says that where a
+  rule is shorter or looser than its cited Core section, that Core section
+  governs, and that a stricter rule (for example DL tightenings, CB-1 to
+  CB-5, user decisions) still applies (DL-017). R-WRT-1 now follows Core `wf-writing`
+  items 1 to 6 and the spot-check, including the machine literals flags,
+  APIs, logs and kept quotations, the required technical detail and
+  technical precision. R-REV-9 records the `--prune` of the push fetch as a
+  rule the user approved, limited to the default refspec without tag
+  pruning. The other gaps are input for the on-demand loading design
+  (FU-005). Core-feedback candidates in CF-009. Follow-up FU-013 (reviewer
+  test caches; implementer deletions).
+
 - `scripts/check_pack.py` reads `>+` and `|+` block scalars in REQ `sources`
   (PR-C2), with regression tests for the agent model and effort checks and
   the REQ status check.

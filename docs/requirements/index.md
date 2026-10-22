@@ -25,3 +25,4 @@ One row per requirement. Agents read this first, then open only the files they n
 | REQ-019 | Feed Core-level changes back to engineering-workflow-core | active | [[REQ-019-core-feedback]] |
 | REQ-020 | Minimal CI - validate.sh and a gitleaks scan on GitHub Actions | active | [[REQ-020-minimal-ci]] |
 | REQ-021 | Provider profile setting and platform read-back in dev-gate (FU-009, FU-008, MR-001) | active | [[REQ-021-platform-profile]] |
+| REQ-022 | Each rule in one place - skills cite dev-core rule IDs (FU-006) | active | [[REQ-022-single-source-rules]] |

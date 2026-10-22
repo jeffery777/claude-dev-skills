@@ -88,6 +88,18 @@ Cowork runtime test). At that release,
   report only). `dev-core` R-EXH-4 states when the result is
   `NOT_CONFIGURED` (MR-001). This repository selects `validate` and
   `gitleaks` from GitHub Actions.
+- Each rule in one place (REQ-022, FU-006, Issue #16): the skills cite
+  `dev-core` instead of restating three rules whose copies were missed in
+  PR #7, #13 and #15 (R-EXH-3 record storage, R-VER-2 stop rule, R-EXH-4
+  platform result). Other restated rule text stays word for word and names
+  its rule IDs (user card 7a). The masking rule for review records is now
+  also in `dev-core` R-REV-8 and covers gate records too (DL-016, tighten);
+  no other rule changes in meaning. The `dev-core` section 8
+  bindings get the IDs CB-1 to CB-5. The agent files keep their own copies
+  (FU-005). A test checks that every rule ID cited in the Markdown files of
+  `skills/` and `agents/` exists in `dev-core`, and searches `skills/`, `agents/` and
+  `tests/` for the known ways of citing `dev-core` by section number.
+  New follow-up FU-010: R-WRT-1 lists fewer machine literals than Core.
 
 ### Fixed
 

@@ -11,7 +11,7 @@ and never the source.
   `docs/requirements/`; a project can set another one in `.dev/config.json`:
   `{"requirements_dir": "spec/requirements"}`.
   The same file holds `"commit_state"` (default `true`), which decides
-  whether `.dev/<objective-id>/` state files are committed (dev-core §8),
+  whether `.dev/<objective-id>/` state files are committed (CB-1),
   and the optional `"platform_profile"`, which selects a provider profile for
   the merge gate (`dev-gate/references/platform-profile.md`). Other top-level
   keys make the merge gate fail closed.

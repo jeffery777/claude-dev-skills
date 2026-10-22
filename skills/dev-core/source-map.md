@@ -30,7 +30,7 @@ cited Core section (see review round 1, DR-001 to DR-008, in
 | `review-and-security.md#review-findings` | R-RIG-2, R-REV-3, R-REV-4, R-REV-5 | covered | Adds SCOPE-CREEP severity; severity thresholds, `requirement_relation` and `REQ-GAP` (DL-011); classification before fixing and narrow confirmation before a push (DL-012) |
 | `review-and-security.md#review-risk-timing` | R-RIG-1, R-RIG-2, R-REV-6 | covered | Rigor tiers map Core risk timing (D-004) |
 | `review-and-security.md#review-security` | R-REV-7, R-REV-9 | covered | R-REV-9 tightens: a scan before every commit, push, PR post and Issue post, including commit identity and message (DL-010); once a PR exists, scan and gate records never go into a commit on the PR branch (DL-013) |
-| `review-and-security.md#review-evidence` | R-REV-8 | covered | |
+| `review-and-security.md#review-evidence` | R-REV-8 | covered | R-REV-8 adds the masking rule for review and gate records (DL-016) |
 | `exact-head-and-evidence.md#exact-identity` | R-EXH-1 | covered | |
 | `exact-head-and-evidence.md#exact-coherence` | R-EXH-2 | covered | |
 | `exact-head-and-evidence.md#exact-transition` | R-EXH-3 | covered | Records of a PR head are never committed to the PR branch; a PR comment only with the user's authority, otherwise uncommitted in the report; evidence reuse only for provably unaffected parts, with reason and coverage (DL-013) |

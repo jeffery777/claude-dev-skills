@@ -1,0 +1,123 @@
+{
+  "schema": "claude-dev-graph/v1",
+  "objective": {
+    "id": "issue-16-single-source-rules",
+    "title": "Each rule in one place: skills cite dev-core rule IDs (FU-006)",
+    "rigor": "strict",
+    "requirements": [
+      "REQ-022"
+    ]
+  },
+  "nodes": [
+    {
+      "id": "T1",
+      "title": "Rule text: dev-core (R-REV-8 masking, CB-1 to CB-5); pointers for R-EXH-3, R-VER-2, R-EXH-4; other copies word for word with rule IDs (card 7a)",
+      "kind": "docs",
+      "requirements": [
+        "REQ-022"
+      ],
+      "depends_on": [],
+      "owns": [
+        "skills/dev-core/**",
+        "skills/dev-deliver/SKILL.md",
+        "skills/dev-implement/SKILL.md",
+        "skills/dev-review/**",
+        "skills/dev-gate/SKILL.md",
+        "skills/dev-gate/references/platform-profile.md",
+        "skills/dev-plan/SKILL.md",
+        "skills/dev-plan/references/requirements-wiki.md",
+        "skills/dev-continue/SKILL.md",
+        "skills/dev-docs/SKILL.md"
+      ],
+      "risk": "high",
+      "review": "deep",
+      "status": "reviewing",
+      "dod": [
+        "Only the R-EXH-3, R-VER-2 and R-EXH-4 copies become pointers, only in main-session files; every other change is main text word for word plus rule IDs or CB IDs; agents unchanged (card 1a)"
+      ],
+      "verify": [
+        "bash scripts/validate.sh"
+      ]
+    },
+    {
+      "id": "T2",
+      "title": "Tests: GateRuleText cites R-EXH-4; general rule-citation test incl. CB-1 to CB-5",
+      "kind": "implement",
+      "requirements": [
+        "REQ-022"
+      ],
+      "depends_on": [],
+      "owns": [
+        "tests/test_platform_profile.py",
+        "tests/test_rule_citations.py",
+        "tests/test_core_checks.py"
+      ],
+      "risk": "high",
+      "review": "deep",
+      "status": "reviewing",
+      "dod": [
+        "Card 4b: single copy in dev-core, citations in dev-gate and its reference, every cited ID exists, no section-number citation"
+      ],
+      "verify": [
+        "bash scripts/validate.sh"
+      ]
+    },
+    {
+      "id": "T3",
+      "title": "Records: REQ-022, index, log, FU-004/005/006 rows, CF-008, CHANGELOG",
+      "kind": "docs",
+      "requirements": [
+        "REQ-022"
+      ],
+      "depends_on": [],
+      "owns": [
+        "docs/requirements/REQ-022-single-source-rules.md",
+        "docs/requirements/index.md",
+        "docs/requirements/log.md",
+        ".dev/followups.md",
+        "docs/core-feedback.md",
+        "CHANGELOG.md",
+        ".dev/issue-16-single-source-rules/**"
+      ],
+      "risk": "medium",
+      "review": "routine",
+      "status": "reviewing",
+      "dod": [
+        "The FU-006 row and CF-008 cite the user's decision; REQ-022 quotes the user verbatim"
+      ],
+      "verify": [
+        "bash scripts/validate.sh"
+      ]
+    },
+    {
+      "id": "T4",
+      "title": "Independent deep review and R-REV-9 scans",
+      "kind": "review",
+      "requirements": [],
+      "depends_on": [
+        {
+          "node": "T1",
+          "consumes": "rule diff"
+        },
+        {
+          "node": "T2",
+          "consumes": "test diff"
+        },
+        {
+          "node": "T3",
+          "consumes": "records diff"
+        }
+      ],
+      "owns": [],
+      "risk": "high",
+      "review": "deep",
+      "status": "planned",
+      "dod": [
+        "Every finding has requirement_relation, class and disposition; a meaning change is MUST-FIX"
+      ],
+      "verify": [
+        "bash scripts/validate.sh"
+      ]
+    }
+  ]
+}

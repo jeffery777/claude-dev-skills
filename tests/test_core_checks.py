@@ -188,7 +188,7 @@ class SourcesParser(unittest.TestCase):
 
 
 class ReviewerBinding(unittest.TestCase):
-    """dev-core section 8: no write-capable substitute for a required review (PR #2 decision 3)."""
+    """dev-core CB-4: no write-capable substitute for a required review (PR #2 decision 3)."""
 
     def setUp(self):
         with open(os.path.join(ROOT, "skills", "dev-core", "SKILL.md"), encoding="utf-8") as fh:

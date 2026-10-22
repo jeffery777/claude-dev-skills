@@ -33,11 +33,12 @@ keep as is, or needs human decision.
 
 `REQ-GAP` covers a problem that no requirement covers but one seemingly
 should. It is not fixed in the same round: it gets a decision card
-(`decision-card.md`) with the options add a requirement, defer, or reject.
+(`decision-card.md`) with the options add a requirement, defer, or reject
+(R-REV-3).
 
 `SCOPE-CREEP` covers an addition that no requirement covers: an abstraction,
 an option, a fallback, a validator, a layer, or a generalized requirement.
-State which requirement it fails to trace to.
+State which requirement it fails to trace to (R-RIG-3).
 
 ## Requirement trace
 
@@ -60,9 +61,9 @@ Mask every secret or private identifier in the report: give its kind,
 location and length or class only; for an email, say only whether it is a
 noreply address and its provider; replace the account or host part of a path
 or hostname with a placeholder. Never paste raw command output that contains
-such a value.
+such a value (R-REV-8).
 
-## Disposition requirements
+## Disposition requirements (R-REV-3)
 
 - `Fixed` needs the fix revision, the verification and the re-review round.
 - `Rejected` needs the source and the reason.

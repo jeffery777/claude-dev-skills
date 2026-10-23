@@ -18,12 +18,44 @@ its Core anchor. When a rule is unclear, conflicts with something else, or a
 case is at the edge, read the cited section in
 `${CLAUDE_SKILL_DIR}/../../vendor/engineering-workflow-core/contracts/` and follow it.
 
+Before you act, read the Core files that the stage map below lists for your
+skill. The Core text in your context governs every rule that is shown here as
+an index line. Rule text that another dev-* skill or reference restates
+follows the same two rules: where it is shorter or looser than the dev-core
+rule it restates, or than that rule's Core section, the stricter of the two
+governs; where it is stricter, it still applies.
+
 Coverage of every Core anchor: `${CLAUDE_SKILL_DIR}/../dev-core/source-map.md`.
 Differences from Core: `${CLAUDE_SKILL_DIR}/../dev-core/deltas.md`.
 
 Every path in this file starts from the parent of the skill folder (`../dev-core/` or
 `../../vendor/` after `${CLAUDE_SKILL_DIR}`), so it resolves the same way whether
 `${CLAUDE_SKILL_DIR}` is this skill or the sibling skill that loaded it.
+
+## Stage map
+
+Path: `${CLAUDE_SKILL_DIR}/../../vendor/engineering-workflow-core/contracts/<file>`.
+Read each listed file in full. The anchors are only pointers to the main parts.
+
+| Reader | Always | Added per skill | Main anchors |
+| --- | --- | --- | --- |
+| every dev-* skill (through `dev-core`) | `authorization-and-stops.md` | — | auth-scope, auth-destructive, auth-stops, auth-data |
+| `dev-plan` | `authorization-and-stops.md` | `workflow.md`, `review-and-security.md` | wf-stages, wf-assumptions-and-options, wf-delegation; review-risk-timing |
+| `dev-implement` | `authorization-and-stops.md` | `workflow.md`, `review-and-security.md` | wf-stages (Implement, Verify), wf-capability, wf-verification; review-risk-timing (line 33: re-assessment; line 37: cheap security checks), review-security |
+| `dev-review` | `authorization-and-stops.md` | `review-and-security.md`, `workflow.md` | review-*; wf-writing (spot-check), wf-assumptions-and-options, wf-delegation |
+| `dev-docs` | `authorization-and-stops.md` | `workflow.md`, `exact-head-and-evidence.md` | wf-stages (Docs Sync), wf-writing; exact-coherence |
+| `dev-gate` | `authorization-and-stops.md` | `review-and-security.md`, `exact-head-and-evidence.md`, `workflow.md` | review-findings, review-security, review-evidence; exact-*; wf-capability, wf-verification |
+| `dev-continue` | `authorization-and-stops.md` | `workflow.md` | wf-stages (Continue), wf-evidence-lifecycle |
+| `dev-deliver` | `authorization-and-stops.md` | `workflow.md`, `review-and-security.md` | wf-delegation, wf-capability, wf-verification; review-risk-timing, review-findings |
+| trigger: a change of `vendor/` or of the Core pin | `authorization-and-stops.md` | `exact-head-and-evidence.md` | exact-pinning (R-EXH-5) |
+
+Subagents (review criteria):
+
+| Role | Core files used as review criteria |
+| --- | --- |
+| `dev-reviewer` | `review-and-security.md`; add `workflow.md` when the review covers documents; add `exact-head-and-evidence.md` for the Merge Review (`dev-gate` step 3) |
+| `dev-security-reviewer` | `review-and-security.md`, `authorization-and-stops.md` |
+| `dev-implementer`, `dev-explorer` | none |
 
 ## 1. Stages
 

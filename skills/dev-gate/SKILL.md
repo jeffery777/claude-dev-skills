@@ -5,7 +5,7 @@ description: Formal readiness gate before commit, push, PR or merge - checks fin
 
 # dev-gate
 
-Read `${CLAUDE_SKILL_DIR}/../dev-core/SKILL.md` first. For merge readiness,
+Read `${CLAUDE_SKILL_DIR}/../dev-core/SKILL.md` first, then the Core files that its stage map lists for `dev-gate`. For merge readiness,
 also read
 `${CLAUDE_SKILL_DIR}/../../vendor/engineering-workflow-core/contracts/exact-head-and-evidence.md`
 in full. It is short, and its rules are strict.

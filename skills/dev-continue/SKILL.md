@@ -5,7 +5,7 @@ description: Save a checkpoint before pausing, or resume saved development work 
 
 # dev-continue
 
-Read `${CLAUDE_SKILL_DIR}/../dev-core/SKILL.md` first. The rules for resuming
+Read `${CLAUDE_SKILL_DIR}/../dev-core/SKILL.md` first, then the Core files that its stage map lists for `dev-continue`. The rules for resuming
 are R-STG-5 and R-EVD-2. The handoff evaluation below is the user's decision
 D-012 (REQ-017).
 

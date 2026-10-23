@@ -5,7 +5,7 @@ description: Update project documentation from verified code, specs, requirement
 
 # dev-docs
 
-Read `${CLAUDE_SKILL_DIR}/../dev-core/SKILL.md` first. The writing rules are in
+Read `${CLAUDE_SKILL_DIR}/../dev-core/SKILL.md` first, then the Core files that its stage map lists for `dev-docs`. The writing rules are in
 R-WRT-1.
 
 ## Workflow

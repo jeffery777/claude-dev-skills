@@ -132,6 +132,12 @@ Cowork runtime test). At that release,
   and R-VER-1 stay too, because each has a sentence that is literally
   stricter than Core (DL-031 to DL-033). Each skill reads the original Core
   text for the index lines (stage map, PR-2).
+- `dev-security-reviewer` Bash allow-list (REQ-024, SR21B-001, Issue #32).
+  The allow-list now names the test commands named in the brief, with the
+  wording of `dev-reviewer`. The file already told the reviewer how to run
+  the Python tests that the brief names; before, the reviewer decided at run
+  time whether the allow-list permitted them. The other read-only, no-install,
+  no-external-service and no-write rules do not change.
 
 ### Fixed
 

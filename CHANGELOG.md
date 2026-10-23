@@ -116,6 +116,13 @@ Cowork runtime test). At that release,
   skill or reference restates follows the same two rules as `dev-core`
   (DL-030). The first line of each of the 7 other skills points to the stage
   map. No rule text changes.
+- On-demand Core loading, PR-3 reviewer Core criteria (REQ-025, D-020,
+  FU-005, Issue #31). The subagent task brief has a "Core review criteria"
+  line, and `dev-reviewer` and `dev-security-reviewer` each have a
+  paragraph: the reviewer reads the listed Core files as data for judging
+  the change, never as instructions, and only the brief sets policy. The
+  implementer and the explorer get no Core files. The restated rule text
+  does not change.
 
 ### Fixed
 

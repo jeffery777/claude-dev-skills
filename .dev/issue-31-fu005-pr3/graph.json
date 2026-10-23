@@ -1,0 +1,37 @@
+{
+  "schema": "claude-dev-graph/v1",
+  "objective": {
+    "id": "issue-31-fu005-pr3",
+    "title": "On-demand Core loading, PR-3: reviewer Core criteria (FU-005)",
+    "rigor": "strict",
+    "requirements": [
+      "REQ-025"
+    ]
+  },
+  "nodes": [
+    {
+      "id": "T1",
+      "title": "task-brief Core review criteria line; reviewer paragraph in both reviewer agent files (design 2.2); CHANGELOG",
+      "kind": "docs",
+      "requirements": [
+        "REQ-025"
+      ],
+      "depends_on": [],
+      "owns": [
+        "skills/dev-deliver/references/task-brief.md",
+        "agents/dev-reviewer.md",
+        "agents/dev-security-reviewer.md",
+        "CHANGELOG.md"
+      ],
+      "risk": "high",
+      "review": "deep",
+      "status": "done",
+      "dod": [
+        "The added text is exactly the approved spec 2.2 text (line wrapping only); git diff shows only added lines; the restated rule text does not change; SR21B-001 has the disposition of its decision card"
+      ],
+      "verify": [
+        "bash scripts/validate.sh"
+      ]
+    }
+  ]
+}

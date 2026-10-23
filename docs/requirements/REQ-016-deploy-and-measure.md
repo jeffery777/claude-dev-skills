@@ -27,6 +27,9 @@ sources:
   - type: chat
     locator: "Claude Code session 2026-10-21 (PR-C, Issue #8), user answer to the dev-plan decision cards (card 1 split PR-C into C1 and C2: (a) split; card 2 keep each rule in one place: (b) defer; card 3 open the Issue: (a) yes)"
     quote: "1a、2b、3a"
+  - type: chat
+    locator: "Claude Code session 2026-10-23 (orchestrator session, relayed to the FU-004 records session, Issue #27), user answer to decision card R1-004 (REQ-GAP from review round 1 of Issue #27: a replay of the baseline tasks after FU-005 PR-4 does not restore the GitHub and remote state; option a, one factual sentence in the Limits of `.dev/issue-27-fu004-baseline/report.md`, no rule; how to rerun is decided later by a separate card)"
+    quote: "同意你的建議，選a"
 non_goals:
   - Installing the pack, editing `~/.claude/CLAUDE.md` or running the measurements inside this repository change (they are deployment steps outside the repository)
   - Cowork use before FU-001 (GitHub Issue #3) is verified

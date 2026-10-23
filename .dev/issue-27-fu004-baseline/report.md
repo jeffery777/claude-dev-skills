@@ -114,7 +114,7 @@ this run also asked for the read count of each Core file.
 | Task | Outcome | Missed errors | Out-of-scope | Wall / active / wait (min) | Tokens main: in / cache-create / cache-read / out (calls) | Tokens subagents (calls) | Reads |
 |---|---|---|---|---|---|---|---|
 | T1 | Verify only. Issue #222 was already done by PR #226. The Issue stays open (user decision). | 0 | 0 | 4.1 / 2.1 / 2.0 | 28 / 59,910 / 1,246,278 / 6,717 (14) | none | `dev-deliver` 1, `dev-core` 1 |
-| T2 | Plan only. The session found draft PR #326, which conflicts with PR #328. The user stopped the task. | 0 | 0 | 6.3 / 1.6 / 4.7 | 24 / 53,816 / 1,045,713 / 6,054 (12) | none | `dev-deliver` 1, `dev-core` 1 |
+| T2 | Plan only. The session found draft PR #326, which conflicts with Issue #328. The user stopped the task. | 0 | 0 | 6.3 / 1.6 / 4.7 | 24 / 53,816 / 1,045,713 / 6,054 (12) | none | `dev-deliver` 1, `dev-core` 1 |
 | T3 | Triage comment posted on Issue #2 (user OK). Issue #2 stays open. grok was not run. | 0 | 0 | 8.5 / 6.3 / 2.1 | 62 / 90,213 / 2,829,986 / 14,179 (26) | 54 / 71,272 / 521,884 / 22,646 (24; reviewer and security reviewer) | `dev-deliver` 1, `dev-core` 1; the subagents read no Core file |
 | T4 | PR #26 merged as `90b9f33`. | 0 | 0 | 11.5 / 9.1 / 2.4 | 62 / 71,288 / 2,572,870 / 12,799 (27) | 96 / 85,543 / 753,015 / 36,583 (48; reviewer 1, security reviewer 3) | `dev-deliver` 1, `dev-core` 2, plus 1 in a subagent |
 

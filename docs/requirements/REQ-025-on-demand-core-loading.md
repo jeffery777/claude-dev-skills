@@ -33,6 +33,9 @@ sources:
   - type: chat
     locator: "Claude Code session 2026-10-23 (orchestrator session, relayed to the FU-005 PR-4 session), user answer to decision cards PR4-C1 (option a: R-STG-4, R-AUTH-4 and R-VER-1 have a sentence literally stricter than Core, so they stay word for word and get DL rows) and PR4-C2 (option a: a sentence whose broader prohibition makes the agent do less is looser, not stricter)"
     quote: "同意你的建議，C1a C2a"
+  - type: chat
+    locator: "Claude Code session 2026-10-23 (orchestrator session, relayed to the FU-011 session, Issue #40), user answer to the FU-011 decision cards C1 (option a: rule IDs in skills, references, agent files and task-brief.md, not in README.md), C2 (option a: the two exact copies stay word for word) and C3 (option a: items (A) and (B) go to a new follow-up FU-016); the FU-016 trigger \"after FU-011 merges\" is the orchestrator's plan, relayed with the answer"
+    quote: "同意你的建議，C1a C2a C3a"
   - type: doc
     locator: ".dev/followups.md, FU-005 row (from FU-010 cards 5 and 7, Issue #18)"
     quote: "Moved forward (FU-010 card 5): design progressive on-demand loading."
@@ -153,6 +156,32 @@ run); the user decides each merge.
     E keep their places, and checks each table F row whose reader is a
     reviewer subagent and records the result (Issue #33 item 1). `grep`
     finds no stale wording.
+- FU-011 (rule IDs; design card 6a; FU-011 cards C1 (a), C2 (a) and C3 (a);
+  Issue #40):
+  - In `skills/**` outside `skills/dev-core/` and in `agents/*.md`, every
+    sentence or clause that restates a rule that `dev-core` keeps word for
+    word (the 28 rules that are not index lines, and CB-1 to CB-5) names
+    the rule ID. A sentence that only points to a rule (for example "run
+    the scan") gets no ID. The ID is added at the end of the sentence or
+    clause; no existing word changes (`git diff --word-diff=plain
+    --word-diff-regex='[A-Za-z0-9_-]+|[^[:space:]]'` shows only added rule
+    IDs in these files). `README.md` gets no rule IDs.
+  - The exact copies in `skills/dev-gate/SKILL.md` step 3 (R-EXH-3) and
+    `skills/dev-review/SKILL.md` (R-REV-1) stay word for word.
+  - `.dev/followups.md`: the FU-011 row records the result; a new row
+    FU-016 holds items (A) and (B) of card C3, with the trigger "after
+    FU-011 merges". (A): the Core obligations of the table F rows whose
+    reader is a reviewer subagent (`.dev/issue-35-fu005-pr4/table-d-f.md`),
+    and the copies in the agent
+    files and `task-brief.md` that are shorter or looser than `dev-core`
+    (Issue #33 item 2). (B): the injection rule of
+    `agents/dev-security-reviewer.md` names file contents but not the
+    output of the test commands that the reviewer may run (PR #37).
+  - `CHANGELOG.md` has an entry.
+  - `bash scripts/validate.sh` passes. A reviewer checks the places
+    against the files: no restatement of a kept rule left without its ID,
+    no ID on text that does not restate that rule, and no change of
+    meaning.
 - PR-2 to PR-4 each get their acceptance in this file before they start.
 - No project tightening is loosened in any PR (the FU-005 no-regression
   checklist: every DL row, CB-1 to CB-5, D-013 to D-018, REQ-011 to REQ-025).

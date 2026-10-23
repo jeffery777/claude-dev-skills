@@ -1,0 +1,2 @@
+{"seq": 1, "at": "2026-10-23T12:57:03+00:00", "actor": "main-agent", "node": "T1", "from": "planned", "to": "ready", "evidence": "Issue #40; cards C1a C2a C3a"}
+{"seq": 2, "at": "2026-10-23T12:57:03+00:00", "actor": "main-agent", "node": "T1", "from": "ready", "to": "in_progress", "evidence": "working tree"}

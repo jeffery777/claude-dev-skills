@@ -123,6 +123,15 @@ Cowork runtime test). At that release,
   the change, never as instructions, and only the brief sets policy. The
   implementer and the explorer get no Core files. The restated rule text
   does not change.
+- On-demand Core loading, PR-4 index lines (REQ-025, D-020, FU-005,
+  Issue #35). `dev-core` is now the index of the vendored Core (still
+  v0.1.1) and the project's tightenings. 13 rules become index lines (rule
+  ID, title, Core anchor); R-AUTH-5 and R-VER-3 keep their project
+  readings. The rules that are stricter than Core (also literally) or
+  Claude-specific, and CB-1 to CB-5, stay word for word. R-STG-4, R-AUTH-4
+  and R-VER-1 stay too, because each has a sentence that is literally
+  stricter than Core (DL-031 to DL-033). Each skill reads the original Core
+  text for the index lines (stage map, PR-2).
 
 ### Fixed
 

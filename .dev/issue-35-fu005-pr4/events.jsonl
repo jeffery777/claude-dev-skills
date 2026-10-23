@@ -1,0 +1,4 @@
+{"seq": 1, "at": "2026-10-23T09:06:38+00:00", "actor": "main-agent", "node": "T1", "from": "planned", "to": "ready", "evidence": "Issue #35; commit 836fc2f (acceptance)"}
+{"seq": 2, "at": "2026-10-23T09:06:39+00:00", "actor": "main-agent", "node": "T1", "from": "ready", "to": "in_progress", "evidence": "working tree"}
+{"seq": 3, "at": "2026-10-23T09:25:33+00:00", "actor": "main-agent", "node": "T1", "from": "in_progress", "to": "reviewing", "evidence": "validate.sh passed; deep review round 1: 0 MUST-FIX, 0 SHOULD-FIX, 3 NIT"}
+{"seq": 4, "at": "2026-10-23T09:25:33+00:00", "actor": "main-agent", "node": "T1", "from": "reviewing", "to": "done", "evidence": "round-1 NITs: 2 fixed, 1 kept as is; narrow confirmation round 2: 0 findings"}

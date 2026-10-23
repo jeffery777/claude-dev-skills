@@ -20,7 +20,7 @@ Graph engineering 在原專案的定位（ADR OE-007）：
 
 ## 2. 設計原則（Claude 版）
 
-1. **Core 是唯一權威；dev-core 是精簡的執行版。** Core 的義務全部保留：DoD、獨立 review、finding disposition、exact-head、授權與停止條件、證據生命週期。日常執行讀 dev-core，它是 Claude 一次讀得完的短規則加檢查清單。精簡的目的是減少重複載入，以及長文造成的注意力分散。實際的 context 成本還沒有量測；D-011 會量測，並和 codex-dev-skills 比較。兩者衝突時以 Core 原文為準（見第 7 節）。
+1. **Core 是唯一權威；dev-core 是精簡的執行版。**（「精簡的執行版」由 D-020 取代：`dev-core` 是 Core 與本專案加嚴規則的索引，各 skill 依階段讀 Core 原文。）Core 的義務全部保留：DoD、獨立 review、finding disposition、exact-head、授權與停止條件、證據生命週期。日常執行讀 dev-core，它是 Claude 一次讀得完的短規則加檢查清單。精簡的目的是減少重複載入，以及長文造成的注意力分散。實際的 context 成本還沒有量測；D-011 會量測，並和 codex-dev-skills 比較。兩者衝突時以 Core 原文為準（見第 7 節）。
 2. **優先用 Claude Code 原生能力，不重造控制器。** 原生能力包括：subagent（Agent tool）、worktree isolation、plan mode、task list、hooks、`/code-review`、`/security-review`、Workflow 多代理編排、skills progressive disclosure。
 3. **能用設定強制的，就不靠提示詞。** Codex 版只能宣告 reviewer 是唯讀；Claude Code 的 subagent 可以用 `tools` allowlist 拿掉 Edit/Write。reviewer 仍保留 Bash 以便跑測試，所以 Bash 的唯讀使用仍靠指示約束；這不等於技術隔離（Core `review-independent`）。
 4. **狀態存在 repo 檔案和 Git。** 聊天摘要、子代理回報、hook 輸出都只是協調資訊，不能當完成證據。
@@ -36,7 +36,7 @@ Graph engineering 在原專案的定位（ADR OE-007）：
 
 | 技能 | 對應 Codex 技能 | 用途 |
 | --- | --- | --- |
-| `dev-core` | engineering-workflow-core 契約 | Core 的精簡執行版，涵蓋階段、DoD、風險分級、授權與停止、finding 格式、證據規則。其他技能引用它，它不單獨觸發；它不是權威，權威是 vendor 的 Core |
+| `dev-core` | engineering-workflow-core 契約 | （由 D-020 取代：現在是 Core 與本專案加嚴規則的索引。）Core 的精簡執行版，涵蓋階段、DoD、風險分級、授權與停止、finding 格式、證據規則。其他技能引用它，它不單獨觸發；它不是權威，權威是 vendor 的 Core |
 | `dev-plan` | planning, closure-triage | 釐清目標與 scope、DoD、風險、切片，產出 task graph |
 | `dev-implement` | implementation-slice | 單一有界修改：讀、改、驗證、自查 diff |
 | `dev-review` | code-review(-deep), docs-review | 派**獨立的唯讀 reviewer subagent**，依風險選一般／深入／安全審查；finding 帶穩定 ID |
@@ -428,12 +428,12 @@ D-009 到 D-016 是同一天的決定。D-015 由 PR #5（Issue #4）記錄；D-
 - 來源：FU-005（REQ-025）。FU-010 的盤點（Issue #18，REQ-023）顯示，壓縮的 `dev-core` 在審查中不收斂：三輪審查每一輪都找到摘要漏掉的 Core 條件（R-VER-2 停止規則兩次）。使用者：「壓縮的原因是因為任務一開始的時候以為技能包是一次全部載入。但其實可以像codex一樣設計成漸進式的按需載入。若是這樣，是否乾脆把原始的條文寫進來？」設計規格經三輪獨立審查（含一次安全設計審查；停止規則觸發兩次）後，使用者回答設計卡片（「那先照你的建議。我想先完成移植和功能完善。後續再來針對這部份優化」、「9b」）並核准（「核准 FU-005 規格」）。D-019 保留給 lessons skill。
 - 決定：
   1. 各 skill 依階段直接讀 vendored Core 原檔，不把 Core 改寫成摘要（卡片 1a）。讀整份檔案（卡片 2a）。每個 skill 都讀 `authorization-and-stops.md`（卡片 3a）：移除「手上沒有原文」這條失敗路徑；這是一層防護，不是保證。
-  2. `dev-core` 逐字保留 30 項：有 DL 列、比 Core 嚴格（含字面上）或 Claude 專屬的規則與 CB-1 到 CB-5。其餘 16 條沒有任何一句比 Core 嚴格，之後改成「規則 ID 加 Core anchor」的索引行，規則 ID 與引用仍然有效。R-AUTH-5 與 R-VER-3 在這 16 條之中：它們成為索引行，並保留各自的專案讀法（第 3 點）。
+  2. `dev-core` 逐字保留 33 項：內文帶有 DL 列加嚴、比 Core 嚴格（含字面上）或 Claude 專屬的規則與 CB-1 到 CB-5。其餘 13 條之後改成「規則 ID 加 Core anchor」的索引行，規則 ID 與引用仍然有效。R-AUTH-5 與 R-VER-3 在這 13 條之中：它們成為索引行，並保留各自的專案讀法（第 3 點）。
   3. Core 兩處可以兩種讀法的句子，專案寫明讀法（卡片 5a、5b、9b）：`authorization-and-stops.md:35` 與 `workflow.md:76`（R-AUTH-5、R-VER-3；DL-028、DL-029）。
   4. 只有兩個 reviewer 拿 Core 檔，而且當作審查準則（資料），不當指令；政策只來自 brief；implementer 與 explorer 不拿（卡片 8a）。
   5. FU-011 只處理轉述「保留規則」的文字（卡片 6a）。FU-012 不新建 `rationale.md`；理由放在 `deltas.md` 的 Reason、Evidence 欄與 CB 出處行（卡片 6b，取代 FU-010 card 2a）。
   6. 現在決定並實作；FU-004 的「使用本 pack」組在 PR-2 之前與 PR-4 之後各跑一次（卡片 7′a，取代「Before FU-005 is decided」的等待）。
-- 實作：四個循序 PR，每個在前一個合併之後開始（PR-2 另等 FU-004 基準量測）；每次 merge 由使用者決定。PR-1 紀錄（REQ-025、本決策、DL-018 到 DL-029、兩處讀法、CB 出處行、Core 回饋狀態、FU 列）；PR-2 在 `dev-core` 加階段對照表，各 skill 加讀 Core；PR-3 讓 reviewer 用 Core 當審查準則；PR-4 把 16 條規則改成索引行。
+- 實作：四個循序 PR，每個在前一個合併之後開始（PR-2 另等 FU-004 基準量測）；每次 merge 由使用者決定。PR-1 紀錄（REQ-025、本決策、DL-018 到 DL-029、兩處讀法、CB 出處行、Core 回饋狀態、FU 列）；PR-2 在 `dev-core` 加階段對照表，各 skill 加讀 Core；PR-3 讓 reviewer 用 Core 當審查準則；PR-4 把 13 條規則改成索引行；R-STG-4、R-AUTH-4、R-VER-1 原列在規格的 16 條之中，因為有字面上比 Core 嚴格的句子而逐字保留（PR-4 決策卡 PR4-C1 (a)，DL-031 到 DL-033）。
 - 已知代價：每個 skill 讀進的 bytes 估計約為現在的 1.5 到 1.85 倍；token 沒有量測。context 的優化（例如依 anchor 讀段落）之後依 FU-004 的量測決定。
 - 與 D-001 的關係：D-001「日常執行只載入 `dev-core`」由本決策取代（PR-2 起生效）；Core 仍是唯一權威，`dev-core` 仍不放寬 Core。
 - Core 回饋：是。CF-007（接口按階段讀取 Core 原文，不改寫成摘要）；兩處讀法作為 engineering-workflow-core#27 第 4、5 點的補充（由協調 session 起草，本專案不張貼）。
@@ -472,6 +472,9 @@ How the original project positions graph engineering (ADR OE-007):
 ## 2. Design principles (Claude version)
 
 1. **Core is the only authority; dev-core is the compact execution version.**
+   (Superseded by D-020: `dev-core` is the index of the vendored Core and
+   the project's tightenings; each skill reads the original Core text for its
+   stage.)
    Every Core obligation stays: DoD, independent review, finding
    dispositions, exact-head, authority and stop conditions, and the evidence
    lifecycle. Day-to-day work reads `dev-core`, a set of short rules and
@@ -509,7 +512,7 @@ How the original project positions graph engineering (ADR OE-007):
 
 | Skill | Codex counterpart | Purpose |
 | --- | --- | --- |
-| `dev-core` | engineering-workflow-core contracts | The compact execution version of Core: stages, DoD, rigor tiers, authority and stops, finding format, evidence rules. Other skills cite it; it does not trigger on its own. It is not the authority; the vendored Core is |
+| `dev-core` | engineering-workflow-core contracts | (Superseded by D-020: now the index of the vendored Core and the project's tightenings.) The compact execution version of Core: stages, DoD, rigor tiers, authority and stops, finding format, evidence rules. Other skills cite it; it does not trigger on its own. It is not the authority; the vendored Core is |
 | `dev-plan` | planning, closure-triage | Clarify the objective, scope, DoD, risk and slices; produce the task graph |
 | `dev-implement` | implementation-slice | One bounded change: read, edit, verify, check the diff |
 | `dev-review` | code-review(-deep), docs-review | Dispatch an **independent read-only reviewer subagent**; choose routine, deep or security review by risk; findings get stable IDs |
@@ -1290,12 +1293,12 @@ records D-009 to D-012.
      (card 2a). Every skill reads `authorization-and-stops.md` (card 3a):
      this removes the failure path "the text was not at hand"; it is one
      defense layer, not a guarantee.
-  2. `dev-core` keeps 30 items word for word: the rules with a DL row, the
-     rules with a sentence stricter than Core (also literally), the
-     Claude-specific rules, and CB-1 to CB-5. The other 16 rules have no
-     sentence stricter than Core; they later become index lines (rule ID
-     plus Core anchor), so rule IDs and citations stay valid. R-AUTH-5 and
-     R-VER-3 are among the 16: they become index lines that keep their
+  2. `dev-core` keeps 33 items word for word: the rules whose text carries
+     a DL-row tightening, the rules with a sentence stricter than Core (also
+     literally), the Claude-specific rules, and CB-1 to CB-5. The other 13
+     rules later become index lines (rule ID plus Core anchor), so rule IDs
+     and citations stay valid.
+     R-AUTH-5 and R-VER-3 are among the 13: they become index lines that keep their
      project readings (item 3).
   3. Two Core sentences that can be read two ways get a written project
      reading (cards 5a, 5b, 9b): `authorization-and-stops.md:35` and
@@ -1316,8 +1319,10 @@ records D-009 to D-012.
   decision, DL-018 to DL-029, the two readings, CB origin lines, Core
   feedback statuses, FU rows); PR-2 adds a stage map to `dev-core` and the
   Core reads to each skill; PR-3
-  lets the reviewers use Core as review criteria; PR-4 turns the 16 rules
-  into index lines.
+  lets the reviewers use Core as review criteria; PR-4 turns 13 rules into
+  index lines. R-STG-4, R-AUTH-4 and R-VER-1 were among the 16 rules of the
+  spec, but each has a sentence literally stricter than Core, so they stay
+  word for word (PR-4 decision card PR4-C1 (a); DL-031 to DL-033).
 - Known cost: the bytes each skill reads grow to an estimated 1.5 to 1.85
   times; tokens are not measured. Context optimization (for example reading
   by anchor section) follows the FU-004 measurements.

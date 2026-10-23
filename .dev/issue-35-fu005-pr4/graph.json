@@ -1,0 +1,43 @@
+{
+  "schema": "claude-dev-graph/v1",
+  "objective": {
+    "id": "issue-35-fu005-pr4",
+    "title": "On-demand Core loading, PR-4: index lines (FU-005)",
+    "rigor": "strict",
+    "requirements": [
+      "REQ-025"
+    ]
+  },
+  "nodes": [
+    {
+      "id": "T1",
+      "title": "Index lines for 13 rules, header first sentence, DL-001/DL-007/DL-009/DL-028 notes, DL-031 to DL-033, source map, README, dev-plan line 6, CHANGELOG, D-020 item 2, FU rows, records README",
+      "kind": "docs",
+      "requirements": [
+        "REQ-025"
+      ],
+      "depends_on": [],
+      "owns": [
+        "skills/dev-core/SKILL.md",
+        "skills/dev-core/deltas.md",
+        "skills/dev-core/source-map.md",
+        "skills/dev-plan/SKILL.md",
+        "README.md",
+        "CHANGELOG.md",
+        "docs/design-proposal.md",
+        ".dev/followups.md",
+        ".dev/issue-22-fu005-records/README.md",
+        ".dev/issue-35-fu005-pr4/table-d-f.md"
+      ],
+      "risk": "high",
+      "review": "deep",
+      "status": "done",
+      "dod": [
+        "REQ-025 PR-4 acceptance met; the 33 kept items and the stage map are byte-identical to the base; the deleted text has no sentence stricter than Core in the protective direction; checklist tables A, B, C and E keep their places; table F reviewer rows checked and recorded"
+      ],
+      "verify": [
+        "bash scripts/validate.sh"
+      ]
+    }
+  ]
+}

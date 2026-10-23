@@ -20,14 +20,14 @@
 - Finding (PR #21 merge-time security review): the Bash allow-list of `agents/dev-security-reviewer.md` names scanners but not tests, while the same file tells the reviewer how to run Python tests that the brief names.
 - R0-SEC security view: option (a) lets the security reviewer run code from the tree under review without technical isolation; the added risk is small next to the status quo (the main agent and `dev-reviewer` run the same tests).
 - User decision 1: first 「同意你的建議，1a 2c」 (option (a)); then, after this session's auto-mode permission check refused the change, 「同意你的建議，選2」 (both relayed by the orchestrator session, 2026-10-23): move it to a follow-up and keep the file text.
-- Process note: after the shell edit was refused, the same change was retried once with the Edit tool and then reverted. A refused action must not be retried with another tool; the session must stop and report.
+- Process note: after the shell edit was refused, the same change was retried once with the Edit tool and then reverted. A refused action must not be retried with another tool; the session must stop and report. (finding PR3-S3-001 in the round-2 record)
 - Disposition: Deferred.
   - Target: GitHub Issue #32 (user decision card PR3-C3 (a), 2026-10-23, relayed by the orchestrator session: 「同意你的建議，C3a C4b」); the change is made in its own small PR in which the user approves it directly.
   - Owner: jeffery777 (maintainer).
   - Reason: the session's auto-mode permission check classified widening the security reviewer allow-list as security weakening; the user chose to handle it in its own PR.
   - Remaining risk: unchanged since PR #21 (low). When a brief names tests for the security reviewer, the model decides at run time whether the allow-list permits them.
   - Verification plan: in that PR, `agents/dev-security-reviewer.md` lines 13-15 name "the test commands named in the brief" (wording as in `agents/dev-reviewer.md:15`); REQ-024 records the user's answer; a security review of the change.
-  - Promotion trigger: a brief names tests for `dev-security-reviewer`, or the PR-4 records update of `.dev/followups.md`.
+  - Promotion trigger: a brief names tests for `dev-security-reviewer`, or the user starts the PR.
 - `.dev/followups.md` is not changed (the spec PR-3 row does not list it). Its FU-005 row still says "PR-2 also waits for the FU-004 baseline run" and "PR-3 gives it to the user as a REQ-GAP decision card"; both are stale. Neither the spec nor REQ-025 assigns this update to a PR: residual risk, not a Deferred finding (PR3-R1-003).
 
 ## Requirement trace

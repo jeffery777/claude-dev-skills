@@ -18,6 +18,12 @@ sources:
   - type: chat
     locator: "Claude Code session 2026-10-22 (orchestrator session, relayed to the FU-013 session), user answer to FU-013 decision card 11 (Merge Review security findings SR21-001 and SR21-002 on PR #21: option b, fix both) and to posting the review records as PR comments"
     quote: "11b，同意貼紀錄"
+  - type: chat
+    locator: "Claude Code session 2026-10-23 (orchestrator session, relayed to the FU-005 PR-3 session, Issue #31), user answer to PR-3 decision card 1 (SR21B-001: option a, add the test commands named in the brief to the dev-security-reviewer Bash allow-list); the change moved to Issue #32"
+    quote: "同意你的建議，1a 2c"
+  - type: chat
+    locator: "Claude Code session 2026-10-23 (Issue #32 session), user approval of the shown allow-list sentence in agents/dev-security-reviewer.md and of the write scope"
+    quote: "核准這句修改，也同意你建議的寫入範圍。"
   - type: doc
     locator: ".dev/followups.md, FU-013 row (from FU-010 cards 3d and 6a, Issue #18)"
     quote: "Keep the rule that reviewers write nothing."
@@ -56,6 +62,10 @@ third arm next to with and without the pack: official tools only.
   named in the brief creates and removes itself in the system temporary
   directory; files the reviewer writes itself are never covered (card 11b,
   SR21-002). The read-only rules stay as they are.
+- The Bash allow-list of `agents/dev-security-reviewer.md` names the test
+  commands named in the brief, with the wording of `agents/dev-reviewer.md`
+  (SR21B-001, PR-3 card 1 (a), Issue #32). This is the only change to the
+  read-only rules.
 - `agents/dev-implementer.md` and the Authority line of
   `skills/dev-deliver/references/task-brief.md` state in full that the
   implementer never deletes an untracked or ignored file, even inside its

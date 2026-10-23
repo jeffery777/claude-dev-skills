@@ -5,7 +5,7 @@ description: Implement one clear, bounded code change or bug fix, verify it, and
 
 # dev-implement
 
-Read `${CLAUDE_SKILL_DIR}/../dev-core/SKILL.md` first.
+Read `${CLAUDE_SKILL_DIR}/../dev-core/SKILL.md` first, then the Core files that its stage map lists for `dev-implement`.
 
 ## Workflow
 

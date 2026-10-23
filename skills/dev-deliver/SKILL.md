@@ -5,7 +5,7 @@ description: Drive a larger bounded objective end to end - plan, task graph, dis
 
 # dev-deliver
 
-Read `${CLAUDE_SKILL_DIR}/../dev-core/SKILL.md` first. This skill is the outer
+Read `${CLAUDE_SKILL_DIR}/../dev-core/SKILL.md` first, then the Core files that its stage map lists for `dev-deliver`. This skill is the outer
 loop. It routes work to the other `dev-*` skills and never duplicates them.
 `graph.py` is at `${CLAUDE_SKILL_DIR}/../dev-plan/scripts/graph.py` and needs a
 shell with Python 3; without one, use the manual procedure in

@@ -5,7 +5,7 @@ description: Independent read-only review of code, docs or mixed changes - routi
 
 # dev-review
 
-Read `${CLAUDE_SKILL_DIR}/../dev-core/SKILL.md` first.
+Read `${CLAUDE_SKILL_DIR}/../dev-core/SKILL.md` first, then the Core files that its stage map lists for `dev-review`.
 
 Review stays read-only unless the user asks for fixes (R-REV-1).
 

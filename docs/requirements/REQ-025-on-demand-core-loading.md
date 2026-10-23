@@ -27,6 +27,9 @@ sources:
   - type: chat
     locator: "Claude Code session 2026-10-22 (orchestrator session, relayed to the FU-005 session), user answer after the PR #23 Merge Review: continue with the fixes of MR23-001 and MR23-002; decision card MR23-003 (REQ-GAP: CF-007 in docs/core-feedback.md still says to wait for the measurements; option a, one status line); approval to post the review and gate records of PR #23 as PR comments"
     quote: "繼續，MR23-003 選 a，同意貼紀錄"
+  - type: chat
+    locator: "Claude Code session 2026-10-23 (orchestrator session, relayed to the FU-005 PR-2 session, Issue #28), user answer to the source conflict between this file (each PR gets its acceptance here before it starts) and the spec's PR-2 file list (option a: PR-2 adds its acceptance here, in the first commit)"
+    quote: "同意你的建議，選a，驗收條件放第一個commit"
   - type: doc
     locator: ".dev/followups.md, FU-005 row (from FU-010 cards 5 and 7, Issue #18)"
     quote: "Moved forward (FU-010 card 5): design progressive on-demand loading."
@@ -92,6 +95,18 @@ run); the user decides each merge.
     `.dev/issue-22-fu005-records/` (`fu005-spec.md`, `fu005-checklist.md`),
     word for word; masking of private paths or identifiers is the only
     change, and the folder's `README.md` records it (decision card PR1-006).
+- PR-2 (Core reading; design 1.1 (A), 1.2 and 7.2):
+  - `skills/dev-core/SKILL.md` has the two new header sentences of the
+    design and a stage map with the reviewer role table; no rule text
+    changes.
+  - `skills/dev-core/deltas.md` has a row for the new header sentences; the
+    existing rows do not change.
+  - The first line of each of the 7 other skills says to read the Core files
+    that the stage map lists for that skill.
+  - `CHANGELOG.md` has an entry.
+  - `bash scripts/validate.sh` passes; `git diff` of the skill files shows
+    only added lines plus the 7 first lines; a reviewer confirms that the new
+    header sentences loosen no project tightening.
 - PR-2 to PR-4 each get their acceptance in this file before they start.
 - No project tightening is loosened in any PR (the FU-005 no-regression
   checklist: every DL row, CB-1 to CB-5, D-013 to D-018, REQ-011 to REQ-025).

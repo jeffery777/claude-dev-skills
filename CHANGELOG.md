@@ -108,6 +108,14 @@ Cowork runtime test). At that release,
   tightenings that had no row; no other rule text changes. CB-1 to CB-5 name
   their origin. `docs/core-feedback.md` records the upstream Issues
   engineering-workflow-core#21 to #27.
+- On-demand Core loading, PR-2 Core reading (REQ-025, D-020, FU-005,
+  Issue #28). `dev-core` has a stage map: the Core files that each skill
+  reads in full before it acts, and the Core files that each reviewer role
+  uses as review criteria. Two header sentences: the Core text in context
+  governs every rule shown as an index line, and rule text that another
+  skill or reference restates follows the same two rules as `dev-core`
+  (DL-030). The first line of each of the 7 other skills points to the stage
+  map. No rule text changes.
 
 ### Fixed
 

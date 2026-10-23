@@ -1,0 +1,39 @@
+{
+  "schema": "claude-dev-graph/v1",
+  "objective": {
+    "id": "issue-27-fu004-baseline",
+    "title": "FU-004: record the baseline run of the with-the-pack arm",
+    "rigor": "standard",
+    "requirements": [
+      "REQ-016",
+      "REQ-025"
+    ]
+  },
+  "nodes": [
+    {
+      "id": "T1",
+      "title": "Baseline report and FU-004 row update",
+      "kind": "docs",
+      "requirements": [
+        "REQ-016",
+        "REQ-025"
+      ],
+      "depends_on": [],
+      "owns": [
+        ".dev/followups.md",
+        ".dev/issue-27-fu004-baseline/**",
+        "docs/requirements/REQ-016-deploy-and-measure.md",
+        "docs/requirements/log.md"
+      ],
+      "risk": "low",
+      "review": "deep",
+      "status": "reviewing",
+      "dod": [
+        "The report gives the results, the rubric, the method, and each task's start commit and first sentence; no private path, session ID or private identifier; the FU-004 row records the run with a link and stays Open; no file outside the owned paths changes"
+      ],
+      "verify": [
+        "bash scripts/validate.sh"
+      ]
+    }
+  ]
+}

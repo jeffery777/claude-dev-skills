@@ -138,6 +138,13 @@ Cowork runtime test). At that release,
   the Python tests that the brief names; before, the reviewer decided at run
   time whether the allow-list permitted them. The other read-only, no-install,
   no-external-service and no-write rules do not change.
+- Rule IDs on restated rule text (REQ-025, FU-011, Issue #40). The skills,
+  their references, the agent files and the subagent task brief name the
+  rule ID on the text that restates a rule that `dev-core` keeps word for
+  word (73 IDs at 69 places; the readings are in the FU-011 row of
+  `.dev/followups.md`). No word of the existing text changes, so the files
+  that subagents get keep their full text. `README.md` gets no IDs. Gaps in
+  the copies that subagents get go to FU-016.
 
 ### Fixed
 

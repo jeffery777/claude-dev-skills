@@ -1,2 +1,8 @@
 {"seq": 1, "at": "2026-10-23T12:57:03+00:00", "actor": "main-agent", "node": "T1", "from": "planned", "to": "ready", "evidence": "Issue #40; cards C1a C2a C3a"}
 {"seq": 2, "at": "2026-10-23T12:57:03+00:00", "actor": "main-agent", "node": "T1", "from": "ready", "to": "in_progress", "evidence": "working tree"}
+{"seq": 3, "at": "2026-10-23T13:03:55+00:00", "actor": "main-agent", "node": "T1", "from": "in_progress", "to": "reviewing", "evidence": "review round 1 F-001..F-003, C-001 fixed; commit scan PASS"}
+{"seq": 4, "at": "2026-10-23T13:03:55+00:00", "actor": "main-agent", "node": "T1", "from": "reviewing", "to": "done", "evidence": "c1bc8ad"}
+{"seq": 5, "at": "2026-10-23T13:03:55+00:00", "actor": "main-agent", "node": "T2", "from": "planned", "to": "ready", "evidence": "T1 done c1bc8ad"}
+{"seq": 6, "at": "2026-10-23T13:03:55+00:00", "actor": "main-agent", "node": "T2", "from": "ready", "to": "in_progress", "evidence": "working tree"}
+{"seq": 7, "at": "2026-10-23T13:25:11+00:00", "actor": "main-agent", "node": "T2", "from": "in_progress", "to": "reviewing", "evidence": "validate.sh passed; deep review round 1: R1-001..R1-008"}
+{"seq": 8, "at": "2026-10-23T13:25:11+00:00", "actor": "main-agent", "node": "T2", "from": "reviewing", "to": "done", "evidence": "round 2: R2-001 R2-002 fixed (last correction); word-diff 0 deletions, 73 IDs at 69 places"}

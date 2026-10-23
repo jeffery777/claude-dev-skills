@@ -8,7 +8,7 @@ The profile is `platform_profile` in `.dev/config.json` at the bound base
 commit; the PR head and the working tree are never read for it. The format and
 the rules are in skills/dev-gate/references/platform-profile.md (REQ-021).
 This script makes read calls only (`git`, `gh api` GET). It implements only the
-properties listed there; a new edge case goes to the user as a REQ-GAP.
+properties listed there; a new edge case goes to the user as a REQ-GAP (R-REV-3).
 
 Output: one line per item, then `platform_enforcement: <RESULT>`, the policy
 change line and the FU-008 lines. Exit 0 for VERIFIED or NOT_CONFIGURED,

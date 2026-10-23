@@ -20,11 +20,11 @@ Read `${CLAUDE_SKILL_DIR}/../dev-core/SKILL.md` first, then the Core files that 
    `gitnexus impact` on the symbols you will change.
 3. Make the smallest change that meets the DoD. Follow existing patterns. Do
    not refactor unrelated code, add speculative options or overwrite other
-   people's changes.
+   people's changes (R-STG-4, R-RIG-3).
 4. Run the smallest relevant verification, then widen the check to what the
    change can affect (R-STG-4). Record every command and its result.
-5. Read the full diff (`git diff`, including untracked files). Remove anything
-   that no requirement covers.
+5. Read the full diff (`git diff`, including untracked files; R-STG-4). Remove anything
+   that no requirement covers (R-RIG-3).
 6. Hand off. For `standard` and `strict` work, request `dev-review`. For
    `light` work, request `dev-review` and the `dev-gate` commit gate before any
    commit, push or PR. A light change you leave uncommitted reports "not

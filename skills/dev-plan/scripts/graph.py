@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """G0 task graph tool for claude-dev-skills (stdlib only).
 
-The graph is coordination data. It never proves completion or grants
+The graph is coordination data (CB-1). It never proves completion or grants
 authority; completion evidence stays in Git, verification output, and
 independent review (Core exact-head-and-evidence.md#exact-identity).
 
@@ -12,7 +12,7 @@ Commands:
              [--actor NAME] [--requirements-dir DIR]
 
 --evidence-file never copies file content into events.jsonl, which is
-committed by default. The file must be a regular file inside the project root,
+committed by default (CB-1). The file must be a regular file inside the project root,
 and the last component of its path must not be a symlink. The event records
 "file:<relative path> sha256:<hex>". A refused file exits 2 with
 EVIDENCE_FILE_REFUSED. A graph without a project root cannot use it.

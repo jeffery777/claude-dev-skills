@@ -24,7 +24,7 @@
       ],
       "risk": "low",
       "review": "routine",
-      "status": "in_progress",
+      "status": "done",
       "dod": [
         "REQ-025 quotes the user's answer to the FU-011 cards and has the FU-011 acceptance; the log has one row; no other REQ text changes"
       ],
@@ -54,7 +54,7 @@
       ],
       "risk": "medium",
       "review": "deep",
-      "status": "planned",
+      "status": "done",
       "dod": [
         "git diff --word-diff (verify command) of skills/ and agents/ shows only added rule IDs; skills/dev-core/ unchanged; README.md gets no rule IDs; sentences that only point to a rule get none; every restatement of a kept rule names its ID; FU-011 row records the result and FU-016 holds card C3 items (A) and (B); CHANGELOG entry; independent deep review finds no open MUST-FIX or SHOULD-FIX"
       ],

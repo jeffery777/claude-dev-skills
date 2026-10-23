@@ -25,7 +25,7 @@ Write `.dev/<objective-id>/checkpoint.md`:
 - Human gates pending: …
 ```
 
-The checkpoint is a summary, not evidence. Point to the commits, the reports
+The checkpoint is a summary, not evidence (CB-1, R-EVD-2). Point to the commits, the reports
 and the command output instead of restating them.
 
 ## Evaluate a handoff
@@ -71,7 +71,7 @@ round, or a stage), evaluate whether the work continues in a new session.
 2. Compare the checkpoint with reality. Has HEAD moved? Are there unexpected
    changes or new commits? Did delegated work leave branches or worktrees
    (`git worktree list`)? Treat any mismatch as drift: re-read the affected
-   sources before you trust the checkpoint.
+   sources before you trust the checkpoint (R-AUTH-1).
 3. Resolve each unknown outcome by reading the state back, never by replaying
    the operation (R-AUTH-4).
 4. Pick the next step. For a graph, run `graph.py ready` (see `dev-plan`).

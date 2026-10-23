@@ -107,6 +107,17 @@ run); the user decides each merge.
   - `bash scripts/validate.sh` passes; `git diff` of the skill files shows
     only added lines plus the 7 first lines; a reviewer confirms that the new
     header sentences loosen no project tightening.
+- PR-3 (reviewer Core criteria; design 2.2 and 7.2):
+  - `skills/dev-deliver/references/task-brief.md` has the "Core review
+    criteria" line of the design.
+  - `agents/dev-reviewer.md` and `agents/dev-security-reviewer.md` each have
+    the paragraph of the design.
+  - The restated rule text (the copies) does not change.
+  - SR21B-001 (PR #21) is handled per its decision card.
+  - `CHANGELOG.md` has an entry.
+  - An early `dev-security-reviewer` design review and an R-REV-7 Security
+    Diff Scan; the agent files are compared sentence by sentence with
+    `dev-core`; `git diff` shows only added content.
 - PR-2 to PR-4 each get their acceptance in this file before they start.
 - No project tightening is loosened in any PR (the FU-005 no-regression
   checklist: every DL row, CB-1 to CB-5, D-013 to D-018, REQ-011 to REQ-025).

@@ -25,7 +25,7 @@
       ],
       "risk": "high",
       "review": "deep",
-      "status": "reviewing",
+      "status": "done",
       "dod": [
         "The added text is exactly the approved spec 2.2 text (line wrapping only); git diff shows only added lines; the restated rule text does not change; SR21B-001 has the disposition of its decision card"
       ],

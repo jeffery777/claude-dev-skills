@@ -1,0 +1,37 @@
+{
+  "schema": "claude-dev-graph/v1",
+  "objective": {
+    "id": "issue-38-fu004-after-pr4",
+    "title": "FU-004: record the with-the-pack run after FU-005 PR-4",
+    "rigor": "standard",
+    "requirements": [
+      "REQ-016",
+      "REQ-025"
+    ]
+  },
+  "nodes": [
+    {
+      "id": "T1",
+      "title": "Report of the run after PR-4 and FU-004 row update",
+      "kind": "docs",
+      "requirements": [
+        "REQ-016",
+        "REQ-025"
+      ],
+      "depends_on": [],
+      "owns": [
+        ".dev/followups.md",
+        ".dev/issue-38-fu004-after-pr4/**"
+      ],
+      "risk": "low",
+      "review": "deep",
+      "status": "reviewing",
+      "dod": [
+        "The report follows the baseline format: purpose, setup, tasks with start commits and verbatim first sentences, method, results, paired comparison without conclusion, T5 behaviour, judge results, process observations and limits; every fact comes from the inputs or a git/gh check; no private path, session ID or private identifier; the FU-004 row records the run with a link and stays Open; no file outside the owned paths changes"
+      ],
+      "verify": [
+        "bash scripts/validate.sh"
+      ]
+    }
+  ]
+}

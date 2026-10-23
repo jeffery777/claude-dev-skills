@@ -27,6 +27,9 @@ sources:
   - type: chat
     locator: "Claude Code session 2026-10-22 (orchestrator session, relayed to the FU-014 session), user answer to FU-014 design cards 1 to 4 (the push scan basis; findings R1-004, R3-006, MR19-001, MR19-002 of Issue #18 / PR #19)"
     quote: "同意你的建議，4a、1a、2a、3a"
+  - type: chat
+    locator: "Claude Code session 2026-10-22 (orchestrator session, relayed to the FU-014 session), user answer to FU-014 decision card 5 (REQ-GAP R1-003 of PR #25: the push scan record format names the remote object IDs given to the scan)"
+    quote: "同意你的建議，選5a"
 non_goals:
   - Installing gitleaks or Git hooks without the user's approval
   - Review convergence, decision cards and REQ-GAP (PR-B, D-013, D-014, D-016)

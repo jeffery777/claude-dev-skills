@@ -22,3 +22,30 @@ record (decision card PR1-006: 「PR1-006 選 a」). Masking was the only change
 The spec names companion files (`fu005-cards.md`, `fu005-review.md`,
 `fu005-stop-rule.md`) that stay outside the repository. The card decisions
 are quoted in REQ-025 and recorded in D-020 (`docs/design-proposal.md`).
+
+## Differences in FU-005 PR-4 (Issue #35)
+
+The spec and the checklist above stay as approved. PR-4 differs from them
+as follows:
+
+- Spec 1.1 (C) and (D), checklist table D: R-STG-4, R-AUTH-4 and R-VER-1
+  stay word for word and are not index lines. Each has a sentence that is
+  literally stricter than Core (user decision card PR4-C1 (a): 「同意你的建議，C1a C2a」;
+  `skills/dev-core/deltas.md` DL-031 to DL-033). So 33 items stay word for
+  word and 13 rules become index lines.
+- "Stricter" means the protective direction: a sentence whose broader
+  prohibition makes the agent do less (for example R-AUTH-2 "Do not re-ask",
+  R-RIG-4 "stop optimizing") is looser, not stricter (card PR4-C2 (a)).
+- Spec 1.3, the notes on DL-007 and DL-009: they are in a list below the
+  `deltas.md` table, because the spec keeps the columns of these rows
+  unchanged. The list also has a note on DL-028.
+
+Known stale cross-references in the checklist (not changed):
+
+- Table C, item C-1 cites spec section 8 item 5; the dry-run candidate is
+  item 4. Item C-7 cites item 6; the `workflow.md:115` candidate is item 5.
+- Table A, row DL-010: "FU-014 may change the `--prune` sentence of
+  R-REV-9". FU-014 is done (Issue #24, PR #25): the push scan uses
+  `git ls-remote` and runs no `git fetch`, so R-REV-9 has no `--prune`
+  sentence.
+- Table D cites `task-brief.md:18`; since PR-3 that line is 19.

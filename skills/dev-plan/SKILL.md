@@ -5,7 +5,7 @@ description: Clarify a development request and plan it before code changes - obj
 
 # dev-plan
 
-Read `${CLAUDE_SKILL_DIR}/../dev-core/SKILL.md` first, then the Core files that its stage map lists for `dev-plan`. It holds the rules
+Read `${CLAUDE_SKILL_DIR}/../dev-core/SKILL.md` first, then the Core files that its stage map lists for `dev-plan`. It and the Core files it lists hold the rules
 cited below.
 
 For a single obvious change, skip this skill and use `dev-implement`. For

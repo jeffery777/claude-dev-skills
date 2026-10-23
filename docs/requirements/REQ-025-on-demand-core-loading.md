@@ -30,6 +30,9 @@ sources:
   - type: chat
     locator: "Claude Code session 2026-10-23 (orchestrator session, relayed to the FU-005 PR-2 session, Issue #28), user answer to the source conflict between this file (each PR gets its acceptance here before it starts) and the spec's PR-2 file list (option a: PR-2 adds its acceptance here, in the first commit)"
     quote: "同意你的建議，選a，驗收條件放第一個commit"
+  - type: chat
+    locator: "Claude Code session 2026-10-23 (orchestrator session, relayed to the FU-005 PR-4 session), user answer to decision cards PR4-C1 (option a: R-STG-4, R-AUTH-4 and R-VER-1 have a sentence literally stricter than Core, so they stay word for word and get DL rows) and PR4-C2 (option a: a sentence whose broader prohibition makes the agent do less is looser, not stricter)"
+    quote: "同意你的建議，C1a C2a"
   - type: doc
     locator: ".dev/followups.md, FU-005 row (from FU-010 cards 5 and 7, Issue #18)"
     quote: "Moved forward (FU-010 card 5): design progressive on-demand loading."
@@ -118,6 +121,38 @@ run); the user decides each merge.
   - An early `dev-security-reviewer` design review and an R-REV-7 Security
     Diff Scan; the agent files are compared sentence by sentence with
     `dev-core`; `git diff` shows only added content.
+- PR-4 (index lines; design 1.1 (A), (D), 1.3 and 7.2; decision cards
+  PR4-C1 (a) and PR4-C2 (a)):
+  - `skills/dev-core/SKILL.md`: 13 rules of checklist table D become index
+    lines (rule ID, title, `[core: …]`): R-STG-1, R-STG-3, R-STG-5,
+    R-RIG-4, R-AUTH-2, R-AUTH-3, R-AUTH-5, R-REV-5, R-EXH-1, R-CAP-2,
+    R-CAP-3, R-DEL-1 and R-VER-3. R-AUTH-5 and R-VER-3 keep their project
+    readings word for word. R-STG-4, R-AUTH-4 and R-VER-1 stay word for word
+    (card PR4-C1 (a)). The other rule text, CB-1 to CB-5 and the stage map do
+    not change. The first header sentence says that the file is the index of
+    the vendored Core and the project's tightenings.
+  - `skills/dev-core/deltas.md`: the DL-001 Difference records the new
+    structure; DL-007 and DL-009 each get one note; new rows DL-031 to
+    DL-033 for R-STG-4, R-AUTH-4 and R-VER-1 ("Recorded, text unchanged");
+    no other row changes.
+  - `skills/dev-core/source-map.md`: the Notes that this change makes false
+    are updated; the table keeps its four columns.
+  - `README.md` (zh and EN, the same meaning), `skills/dev-plan/SKILL.md`
+    line 6 and `CHANGELOG.md` describe the new structure.
+  - `docs/design-proposal.md` D-020 item 2 (zh and EN) says 33 items and
+    13 rules, and keeps the rules whose text carries a DL-row tightening
+    (MR23B-001).
+  - `.dev/followups.md`: the FU-005, FU-011 (MR23B-001; the copy-gap input
+    of Issue #33 item 2) and FU-012 (trigger) rows are updated.
+  - `.dev/issue-22-fu005-records/README.md` records where PR-4 differs from
+    the approved spec and checklist (cards PR4-C1, PR4-C2) and their known
+    stale cross-references; the spec and the checklist do not change.
+  - `bash scripts/validate.sh` passes. A reviewer confirms sentence by
+    sentence that the deleted text has no sentence stricter than Core in the
+    protective direction (card PR4-C2 (a)), that checklist tables A, B, C and
+    E keep their places, and checks each table F row whose reader is a
+    reviewer subagent and records the result (Issue #33 item 1). `grep`
+    finds no stale wording.
 - PR-2 to PR-4 each get their acceptance in this file before they start.
 - No project tightening is loosened in any PR (the FU-005 no-regression
   checklist: every DL row, CB-1 to CB-5, D-013 to D-018, REQ-011 to REQ-025).

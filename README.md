@@ -8,7 +8,7 @@
 
 給 Claude Code 與 Cowork 使用的軟體開發技能包。它把一項有明確範圍的工作帶過這些步驟：釐清需求、規劃、實作、驗證、獨立審查、文件同步、交付關卡與接續。
 
-它參考了 [codex-dev-skills](https://github.com/jeffery777/codex-dev-skills) 與 [engineering-workflow-core](https://github.com/jeffery777/engineering-workflow-core)，但不操作 Codex。工程義務以 vendor 進來的 Core v0.1.1 原文為唯一權威；`dev-core` 是 Claude 執行用的精簡版。
+它參考了 [codex-dev-skills](https://github.com/jeffery777/codex-dev-skills) 與 [engineering-workflow-core](https://github.com/jeffery777/engineering-workflow-core)，但不操作 Codex。工程義務以 vendor 進來的 Core v0.1.1 原文為唯一權威；`dev-core` 是 vendored Core 與本專案加嚴規則的索引：各 skill 依階段讀 Core 原文。
 
 技能主要由 agent 依需求自動選用；人也可以手動指定，例如 `/dev-skills:dev-review`。
 
@@ -122,7 +122,7 @@ This English text is written per ASD-STE100 principles; full conformance is not 
 
 A software development skill pack for Claude Code and Cowork. It takes a bounded objective through these steps: requirements, planning, implementation, verification, independent review, docs sync, delivery gates and continuation.
 
-It is modeled on [codex-dev-skills](https://github.com/jeffery777/codex-dev-skills) and [engineering-workflow-core](https://github.com/jeffery777/engineering-workflow-core). It does not operate Codex. The vendored Core v0.1.1 text is the only authority for engineering obligations. `dev-core` is a compact execution digest of it for Claude.
+It is modeled on [codex-dev-skills](https://github.com/jeffery777/codex-dev-skills) and [engineering-workflow-core](https://github.com/jeffery777/engineering-workflow-core). It does not operate Codex. The vendored Core v0.1.1 text is the only authority for engineering obligations. `dev-core` is the index of the vendored Core and the project's tightenings: each skill reads the original Core text for its stage.
 
 Agents select the skills as needed. People can also invoke one by name, for example `/dev-skills:dev-review`.
 

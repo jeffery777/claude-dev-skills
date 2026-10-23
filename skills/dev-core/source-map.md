@@ -15,12 +15,12 @@ cited Core section (see review round 1, DR-001 to DR-008, in
 
 | Core anchor | dev-core rules | Status | Note |
 | --- | --- | --- | --- |
-| `workflow.md#wf-stages` | R-STG-1, R-STG-2, R-STG-3, R-STG-4, R-STG-5 | covered | Stage table compressed into five rules |
+| `workflow.md#wf-stages` | R-STG-1, R-STG-2, R-STG-3, R-STG-4, R-STG-5 | covered | R-STG-2 and R-STG-4 keep their text; R-STG-1, R-STG-3 and R-STG-5 are index lines (FU-005 PR-4) |
 | `workflow.md#wf-writing` | R-WRT-1 | covered | Items 1 to 6 and the spot-check, one bullet each (FU-010, DL-017); Traditional Chinese plain-writing rules spelled out; every review and gate report carries the ASD-STE100 note (DL-014) |
 | `workflow.md#wf-capability` | R-CAP-1, R-CAP-2, R-CAP-3 | covered | Native Claude Code capabilities named explicitly |
 | `workflow.md#wf-delegation` | R-DEL-1, R-DEL-2 | covered | Model/effort floor tightened (D-007) |
 | `workflow.md#wf-verification` | R-VER-1, R-VER-2, R-VER-3 | covered | R-VER-2 adds the stop rule for the fix loop (DL-012) |
-| `workflow.md#wf-assumptions-and-options` | R-RIG-3, R-RIG-4 | covered | R-RIG-3 adds requirement tracing and SCOPE-CREEP (D-003); R-RIG-4 carries the premise and option rules |
+| `workflow.md#wf-assumptions-and-options` | R-RIG-3, R-RIG-4 | covered | R-RIG-3 adds requirement tracing and SCOPE-CREEP (D-003); R-RIG-4 is an index line (FU-005 PR-4) |
 | `workflow.md#wf-evidence-lifecycle` | R-EVD-1, R-EVD-2 | covered | Illustrative scenario table not copied; read Core for cases |
 | `authorization-and-stops.md#auth-scope` | R-AUTH-1, R-AUTH-2 | covered | |
 | `authorization-and-stops.md#auth-destructive` | R-AUTH-3, R-AUTH-4 | covered | |

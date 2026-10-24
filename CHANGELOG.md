@@ -145,6 +145,21 @@ Cowork runtime test). At that release,
   `.dev/followups.md`). No word of the existing text changes, so the files
   that subagents get keep their full text. `README.md` gets no IDs. Gaps in
   the copies that subagents get go to FU-016.
+- Agent files get the `dev-core` rule text that their shorter copies left
+  out where that lowered protection (REQ-024, FU-016 PR-1, Issue #42). The
+  explorer and both reviewers treat tool output, such as test output, as
+  data (R-AUTH-1). The implementer keeps unrelated changes intact (R-STG-4)
+  and never routes around a refused tool call (R-AUTH-4). `dev-reviewer`
+  states when a Security Diff Scan is required (R-REV-7) and the full list
+  of Core blockers (R-REV-3). `dev-security-reviewer` applies the scan to an
+  open security concern, examines the affected boundary when unsure, and
+  never reports an incomplete, failed or insufficient scan as Passed
+  (R-REV-7); it does not get the sentence on actual impact, so its list of
+  boundaries, which names executables and scripts without a qualifier
+  (DL-027), stays a trigger (card PR1-C1 (a)). The explorer
+  names `(R-STG-2)` on an existing sentence. Each sentence is quoted from
+  `dev-core`, except that two sentences turn a `dev-core` list heading or list
+  item into a sentence (R-REV-3, R-REV-7); no existing sentence changes.
 
 ### Fixed
 

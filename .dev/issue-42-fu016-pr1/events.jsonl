@@ -1,0 +1,4 @@
+{"seq": 1, "at": "2026-10-24T03:24:27+00:00", "actor": "main-agent", "node": "T1", "from": "planned", "to": "ready", "evidence": "Issue #42; FU016-C1/C2 user answer"}
+{"seq": 2, "at": "2026-10-24T03:24:28+00:00", "actor": "main-agent", "node": "T1", "from": "ready", "to": "in_progress", "evidence": "working tree"}
+{"seq": 3, "at": "2026-10-24T04:52:11+00:00", "actor": "main-agent", "node": "T1", "from": "in_progress", "to": "reviewing", "evidence": "diff fe78cff5 review R1 R2 clean; security scan S2 clean"}
+{"seq": 4, "at": "2026-10-24T04:52:12+00:00", "actor": "main-agent", "node": "T1", "from": "reviewing", "to": "done", "evidence": "commit 2368bbf; validate.sh pass"}

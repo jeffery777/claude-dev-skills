@@ -1,0 +1,45 @@
+{
+  "schema": "claude-dev-graph/v1",
+  "objective": {
+    "id": "issue-50-fu018",
+    "title": "FU-018: choose subagent model and effort before dispatch, escalate only for quality failures",
+    "rigor": "strict",
+    "requirements": [
+      "REQ-009"
+    ]
+  },
+  "nodes": [
+    {
+      "id": "T1",
+      "title": "R-DEL-2 choose-before-dispatch, main-session record, quality-only escalation, receipts; dev-deliver and dev-review tables; task-brief and review-report fields; design section 4 and D-007 limits; DL-034; REQ-009 acceptance (first commit); log row; CHANGELOG; FU-018 row",
+      "kind": "implement",
+      "requirements": [
+        "REQ-009"
+      ],
+      "depends_on": [],
+      "owns": [
+        "skills/dev-core/SKILL.md",
+        "skills/dev-core/deltas.md",
+        "skills/dev-deliver/SKILL.md",
+        "skills/dev-deliver/references/task-brief.md",
+        "skills/dev-review/SKILL.md",
+        "skills/dev-review/references/review-report.md",
+        "docs/design-proposal.md",
+        "docs/requirements/REQ-009-subagent-model-effort.md",
+        "docs/requirements/log.md",
+        "CHANGELOG.md",
+        ".dev/followups.md",
+        ".dev/issue-50-fu018/"
+      ],
+      "risk": "medium",
+      "review": "deep",
+      "status": "in_progress",
+      "dod": [
+        "Each claim of the REQ-009 FU-018 acceptance holds in the rule files; dev-deliver, dev-review, task-brief, review-report and design section 4 agree with R-DEL-2; floor unchanged; agent file defaults unchanged; only model and effort values are copied from transcripts; dev-reviewer deep review and dev-security-reviewer review find no open MUST-FIX"
+      ],
+      "verify": [
+        "bash scripts/validate.sh"
+      ]
+    }
+  ]
+}

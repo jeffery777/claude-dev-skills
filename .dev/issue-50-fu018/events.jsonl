@@ -1,0 +1,2 @@
+{"seq": 1, "at": "2026-10-24T13:42:11+00:00", "actor": "main-agent", "node": "T1", "from": "planned", "to": "ready", "evidence": "Issue #50"}
+{"seq": 2, "at": "2026-10-24T13:42:11+00:00", "actor": "main-agent", "node": "T1", "from": "ready", "to": "in_progress", "evidence": "spec fu018-spec.md"}

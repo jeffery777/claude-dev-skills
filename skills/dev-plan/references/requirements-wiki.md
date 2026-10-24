@@ -67,7 +67,7 @@ folder, but its links have no types, so it cannot replace these fields.
 
 Every rendering — Mermaid, HTML, an Artifact, Obsidian — is a projection
 regenerated from the REQ files, `graph.json` and Git. A projection is never
-authority or completion evidence, and nobody edits it back into a source.
+authority or completion evidence (R-AUTH-1), and nobody edits it back into a source.
 
 ## Operations
 
@@ -84,7 +84,7 @@ authority or completion evidence, and nobody edits it back into a source.
   fill in `superseded_by` (a list) and `superseded_reason`.
 - **Log.** Record every change in `log.md` with the date, the REQ, the change
   and the source locator. Never rewrite earlier lines.
-- **Query.** Read `index.md` first, then only the REQ files you need.
+- **Query.** Read `index.md` first, then only the REQ files you need (R-EVD-2).
 - **Lint** (manual in Phase 1; a script is planned for Phase 2). Check for
   contradictions, orphan pages, superseded REQs that open tasks still cite,
   and acceptance criteria that nothing verifies. Report what you find; do not

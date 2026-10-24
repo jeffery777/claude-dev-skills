@@ -14,7 +14,7 @@ Review stays read-only unless the user asks for fixes (R-REV-1).
 | Mode | When | Reviewer |
 | --- | --- | --- |
 | routine | low or medium risk | `dev-reviewer`, model `opus`, effort `high` |
-| deep | high or unknown risk, cross-module contracts, packaging, migrations, integrations | `dev-reviewer`, model `opus`, effort `xhigh` |
+| deep | high or unknown risk, cross-module contracts, packaging, migrations, integrations (R-REV-6) | `dev-reviewer`, model `opus`, effort `xhigh` |
 | security | trust boundaries, auth, permissions, sensitive data, dependencies, installers (R-REV-7) | `dev-security-reviewer`, model `opus`, effort `xhigh` or `max` |
 | commit / push scan | before every commit and every push, at any tier (R-REV-9) | `dev-security-reviewer`, model `opus`, effort `high` or more |
 
@@ -31,12 +31,12 @@ secret or private identifier they report (R-REV-8).
 ## Workflow
 
 1. Fix the review target. Record the base and head revisions, or the
-   working-tree diff including untracked files. Note the scope, DoD and
+   working-tree diff including untracked files (R-REV-6). Note the scope, DoD and
    requirement IDs.
 2. Gather the context the reviewer needs: requirement files, the plan or graph
    node, and the verification output. When GitNexus is available, add
    `gitnexus detect-changes` to map the hunks to affected symbols and flows,
-   and label it advisory.
+   and label it advisory (CB-3).
 3. Dispatch the reviewer subagent with a brief (R-DEL-1). Give the target, the
    context paths, the mode, and the output format in
    `${CLAUDE_SKILL_DIR}/references/review-report.md`. Never review your own
@@ -55,7 +55,7 @@ secret or private identifier they report (R-REV-8).
      `dev-reviewer` (`dev-security-reviewer` for a security review or scan), and without them the work
      stops at the gate (R-REV-1, CB-4).
 4. Read the report back. Check that each finding has a file and line and
-   evidence. Mark claims you could not reproduce as unverified.
+   evidence (R-REV-2). Mark claims you could not reproduce as unverified.
 5. Assign IDs (`F-001`, …). Before any fix, classify each finding and
    propose a disposition (R-REV-3, R-REV-4). Raise each `REQ-GAP` and each
    Needs Human Decision as a decision card
@@ -71,4 +71,4 @@ secret or private identifier they report (R-REV-8).
 
 ## Output
 
-The report format in `references/review-report.md`. Findings come first.
+The report format in `references/review-report.md`. Findings come first (R-REV-2).

@@ -6,7 +6,7 @@ R-EXH-4 gives the result of the no-profile read of `dev-gate` step 6. This file 
 the GitHub read-back of the merge gate (`dev-gate` step 6). The checker
 `${CLAUDE_SKILL_DIR}/scripts/platform_profile.py` implements exactly these
 rules and nothing more. A new edge case goes to the user as a `REQ-GAP`
-decision card; it is never added to the checker directly (REQ-021).
+decision card (R-REV-3); it is never added to the checker directly (REQ-021).
 
 ## Format
 
@@ -33,7 +33,7 @@ decision card; it is never added to the checker directly (REQ-021).
   `commit_state`, `platform_profile`. The profile has exactly the four keys
   above, all required.
 - A selected profile is a required profile: `UNVERIFIED` or `BLOCKED` blocks
-  formal merge readiness (Core exact-dimensions).
+  formal merge readiness (Core exact-dimensions; R-EXH-4).
 
 ## Where the setting is read
 
@@ -99,7 +99,7 @@ Without a profile, `dev-gate` step 6 reads the PR's base, head and checks in
 one call (`gh pr view --repo github.com/<owner/name>`, user decision Q8 (a)). R-EXH-4 gives the result when the PR's base is not the bound base,
 because a stale base may lack a profile that the PR's real base has (user decision Q5 (a)).
 
-The read-back is valid only for that head. Run it again right before a merge,
+The read-back is valid only for that head. Run it again right before a merge (R-EXH-4),
 and pin the merge to the head (`gh pr merge --match-head-commit <head>`).
 
 ## Which checker runs
@@ -146,6 +146,6 @@ nothing), use the no-profile path of step 6; otherwise the result is
   read.
 - The truth of the GitHub API answers; providers other than GitHub.
 - Anyone who can write to the base branch controls the profile.
-- The reviewers' read-only Bash use is not technical isolation.
+- The reviewers' read-only Bash use is not technical isolation (CB-5).
 - A failed run in an old check suite keeps the result `BLOCKED` until that
   suite runs again; a PR into another branch than `base_branch` is `BLOCKED`.

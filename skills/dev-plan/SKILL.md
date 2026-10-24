@@ -56,14 +56,14 @@ interactive planning, use plan mode; this skill adds what plan mode lacks
    reason. Unknown risk means `standard` or higher.
 4. **Check impact** (advisory). When GitNexus has indexed the repo, run
    `gitnexus impact <symbol>` for the symbols you plan to change. Report the
-   blast radius and say whether the index is stale or the tree is dirty.
+   blast radius and say whether the index is stale or the tree is dirty (CB-3).
 5. **Check premises and options** when R-RIG-4 triggers. Keep simple
    low-risk plans short.
 6. **Slice.** Use the smallest coherent slices. Each slice has an owner, owned
    paths, DoD, verification commands and a review mode. Apply the fake-edge
    test: a dependency exists only when the later slice consumes a concrete
    output of the earlier one.
-7. **Write the task graph** (standard and strict tiers). Create
+7. **Write the task graph** (standard and strict tiers; R-RIG-1). Create
    `.dev/<objective-id>/graph.json` as described in
    `${CLAUDE_SKILL_DIR}/references/graph-schema.md`, then run:
 

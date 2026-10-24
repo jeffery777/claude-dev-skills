@@ -33,6 +33,12 @@ sources:
   - type: chat
     locator: "Claude Code session 2026-10-23 (orchestrator session, relayed to the FU-005 PR-4 session), user answer to decision cards PR4-C1 (option a: R-STG-4, R-AUTH-4 and R-VER-1 have a sentence literally stricter than Core, so they stay word for word and get DL rows) and PR4-C2 (option a: a sentence whose broader prohibition makes the agent do less is looser, not stricter)"
     quote: "同意你的建議，C1a C2a"
+  - type: chat
+    locator: "Claude Code session 2026-10-23 (orchestrator session, relayed to the FU-011 session, Issue #40), user answer to the FU-011 decision cards C1 (option a: rule IDs in skills, references, agent files and task-brief.md, not in README.md), C2 (option a: the two exact copies stay word for word) and C3 (option a: items (A) and (B) go to a new follow-up FU-016); the FU-016 trigger \"after FU-011 merges\" is the orchestrator's plan, relayed with the answer"
+    quote: "同意你的建議，C1a C2a C3a"
+  - type: chat
+    locator: "Claude Code session 2026-10-24 (orchestrator session, relayed to the FU-011 session, PR #41), user answer to decision card MR41-C1 (stop rule after three review rounds that each found unlabeled restatements; option a: add the two IDs of finding MR41-001, narrow the FU-011 acceptance to the restatements found, record the rest as residual), with the handling rule for restatements found later"
+    quote: "我同意你說的a，但如果有可能偶爾有審查員又提到，這使終還是問題，是否後續再被挑出來時或後續任務進行時再一併修改？"
   - type: doc
     locator: ".dev/followups.md, FU-005 row (from FU-010 cards 5 and 7, Issue #18)"
     quote: "Moved forward (FU-010 card 5): design progressive on-demand loading."
@@ -153,6 +159,35 @@ run); the user decides each merge.
     E keep their places, and checks each table F row whose reader is a
     reviewer subagent and records the result (Issue #33 item 1). `grep`
     finds no stale wording.
+- FU-011 (rule IDs; design card 6a; FU-011 cards C1 (a), C2 (a) and C3 (a);
+  Issue #40):
+  - In `skills/**` outside `skills/dev-core/` and in `agents/*.md`, the
+    restatements of a rule that `dev-core` keeps word for word (the 28
+    rules that are not index lines, and CB-1 to CB-5) that the search and
+    the three review rounds of Issue #40 found name the rule ID. Which
+    sentences count as restatements is a human judgment (card MR41-C1
+    (a)). An unlabeled restatement found later does not block a merge:
+    the PR that finds it adds the ID when it changes that file; otherwise
+    it goes to FU-016. A sentence that only points to a rule (for example "run
+    the scan") gets no ID. The ID is added at the end of the sentence or
+    clause; no existing word changes (`git diff --word-diff=plain
+    --word-diff-regex='[A-Za-z0-9_-]+|[^[:space:]]'` shows only added rule
+    IDs in these files). `README.md` gets no rule IDs.
+  - The exact copies in `skills/dev-gate/SKILL.md` step 3 (R-EXH-3) and
+    `skills/dev-review/SKILL.md` (R-REV-1) stay word for word.
+  - `.dev/followups.md`: the FU-011 row records the result; a new row
+    FU-016 holds items (A) and (B) of card C3, with the trigger "after
+    FU-011 merges". (A): the Core obligations of the table F rows whose
+    reader is a reviewer subagent (`.dev/issue-35-fu005-pr4/table-d-f.md`),
+    and the copies in the agent
+    files and `task-brief.md` that are shorter or looser than `dev-core`
+    (Issue #33 item 2). (B): the injection rule of
+    `agents/dev-security-reviewer.md` names file contents but not the
+    output of the test commands that the reviewer may run (PR #37).
+  - `CHANGELOG.md` has an entry.
+  - `bash scripts/validate.sh` passes. A reviewer checks the places
+    against the files: no ID on text that does not restate that rule, and
+    no change of meaning.
 - PR-2 to PR-4 each get their acceptance in this file before they start.
 - No project tightening is loosened in any PR (the FU-005 no-regression
   checklist: every DL row, CB-1 to CB-5, D-013 to D-018, REQ-011 to REQ-025).

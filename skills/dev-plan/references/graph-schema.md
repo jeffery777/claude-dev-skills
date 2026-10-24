@@ -1,6 +1,6 @@
 # Task graph schema (`claude-dev-graph/v1`)
 
-The graph is coordination data. It never proves completion and never grants
+The graph is coordination data (CB-1). It never proves completion and never grants
 authority (R-AUTH-1, R-VER-1). Location: `.dev/<objective-id>/graph.json`.
 `graph.py transition` appends to `events.jsonl` in the same folder.
 
@@ -35,12 +35,12 @@ authority (R-AUTH-1, R-VER-1). Location: `.dev/<objective-id>/graph.json`.
 
 | Field | Values | Notes |
 | --- | --- | --- |
-| `objective.rigor` | `standard`, `strict` | `light` work has no graph file |
+| `objective.rigor` | `standard`, `strict` | `light` work has no graph file (R-RIG-1) |
 | `kind` | `explore`, `implement`, `docs`, `verify`, `review`, `gate`, `human_gate` | `implement` and `docs` are write nodes |
 | `requirements` | `REQ-…` ids from `objective.requirements` | Required on write nodes |
 | `depends_on[].consumes` | Text naming the data that crosses the edge | Missing means a fake edge |
 | `owns` | Repository-relative path globs (no absolute paths, no `..`) | Required on write nodes; parallel writers must not overlap |
-| `risk` | `low`, `medium`, `high`, `unknown` | `high` or `unknown` write nodes need `deep` or `security` review |
+| `risk` | `low`, `medium`, `high`, `unknown` | `high` or `unknown` write nodes need `deep` or `security` review (R-REV-6) |
 | `review` | `none`, `routine`, `deep`, `security` | `strict` forbids `none` on write nodes |
 | `status` | `planned`, `ready`, `in_progress`, `blocked`, `reviewing`, `done`, `accepted`, `cancelled` | Change only through `graph.py transition`. Nodes and edges change by re-planning (`dev-plan`), followed by `validate` |
 
@@ -61,7 +61,7 @@ accepted, cancelled: terminal
 - A node can become `ready` or start only when every dependency is `done` or `accepted`. A cancelled dependency is never satisfied.
 - `ready` lists nodes whose dependencies are satisfied. A listed node that is still `planned` moves to `ready` before `in_progress`.
 - Every transition needs `--evidence` text. Point to the commit, the command
-  output or the review report; the text itself is not evidence.
+  output or the review report; the text itself is not evidence (CB-1).
 
 ## Error codes (`graph.py validate`)
 
@@ -72,7 +72,7 @@ accepted, cancelled: terminal
 | `UNKNOWN_DEP` | A dependency names a missing node |
 | `CYCLE` | A dependency cycle; review and fix loops are not edges (Core default: re-assess after two unfinished rounds, R-VER-2) |
 | `FAKE_EDGE` | An edge does not say what it consumes |
-| `NO_REQUIREMENT` | A write node has no requirement anchor (possible scope creep) |
+| `NO_REQUIREMENT` | A write node has no requirement anchor (possible scope creep; R-RIG-3) |
 | `UNKNOWN_REQUIREMENT` | A node cites a requirement not in the objective |
 | `MISSING_REQUIREMENTS_DIR` | No project root (`.git` or `.dev/`) above the graph file, or the resolved requirements folder does not exist (exit 1) |
 | `MISSING_REQUIREMENT_FILE` | A declared requirement has no `REQ-xxx-*.md` file |
@@ -126,7 +126,7 @@ exclusive lock (`.graph.lock`). It refuses to write through symlinks, writes
 `graph.json` atomically through a temporary file, then appends the event. If the
 event cannot be written, the graph is restored. Add `.dev/**/.graph.lock` and
 `.dev/**/.graph-*.tmp` to the project's `.gitignore` so that the lock and
-temporary files are never committed.
+temporary files are never committed (CB-1).
 
 ## Commands
 
@@ -141,7 +141,7 @@ Pass evidence as a short reference in single quotes (a commit SHA, a report
 path, a command name). Never paste receipt or tool text into a double-quoted
 shell argument. For longer evidence, save it as a report in the project (for
 example under `.dev/<objective-id>/reviews/`) and pass `--evidence-file`.
-`events.jsonl` is committed by default, so `--evidence-file` never copies the
+`events.jsonl` is committed by default (CB-1), so `--evidence-file` never copies the
 file's content: it records the project-relative path and the SHA-256. It
 refuses a path whose last component is a symlink, a file that is not a regular file (such as a FIFO), a
 missing file, and a path that resolves outside the project root

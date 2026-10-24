@@ -52,7 +52,7 @@ Status: PASSED | FINDINGS | NOT_RUN (capability: UNAVAILABLE, reason, coverage)
 
 ## Verification evidence
 
-Commands run, their results, and what was skipped and why.
+Commands run, their results, and what was skipped and why (R-REV-8).
 
 ## Residual risk and limits
 ```

@@ -7,16 +7,16 @@ every other decision handed to the user (R-AUTH-6, R-REV-3).
 
 - One card asks one question. Put each card in the review report, the gate
   output or the message to the user.
-- Before you raise the card, finish the safe work that does not depend on it.
+- Before you raise the card, finish the safe work that does not depend on it (R-AUTH-6).
 - Write the card in the user's language.
   - English follows the ASD-STE100 principles (R-WRT-1).
   - Traditional Chinese uses the plain-writing adaptation: one idea per
     sentence, an explicit subject, consistent terms, a plain explanation of
     each technical term at first use, and no vague words. Do not apply
-    English word-count rules.
-  - Never claim STE conformance.
+    English word-count rules (R-WRT-1).
+  - Never claim STE conformance (R-WRT-1).
 - List every real option. For a `REQ-GAP`, the options are: add a
-  requirement, defer, or reject.
+  requirement, defer, or reject (R-REV-3).
 - Keep facts apart from inferences in the evidence. A fact has a source: a
   `path:line`, a command and its output, or a quote. Mark everything else as
   an inference.

@@ -2,7 +2,7 @@
 """G0 task graph tool for claude-dev-skills (stdlib only).
 
 The graph is coordination data (CB-1). It never proves completion or grants
-authority; completion evidence stays in Git, verification output, and
+authority (R-AUTH-1); completion evidence stays in Git, verification output, and
 independent review (Core exact-head-and-evidence.md#exact-identity).
 
 Commands:

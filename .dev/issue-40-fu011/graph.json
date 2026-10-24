@@ -62,6 +62,39 @@
         "bash scripts/validate.sh",
         "git diff --word-diff=plain --word-diff-regex='[A-Za-z0-9_-]+|[^[:space:]]' 56ab70a -- skills agents"
       ]
+    },
+    {
+      "id": "T3",
+      "title": "Card MR41-C1 (a): IDs of MR41-001, FU-011 acceptance narrowed, residual and handling rule in FU-011 and FU-016 rows",
+      "kind": "docs",
+      "requirements": [
+        "REQ-025"
+      ],
+      "depends_on": [
+        {
+          "node": "T2",
+          "consumes": "Merge Review finding MR41-001 on the T2 head"
+        }
+      ],
+      "owns": [
+        "skills/dev-review/SKILL.md",
+        "skills/dev-plan/scripts/graph.py",
+        "docs/requirements/REQ-025-on-demand-core-loading.md",
+        "docs/requirements/log.md",
+        ".dev/followups.md",
+        "CHANGELOG.md",
+        ".dev/issue-40-fu011/"
+      ],
+      "risk": "low",
+      "review": "deep",
+      "status": "done",
+      "dod": [
+        "two IDs added, no word changed; REQ-025 FU-011 acceptance narrowed per card MR41-C1 (a) with the user's words as source; FU-011 row records the residual and the handling rule; FU-016 holds item (C); counts updated; new-head full Merge Review finds no open MUST-FIX or SHOULD-FIX"
+      ],
+      "verify": [
+        "bash scripts/validate.sh",
+        "git diff --word-diff=plain --word-diff-regex='[A-Za-z0-9_-]+|[^[:space:]]' 56ab70a -- skills agents"
+      ]
     }
   ]
 }

@@ -6,3 +6,7 @@
 {"seq": 6, "at": "2026-10-23T13:03:55+00:00", "actor": "main-agent", "node": "T2", "from": "ready", "to": "in_progress", "evidence": "working tree"}
 {"seq": 7, "at": "2026-10-23T13:25:11+00:00", "actor": "main-agent", "node": "T2", "from": "in_progress", "to": "reviewing", "evidence": "validate.sh passed; deep review round 1: R1-001..R1-008"}
 {"seq": 8, "at": "2026-10-23T13:25:11+00:00", "actor": "main-agent", "node": "T2", "from": "reviewing", "to": "done", "evidence": "round 2: R2-001 R2-002 fixed (last correction); word-diff 0 deletions, 73 IDs at 69 places"}
+{"seq": 9, "at": "2026-10-24T01:52:56+00:00", "actor": "main-agent", "node": "T3", "from": "planned", "to": "ready", "evidence": "card MR41-C1 (a)"}
+{"seq": 10, "at": "2026-10-24T01:52:56+00:00", "actor": "main-agent", "node": "T3", "from": "ready", "to": "in_progress", "evidence": "card MR41-C1 (a)"}
+{"seq": 11, "at": "2026-10-24T01:53:36+00:00", "actor": "main-agent", "node": "T3", "from": "in_progress", "to": "reviewing", "evidence": "validate.sh passed; word-diff 0 deletions, 75 IDs at 71 places"}
+{"seq": 12, "at": "2026-10-24T01:53:36+00:00", "actor": "main-agent", "node": "T3", "from": "reviewing", "to": "done", "evidence": "MR41-001 fixed per card MR41-C1 (a); new-head Merge Review follows, records not committed (R-EXH-3)"}

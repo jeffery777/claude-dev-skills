@@ -14,7 +14,7 @@ Review stays read-only unless the user asks for fixes (R-REV-1).
 | Mode | When | Reviewer |
 | --- | --- | --- |
 | routine | low or medium risk | `dev-reviewer`, model `opus`, effort `high` |
-| deep | high or unknown risk, cross-module contracts, packaging, migrations, integrations | `dev-reviewer`, model `opus`, effort `xhigh` |
+| deep | high or unknown risk, cross-module contracts, packaging, migrations, integrations (R-REV-6) | `dev-reviewer`, model `opus`, effort `xhigh` |
 | security | trust boundaries, auth, permissions, sensitive data, dependencies, installers (R-REV-7) | `dev-security-reviewer`, model `opus`, effort `xhigh` or `max` |
 | commit / push scan | before every commit and every push, at any tier (R-REV-9) | `dev-security-reviewer`, model `opus`, effort `high` or more |
 

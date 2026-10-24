@@ -33,7 +33,7 @@
       ],
       "risk": "medium",
       "review": "deep",
-      "status": "in_progress",
+      "status": "reviewing",
       "dod": [
         "Each claim of the REQ-009 FU-018 acceptance holds in the rule files; dev-deliver, dev-review, task-brief, review-report and design section 4 agree with R-DEL-2; floor unchanged; agent file defaults unchanged; only model and effort values are copied from transcripts; dev-reviewer deep review and dev-security-reviewer review find no open MUST-FIX"
       ],

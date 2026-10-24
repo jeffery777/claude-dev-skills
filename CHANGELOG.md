@@ -177,6 +177,30 @@ Cowork runtime test). At that release,
   to a requirement and states the protection it alone provides. Each
   sentence is quoted word for word from `dev-core`; no existing sentence
   changes. The FU-016 row records the rows compared with no change.
+- Subagent model and effort (REQ-009, FU-018, Issue #50; DL-034). R-DEL-2
+  now carries D-007 rule 3: the main agent chooses the model and effort
+  before each dispatch, passes both (a dispatch that names only the model
+  keeps the agent file's effort) and writes the reason in the brief. The
+  `dev-deliver` table gives an explicit effort for each role; the
+  implementer row depends on the rigor tier (`light` sonnet/medium,
+  `standard` opus/high or sonnet/medium for a mechanical slice, `strict`
+  opus/high). The `dev-review` mode table gives single values: R-REV-9
+  scans use `xhigh` (before, "high or more"), and a security review uses
+  `xhigh`, with `max` only when the user asks. When the main session
+  implements, the plan records its transcript-recorded setting; for work
+  under the floor with a model other than opus, an effort below `high`, or
+  either `unknown`, the main agent asks the user to switch to opus/high or
+  dispatches `dev-implementer` at opus/high.
+  After one unsolved review and fix round, only the fixing side escalates
+  and only for a quality failure (effort, then model `haiku` → `sonnet` →
+  `opus`); a spec, acceptance or design failure goes to the R-VER-2 stop
+  rule instead. Conflicting evidence triggers a re-assessment without
+  escalation. An escalated setting is never lowered, the floor stays, and
+  the round count and findings are kept. Receipts and review reports add the
+  `recorded` model and effort, which the main agent reads from the
+  transcript fields only, or `unknown` with the reason. `fable` is not in
+  the escalation order; its evaluation is deferred to FU-020. Agent file
+  defaults do not change.
 
 ### Fixed
 

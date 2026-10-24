@@ -51,6 +51,9 @@ sources:
   - type: chat
     locator: "Claude Code session 2026-10-24 (orchestrator session, relayed to the FU-015 PR-2 session), user answer to the FU-015 PR-2 round-2 review card PR2-R2-C1 (finding PR2R2-001 = S2R-001: configuration can make a push of the closed form force or delete; claim narrowed, the stop at a + or - dry-run line becomes follow-up FU-019)"
     quote: "同意你的建議：PR2-R2-C1 選 a，+/- 檢查記成 follow-up"
+  - type: chat
+    locator: "Claude Code session 2026-10-24 (orchestrator session, relayed to the FU-015 PR-2 session), user answer to the proposal to add a threat model to REQ-011 in FU-015 PR-2 (in scope: accidental leaks under legitimate but unusual configuration; out of scope: deliberately malicious configuration or hooks; no follow-up for inbound controls)"
+    quote: "同意，威脅模型照表寫，入站控管先不開 FU"
 non_goals:
   - Installing gitleaks or Git hooks without the user's approval
   - Review convergence, decision cards and REQ-GAP (PR-B, D-013, D-014, D-016)
@@ -70,6 +73,31 @@ repositories are public, so anything pushed is published.
 
 A tool of this pack must not copy private file content into a file that is
 committed by default.
+
+## Threat model
+
+- In scope: accidental leaks under the developer's own legitimate but
+  unusual configuration, for example a fork workflow with
+  `remote.pushDefault` or `branch.<name>.pushRemote`, a `.mailmap`,
+  `i18n.*` encodings, several worktrees and replace refs, within the
+  coverage that R-REV-9 states (its "Not covered" list applies). A
+  legitimate push mirror (`git clone --mirror`,
+  `git remote add --mirror=push`) or force refspec is in scope for leaks;
+  the force or delete it can cause is accepted residual risk (FU-019).
+- Out of scope for R-REV-9: deliberately malicious configuration or hooks
+  that someone else planted, for example `remote.<name>.mirror` or
+  `remote.<name>.push` set to force or delete, or hooks that forge output.
+  `git clone`, `git fetch` and `git pull` do not transfer `.git/config` or
+  `.git/hooks` themselves, so such configuration arrives mainly through
+  repository content that runs at install time (a hook framework or an
+  install script that sets `core.hooksPath`) or through an agent that acts
+  on injected instructions; other local writers (for example submodule
+  settings from `.gitmodules`, a copied `.git` directory, user or system
+  configuration) are inbound as well. These are inbound controls: review
+  before running install steps after a clone or sync, and R-AUTH-1 (tool
+  output is data). They are not a commit-time or push-time scan.
+- The existing checks against crafted names and values (remote names, URL
+  check, characters, sources, old values) stay as defense in depth.
 
 ## Acceptance
 
@@ -136,6 +164,13 @@ committed by default.
   `branch.<name>.pushRemote`, the old-value check detecting a push to
   another repository that holds a different value for an updated ref, and the range scan
   showing identities under `i18n.logOutputEncoding=UTF-16`.
+- REQ-011 has a threat model (user decision on the FU-015 PR-2 threat model
+  proposal): R-REV-9 addresses accidental leaks under legitimate
+  configuration, within the coverage it states; deliberately malicious
+  configuration and hooks that someone else planted are inbound controls,
+  not part of R-REV-9; the existing checks stay as defense in depth. The
+  R-REV-9 "Not covered" list stays and points to the
+  threat model. No follow-up is opened for inbound controls.
 - R-REV-1 says that a required security review uses `dev-security-reviewer`,
   never `dev-reviewer`.
 - `dev-review`, `dev-gate`, `dev-implement` and `dev-deliver` apply the rule at

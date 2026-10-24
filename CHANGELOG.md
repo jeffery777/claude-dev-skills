@@ -60,7 +60,8 @@ Cowork runtime test). At that release,
   and effort before dispatch and escalating after a failed fix round.
 - Follow-up FU-019 (records only, Issue #48): the main agent stops at a
   `+` or `-` dry-run ref line, so that a force or delete caused by
-  configuration goes to the user.
+  configuration goes to the user. A legitimate push mirror triggers it;
+  planted configuration is out of scope under the REQ-011 threat model.
 
 ### Changed
 
@@ -223,7 +224,12 @@ Cowork runtime test). At that release,
   ID, and an updated ref whose old value is not a listed ID. The
   merge-readiness range scan has a command with the push scan view.
   R-REV-9 lists what the scans do not cover; REQ-011 and DL-010 claim
-  only that coverage.
+  only that coverage. REQ-011 gets a threat model: R-REV-9 addresses
+  accidental leaks under the developer's own legitimate configuration,
+  within the coverage it states; deliberately malicious configuration and
+  hooks that someone else planted (`git clone`, `fetch` and `pull` do not
+  transfer `.git/config` or `.git/hooks`) are inbound controls (review of
+  install steps after a clone or sync, R-AUTH-1), not a scan.
 - Push and commit scans no longer change with the listed configuration
   (REQ-011, FU-015 PR-1, Issue #46). In R-REV-9 and
   `dev-security-reviewer`, the scan and read-back commands run as

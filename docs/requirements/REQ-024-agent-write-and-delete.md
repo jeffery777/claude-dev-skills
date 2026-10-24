@@ -1,6 +1,6 @@
 ---
 id: REQ-024
-title: Reviewer tests write no files; the implementer never deletes untracked or ignored files; official-tools arm in FU-004 (FU-013)
+title: Reviewer tests write no files; the implementer never deletes untracked or ignored files; official-tools arm in FU-004 (FU-013); agent files get the `dev-core` rule text that they lacked (FU-016)
 status: active
 sources:
   - type: chat
@@ -33,6 +33,12 @@ sources:
   - type: chat
     locator: "Claude Code session 2026-10-24 (orchestrator session, relayed to the FU-016 session, Issue #42), user answer to the PR-1 review cards PR1-C1 (option a: `agents/dev-security-reviewer.md` does not get the sentence on actual impact; `agents/dev-reviewer.md` keeps it) and PR1-C2 (option b: the rows judged shorter with no effect are recorded in the FU-016 row in PR-2)"
     quote: "同意你的建議：PR1-C1a，PR1-C2b"
+  - type: chat
+    locator: "Claude Code session 2026-10-24 (orchestrator session, relayed to the FU-016 PR-2 session), user instruction to start FU-016 PR-2 (rows 10, 11, 12 and 14 of card FU016-C1 (a), and the S-class record of card PR1-C2 (b))"
+    quote: "繼續"
+  - type: chat
+    locator: "Claude Code session 2026-10-24 (orchestrator session, relayed to the FU-016 PR-2 session, Issue #44), user answer to the PR-2 decision cards PR2-C1 (option a: the REQ-024 title and Need name the FU-016 rule text; PR-2 acceptance follows PR-1), PR2-C2 (option a: one sentence in the FU-016 row on the PR-1 records; `events.jsonl` does not change) and PR2-C3 (option a: R-RIG-3 in full in `agents/dev-implementer.md`)"
+    quote: "同意你的建議：PR2-C1a，PR2-C2a，PR2-C3a"
   - type: doc
     locator: ".dev/followups.md, FU-013 row (from FU-010 cards 3d and 6a, Issue #18)"
     quote: "Keep the rule that reviewers write nothing."
@@ -58,6 +64,10 @@ inside its owned paths; an untracked or ignored file cannot be restored from
 Git, so the implementer reports such a file and the main agent asks the user
 (card 6a; Core `auth-destructive`, R-AUTH-3). The FU-004 measurements gain a
 third arm next to with and without the pack: official tools only.
+Subagents do not load `dev-core`, so its header rule "the stricter of the two
+governs" (DL-030) does not reach them: they follow the shorter or looser copy
+in their own agent file. The agent files therefore get the `dev-core` rule
+text that their copies lacked (FU-016, card PR2-C1 (a)).
 
 ## Acceptance
 
@@ -122,6 +132,33 @@ third arm next to with and without the pack: official tools only.
     changes (FU-016 item C).
   - The FU-016 row in `.dev/followups.md` records PR-1, rows 10, 11, 12 and
     14 for PR-2, and rows 13, 15 and 16 as deferred.
+- FU-016 PR-2 (Issue #44; card FU016-C1 (a), rows 10, 11, 12 and 14;
+  cards PR1-C2 (b), PR2-C1 (a), PR2-C2 (a) and PR2-C3 (a)): the agent files
+  get these sentences, quoted word for word from `dev-core` with their rule
+  IDs. No existing sentence of the agent files changes.
+  - `agents/dev-reviewer.md`: "GitNexus (`gitnexus impact`,
+    `gitnexus detect-changes`) is advisory. If its index is stale or the
+    tree is dirty, say so (CB-3)." and "Changed behavior needs a docs change
+    or a recorded reason why none is needed. A missing or unrun CI is not
+    Passed (R-EXH-2)."
+  - `agents/dev-reviewer.md` and `agents/dev-security-reviewer.md`: "Use
+    deterministic checks for facts a machine can check. A missing tool
+    blocks only the dependent readiness; continue independent safe work
+    (R-REV-8)."
+  - `agents/dev-implementer.md`: R-RIG-3 in full (card PR2-C3 (a)): "Every
+    added abstraction, configuration, fallback, validator, wrapper or
+    persistent state must trace to a requirement (`REQ-…`) and state the
+    protection it alone provides. Anything else is a `SCOPE-CREEP` finding
+    (R-RIG-3)."
+  - The title and the Need of this requirement name the FU-016 rule text;
+    the REQ-024 line of `docs/requirements/index.md` has the same title
+    (card PR2-C1 (a)).
+  - The FU-016 row in `.dev/followups.md` records PR-2, the rows that the
+    comparison judged shorter with no effect (S class, card PR1-C2 (b)), and
+    one sentence on the PR-1 records: the done event names the acceptance
+    commit, the agent-file change is in a second commit, and the 16-row
+    comparison table is outside the repository (card PR2-C2 (a)). Rows 13,
+    15 and 16 stay deferred.
 - No project tightening is loosened.
 
 ## Notes

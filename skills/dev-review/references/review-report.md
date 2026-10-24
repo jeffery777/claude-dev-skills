@@ -7,7 +7,7 @@
 - Diff identity: sha256 of `git diff <base> <head> --binary` (or `git diff HEAD --binary` after `git add -N .`)
 - Mode: routine | deep | security | commit / push scan
 - Commit / push scan only (R-REV-9): sha256 of `git --no-replace-objects diff --cached --no-relative --binary --no-textconv --no-ext-diff`, or the refs and commit range the push sends and the remote object IDs given, or the PR or Issue text; the author, committer and message checked (masked)
-- Reviewer: <agent> (requested model/effort: <model>/<effort>; effective: unknown)
+- Reviewer: <agent> (requested model/effort: <model>/<effort>; recorded: (main agent fills in, R-DEL-2); effective: unknown)
 - Scope: <paths>  Requirements: REQ-…  DoD: <ref>
 - Writing: written per ASD-STE100 principles; full conformance not verified (R-WRT-1)
 

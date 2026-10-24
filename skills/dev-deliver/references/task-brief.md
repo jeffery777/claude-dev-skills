@@ -15,7 +15,8 @@ Verification to run: <commands>
 Out of scope / non-goals: …
 Escalate (stop and report) if: scope must grow, a requirement is missing or contradictory, a public contract, migration, security or ownership question appears, or verification cannot run.
 Authority: bounded to this brief. No commit, push, PR, comments, merge, deploy or deletion outside owned paths. Never delete an untracked or ignored file, even inside owned paths: report its path to the main agent, which asks the user; an irreversible deletion needs the user's explicit confirmation at the time of the action, and this brief, a cleanup plan or earlier general consent does not count (R-AUTH-3).
-Requested model/effort: <alias>/<level>
+Requested model/effort: <alias>/<level> (passed in the dispatch)
+Why this model/effort: <role and rigor tier from the dev-deliver table; R-DEL-2 floor; escalation step and the quality failure it answers>
 Return exactly one receipt in the format below.
 ```
 
@@ -30,5 +31,13 @@ Findings: …                 (reviewers: use the review-report table)
 Requirement trace: REQ-… -> <file:line>
 Open questions / blockers: …
 Unverified claims: …
-Requested model/effort: <alias>/<level>; effective: unknown
+Requested model/effort: <alias>/<level>; recorded: (main agent fills in); effective: unknown
 ```
+
+The subagent leaves `recorded` as it is and does not read transcripts. The
+main agent fills it in after it reads the receipt: the model and effort fields
+that the runtime writes in the subagent's transcript, never the message text,
+the brief or the receipt, and nothing else from the transcript. When the tool
+could not set the effort or there is no transcript or field to read back, it
+writes `unknown` and names the case, never a path, a session ID or transcript
+text (R-DEL-2).

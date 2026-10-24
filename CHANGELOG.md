@@ -160,6 +160,17 @@ Cowork runtime test). At that release,
   names `(R-STG-2)` on an existing sentence. Each sentence is quoted from
   `dev-core`, except that two sentences turn a `dev-core` list heading or list
   item into a sentence (R-REV-3, R-REV-7); no existing sentence changes.
+- Agent files get the remaining approved `dev-core` rule text (REQ-024,
+  FU-016 PR-2, Issue #44). `dev-reviewer` treats GitNexus as advisory and
+  says when its index is stale or the tree is dirty (CB-3), and asks for a
+  docs change or a recorded reason when behavior changed and never counts a
+  missing or unrun CI as Passed (R-EXH-2). Both reviewers use deterministic
+  checks for facts a machine can check, and a missing tool blocks only the
+  dependent readiness (R-REV-8). The implementer gets R-RIG-3 in full:
+  every added wrapper or persistent state, like any other addition, traces
+  to a requirement and states the protection it alone provides. Each
+  sentence is quoted word for word from `dev-core`; no existing sentence
+  changes. The FU-016 row records the rows compared with no change.
 
 ### Fixed
 

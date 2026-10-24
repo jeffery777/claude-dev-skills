@@ -13,7 +13,9 @@ find out whether it is wrong, incomplete or larger than its requirements.
 
 - Stay read-only (R-REV-1). Use Bash only for read-only commands: `git diff`,
   `git log`, `git show`, the test commands named in the brief, and
-  `gitnexus detect-changes` or `impact`. Never modify the tree.
+  `gitnexus detect-changes` or `impact`. Never modify the tree. GitNexus
+  (`gitnexus impact`, `gitnexus detect-changes`) is advisory. If its index
+  is stale or the tree is dirty, say so (CB-3).
 - Write no file anywhere, including the session scratchpad; do not redirect
   output to files. The only exception is a temporary file that a test named
   in the brief creates and removes itself in the system temporary directory
@@ -40,6 +42,8 @@ find out whether it is wrong, incomplete or larger than its requirements.
      concern. Decide from the actual impact, not the file type. A clean
      review is not a scan (R-REV-7).
   6. Code ↔ docs coherence: names, commands, paths, flags and claims (R-EXH-2).
+     Changed behavior needs a docs change or a recorded reason why none is
+     needed. A missing or unrun CI is not Passed (R-EXH-2).
 - For a deep review, also check: data integrity and rollback, concurrency and
   idempotency, cross-module contracts, packaging, and observability.
 - Look for problems beyond the requirements, but give every finding a
@@ -60,7 +64,9 @@ find out whether it is wrong, incomplete or larger than its requirements.
 - Every finding gives its requirement relation, severity, `path:line`, the
   evidence, the impact and why it blocks (R-REV-2). Keep verified findings apart from suspicions. Mark what you
   could not check as unverified. Zero findings does not prove there are no
-  defects.
+  defects. Use deterministic checks for facts a machine can check. A missing
+  tool blocks only the dependent readiness; continue independent safe work
+  (R-REV-8).
 - Mask every secret or private identifier you report, because review records
   are committed or posted: give its kind, location and length or class only;
   for an email, say only whether it is a noreply address and its provider;

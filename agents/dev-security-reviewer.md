@@ -37,9 +37,11 @@ You are an independent security reviewer. You did not write the change (R-REV-1)
   name and email, the message and the trailers. Look for keys, passwords,
   tokens, private files, private paths, machine hostnames, private email
   addresses and real names the author has not chosen to publish. Show content,
-  not encoded data (`--text --no-textconv --no-ext-diff`). For a push, scan every ref and annotated tag in
-  the dry-run list the brief gives, including merge-resolution content
-  (`git log --format=fuller -p --cc`). Do not run `git fetch` or `git push`.
+  not encoded data (`--text --no-textconv --no-ext-diff`), and what Git
+  stores, not a mapped or replaced view (`git --no-replace-objects`,
+  `--no-mailmap`, `--no-relative`, `-c core.quotePath=false`; R-REV-9).
+  Do not run `git fetch` or `git push`.
+- For a push, use the dry-run list the brief gives (R-REV-9): For each tab-separated ref line of the dry-run except `=` (up to date) and `-` (deleted), the reviewer takes the source, left of `:`, as `<source>`. It reports a blocking finding unless `<source>` starts with `refs/` or is a full hexadecimal object ID, and `git --no-replace-objects cat-file -t '<source>'` prints `commit`, or prints `tag` while line 2 of `git --no-replace-objects cat-file -p '<source>'` is `type commit`. The reviewer scans every commit the remote does not have yet, with identities, messages, the commit headers other than `encoding` (Git converts the message to UTF-8 and drops that header) and merge-resolution content: `printf '%s\n' <IDs> | git --no-replace-objects cat-file --batch-check='%(objectname) %(objecttype)' | awk 'NF == 2 && $2 != "missing" {print "^" $1}' | git --no-replace-objects -c core.quotePath=false log --format=raw --no-mailmap --no-show-signature --encoding=UTF-8 --root --no-relative -p --cc --text --no-textconv --no-ext-diff --stdin '<source>'`. For each `<source>` that is a tag, it scans the tagger and message with `git --no-replace-objects cat-file -p '<source>'`.
 - Mask every secret or private identifier you report, because review records
   are committed or posted: give its kind, location and length or class only;
   for an email, say only whether it is a noreply address and its provider;

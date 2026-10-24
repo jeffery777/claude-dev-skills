@@ -1,0 +1,43 @@
+{
+  "schema": "claude-dev-graph/v1",
+  "objective": {
+    "id": "issue-46-fu015-pr1",
+    "title": "FU-015 PR-1: push and commit scans show what Git stores and sends (items 2, 3, 4 and submodule recursion)",
+    "rigor": "strict",
+    "requirements": [
+      "REQ-011"
+    ]
+  },
+  "nodes": [
+    {
+      "id": "T1",
+      "title": "R-REV-9 scan and read-back view flags, numbered push procedure with name and dry-run checks, reviewer source checks (dev-core, dev-implement, dev-security-reviewer word for word), dev-gate and review-report binding view, REQ-011 acceptance (first commit), log row, CHANGELOG, FU-015 and FU-017 rows",
+      "kind": "implement",
+      "requirements": [
+        "REQ-011"
+      ],
+      "depends_on": [],
+      "owns": [
+        "skills/dev-core/SKILL.md",
+        "skills/dev-implement/SKILL.md",
+        "skills/dev-gate/SKILL.md",
+        "skills/dev-review/references/review-report.md",
+        "agents/dev-security-reviewer.md",
+        "docs/requirements/REQ-011-security-review-before-commit-push.md",
+        "docs/requirements/log.md",
+        "CHANGELOG.md",
+        ".dev/followups.md",
+        ".dev/issue-46-fu015-pr1/"
+      ],
+      "risk": "high",
+      "review": "security",
+      "status": "reviewing",
+      "dod": [
+        "Each claim of the REQ-011 FU-015 PR-1 acceptance holds in the rule files; the agent-file push bullet equals dev-core steps 6 and 7 word for word; temporary-repository tests show each listed case; deferred items are in the FU-015 row; dev-security-reviewer R-REV-7 scan and dev-reviewer deep review find no open MUST-FIX"
+      ],
+      "verify": [
+        "bash scripts/validate.sh"
+      ]
+    }
+  ]
+}

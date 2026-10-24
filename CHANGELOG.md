@@ -182,9 +182,9 @@ Cowork runtime test). At that release,
   before each dispatch, passes both (a dispatch that names only the model
   keeps the agent file's effort) and writes the reason in the brief. The
   `dev-deliver` table gives an explicit effort for each role; the
-  implementer row depends on the rigor tier (`light` sonnet/medium,
-  `standard` opus/high or sonnet/medium for a mechanical slice, `strict`
-  opus/high). The `dev-review` mode table gives single values: R-REV-9
+  implementer row depends on the rigor tier (`light` sonnet/medium, or
+  opus/high for a cross-module or unclear slice; `standard` opus/high, or
+  sonnet/medium for a mechanical slice in one module; `strict` opus/high). The `dev-review` mode table gives single values: R-REV-9
   scans use `xhigh` (before, "high or more"), and a security review uses
   `xhigh`, with `max` only when the user asks. When the main session
   implements, the plan records its transcript-recorded setting; for work

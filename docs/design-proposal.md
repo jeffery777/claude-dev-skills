@@ -67,8 +67,8 @@ Graph engineering 在原專案的定位（ADR OE-007）：
 | --- | --- | --- |
 | 機械查讀、找檔案 | haiku | low |
 | 一般探索、摘要 | sonnet | medium |
-| 實作（`light`） | sonnet | medium |
-| 實作（`standard`） | opus；機械、範圍明確的 slice 用 sonnet | high；sonnet 時 medium |
+| 實作（`light`） | sonnet；跨模組或不明確的 slice 用 opus | medium；opus 時 high |
+| 實作（`standard`） | opus；單一模組內機械、範圍明確的 slice 用 sonnet | high；sonnet 時 medium |
 | 實作（`strict`，或適用 R-DEL-2 下限時） | opus | high |
 | 一般 review | opus | high |
 | 深入 review、高風險設計、commit／push 掃描 | opus | xhigh |
@@ -554,8 +554,8 @@ There are two layers:
 | --- | --- | --- |
 | Mechanical reads, finding files | haiku | low |
 | General exploration, summaries | sonnet | medium |
-| Implementation (`light`) | sonnet | medium |
-| Implementation (`standard`) | opus; sonnet for a mechanical, clearly bounded slice | high; medium with sonnet |
+| Implementation (`light`) | sonnet; opus for a cross-module or unclear slice | medium; high with opus |
+| Implementation (`standard`) | opus; sonnet for a mechanical, clearly bounded slice in one module | high; medium with sonnet |
 | Implementation (`strict`, or when the R-DEL-2 floor applies) | opus | high |
 | Routine review | opus | high |
 | Deep review, high-risk design, commit or push scan | opus | xhigh |

@@ -24,6 +24,12 @@ sources:
   - type: chat
     locator: "Claude Code session 2026-10-25 (orchestrator session, relayed to the FU-018 session), user answer to the FU-018 round-2 review card C7 (findings R2-001 and S2-001: the floor check for the main session covered the effort only, not the model)"
     quote: "C7 選 a"
+  - type: chat
+    locator: "Claude Code session 2026-10-25 (orchestrator session, relayed to the FU-018 session), user answer to the FU-018 round-3 review card C8 (findings S3-001 and S3-002: deferred to FU-021)"
+    quote: "C8 選 a，model ID 寫法一併記進 FU-021"
+  - type: chat
+    locator: "Claude Code session 2026-10-25 (orchestrator session, relayed to the FU-018 session), user answer to the PR #51 merge-review card C9 (finding MF-001: the cross-module trigger of the implementer row, restored from the FU-018 source; finding SF-001: how to find and read the transcript fields, deferred to FU-021)"
+    quote: "C9-1 選 a，C9-2 選 a"
 non_goals:
   - A routing engine or a full model x effort matrix
   - "`fable` in the escalation order before an evaluation (D-007 rule 4; FU-018 card 2 (c): evaluation deferred)"
@@ -45,10 +51,10 @@ Agents carry default model and effort; the main agent overrides them per task, w
 - Each agent file sets model and effort aliases.
 - dev-deliver and dev-review state the per-task choice.
 
-FU-018 (Issue #50; D-007 rule 3; cards 1 (b) and 2 (c); review cards C1a, C2a, C3a, C4b, C5b, C6a; round-2 card C7a):
+FU-018 (Issue #50; D-007 rule 3; cards 1 (b) and 2 (c); review cards C1a, C2a, C3a, C4b, C5b, C6a; round-2 card C7a; round-3 card C8a; merge-review cards C9-1a and C9-2a):
 
 - R-DEL-2: the main agent chooses the model and effort before each dispatch and passes both (a dispatch that names only the model keeps the agent file's effort); the brief states why.
-- The `dev-deliver` table gives an explicit model and effort for each role; the implementer row depends on the rigor tier (`light`: `sonnet`/`medium`; `standard`: `opus`/`high`, `sonnet`/`medium` only for a mechanical, clearly bounded slice; `strict`: `opus`/`high`). The `dev-review` mode table gives single values: the security review uses `xhigh` (`max` only when the user asks; card C3a) and the R-REV-9 commit and push scans use `xhigh` (card C5b). The `opus`/`high` floor is unchanged.
+- The `dev-deliver` table gives an explicit model and effort for each role; the implementer row depends on the rigor tier (`light`: `sonnet`/`medium`, `opus`/`high` for a cross-module or unclear slice; `standard`: `opus`/`high`, `sonnet`/`medium` only for a mechanical, clearly bounded slice in one module (card C9-1a); `strict`: `opus`/`high`). The `dev-review` mode table gives single values: the security review uses `xhigh` (`max` only when the user asks; card C3a) and the R-REV-9 commit and push scans use `xhigh` (card C5b). The `opus`/`high` floor is unchanged.
 - When the main session implements, it records the model and effort that its own transcript records, or `unknown` with the reason. The user sets main-session model and effort in the app. For work under the floor, when that model is not `opus`, that effort is below `high`, or either is `unknown`, the main agent asks the user to switch to `opus`/`high` before it implements, or dispatches the implementation to `dev-implementer` at `opus`/`high` (cards C4b and C7a); for other work below the tier's implementer level, the plan says so.
 - After one review and fix round that did not solve the problem, the main agent classifies the failure (R-VER-2) and escalates only for a quality failure and only the side that fixes (the implementer or the main session; reviewers keep the table values; card C3a), one step per such round: effort first (`low` -> `medium` -> `high`), then the model (`haiku` -> `sonnet` -> `opus`), then effort at `opus` (`xhigh`, then `max`). `fable` is not in the order. A failure that the spec, the acceptance criteria or the design caused is not a quality failure: it goes to the R-VER-2 stop rule and does not escalate (card C2a).
 - When the evidence conflicts, the main agent also re-assesses the model and effort; the re-assessment alone does not escalate (D-007 rule 3; card C1a).
@@ -58,6 +64,6 @@ FU-018 (Issue #50; D-007 rule 3; cards 1 (b) and 2 (c); review cards C1a, C2a, C
 
 ## Notes
 
-Limit (review card C8 (a), Issue #50): the floor check of a main session runs once, before it implements; no rule checks the `recorded` value after a floor dispatch, and the rule names the alias `opus` while the transcript records a full model ID. FU-021 tracks these gaps.
+Limit (review card C8 (a), Issue #50): the floor check of a main session runs once, before it implements; no rule checks the `recorded` value after a floor dispatch, the rule names the alias `opus` while the transcript records a full model ID, and no rule says how to find the session's own transcript or read only its model and effort fields (card C9-2a). FU-021 tracks these gaps.
 
 Related: [[REQ-001]]

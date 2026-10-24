@@ -56,7 +56,7 @@
       "review": "deep",
       "status": "done",
       "dod": [
-        "git diff --word-diff (verify command) of skills/ and agents/ shows only added rule IDs; skills/dev-core/ unchanged; README.md gets no rule IDs; sentences that only point to a rule get none; every restatement of a kept rule names its ID; FU-011 row records the result and FU-016 holds card C3 items (A) and (B); CHANGELOG entry; independent deep review finds no open MUST-FIX or SHOULD-FIX"
+        "git diff --word-diff (verify command) of skills/ and agents/ shows only added rule IDs; skills/dev-core/ unchanged; README.md gets no rule IDs; sentences that only point to a rule get none; every restatement of a kept rule names its ID; FU-011 row records the result and FU-016 holds card C3 items (A) and (B); CHANGELOG entry; independent deep review finds no open MUST-FIX or SHOULD-FIX (narrowed by card MR41-C1 (a), node T3: the restatements found name the ID; a later unlabeled restatement is residual)"
       ],
       "verify": [
         "bash scripts/validate.sh",
@@ -89,7 +89,37 @@
       "review": "deep",
       "status": "done",
       "dod": [
-        "two IDs added, no word changed; REQ-025 FU-011 acceptance narrowed per card MR41-C1 (a) with the user's words as source; FU-011 row records the residual and the handling rule; FU-016 holds item (C); counts updated; new-head full Merge Review finds no open MUST-FIX or SHOULD-FIX"
+        "two IDs added, no word changed; REQ-025 FU-011 acceptance narrowed per card MR41-C1 (a) with the user's words as source; FU-011 row records the residual and the handling rule; FU-016 holds item (C); counts updated"
+      ],
+      "verify": [
+        "bash scripts/validate.sh",
+        "git diff --word-diff=plain --word-diff-regex='[A-Za-z0-9_-]+|[^[:space:]]' 56ab70a -- skills agents"
+      ]
+    },
+    {
+      "id": "T4",
+      "title": "Card MR41B-C1 (a): remove the wrong R-STG-4 ID in agents/dev-implementer.md, FU-016 example; record fixes MR41B-002 and MR41B-003",
+      "kind": "docs",
+      "requirements": [
+        "REQ-025"
+      ],
+      "depends_on": [
+        {
+          "node": "T3",
+          "consumes": "Merge Review finding MR41B-001 on the T3 head"
+        }
+      ],
+      "owns": [
+        "agents/dev-implementer.md",
+        ".dev/followups.md",
+        "CHANGELOG.md",
+        ".dev/issue-40-fu011/"
+      ],
+      "risk": "low",
+      "review": "deep",
+      "status": "done",
+      "dod": [
+        "the R-STG-4 ID is removed and no word changed; FU-016 (A) names the gap; counts 74 IDs at 70 places; FU-011 row records the locator residual by code reading and the user's rule for wrong IDs; T2 and T3 DoD texts match the records"
       ],
       "verify": [
         "bash scripts/validate.sh",

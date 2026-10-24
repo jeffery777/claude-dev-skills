@@ -10,3 +10,7 @@
 {"seq": 10, "at": "2026-10-24T01:52:56+00:00", "actor": "main-agent", "node": "T3", "from": "ready", "to": "in_progress", "evidence": "card MR41-C1 (a)"}
 {"seq": 11, "at": "2026-10-24T01:53:36+00:00", "actor": "main-agent", "node": "T3", "from": "in_progress", "to": "reviewing", "evidence": "validate.sh passed; word-diff 0 deletions, 75 IDs at 71 places"}
 {"seq": 12, "at": "2026-10-24T01:53:36+00:00", "actor": "main-agent", "node": "T3", "from": "reviewing", "to": "done", "evidence": "MR41-001 fixed per card MR41-C1 (a); new-head Merge Review follows, records not committed (R-EXH-3)"}
+{"seq": 13, "at": "2026-10-24T02:24:31+00:00", "actor": "main-agent", "node": "T4", "from": "planned", "to": "ready", "evidence": "card MR41B-C1 (a); validate.sh; word-diff"}
+{"seq": 14, "at": "2026-10-24T02:24:31+00:00", "actor": "main-agent", "node": "T4", "from": "ready", "to": "in_progress", "evidence": "card MR41B-C1 (a); validate.sh; word-diff"}
+{"seq": 15, "at": "2026-10-24T02:24:31+00:00", "actor": "main-agent", "node": "T4", "from": "in_progress", "to": "reviewing", "evidence": "card MR41B-C1 (a); validate.sh; word-diff"}
+{"seq": 16, "at": "2026-10-24T02:24:31+00:00", "actor": "main-agent", "node": "T4", "from": "reviewing", "to": "done", "evidence": "MR41B-001 to MR41B-003 handled; new-head Merge Review follows, records not committed (R-EXH-3)"}

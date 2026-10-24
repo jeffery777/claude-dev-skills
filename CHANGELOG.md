@@ -141,7 +141,7 @@ Cowork runtime test). At that release,
 - Rule IDs on restated rule text (REQ-025, FU-011, Issue #40). The skills,
   their references, the agent files and the subagent task brief name the
   rule ID on the text that restates a rule that `dev-core` keeps word for
-  word (75 IDs at 71 places; the readings are in the FU-011 row of
+  word (74 IDs at 70 places; the readings are in the FU-011 row of
   `.dev/followups.md`). No word of the existing text changes, so the files
   that subagents get keep their full text. `README.md` gets no IDs. Gaps in
   the copies that subagents get go to FU-016.

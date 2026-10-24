@@ -40,17 +40,22 @@ When the user asked for it, use this order (R-REV-9):
 3. Pass the `dev-gate` commit gate, then commit without overriding the
    identity. Read back `git --no-replace-objects cat-file commit HEAD`.
 4. Before the push, confirm that the recorded identity and message match what
-   was scanned. Check the remote names, then run
-   `git ls-remote --heads --tags '<remote>'` (no `git fetch`) and
-   `git push --dry-run --porcelain` with the exact arguments of the real
-   push, which always include `--no-recurse-submodules`. Check that the
+   was scanned. Check the remote names and that the fetch and push URLs of
+   `<remote>` are one and the same, then run
+   `git ls-remote --heads --tags '<remote>'` (no `git fetch`) and the real
+   push command with `--dry-run --porcelain` added. The real push has the
+   form that R-REV-9 gives: it names `'<remote>'`, always includes
+   `--no-recurse-submodules` and has no other option outside that form;
+   write each source as a full ref name (`refs/heads/<branch>`). Check that the
    dry-run exits 0 with `Done` as its last line and lists at least one
    tab-separated ref line, and check the names it lists
    without substituting them (R-REV-9). Have `dev-security-reviewer` scan
    everything it lists: every commit the remote does not have yet and any
    annotated tag.
 5. Pass the `dev-gate` push gate, then push with exactly those arguments
-   (including `--no-recurse-submodules`).
+   (including `--no-recurse-submodules`). Change no ref, configuration or
+   remote between the remote-name check and the push; after any change,
+   start again at the remote-name check.
 
 Any change after a scan needs a new scan. Scan and gate records go into a
 later commit or into a PR comment that the user has authorized, never into

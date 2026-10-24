@@ -1,0 +1,43 @@
+{
+  "schema": "claude-dev-graph/v1",
+  "objective": {
+    "id": "issue-48-fu015-pr2",
+    "title": "FU-015 PR-2: push destination, reviewer input checks and the stated non-coverage of R-REV-9",
+    "rigor": "strict",
+    "requirements": [
+      "REQ-011"
+    ]
+  },
+  "nodes": [
+    {
+      "id": "T1",
+      "title": "R-REV-9 URL check, closed push form naming <remote>, reviewer checks (empty list, ID and source characters, refs/heads/ or refs/tags/ sources, old value), range scan command, not-covered list (dev-core, dev-implement, dev-security-reviewer word for word), DL-010, REQ-011 acceptance (first commit), log row, CHANGELOG, FU-015 status, FU-018 and FU-019 rows",
+      "kind": "implement",
+      "requirements": [
+        "REQ-011"
+      ],
+      "depends_on": [],
+      "owns": [
+        "README.md",
+        "skills/dev-core/SKILL.md",
+        "skills/dev-core/deltas.md",
+        "skills/dev-implement/SKILL.md",
+        "agents/dev-security-reviewer.md",
+        "docs/requirements/REQ-011-security-review-before-commit-push.md",
+        "docs/requirements/log.md",
+        "CHANGELOG.md",
+        ".dev/followups.md",
+        ".dev/issue-48-fu015-pr2/"
+      ],
+      "risk": "high",
+      "review": "security",
+      "status": "reviewing",
+      "dod": [
+        "Each claim of the REQ-011 FU-015 PR-2 acceptance holds in the rule files; the agent-file push bullet equals dev-core steps 7 and 8 word for word; temporary-repository tests show each listed case; R-REV-9 lists what the scans do not cover; FU-018 is a row only; dev-security-reviewer R-REV-7 scan and dev-reviewer deep review find no open MUST-FIX"
+      ],
+      "verify": [
+        "bash scripts/validate.sh"
+      ]
+    }
+  ]
+}

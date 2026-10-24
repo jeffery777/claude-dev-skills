@@ -30,6 +30,15 @@ sources:
   - type: chat
     locator: "Claude Code session 2026-10-22 (orchestrator session, relayed to the FU-014 session), user answer to FU-014 decision card 5 (REQ-GAP R1-003 of PR #25: the push scan record format names the remote object IDs given to the scan)"
     quote: "同意你的建議，選5a"
+  - type: chat
+    locator: "Claude Code session 2026-10-24 (orchestrator session, relayed to the FU-015 session), user answer to FU-015 decision cards 1 to 5 (fu015-cards.md; findings SS-003, SS-008, SS-009, R1-001, SS2-002, SS2-005 of Issue #24 and FR1-001 to FR1-010, SR1-001 to SR1-008 of the FU-015 spec review)"
+    quote: "同意你的建議：1a、2a、3a、4b、5a（R1-001、SS2-002 記 Rejected）"
+  - type: chat
+    locator: "Claude Code session 2026-10-24 (orchestrator session, relayed to the FU-015 session), user answer to the FU-015 PR-1 review cards PR1-C1 and PR1-C2 (fu015-pr1-cards.md; findings PR1-001 to PR1-008 and S1-001 to S1-008)"
+    quote: "同意你的建議：PR1-C1a，PR1-C2a"
+  - type: chat
+    locator: "Claude Code session 2026-10-24 (orchestrator session, relayed to the FU-015 session), user answer to the FU-015 PR-1 round-2 review card PR1-R2-C1 (fu015-pr1-r2-cards.md; findings S2-001 to S2-004, PR2-001, PR2-002)"
+    quote: "同意你的建議：PR1-R2-C1b，下一輪再有新 blocker 一律延到 PR-2"
 non_goals:
   - Installing gitleaks or Git hooks without the user's approval
   - Review convergence, decision cards and REQ-GAP (PR-B, D-013, D-014, D-016)
@@ -62,6 +71,32 @@ committed by default.
   `git ls-remote --heads --tags <remote>` and runs no `git fetch`; the scan
   excludes only commits that the listed object IDs reach (FU-014 cards 1a
   and 4a).
+- FU-015 PR-1 (cards 1a, 2a, 3a, PR1-C1a, PR1-C2a, PR1-R2-C1b): the
+  listed configuration and objects no longer change what the R-REV-9 commit
+  scan, push scan and read-back show (the merge-readiness range scan is left
+  for FU-015 PR-2): `.mailmap` (`--no-mailmap`, `--format=raw`, read-back
+  with `git --no-replace-objects cat-file commit HEAD`), replace refs
+  (`git --no-replace-objects` on every scan and read-back command and in the
+  `dev-gate` commit binding), `log.showRoot` (`--root`), `diff.relative`
+  (`--no-relative` on `git diff` and `git log`), `core.quotePath`
+  (`-c core.quotePath=false` on each `git diff` and `git log` scan command), `log.showSignature`
+  (`--no-show-signature`), `i18n.logOutputEncoding` and honestly declared
+  non-UTF-8 commits in the push scan (`--encoding=UTF-8`; the read-back shows
+  the stored bytes), and extra commit headers. The real push and its dry-run
+  always include `--no-recurse-submodules` (a later `--recurse-submodules=<value>`
+  in the same command is not checked; FU-015 PR-2). Before a push,
+  the main agent checks the configured remote names, checks that the dry-run
+  exits 0 with `Done` as its last line and lists at least one ref line, and
+  checks the dry-run names (one `:` per ref line, characters
+  `[A-Za-z0-9._/-]`) without substituting them; a failed check stops the
+  push. The reviewer scans the source side of each ref line and reports as
+  blocking a source that is not `refs/…` or a full object ID, or that is not
+  a commit or a tag whose target is a commit; its agent file carries these
+  sentences. Temporary-repository tests show each listed case, tags or refs
+  that point to a blob, a tree or another tag, a destination name used
+  instead of the source, name injection (dry-run names and `<remote>`), an
+  empty dry-run list (`-q`) and submodule recursion shown or stopped. Other
+  configuration and objects are not claimed here (FU-015 PR-2).
 - R-REV-1 says that a required security review uses `dev-security-reviewer`,
   never `dev-reviewer`.
 - `dev-review`, `dev-gate`, `dev-implement` and `dev-deliver` apply the rule at

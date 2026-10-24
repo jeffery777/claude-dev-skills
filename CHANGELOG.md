@@ -203,6 +203,24 @@ Cowork runtime test). At that release,
 
 ### Security
 
+- Push and commit scans no longer change with the listed configuration
+  (REQ-011, FU-015 PR-1, Issue #46). In R-REV-9 and
+  `dev-security-reviewer`, the scan and read-back commands run as
+  `git --no-replace-objects`; the `git diff` and `git log` scan commands add
+  `--no-relative` and `-c core.quotePath=false`; the push scan uses `git log --format=raw
+  --no-mailmap --no-show-signature --encoding=UTF-8 --root`. The read-back
+  after a commit uses `git cat-file commit HEAD` (also in `dev-implement`),
+  and the `dev-gate` commit binding hashes the same view. So `.mailmap`,
+  replace refs, `log.showRoot`, `diff.relative`, `core.quotePath`,
+  `log.showSignature` and `i18n.logOutputEncoding` no longer hide what is
+  sent, and the scan no longer runs `gpg.program`. The real push and its
+  dry-run include `--no-recurse-submodules` (a later `--recurse-submodules=`
+  value is left for FU-015 PR-2). The main agent checks the remote
+  names, that the dry-run exits 0 and lists at least one ref line, and the
+  dry-run names before they go into a command; the reviewer scans the source
+  side of each ref line and blocks a ref that is not a commit or a tag of a
+  commit. Other configuration and objects are left for FU-015 PR-2. New
+  follow-up FU-017: commit and tag signatures.
 - Push scan without prune (REQ-011, FU-014, Issue #24). Before a push,
   R-REV-9, `dev-implement` step 4 and the `dev-gate` push binding get the
   remote state from `git ls-remote --heads --tags <remote>` and run no

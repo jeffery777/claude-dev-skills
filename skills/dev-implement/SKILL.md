@@ -38,13 +38,19 @@ When the user asked for it, use this order (R-REV-9):
    (`git var GIT_AUTHOR_IDENT`, `git var GIT_COMMITTER_IDENT`), message and
    trailers the commit will carry.
 3. Pass the `dev-gate` commit gate, then commit without overriding the
-   identity. Read back `git log -1 --format=fuller`.
+   identity. Read back `git --no-replace-objects cat-file commit HEAD`.
 4. Before the push, confirm that the recorded identity and message match what
-   was scanned. Run `git ls-remote --heads --tags <remote>` (no `git fetch`), then
-   `git push --dry-run --porcelain` with the exact arguments
-   of the real push, and have `dev-security-reviewer` scan everything it
-   lists: every commit the remote does not have yet and any annotated tag.
-5. Pass the `dev-gate` push gate, then push with exactly those arguments.
+   was scanned. Check the remote names, then run
+   `git ls-remote --heads --tags '<remote>'` (no `git fetch`) and
+   `git push --dry-run --porcelain` with the exact arguments of the real
+   push, which always include `--no-recurse-submodules`. Check that the
+   dry-run exits 0 with `Done` as its last line and lists at least one
+   tab-separated ref line, and check the names it lists
+   without substituting them (R-REV-9). Have `dev-security-reviewer` scan
+   everything it lists: every commit the remote does not have yet and any
+   annotated tag.
+5. Pass the `dev-gate` push gate, then push with exactly those arguments
+   (including `--no-recurse-submodules`).
 
 Any change after a scan needs a new scan. Scan and gate records go into a
 later commit or into a PR comment that the user has authorized, never into

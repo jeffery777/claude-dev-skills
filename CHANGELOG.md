@@ -56,6 +56,12 @@ Cowork runtime test). At that release,
   the workflow, over every commit reachable from the checked-out commit, with
   redacted output. Actions are pinned by full commit SHA; the workflow has
   `permissions: contents: read` and uses no secrets.
+- Follow-up FU-018 (records only, Issue #48): choosing the subagent model
+  and effort before dispatch and escalating after a failed fix round.
+- Follow-up FU-019 (records only, Issue #48): the main agent stops at a
+  `+` or `-` dry-run ref line, so that a force or delete caused by
+  configuration goes to the user. A legitimate push mirror triggers it;
+  planted configuration is out of scope under the REQ-011 threat model.
 
 ### Changed
 
@@ -203,6 +209,27 @@ Cowork runtime test). At that release,
 
 ### Security
 
+- The push scan checks the push destination and its own input, and states
+  what it does not cover (REQ-011, FU-015 PR-2, Issue #48). In R-REV-9,
+  `dev-implement` and `dev-security-reviewer`: before `ls-remote`, the main
+  agent checks that the fetch and push URLs of `<remote>` are one and the
+  same (it prints only PASS or STOP). The real push has one closed form
+  that names `<remote>`, so `remote.pushDefault` and
+  `branch.<name>.pushRemote` choose no other remote, and allows no other
+  option (no `-q`, no later `--recurse-submodules=<value>`, nothing between
+  `git` and `push`); the main agent checks the form, and no independent
+  check repeats it. The reviewer blocks an empty dry-run list, an ID or a
+  source with unexpected characters before it goes into a command, a
+  source outside `refs/heads/` and `refs/tags/` that is not a full object
+  ID, and an updated ref whose old value is not a listed ID. The
+  merge-readiness range scan has a command with the push scan view.
+  R-REV-9 lists what the scans do not cover; REQ-011 and DL-010 claim
+  only that coverage. REQ-011 gets a threat model: R-REV-9 addresses
+  accidental leaks under the developer's own legitimate configuration,
+  within the coverage it states; deliberately malicious configuration and
+  hooks that someone else planted (`git clone`, `fetch` and `pull` do not
+  transfer `.git/config` or `.git/hooks`) are inbound controls (review of
+  install steps after a clone or sync, R-AUTH-1), not a scan.
 - Push and commit scans no longer change with the listed configuration
   (REQ-011, FU-015 PR-1, Issue #46). In R-REV-9 and
   `dev-security-reviewer`, the scan and read-back commands run as

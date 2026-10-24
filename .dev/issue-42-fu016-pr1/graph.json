@@ -1,0 +1,42 @@
+{
+  "schema": "claude-dev-graph/v1",
+  "objective": {
+    "id": "issue-42-fu016-pr1",
+    "title": "FU-016 PR-1: agent files get the dev-core sentences whose absence lowered protection",
+    "rigor": "strict",
+    "requirements": [
+      "REQ-024"
+    ]
+  },
+  "nodes": [
+    {
+      "id": "T1",
+      "title": "Sentences of FU-016 rows 1 to 9 and C1 in agents/*.md (user-approved, quoted from dev-core), REQ-024 source and acceptance (first commit), requirements log row, CHANGELOG, FU-016 row",
+      "kind": "implement",
+      "requirements": [
+        "REQ-024"
+      ],
+      "depends_on": [],
+      "owns": [
+        "agents/dev-explorer.md",
+        "agents/dev-implementer.md",
+        "agents/dev-reviewer.md",
+        "agents/dev-security-reviewer.md",
+        "docs/requirements/REQ-024-agent-write-and-delete.md",
+        "docs/requirements/log.md",
+        "CHANGELOG.md",
+        ".dev/followups.md",
+        ".dev/issue-42-fu016-pr1/"
+      ],
+      "risk": "high",
+      "review": "security",
+      "status": "done",
+      "dod": [
+        "Each sentence of the REQ-024 FU-016 PR-1 acceptance is in its agent file word for word with its rule ID; no existing sentence of the agent files changes except the added (R-STG-2) ID; the FU-016 row records PR-1, PR-2 and the deferred rows; dev-security-reviewer R-REV-7 scan and dev-reviewer deep review find no open MUST-FIX"
+      ],
+      "verify": [
+        "bash scripts/validate.sh"
+      ]
+    }
+  ]
+}

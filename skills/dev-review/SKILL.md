@@ -15,8 +15,8 @@ Review stays read-only unless the user asks for fixes (R-REV-1).
 | --- | --- | --- |
 | routine | low or medium risk | `dev-reviewer`, model `opus`, effort `high` |
 | deep | high or unknown risk, cross-module contracts, packaging, migrations, integrations (R-REV-6) | `dev-reviewer`, model `opus`, effort `xhigh` |
-| security | trust boundaries, auth, permissions, sensitive data, dependencies, installers (R-REV-7) | `dev-security-reviewer`, model `opus`, effort `xhigh` or `max` |
-| commit / push scan | before every commit and every push, at any tier (R-REV-9) | `dev-security-reviewer`, model `opus`, effort `high` or more |
+| security | trust boundaries, auth, permissions, sensitive data, dependencies, installers (R-REV-7) | `dev-security-reviewer`, model `opus`, effort `xhigh` (`max` only when the user asks, R-DEL-2) |
+| commit / push scan | before every commit and every push, at any tier (R-REV-9) | `dev-security-reviewer`, model `opus`, effort `xhigh` |
 
 Decide the mode from the actual impact, not the file type (R-REV-7). When unsure, use
 the stronger mode. A required security review or scan always uses

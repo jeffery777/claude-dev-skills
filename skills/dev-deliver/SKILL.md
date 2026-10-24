@@ -37,16 +37,24 @@ Repeat until the objective is complete or a stop condition holds (R-AUTH-5):
    with a brief from `${CLAUDE_SKILL_DIR}/references/task-brief.md`.
    Read-only nodes (explore, review) may run in parallel with each other when
    their targets are fixed and independent (R-CAP-2). Never run two writers
-   at once. Choose the agent, model and effort per node:
+   at once. Choose the agent, model and effort per node before the dispatch,
+   pass both the model and the effort, and write the reason in the brief
+   (R-DEL-2):
 
    | Node | Agent | Model / effort |
    | --- | --- | --- |
    | explore | `dev-explorer` | haiku/low; sonnet/medium for synthesis; opus/high when the objective is security, data, migration or public-contract work (R-DEL-2 floor) |
-   | implement, docs | `dev-implementer` | sonnet/medium; opus/high if cross-module, ambiguous or high risk (R-DEL-2 floor) |
+   | implement, docs | `dev-implementer` | `light`: sonnet/medium, or opus/high for a cross-module or unclear slice; `standard`: opus/high, or sonnet/medium for a mechanical, clearly bounded slice in one module; `strict`: opus/high; opus/high whenever the R-DEL-2 floor applies |
    | review (routine) | `dev-reviewer` | opus/high |
    | review (deep) | `dev-reviewer` | opus/xhigh |
-   | review (security) | `dev-security-reviewer` | opus/xhigh or max |
-   | commit / push scan (R-REV-9) | `dev-security-reviewer` | opus/high or more |
+   | review (security) | `dev-security-reviewer` | opus/xhigh; max only when the user asks |
+   | commit / push scan (R-REV-9) | `dev-security-reviewer` | opus/xhigh |
+
+   When the main session implements a node itself, the implement row is the
+   level that the plan compares with the session's recorded effort; for work
+   under the floor, R-DEL-2 says what to do first. After an unsolved review
+   and fix round, escalate only the fixing side and only for a quality
+   failure, as R-DEL-2 says.
 
    Do not split work just to use more agents (R-DEL-1).
 3. **Integrate.** Read the receipt back against the real diff and the command

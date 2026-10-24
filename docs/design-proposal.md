@@ -61,15 +61,20 @@ Graph engineering 在原專案的定位（ADR OE-007）：
 設定分兩層：
 
 1. **預設值**：寫在 `agents/*.md` 的 frontmatter（`model`、`effort`、`tools`），也就是上表的預設欄位。
-2. **逐次覆寫**：`dev-deliver` 和 `dev-review` 派工時，依下表另外指定 `model` 和 `effort`。
+2. **逐次覆寫**：`dev-deliver` 和 `dev-review` 派工前，依下表選定 `model` 和 `effort`，兩者都要傳；只傳 model 時，effort 會沿用 agent 檔的預設值。brief 寫明選擇的理由（R-DEL-2，FU-018）。
 
 | 任務類型 | 模型 | 思考深度 |
 | --- | --- | --- |
 | 機械查讀、找檔案 | haiku | low |
 | 一般探索、摘要 | sonnet | medium |
-| 有界實作 | sonnet；跨模組或需求模糊時用 opus | medium／high |
+| 實作（`light`） | sonnet；跨模組或不明確的 slice 用 opus | medium；opus 時 high |
+| 實作（`standard`） | opus；單一模組內機械、範圍明確的 slice 用 sonnet | high；sonnet 時 medium |
+| 實作（`strict`，或適用 R-DEL-2 下限時） | opus | high |
 | 一般 review | opus | high |
-| 深入 review、安全 review、高風險設計 | opus | xhigh 或 max |
+| 深入 review、高風險設計、commit／push 掃描 | opus | xhigh |
+| 安全 review | opus | xhigh；使用者要求時才用 max |
+
+主 session 自己實作時，plan 記錄它 transcript 上的 model 與 effort，讀不到時寫 `unknown` 和原因。主代理不改自己的 model 與 effort，由使用者在 app 設定。屬於下限範圍的工作，主 session 的 model 不是 opus、effort 低於 high，或其中之一是 `unknown` 時，主代理在實作前請使用者切換到 opus/high，或用 opus/high 把實作派給 `dev-implementer`；其他工作低於上表時，plan 要寫明。一輪 review 與修正沒有解決問題時，先分類失敗原因。spec、驗收條件或設計造成的失敗不算 quality：它走 R-VER-2 的停止規則和重新評估，不升級。只有 quality 類失敗才升級，而且只升修正的一方（implementer 或主 session），reviewer 照上表：先升 effort（low → medium → high），到 high 以上改升 model（haiku → sonnet → opus），到 opus 再升 effort（xhigh，然後 max）。升級後的設定在該節點剩下的工作中不降回。任何設定都不低於下限。升級不重設 review 輪數，也不清除 findings。證據互相矛盾時（例如兩份 review 對同一變更的結論相反），也重新評估 model 和 effort；重新評估本身不會升級。Fable 評估前不列入升級順序（D-007 規則 4；FU-018 卡 2 選 c，評估延後，由 FU-020 追蹤）。
 
 ## 5. Graph Engineering
 
@@ -267,7 +272,7 @@ Graph engineering 在原專案的定位（ADR OE-007）：
 **限制**
 
 - 主代理只能確定自己「要求」的模型與深度。subagent 實際有沒有照這個設定執行，在對話中無法完全讀回。
-- 因此 receipt 只記錄要求的設定，不宣稱已驗證生效；無法驗證的部分標為 `unknown`。
+- 因此 receipt 記錄要求的設定，以及 transcript 記錄的 model 與 effort（FU-018；只抄這兩個值），不宣稱已驗證生效；讀不回來的部分和實際生效的設定都標為 `unknown`。
 
 ### D-008 Phase 1 範圍（已決定，2026-10-20）
 
@@ -540,16 +545,42 @@ There are two layers:
 
 1. **Defaults** in the `agents/*.md` front matter (`model`, `effort`,
    `tools`), as in the table above.
-2. **Per-dispatch overrides**: `dev-deliver` and `dev-review` set `model`
-   and `effort` for each dispatch from this table.
+2. **Per-dispatch overrides**: before each dispatch, `dev-deliver` and
+   `dev-review` choose `model` and `effort` from this table and pass both. A
+   dispatch that names only the model keeps the effort of the agent file. The
+   brief states the reason (R-DEL-2, FU-018).
 
 | Task type | Model | Effort |
 | --- | --- | --- |
 | Mechanical reads, finding files | haiku | low |
 | General exploration, summaries | sonnet | medium |
-| Bounded implementation | sonnet; opus when cross-module or the requirements are ambiguous | medium / high |
+| Implementation (`light`) | sonnet; opus for a cross-module or unclear slice | medium; high with opus |
+| Implementation (`standard`) | opus; sonnet for a mechanical, clearly bounded slice in one module | high; medium with sonnet |
+| Implementation (`strict`, or when the R-DEL-2 floor applies) | opus | high |
 | Routine review | opus | high |
-| Deep review, security review, high-risk design | opus | xhigh or max |
+| Deep review, high-risk design, commit or push scan | opus | xhigh |
+| Security review | opus | xhigh; max only when the user asks |
+
+When the main session implements, the plan records the model and effort that
+its transcript records, or `unknown` with the reason. The main agent does not
+change its own model or effort; the user sets them in the app. For work under
+the floor, when the main session's model is not opus, its effort is below
+high, or either is `unknown`, the main agent asks the user to switch to
+opus/high before it implements, or dispatches the
+implementation to `dev-implementer` at opus/high; for other work, the plan
+says when the effort is below this table. After one review and fix round that
+did not solve the problem, the main agent classifies the failure. A failure
+that the spec, the acceptance criteria or the design caused is not a quality
+failure: it goes to the R-VER-2 stop rule and re-evaluation, and does not
+escalate. Only a quality failure escalates, and only the side that fixes (the
+implementer or the main session); reviewers keep this table. The steps are: effort first (low → medium → high), at high or more the model
+(haiku → sonnet → opus), at opus the effort (xhigh, then max). An escalated
+setting is not lowered for the rest of the node, no setting goes below the
+floor, the round count is not reset and findings are not cleared. When the
+evidence conflicts, for example two reviews of the same change disagree, the
+main agent also re-assesses the model and effort; the re-assessment alone does
+not escalate. Fable is not in the escalation order before an evaluation
+(D-007 rule 4; FU-018 card 2 (c): evaluation deferred, tracked in FU-020).
 
 ## 5. Graph engineering
 
@@ -845,8 +876,10 @@ records the mapping.
 - The main agent can only be sure of the model and effort it requested. It
   cannot fully read back from the conversation whether a subagent actually
   ran with those settings.
-- Receipts therefore record the requested settings and do not claim they took
-  effect. Anything that cannot be verified is marked `unknown`.
+- Receipts therefore record the requested settings and the model and effort
+  that the transcript records (FU-018; only these two values are copied), and
+  do not claim they took effect. Anything that cannot be read back, and the
+  effective setting, is marked `unknown`.
 
 ### D-008 Phase 1 scope (decided, 2026-10-20)
 

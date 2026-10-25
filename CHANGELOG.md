@@ -233,6 +233,28 @@ Cowork runtime test). At that release,
 
 ### Security
 
+- The push stops, within the coverage that R-REV-9 states, at a force or
+  delete that configuration causes, and the
+  error output of the URL check, `ls-remote`, the dry-run and the push stays
+  out of records (REQ-011, FU-019, Issue #52). In R-REV-9 and
+  `dev-implement`: before the dry-run, the main agent stops and asks the
+  user when the configuration of the remote sets a push mirror or a
+  `remote.<name>.push` refspec that starts with `+` or is `:<dst>`
+  (card RB-C2b: a remote ref that changes after the dry-run could otherwise
+  still be force-updated or deleted); it also stops when the dry-run lists
+  a `+` (forced update) or `-` (delete) ref line. Both stops work within
+  the coverage that R-REV-9 states: the configuration check does not cover
+  the `GIT_CONFIG` environment variable, legacy `$GIT_DIR/remotes/` and
+  `$GIT_DIR/branches/` files, or Git before 2.18 (card RB-C3a). The URL
+  check sends the error output of `git remote get-url` to `/dev/null` (a
+  `transfer.credentialsInUrl` warning can show the user name and host) and
+  counts the fetch URL lines too (`$(…)` drops trailing newlines). The error
+  output of `ls-remote`, the dry-run and the push goes into no brief, record
+  or post. The REQ-011 threat model says that this pack does not implement
+  inbound controls apart from R-AUTH-1. The reviewer agent file does not
+  repeat the new checks; this is an author decision that follows card
+  PR2-C2a (the push form). FU-017 (commit and tag signatures) moves to a
+  separate Issue and PR after this one (card RB-C1b).
 - The push scan checks the push destination and its own input, and states
   what it does not cover (REQ-011, FU-015 PR-2, Issue #48). In R-REV-9,
   `dev-implement` and `dev-security-reviewer`: before `ls-remote`, the main

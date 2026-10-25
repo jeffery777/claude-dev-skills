@@ -233,6 +233,30 @@ Cowork runtime test). At that release,
 
 ### Security
 
+- The push scan and the merge-readiness scan stop at commit and tag
+  signatures (REQ-011, FU-017, Issue #54). A signature can carry a name or
+  email that the headers do not show (the certificate of an x509
+  signature, the signer's user ID of an OpenPGP signature). In R-REV-9
+  and `dev-security-reviewer`: when the scan view has a `gpgsig `,
+  `gpgsig-sha256 ` or `mergetag ` commit header, or a scanned tag has a
+  line that starts with `gpgsig` or `-----END ` or contains `-----BEGIN `
+  (a tag message without a trailing newline puts the signature block
+  inside the last message line; card FU017-R2-C2a), the reviewer reports a
+  blocking finding with the disposition Needs Human Decision. It lists
+  each such commit or tag and the kind of signature, and it does not
+  decode the signature (card FU017-C1b). The checks use `awk`, because
+  `grep` can treat a view with a NUL byte as binary. The main agent stops
+  the push (also in `dev-implement`), and the user decides whether the
+  identity of the signing key may be published. When the user allows it,
+  the main agent records the signature finding as `Rejected`, with the
+  user's answer as the source and the reason; the answer covers only that
+  push, or at merge readiness that range. When the scan has no other
+  open finding, the scan counts as passed (card FU017-R2-C3a). The
+  R-REV-9 "Not covered" list names the decoded content of signatures and
+  signatures that the platform adds at merge or squash, and an `encoding`
+  header that names an encoding that is not ASCII-compatible (UTF-16,
+  EBCDIC), for which the view can show no readable identity or signature
+  header (card FU017-R1-C1a).
 - The push stops, within the coverage that R-REV-9 states, at a force or
   delete that configuration causes, and the
   error output of the URL check, `ls-remote`, the dry-run and the push stays

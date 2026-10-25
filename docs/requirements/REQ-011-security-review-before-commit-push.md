@@ -66,6 +66,15 @@ sources:
   - type: chat
     locator: "Claude Code session 2026-10-25 (orchestrator session, relayed to the R-REV-9 backlog session, Issue #52), user answer to card RB-C3 (findings S2-001 to S2-003: the configuration check does not cover `GIT_CONFIG`, legacy remotes and branches files or Git before 2.18; claims narrowed) and to the proposed rule for the next round"
     quote: "RB-C3 選 a，也同意下一輪的約定"
+  - type: chat
+    locator: "Claude Code session 2026-10-25 (orchestrator session, relayed to the FU-017 session, Issue #54), user answer to card FU017-C1 (commit and tag signatures: stop condition)"
+    quote: "C1 選 b"
+  - type: chat
+    locator: "Claude Code session 2026-10-25 (orchestrator session, relayed to the FU-017 session, Issue #54), user answer to card FU017-R1-C1 (finding S1-002: an encoding that is not ASCII-compatible; claim narrowed)"
+    quote: "R1-C1 選 a"
+  - type: chat
+    locator: "Claude Code session 2026-10-25 (orchestrator session, relayed to the FU-017 session, Issue #54), user answer to round-2 cards FU017-R2-C2 (finding S2-001: tag signature inside the last message line; check changed) and FU017-R2-C3 (findings R2-001, R2-002, S2-003: an allowed signature finding is Rejected for this push) and extras 1 to 4 (R2-003, S2-002, S2-004, round-3 convention)"
+    quote: "R2-C2 選 a，R2-C3 選 a，附帶 1–4 同意"
 non_goals:
   - Installing gitleaks or Git hooks without the user's approval
   - Review convergence, decision cards and REQ-GAP (PR-B, D-013, D-014, D-016)
@@ -209,6 +218,55 @@ committed by default.
   reviewer agent
   file does not repeat the new checks; this is an author decision that
   follows card PR2-C2a (the push form).
+- Issue #54 (FU-017; card FU017-C1b): when the push scan view (R-REV-9
+  step 8) has a line that starts with `gpgsig `, `gpgsig-sha256 ` or
+  `mergetag ` (a commit header; the view indents message lines), or a
+  scanned tag has a line that starts with `gpgsig` or `-----END ` or
+  contains `-----BEGIN ` (card FU017-R2-C2a: a message without a trailing
+  newline puts the signature block inside the last message line), the
+  reviewer reports a blocking finding with the disposition Needs Human
+  Decision. It lists each such commit or tag and the kind of signature, and
+  it does not decode the signature. The checks use `awk`, not `grep`,
+  because `grep` can treat the view as binary when it has a NUL byte and
+  then print no line. The main agent stops at step 5, and the user decides
+  whether the identity of the signing key may be published. When the user
+  allows it, the main agent records the signature finding with the
+  disposition `Rejected`, with the user's answer as the source and the
+  reason (card FU017-R2-C3a). The answer covers only the commits and tags
+  of that scan and push. When the scan has no other open finding, the
+  R-REV-9 scan counts as passed, and the main agent continues at step 9.
+  After any change, the main agent starts again at step 1. A signature
+  finding blocks the push until the user allows it. The merge-readiness
+  range scan reports signatures in the same way. The user decides as in
+  step 5 whether the identity of the signing key may be published; an
+  allowing answer is recorded the same way and covers that range.
+  The reviewer agent file carries the step-8 detection sentences and the
+  range sentence (not step 5), and `dev-implement` step 4 says that a
+  signed commit or tag stops the push. The commit scan shows no signature:
+  Git adds it when it creates the commit, and the push scan reports it
+  (with `commit.gpgsign=true`, the staged view has no signature line and
+  the commit object has one; security reviewer check). R-REV-9 lists what
+  the scans do not cover: the decoded content of signatures and signatures
+  that the platform adds when it creates a merge or squash commit.
+  R-REV-9 also lists an `encoding` header that names an encoding that is
+  not ASCII-compatible (for example UTF-16 or EBCDIC), for which the view
+  can show no readable identity or signature header; the user accepted this
+  case (card FU017-R1-C1a).
+  Temporary-repository tests show these cases reported: OpenPGP with
+  `user.signingkey` set to a fingerprint, unset, and set to an email; SSH;
+  x509 with a self-signed and with a CA-issued certificate (gpgsm); a
+  SHA-256 repository (`gpgsig-sha256`); a signed tag; a signed tag whose
+  message has no trailing newline (`--cleanup=verbatim`); a `mergetag`
+  merge; a signed commit in the range scan; and a signed commit followed by a
+  commit that adds a binary file (a NUL byte in the view), in the Claude
+  Code Bash shell and in bash. They show these cases not
+  reported: an unsigned commit, a commit message with a `gpgsig` line, an
+  unsigned tag, and a signed commit that the remote already has. A tag
+  message that contains `-----BEGIN ` anywhere is reported (a false
+  positive on the safe side). gitsign and smimesign were not tested (not
+  installed). This acceptance replaces item 3 of the Issue #54 acceptance
+  on the commit scan: by finding R1-004, the commit-scan note is a fact
+  sentence in the "Before a commit" bullet, not a Not-covered item.
 - REQ-011 has a threat model (user decision on the FU-015 PR-2 threat model
   proposal): R-REV-9 addresses accidental leaks under legitimate
   configuration, within the coverage it states; deliberately malicious

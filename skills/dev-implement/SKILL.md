@@ -54,7 +54,8 @@ When the user asked for it, use this order (R-REV-9):
    ref line, and check the names it lists
    without substituting them (R-REV-9). Have `dev-security-reviewer` scan
    everything it lists: every commit the remote does not have yet and any
-   annotated tag.
+   annotated tag; a signed commit or tag stops the push for the user's
+   decision (R-REV-9).
 5. Pass the `dev-gate` push gate, then push with exactly those arguments
    (including `--no-recurse-submodules`). Change no ref, configuration or
    remote between the remote-name check and the push; after any change,

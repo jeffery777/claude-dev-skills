@@ -1,0 +1,42 @@
+{
+  "schema": "claude-dev-graph/v1",
+  "objective": {
+    "id": "issue-54-fu017-signatures",
+    "title": "FU-017: R-REV-9 scans stop at commit and tag signatures",
+    "rigor": "strict",
+    "requirements": [
+      "REQ-011"
+    ]
+  },
+  "nodes": [
+    {
+      "id": "T1",
+      "title": "Signature stop in R-REV-9 step 8, step 5 and the merge-readiness scan (card FU017-C1b); Not covered narrowed; reviewer agent file push and range sentences; dev-implement step 4; REQ-011 source and acceptance; log row; CHANGELOG; followups FU-017",
+      "kind": "implement",
+      "requirements": [
+        "REQ-011"
+      ],
+      "depends_on": [],
+      "owns": [
+        "skills/dev-core/SKILL.md",
+        "skills/dev-core/deltas.md",
+        "skills/dev-implement/SKILL.md",
+        "agents/dev-security-reviewer.md",
+        "docs/requirements/REQ-011-security-review-before-commit-push.md",
+        "docs/requirements/log.md",
+        "CHANGELOG.md",
+        ".dev/followups.md",
+        ".dev/issue-54-fu017-signatures/"
+      ],
+      "risk": "high",
+      "review": "security",
+      "status": "done",
+      "dod": [
+        "Each claim of the REQ-011 Issue #54 acceptance holds in the rule files; temporary-repository tests pass; dev-security-reviewer R-REV-7 scan and dev-reviewer deep review find no open MUST-FIX"
+      ],
+      "verify": [
+        "bash scripts/validate.sh"
+      ]
+    }
+  ]
+}

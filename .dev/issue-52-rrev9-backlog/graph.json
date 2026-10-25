@@ -1,0 +1,40 @@
+{
+  "schema": "claude-dev-graph/v1",
+  "objective": {
+    "id": "issue-52-rrev9-backlog",
+    "title": "R-REV-9 backlog: credential warnings, force or delete stop (FU-019) and PR #49 NITs",
+    "rigor": "strict",
+    "requirements": [
+      "REQ-011"
+    ]
+  },
+  "nodes": [
+    {
+      "id": "T1",
+      "title": "URL check stderr and fetch line count (MS49-002, MS49-001), error output of ls-remote, dry-run and push kept out of briefs and records, stop at a + or - dry-run line (FU-019) in dev-core and dev-implement; REQ-011 acceptance (first commit) and threat model note (MS49-003); log row; CHANGELOG; followups FU-015 step numbers (MR49-001), FU-019, FU-020, FU-021",
+      "kind": "implement",
+      "requirements": [
+        "REQ-011"
+      ],
+      "depends_on": [],
+      "owns": [
+        "skills/dev-core/SKILL.md",
+        "skills/dev-implement/SKILL.md",
+        "docs/requirements/REQ-011-security-review-before-commit-push.md",
+        "docs/requirements/log.md",
+        "CHANGELOG.md",
+        ".dev/followups.md",
+        ".dev/issue-52-rrev9-backlog/"
+      ],
+      "risk": "high",
+      "review": "security",
+      "status": "done",
+      "dod": [
+        "Each claim of the REQ-011 Issue #52 acceptance holds in the rule files; temporary-repository tests show each listed case; agents/dev-security-reviewer.md is unchanged; dev-security-reviewer R-REV-7 scan and dev-reviewer deep review find no open MUST-FIX"
+      ],
+      "verify": [
+        "bash scripts/validate.sh"
+      ]
+    }
+  ]
+}

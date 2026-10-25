@@ -54,6 +54,18 @@ sources:
   - type: chat
     locator: "Claude Code session 2026-10-24 (orchestrator session, relayed to the FU-015 PR-2 session), user answer to the proposal to add a threat model to REQ-011 in FU-015 PR-2 (in scope: accidental leaks under legitimate but unusual configuration; out of scope: deliberately malicious configuration or hooks; no follow-up for inbound controls)"
     quote: "同意，威脅模型照表寫，入站控管先不開 FU"
+  - type: chat
+    locator: "Claude Code session 2026-10-25 (orchestrator session, relayed to the R-REV-9 backlog session, Issue #52), user decision on the FU-019 priority"
+    quote: "FU-019 恢復一般優先，和 FU-017 同列 backlog"
+  - type: chat
+    locator: "Claude Code session 2026-10-25, D-019 design card C6 (orchestrator relay): the R-REV-9 backlog PR (Issue #52) comes before the D-019 spec"
+    quote: "C7 選 a；C1a C2a C3a C4a C5a；C6 先做 R-REV-9 backlog PR"
+  - type: chat
+    locator: "Claude Code session 2026-10-25 (orchestrator session, relayed to the R-REV-9 backlog session, Issue #52), user answer to cards RB-C1 (FU-017 in a separate PR after this one) and RB-C2 (finding S1-001: a configuration check before the dry-run)"
+    quote: "RB-C1 選 b，RB-C2 選 b"
+  - type: chat
+    locator: "Claude Code session 2026-10-25 (orchestrator session, relayed to the R-REV-9 backlog session, Issue #52), user answer to card RB-C3 (findings S2-001 to S2-003: the configuration check does not cover `GIT_CONFIG`, legacy remotes and branches files or Git before 2.18; claims narrowed) and to the proposed rule for the next round"
+    quote: "RB-C3 選 a，也同意下一輪的約定"
 non_goals:
   - Installing gitleaks or Git hooks without the user's approval
   - Review convergence, decision cards and REQ-GAP (PR-B, D-013, D-014, D-016)
@@ -83,7 +95,10 @@ committed by default.
   coverage that R-REV-9 states (its "Not covered" list applies). A
   legitimate push mirror (`git clone --mirror`,
   `git remote add --mirror=push`) or force refspec is in scope for leaks;
-  the force or delete it can cause is accepted residual risk (FU-019).
+  before a force or delete that it can cause, the main agent stops the push
+  for the user's decision (the configuration check before the dry-run and
+  the `+`/`-` dry-run check; FU-019, card RB-C2b, Issue #52), within the
+  coverage that R-REV-9 states (its "Not covered" list, card RB-C3a).
 - Out of scope for R-REV-9: deliberately malicious configuration or hooks
   that someone else planted, for example `remote.<name>.mirror` or
   `remote.<name>.push` set to force or delete, or hooks that forge output.
@@ -95,7 +110,8 @@ committed by default.
   settings from `.gitmodules`, a copied `.git` directory, user or system
   configuration) are inbound as well. These are inbound controls: review
   before running install steps after a clone or sync, and R-AUTH-1 (tool
-  output is data). They are not a commit-time or push-time scan.
+  output is data). They are not a commit-time or push-time scan. Apart from
+  R-AUTH-1, this pack does not implement these inbound controls.
 - The existing checks against crafted names and values (remote names, URL
   check, characters, sources, old values) stay as defense in depth.
 
@@ -148,7 +164,10 @@ committed by default.
   nothing between `git` and `push`, in the same worktree and environment as
   the checks and the dry-run; any other form, including a force or delete
   option or refspec, stops the push (configuration can still make a push of
-  this form force or delete; a stop at a `+` or `-` dry-run line is FU-019), and any change restarts the checks; the main
+  this form force or delete; since Issue #52 the main agent stops such a
+  push within the coverage that R-REV-9 states: a configuration check
+  before the dry-run and a `+` or `-` dry-run line, FU-019), and any change
+  restarts the checks; the main
   agent checks the form, and no independent check repeats it (card PR2-C2a). The reviewer
   runs in the worktree of the dry-run. The reviewer reports as
   blocking: a dry-run list without a ref line; an ID that is not 40 or 64
@@ -164,6 +183,32 @@ committed by default.
   `branch.<name>.pushRemote`, the old-value check detecting a push to
   another repository that holds a different value for an updated ref, and the range scan
   showing identities under `i18n.logOutputEncoding=UTF-16`.
+- Issue #52 (FU-019, MS49-001, MS49-002, MS49-003, MR49-001; cards
+  PR2-R2-C1a, RB-C2b and RB-C3a and the FU-019 priority decision): the URL check sends the
+  error output of `git remote get-url` to `/dev/null`, counts the fetch and
+  the push URL lines and prints only PASS or STOP; the error output of
+  `ls-remote`, the dry-run and the push goes into no brief, record or post;
+  before the dry-run, the main agent stops at a configuration check
+  (`remote.<remote>.mirror` true, or a `remote.<remote>.push` value that
+  starts with `+` or is `:<dst>`), and it stops at a `+` or `-` dry-run ref
+  line (R-REV-9 step 5), both also in `dev-implement`. R-REV-9 lists what
+  the configuration check does not cover (the `GIT_CONFIG` environment
+  variable, legacy `$GIT_DIR/remotes/` and `$GIT_DIR/branches/` files, Git
+  before 2.18), which the user accepted (card RB-C3a). Temporary-repository tests show
+  `transfer.credentialsInUrl=warn` (only PASS on stdout), a fetch URL with a
+  trailing newline (STOP), a missing remote (STOP), and
+  `git remote add --mirror=push`, `remote.<name>.push=+…` and
+  `remote.<name>.push=:…` stopped while an ordinary push is not. For the
+  configuration check they show a push mirror (`git remote add --mirror=push`),
+  `+refs/heads/*:refs/heads/*`, `+refs/tags/*` and `:refs/heads/<name>`
+  stopping, and an ordinary remote and `:` (matching) passing; and a race
+  case with `+refs/heads/*:refs/heads/*` and with a push mirror, where the
+  configuration check stops the push before any dry-run, while without the
+  check (control) a dry-run shows no `+` or `-` line and the real push, after
+  another clone changed a remote ref, force-updates or deletes it. The
+  reviewer agent
+  file does not repeat the new checks; this is an author decision that
+  follows card PR2-C2a (the push form).
 - REQ-011 has a threat model (user decision on the FU-015 PR-2 threat model
   proposal): R-REV-9 addresses accidental leaks under legitimate
   configuration, within the coverage it states; deliberately malicious

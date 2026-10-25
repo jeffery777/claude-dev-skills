@@ -41,14 +41,17 @@ When the user asked for it, use this order (R-REV-9):
    identity. Read back `git --no-replace-objects cat-file commit HEAD`.
 4. Before the push, confirm that the recorded identity and message match what
    was scanned. Check the remote names and that the fetch and push URLs of
-   `<remote>` are one and the same, then run
+   `<remote>` are one and the same; stop when the configuration of
+   `<remote>` sets a push mirror or a `+` or `:<dst>` push refspec
+   (R-REV-9). Then run
    `git ls-remote --heads --tags '<remote>'` (no `git fetch`) and the real
    push command with `--dry-run --porcelain` added. The real push has the
    form that R-REV-9 gives: it names `'<remote>'`, always includes
    `--no-recurse-submodules` and has no other option outside that form;
    write each source as a full ref name (`refs/heads/<branch>`). Check that the
-   dry-run exits 0 with `Done` as its last line and lists at least one
-   tab-separated ref line, and check the names it lists
+   dry-run exits 0 with `Done` as its last line, lists at least one
+   tab-separated ref line and lists no `+` (forced update) or `-` (delete)
+   ref line, and check the names it lists
    without substituting them (R-REV-9). Have `dev-security-reviewer` scan
    everything it lists: every commit the remote does not have yet and any
    annotated tag.

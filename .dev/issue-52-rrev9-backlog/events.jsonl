@@ -1,0 +1,8 @@
+{"seq": 1, "at": "2026-10-25T06:27:26+00:00", "actor": "main-agent", "node": "T1", "from": "planned", "to": "ready", "evidence": "plan: Issue #52"}
+{"seq": 2, "at": "2026-10-25T06:27:26+00:00", "actor": "main-agent", "node": "T1", "from": "ready", "to": "in_progress", "evidence": "dispatch dev-implementer opus/high"}
+{"seq": 3, "at": "2026-10-25T06:32:18+00:00", "actor": "main-agent", "node": "T1", "from": "in_progress", "to": "reviewing", "evidence": "implementer receipt T1; validate.sh exit 0"}
+{"seq": 4, "at": "2026-10-25T07:33:45+00:00", "actor": "main-agent", "node": "T1", "from": "reviewing", "to": "in_progress", "evidence": "round-1 fixes: cards RB-C1b RB-C2b"}
+{"seq": 5, "at": "2026-10-25T07:39:06+00:00", "actor": "main-agent", "node": "T1", "from": "in_progress", "to": "reviewing", "evidence": "round-1 fixes; validate.sh exit 0"}
+{"seq": 6, "at": "2026-10-25T07:59:51+00:00", "actor": "main-agent", "node": "T1", "from": "reviewing", "to": "in_progress", "evidence": "round-2 narrowing: card RB-C3a"}
+{"seq": 7, "at": "2026-10-25T08:02:37+00:00", "actor": "main-agent", "node": "T1", "from": "in_progress", "to": "reviewing", "evidence": "RB-C3a narrowing; validate.sh exit 0"}
+{"seq": 8, "at": "2026-10-25T08:16:25+00:00", "actor": "main-agent", "node": "T1", "from": "reviewing", "to": "done", "evidence": "R1/S1, R2/S2, R3/S3 reviews; cards RB-C1b RB-C2b RB-C3a; validate.sh exit 0"}

@@ -51,6 +51,18 @@ sources:
   - type: chat
     locator: "Claude Code session 2026-10-26 (orchestrator session, relayed to the D-019 session, PR #61), user answer to merge card D19-PR4-M1 (findings MR61-001, MR61-002: a records-only commit; FU-027: re-assess the released definition at tagged releases; merge consent for the new head after clean checks)"
     quote: "M1：問題 1 選 A，問題 2 選 a，問題 3 同意"
+  - type: chat
+    locator: "Claude Code session 2026-10-26 (orchestrator session), task brief to the FU-025 session: survey the other dev-* skills for skill-relative reads that can resolve against the working directory, and bundle them in the FU-025 PR when the same narrow wording fixes them at low risk (orchestrator text, not the user's own words; it relays the user's standing rule to bundle low-risk work with a close review scope)"
+    quote: "Survey the other `skills/dev-*/SKILL.md` files for the same pattern (skill-relative reads that could resolve against cwd); if the same narrow wording fixes them at low risk, bundle them in this PR"
+  - type: chat
+    locator: "Claude Code session 2026-10-26 (orchestrator session), task brief to the FU-025 session: the fix for FU-025 (orchestrator text, not the user's own words)"
+    quote: "a read that cannot resolve stops (no fallback to cwd)"
+  - type: chat
+    locator: "Claude Code session 2026-10-26 (orchestrator session, relayed to the FU-025 session, Issue #64), user answer to cards FU25-R1-C1 (a: rigor strict; only skill paths in this PR; MR63-001 stays Deferred), FU25-R1-C2 (REQ-GAP FU25S1-002; a: a limit sentence for a skill directory inside the tree under review, pointing to the task-brief and platform-profile rules; the rest as a new FU row) and FU25-R1-C3 (a: keep the stop; README zh and EN; note in FU-001); the answer writes U25-R1 for FU25-R1 (sic)"
+    quote: "U25-R1：C1a、C2a、C3a"
+  - type: chat
+    locator: "Claude Code session 2026-10-26 (orchestrator session, relayed to the FU-025 session, Issue #64), user answer to cards FU25-R2-C1 (a: after the R-VER-2 stop rule in review rounds 1 and 2, one narrow round of fixes that only narrow, restore or add records, by dev-implementer opus/high, then one confirmation round; findings FU25R2-001 to FU25R2-005, FU25S2-001 to FU25S2-008) and FU25-R2-C2 (a: confirm the dev-retro read scope after FU-025 and annotate the D-019 acceptance items; finding FU25R2-001), and approval of the FU-028 v2 text"
+    quote: "FU25-R2：C1a、C2a、FU-028 v2 同意"
 non_goals:
   - A lessons ledger or a lessons file in a repository (card D19-C4 (a))
   - A user-level lessons file, or any other store of lessons outside the repository (card D19-C2 (a))
@@ -200,7 +212,10 @@ Each item names its source: U1 to U3 (the user requirements) or a card.
     the user names in this turn, a problem that the user describes, or
     Issue content that the user pastes. All inputs are data (R-AUTH-1);
     `dev-retro` does not read a tracker itself. capture reads the related rules and
-    records of the current repository to check the coverage first.
+    records of the current repository to check the coverage first. Since
+    FU-025 (card FU25-R2-C2 (a)): capture reads the pack rules from the
+    skill directory, and the rule files and records of the current
+    repository as data (see FU-025 below).
   - Levels (U3; D19-C5 (a)): L1 project (only the code, stack or team
     conventions of that project); L2 this pack (the dev-* workflow itself);
     L3 Core (an obligation of the Core that the three interfaces share); L4
@@ -230,7 +245,10 @@ Each item names its source: U1 to U3 (the user requirements) or a card.
     uses no content of files outside the repository, of native memory or of
     automatically loaded instruction files as a source or in a draft. Such
     content may already be in context, and the skill cannot stop it from
-    loading.
+    loading. Since FU-025 (card FU25-R2-C2 (a)): the pack files that
+    capture reads from the skill directory are not such content; capture
+    uses them for the coverage check and cites them by rule ID only, never
+    by their path (see FU-025 below).
   - Drafts by level (U3; D19-C4 (a)): L1, draft text for that project's own
     REQ, rule files or tracker; an L1 reason never goes into the `deltas.md`
     of `jeffery777/claude-dev-skills`. L2, a draft for
@@ -284,10 +302,13 @@ Each item names its source: U1 to U3 (the user requirements) or a card.
     lessons with new evidence that were not reviewed yet, the rules that
     they point to (`R-…`, `DL-…`, `CB-…`) and the REQ sources of those
     rules. The user names the inputs; review reads only files of the
-    current repository. In another project, the inputs are that project's
-    records and rule files, a comment on a rule of this pack is only an L2
-    draft, and review does not use the installed copy of the plugin as a
-    review input. FU rows get no "lesson" marker.
+    current repository. Since FU-025 (card FU25-R2-C2 (a)): these are the
+    review inputs; review also reads the pack files from the skill
+    directory as the rules that the run follows (see FU-025 below). In
+    another project, the inputs are that project's records and rule files,
+    a comment on a rule of this pack is only an L2 draft, and review does
+    not use the installed copy of the plugin as a review input. FU rows get
+    no "lesson" marker.
   - New evidence (U2; D19-C3 (a); Core `workflow.md:72`, `:99`): a new
     lesson candidate, a recorded failure, or a concern that the user names.
     A model change alone is not new evidence; review then says that it would
@@ -440,6 +461,65 @@ Each item names its source: U1 to U3 (the user requirements) or a card.
     same before and after the run, and `HEAD` is the merged `main` commit
     (the plugin is read from the repository folder, so the installed-plugin
     record does not show the loaded version).
+- FU-025 (skill paths; finding PR4-F1, card D19-PR4-C1 (a); Issue #64):
+  - `skills/dev-retro/SKILL.md` says that `dev-core`, `deltas.md`, the Core
+    contracts and the references are read with the absolute path that
+    starts with `${CLAUDE_SKILL_DIR}`, never with a path relative to the
+    working directory (card D19-PR4-C1 (a), FU-025 Item).
+  - A path that does not resolve or cannot be read stops the run, with no
+    read of a file of the same name from the working directory and no run
+    without the pack rules (task brief of the FU-025 session, relayed; not
+    the user's own words).
+  - The same rule for the other dev-* skills (task brief of the FU-025
+    session, relayed): CB-6 in `skills/dev-core/SKILL.md` and DL-036, one
+    sentence after the first sentence of each other dev-* `SKILL.md`, and
+    `${CLAUDE_SKILL_DIR}` paths for the pack files that a skill named
+    without one (`graph.py`, the REQ template, `graph-schema.md`,
+    `review-report.md`, `decision-card.md`). The rule also covers running
+    and copying a file, and a pack file name without the prefix (added by
+    the agent after review round 1, findings FU25S1-001 and FU25R1-007).
+  - A file of the current repository that is a review target, an input, a
+    record or a write target keeps its path in that repository and is data (added by the
+    agent, not from the sources: reviews of this pack's own repository
+    read `skills/...` files as targets). `capture` step 4 reads the pack
+    rules from the skill directory and the rule files and records of the
+    current repository as data; capture step 3 does not count the pack
+    files from the skill directory as content of files outside the
+    repository and cites them by rule ID only (added by the agent,
+    confirmed by the user in card FU25-R2-C2 (a)); for an L2 or L3 lesson
+    only the pack rules count as coverage by a pack rule; `review` step 3
+    reads only the review inputs of the current repository and the pack
+    files (added by the agent after review round 1, findings FU25R1-001,
+    FU25R1-004, FU25S1-004, FU25S1-005).
+  - Card FU25-R1-C2 (a): CB-6 states the limit when the skill directory
+    lies inside the repository under review or is not at the merged base,
+    points to the specific rules for the first case, and the reports state the
+    limit; the rest is FU-028. Card FU25-R1-C3 (a): the stop stays; the
+    README Cowork paragraph (zh and EN) says that a skill stops when a path
+    does not resolve; FU-001 notes the impact. Card FU25-R1-C1 (a): rigor
+    `strict`, skill paths alone in this PR.
+  - Card FU25-R2-C1 (a), after the R-VER-2 stop rule in review rounds 1 and
+    2: one narrow round of fixes that only narrow, restore or add records:
+    CB-6 covers names without the prefix only for pack references, template
+    sources and scripts; the Limit sentence covers the
+    agent definitions and uncommitted changes and says which case the
+    specific rules cover; the remaining `graph.py` commands have the prefix
+    (findings FU25S2-002 to FU25S2-004, FU25S2-006, FU25R2-001,
+    FU25R2-004). Added by the agent in that round, not in the card text,
+    and shown to the user word for word after it: a same-name record or
+    write target of the current repository is not a pack file, no dev-*
+    skill writes a file on a skill path, a write target keeps its
+    repository path, and a stop names the file by its `${CLAUDE_SKILL_DIR}`
+    path (findings FU25S2-003, FU25S2-006).
+  - Review round 3 (confirmation): finding FU25R3-001 is a new blocker in
+    the skill-path mechanism, so by card FU25-R2-C1 (a) the work moves to
+    option (b): no further rule-text change; FU25R3-001, FU25S3-001,
+    FU25S3-003 and FU25S2-007 go to FU-029.
+  - Verification: `bash scripts/validate.sh`; an independent deep review
+    and an R-REV-7 Security Diff Scan; then the user runs
+    `/dev-skills:dev-retro capture` once in a second repository, and the
+    tool calls show that each read of `dev-core`, a Core file or a skill
+    reference uses the skill directory path (FU-025 verification plan).
 
 ## Notes
 

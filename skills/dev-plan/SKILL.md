@@ -5,7 +5,12 @@ description: Clarify a development request and plan it before code changes - obj
 
 # dev-plan
 
-Read `${CLAUDE_SKILL_DIR}/../dev-core/SKILL.md` first, then the Core files that its stage map lists for `dev-plan`. It and the Core files it lists hold the rules
+Read `${CLAUDE_SKILL_DIR}/../dev-core/SKILL.md` first, then the Core files that its stage map lists for `dev-plan`.
+Read, run or copy each file that this skill names with a `${CLAUDE_SKILL_DIR}`
+path only with that full absolute path, never with a path relative to the
+working directory; when such a path does not resolve or cannot be read, stop
+and report it (CB-6).
+`dev-core` and the Core files it lists hold the rules
 cited below.
 
 For a single obvious change, skip this skill and use `dev-implement`. For
@@ -28,7 +33,7 @@ interactive planning, use plan mode; this skill adds what plan mode lacks
      Confluence, a PRD), the wiki is an index only: each REQ links back with
      `type: external` and a precise locator. Confidential text never leaves
      the project.
-   - For each new need, copy `templates/REQ-template.md` to
+   - For each new need, copy `${CLAUDE_SKILL_DIR}/templates/REQ-template.md` to
      `REQ-<next-number>-<slug>.md`. Add one `sources` entry per original:
      a `type`, a precise `locator` and the verbatim `quote`. Write your own
      summary only in `## Need`. Record the stated non-goals. Anything you
@@ -110,7 +115,8 @@ interactive planning, use plan mode; this skill adds what plan mode lacks
    ```
 
    This step needs a shell with Python 3 (Claude Code). Without one, follow the
-   manual procedure at the end of `graph-schema.md` and say so in the plan.
+   manual procedure at the end of
+   `${CLAUDE_SKILL_DIR}/references/graph-schema.md` and say so in the plan.
    `validate` fails when a task cites a REQ without an existing file whose
    `id` matches. Fix every error. Review `UNUSED_REQUIREMENT` and
    `INACTIVE_REQUIREMENT` warnings with the user.

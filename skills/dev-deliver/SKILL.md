@@ -5,7 +5,12 @@ description: Drive a larger bounded objective end to end - plan, task graph, dis
 
 # dev-deliver
 
-Read `${CLAUDE_SKILL_DIR}/../dev-core/SKILL.md` first, then the Core files that its stage map lists for `dev-deliver`. This skill is the outer
+Read `${CLAUDE_SKILL_DIR}/../dev-core/SKILL.md` first, then the Core files that its stage map lists for `dev-deliver`.
+Read, run or copy each file that this skill names with a `${CLAUDE_SKILL_DIR}`
+path only with that full absolute path, never with a path relative to the
+working directory; when such a path does not resolve or cannot be read, stop
+and report it (CB-6).
+This skill is the outer
 loop. It routes work to the other `dev-*` skills and never duplicates them.
 `graph.py` is at `${CLAUDE_SKILL_DIR}/../dev-plan/scripts/graph.py` and needs a
 shell with Python 3; without one, use the manual procedure in
@@ -29,8 +34,9 @@ Parallel writers in worktrees are G2 work and not part of this skill yet.
 
 Repeat until the objective is complete or a stop condition holds (R-AUTH-5):
 
-1. **Select.** Run `graph.py ready` and take one listed node, preferring the
-   smallest one that advances the objective. A listed node that is still
+1. **Select.** Run `${CLAUDE_SKILL_DIR}/../dev-plan/scripts/graph.py ready`
+   and take one listed node, preferring the smallest one that advances the
+   objective. A listed node that is still
    `planned` moves to `ready` first. A `STRANDED` warning in the `ready` output means a dependency
    was cancelled: re-plan that edge with `dev-plan` or cancel the node.
 2. **Dispatch.** Run the node in this session, or delegate it to one subagent
@@ -63,7 +69,7 @@ Repeat until the objective is complete or a stop condition holds (R-AUTH-5):
 4. **Verify** on the working tree. Then record the transition with a short
    reference in single quotes, or with `--evidence-file <report in the
    project>`, which records the file's path and SHA-256, not its content:
-   `graph.py transition <graph> <node> <status> --evidence '<sha or report path>'`.
+   `${CLAUDE_SKILL_DIR}/../dev-plan/scripts/graph.py transition <graph> <node> <status> --evidence '<sha or report path>'`.
 5. **Review** each write node through its `review` mode with `dev-review`.
    The reviewer gets a fresh context and tries to disprove the change.
    Classify each finding before you fix it, and keep fixes inside the

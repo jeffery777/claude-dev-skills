@@ -1,0 +1,52 @@
+{
+  "schema": "claude-dev-graph/v1",
+  "objective": {
+    "id": "issue-64-fu025-skill-paths",
+    "title": "FU-025: skill files are read with the skill directory path, never relative to the working directory",
+    "rigor": "strict",
+    "requirements": [
+      "REQ-026"
+    ]
+  },
+  "nodes": [
+    {
+      "id": "T1",
+      "title": "Skill paths: CB-6 and DL-036 in dev-core; dev-retro (Skill paths, capture steps 3 and 4, review step 3); the sentence in each other dev-* skill; prefixes for pack files named without one; README; records",
+      "kind": "implement",
+      "requirements": [
+        "REQ-026"
+      ],
+      "depends_on": [],
+      "owns": [
+        "skills/dev-retro/SKILL.md",
+        "skills/dev-core/SKILL.md",
+        "tests/test_rule_citations.py",
+        "skills/dev-review/references/review-report.md",
+        "skills/dev-core/deltas.md",
+        "skills/dev-continue/SKILL.md",
+        "skills/dev-deliver/SKILL.md",
+        "skills/dev-docs/SKILL.md",
+        "skills/dev-gate/SKILL.md",
+        "skills/dev-implement/SKILL.md",
+        "skills/dev-plan/SKILL.md",
+        "skills/dev-plan/references/graph-schema.md",
+        "skills/dev-review/SKILL.md",
+        "docs/requirements/REQ-026-lessons-skill.md",
+        "docs/requirements/log.md",
+        "CHANGELOG.md",
+        "README.md",
+        ".dev/followups.md",
+        ".dev/issue-64-fu025-skill-paths/"
+      ],
+      "risk": "high",
+      "review": "deep",
+      "status": "reviewing",
+      "dod": [
+        "Each skill says that a ${CLAUDE_SKILL_DIR} path is read with that absolute path, never relative to the working directory, and that a path that does not resolve stops; repository files read as review targets, inputs or records stay data with their repository paths; no Core obligation is relaxed; the independent review and the Security Diff Scan find no open MUST-FIX or SHOULD-FIX"
+      ],
+      "verify": [
+        "bash scripts/validate.sh"
+      ]
+    }
+  ]
+}

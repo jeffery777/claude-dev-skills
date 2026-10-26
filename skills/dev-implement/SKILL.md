@@ -6,12 +6,17 @@ description: Implement one clear, bounded code change or bug fix, verify it, and
 # dev-implement
 
 Read `${CLAUDE_SKILL_DIR}/../dev-core/SKILL.md` first, then the Core files that its stage map lists for `dev-implement`.
+Read, run or copy each file that this skill names with a `${CLAUDE_SKILL_DIR}`
+path only with that full absolute path, never with a path relative to the
+working directory; when such a path does not resolve or cannot be read, stop
+and report it (CB-6).
 
 ## Workflow
 
 1. Read the project instructions, the relevant files and tests, and the Git
    state (R-STG-2). If a task graph node drives this work, read the node and
-   move it to `in_progress` with `graph.py transition` (see `dev-plan`); a
+   move it to `in_progress` with
+   `${CLAUDE_SKILL_DIR}/../dev-plan/scripts/graph.py transition` (see `dev-plan`); a
    `planned` node moves to `ready` first. The
    transition re-checks the requirement files; a `REQUIREMENT_CONFLICT` means
    the user must decide first.

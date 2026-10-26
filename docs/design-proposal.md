@@ -446,7 +446,7 @@ D-009 到 D-016 是同一天的決定。D-015 由 PR #5（Issue #4）記錄；D-
   4. 出處與抽象化：locator 只能指向草稿將被 commit 或貼出的那個 repo；離開來源 repo 的文字只寫類別與日期，不寫來源 repo 的名稱、路徑、PR／Issue 編號或 finding ID。抽象化檢查表（專案名、客戶名、內部系統名、主機、帳號、真名、email、版本與弱點細節）的結果是模型自評，不是審查。不把 repo 外的檔案、原生 memory 或自動載入的指示檔內容當出處或放進草稿；這些內容可能已經在 context 中，skill 無法阻止它們被載入。R-REV-9 不檢查業務機密，所以控制只有兩項：檢查表，以及使用者逐字審。任何將被 commit 或貼出的教訓文字都在卡片中逐字列出，實際文字要和核准的相同，有改動就再給使用者看一次；貼出是另一項外部寫入（R-AUTH-2），先做 R-REV-9 貼文掃描。從未修補的安全問題得出的教訓，等修補發布後才升級或公開，沒有例外（卡片 D19-S1 (a)）。
   5. review：只在使用者呼叫時執行，沒有排程。範圍是有新證據、尚未審過的教訓，以及它們指向的規則與這些規則的 REQ 來源，只讀目前 repo 的檔案（卡片 D19-C3 (a)）。新證據是新的教訓候選、已記錄的失敗或使用者指定的疑慮；單純換了模型不算新證據（Core `workflow.md:72`、`:99`），這時 review 請使用者確認範圍。審查者是唯讀的 `dev-skills:dev-reviewer`（`opus`／`xhigh`），每次綁定 exact revision。每項建議標 Core 四種判讀之一；任何會改規則、skill、REQ 或紀錄的建議都出卡，「必要修正」也出卡。capture、review 與教訓候選都不建議放寬 Core 義務或刪除必要檢查；對 Core 的意見寫成 core-feedback 草稿（REQ-019）。審查結果不是核准，也不是完成證據。
   6. 教訓變規則只有一條路：卡片 → 使用者回答 → 使用者另下指令 → dev-plan（REQ sources 記卡片 ID 與使用者原話；另一專案的卡片只記類別與日期；抽象化的原話標「抽象化轉述」）→ 實作 → 獨立 review → R-REV-9 → PR → 使用者決定 merge。每張草稿卡片的選項是核准、延後、拒絕；只有延後的教訓才寫成 FU 列，並附 Deferred 的必填欄位。不建 ledger、教訓檔、使用者層級的教訓檔、hooks、排程或 validator（卡片 D19-C4 (a)、Core `workflow.md:74`）；D-010 不變。本決策不做任何從教訓得出的規則變更。
-- 實作：四個循序 PR，每個在前一個合併之後開始；每次 merge 由使用者決定。Rigor 等級 `strict`：每個 PR 都有 deep review、R-REV-7 安全審查、R-REV-9 掃描與 exact-head gate。PR-1 紀錄（REQ-026、本決策、第 4 節與第 6 節、需求索引與 log、CHANGELOG）；PR-1 的 deep 與安全審查另外檢查規格 v4 沒經過獨立審查的新增內容：R-VER-5 的三項新義務（抽象化檢查表的逐項結果、每句標事實、推論或未驗證、最小補強先縮小宣稱或加管理措施），以及 PR-4 DoD 的「未出現」選項（卡片 D19-S2 (a) 的條件 2）。PR-2 `skills/dev-retro/SKILL.md`、`dev-core` 階段對照表一列、README（中英）；實作者重讀官方文件確認兩個呼叫控制欄位的名稱、語法與效果，讀不回或不同就是 PR-2 的 blocker。PR-3 R-VER-5、DL-035、`skills/dev-core/source-map.md` 一列、`dev-deliver` 的輸出與 reviewer 報告格式。PR-4 第一次使用：使用者對本 repo 五個已記錄的案例呼叫 capture，再呼叫 review；延後的教訓寫成 FU 列；案例 (b) 到 (e) 的判讀與第一次 review 的報告，遮蔽並抽象化後記在 PR 說明（卡片 D19-A2 (a)）。
+- 實作：四個循序 PR，每個在前一個合併之後開始；每次 merge 由使用者決定。Rigor 等級 `strict`：每個 PR 都有 deep review、R-REV-7 安全審查、R-REV-9 掃描與 exact-head gate。PR-1 紀錄（REQ-026、本決策、第 4 節與第 6 節、需求索引與 log、CHANGELOG）；PR-1 的 deep 與安全審查另外檢查規格 v4 沒經過獨立審查的新增內容：R-VER-5 的三項新義務（抽象化檢查表的逐項結果、每句標事實、推論或未驗證、最小補強先縮小宣稱或加管理措施）、PR-4 DoD 的「未出現」選項，以及 PR-2 的使用者貼上的 Issue 內容作為 capture 輸入、定位規則的範圍（REQ sources 與內文、CHANGELOG、`deltas.md`、commit 訊息）、卡片說明答案是否也同意 commit 或貼到它指名的目的地、不寫入規則的 `.git/index` 例外、review 結果不是完成證據，和 PR-4 的 PR 說明中的第一次 review 報告與 DoD 的定位項目（卡片 D19-S2 (a) 的條件 2）。PR-2 `skills/dev-retro/SKILL.md`、`dev-core` 階段對照表一列、README（中英）；實作者重讀官方文件確認兩個呼叫控制欄位的名稱、語法與效果，讀不回或不同就是 PR-2 的 blocker。PR-3 R-VER-5、DL-035、`skills/dev-core/source-map.md` 一列、`dev-deliver` 的輸出與 reviewer 報告格式。PR-4 第一次使用：使用者對本 repo 五個已記錄的案例呼叫 capture，再呼叫 review；延後的教訓寫成 FU 列；案例 (b) 到 (e) 的判讀與第一次 review 的報告，遮蔽並抽象化後記在 PR 說明（卡片 D19-A2 (a)）。
 - 未驗證：呼叫控制欄位的名稱、語法與效果；claude.ai、Skills API 與 Cowork 是否認得這兩個欄位（在不認的環境，「只能由使用者呼叫」只靠 skill 文字）；原生 auto-memory 是否會被「記下來」觸發或自行保存教訓文字。
 - 與 REQ-005 的關係：REQ-005 的原話說技能主要由 agent 視需求呼叫；`dev-retro` 只能由使用者呼叫，是使用者自己選的例外（卡片 D19-C1 (a)）。
 - 與 REQ-001 及第 3 節（`docs/design-proposal.md:32`，Cowork）的關係：`dev-retro` 只支援 Claude Code，是使用者選的例外（卡片 D19-A3 (a)）；其他技能維持 Cowork 的目標。
@@ -1462,8 +1462,15 @@ records D-009 to D-012.
   reviews also check the spec v4 additions that had no independent review:
   the three new R-VER-5 obligations (the item-by-item result of the
   abstraction checklist; each statement marked as fact, inference or
-  unverified; the smallest fix narrows a claim or adds a management measure first) and the
-  PR-4 DoD value "not present" (card D19-S2 (a), condition 2). PR-2
+  unverified; the smallest fix narrows a claim or adds a management measure first), the
+  PR-4 DoD value "not present", and in PR-2 Issue content that the user
+  pastes as a capture input, the scope of the locator rule (REQ sources and body,
+  CHANGELOG, `deltas.md`, commit messages), the card stating whether the
+  answer also agrees to commit or post to the destination that it names,
+  the `.git/index` exception of the no-write rule and that a review result
+  is not completion evidence, and in PR-4 the first review report in the
+  PR description and the locator item of the DoD (card D19-S2 (a),
+  condition 2). PR-2
   `skills/dev-retro/SKILL.md`, a `dev-core` stage map row and README (zh
   and EN); the implementer reads the official documentation again to
   confirm the names, syntax and effect of the two invocation control

@@ -24,6 +24,9 @@ sources:
   - type: chat
     locator: "Claude Code session 2026-10-26 (orchestrator session, relayed to the D-019 spec session), user answer to the D-019 spec approval card D19-A1 (option a: approve spec v4 as the basis of D-019; open the Issue and PR-1 first; an R-REV-9 scan before each commit and push; the user decides each merge; the write authority as the card recommends)"
     quote: "D19-A1 選 a，授權範圍照建議"
+  - type: chat
+    locator: "Claude Code session 2026-10-26 (orchestrator session, relayed to the D-019 session, PR #58), user answer to card D19-PR1-C1 (findings R1-004 and S1-005, REQ-GAP: the PR-4 deep and security reviews re-check each abstraction-checklist item against the final approved text, and an item that was not checked fails the PR-4 DoD; option a: keep)"
+    quote: "D19-PR1-C1 選 a"
 non_goals:
   - A lessons ledger or a lessons file in a repository (card D19-C4 (a))
   - A user-level lessons file, or any other store of lessons outside the repository (card D19-C2 (a))
@@ -94,14 +97,27 @@ Each item names its source: U1 to U3 (the user requirements) or a card.
   - `bash scripts/validate.sh` passes.
   - The PR-1 deep review and security review also check the spec v4
     additions that had no independent review, and the review report gives a
-    conclusion for each (card D19-S2 (a), condition 2):
+    conclusion for each (card D19-S2 (a), condition 2). These additions
+    are:
     - the three new R-VER-5 obligations: the item-by-item result of the
       abstraction checklist; each statement marked as fact, inference or
       unverified; the smallest fix narrows a claim or adds a management measure before
       it adds a new check;
     - the PR-4 DoD value "not present": it loosens the pass condition that
       finding SR2-003 restored, and the review decides whether this
-      loosening holds.
+      loosening holds;
+    - in PR-2: Issue content that the user pastes, as a capture input; the
+      scope of the locator rule (REQ sources and body, CHANGELOG, `deltas.md`,
+      commit messages); the card states whether the answer also agrees to
+      commit or post the text to the destination that it names; the
+      `.git/index` exception of the no-write rule; a review result is not
+      completion evidence;
+    - in PR-4: the first review report in the PR description, and the
+      locator item of the DoD.
+
+    The deep Merge Review of PR #58 (MR58) concluded that these additions
+    hold. The next exact-head Merge Review and security review of PR #58
+    check them again.
 - PR-2 (`skills/dev-retro/SKILL.md`, English; card D19-C1 (a)):
   - Invocation (U1; D19-C1 (a)): the modes are
     `/dev-skills:dev-retro capture` and `/dev-skills:dev-retro review`. The
@@ -138,6 +154,11 @@ Each item names its source: U1 to U3 (the user requirements) or a card.
     or a write, R-AUTH-2). `dev-retro` does not continue into it.
   - Platform (D19-A3 (a)): `SKILL.md` and README (zh and EN) state that
     `dev-retro` supports only Claude Code.
+  - Stage map and README (D19-C1 (a)): the `dev-core` stage map gets a
+    `dev-retro` row (Core files `authorization-and-stops.md` and
+    `workflow.md`; the `review` mode adds `review-and-security.md`), and
+    README (zh and EN) gets a `dev-retro` row that says that `dev-retro`
+    supports only Claude Code (D19-A3 (a)).
   - DoD: the implementer reads the official documentation again and confirms
     the names, syntax and effect of `disable-model-invocation` and
     `disallowed-tools`. If the implementer cannot read them back, or a name,
@@ -343,7 +364,9 @@ Each item names its source: U1 to U3 (the user requirements) or a card.
     review report, masked and abstracted, go into the PR description, which
     the user reads word for word before it is posted, after the R-REV-9 post
     scan. Apart from its records, PR-4 owns only `.dev/followups.md`.
-  - DoD: each public text is the same as the text that the user approved;
+  - DoD (D19-A2 (a); the re-check by the PR-4 reviews and the DoD failure
+    of an item that was not checked: card D19-PR1-C1 (a)): each public
+    text is the same as the text that the user approved;
     each locator points only to the target repository; each item of the
     abstraction checklist has one of the values of PR-2, recorded item by
     item (model self-assessment, not a review); the results are bound to the
@@ -371,16 +394,17 @@ Each item names its source: U1 to U3 (the user requirements) or a card.
   (`docs/design-proposal.md:32`, Cowork): `dev-retro` is a Claude Code-only
   exception chosen by the user (card D19-A3 (a)); the other skills keep the
   Cowork goal.
-- Pending card D19-PR1-C1: the PR-1 reviews (R1-004, S1-005) conclude that
-  the PR-4 DoD value "not present" holds, with a measure: the three
-  checklist values, and the rule that a result gives the item and its
-  status only, never the removed value, are defined once in PR-2, and
-  R-VER-5 and the PR-4 DoD cite them; in the PR-4 DoD, the results are
-  bound to the exact public text, an item that was not checked is a DoD
-  failure, and the PR-4 deep and security reviews re-check each item
-  against the final approved text. Card D19-PR1-C1 decides whether this
-  measure stays. If kept, the re-check by the PR-4 reviews is an extra
-  control for PR-4 text only.
+- Card D19-PR1-C1 (a): the PR-1 reviews (R1-004, S1-005) conclude that
+  the PR-4 DoD value "not present" holds, with a measure, and card
+  D19-PR1-C1 (a) keeps the measure. The card covers only two clauses of
+  the PR-4 DoD: the PR-4 deep and security reviews re-check each item
+  against the final approved text, and an item that was not checked is a
+  DoD failure. The re-check by the PR-4 reviews is an extra control for
+  PR-4 text only. The rest is not part of the card: the three checklist
+  values, and the rule that a result gives the item and its status only,
+  never the removed value, are security review fixes (findings S1-002 and
+  S2-001), defined once in PR-2 and cited by R-VER-5 and the PR-4 DoD; the
+  PR-4 DoD also binds the results to the exact public text.
 - Difference from the codex-dev-skills improvement contracts: Core
   (`vendor/engineering-workflow-core/docs/provenance/source-map.md:177-179`)
   lists three codex-dev-skills contracts (operational evidence, improvement

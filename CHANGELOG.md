@@ -62,6 +62,21 @@ Cowork runtime test). At that release,
   `+` or `-` dry-run ref line, so that a force or delete caused by
   configuration goes to the user. A legitimate push mirror triggers it;
   planted configuration is out of scope under the REQ-011 threat model.
+- Decision D-019, lessons (records only, PR-1, Issue #57; REQ-026):
+  REQ-026, D-019 in zh and EN, the `dev-retro` row and the D-019 items of
+  section 6 in `docs/design-proposal.md`, and the requirements index and
+  log. D-019 plans a skill `dev-retro` (`capture` and `review`) that only
+  the user invokes, that writes no file (skill rule;
+  `disable-model-invocation` blocks only the Skill tool call; not a
+  technical guarantee; see D-019) and that
+  supports only Claude Code,
+  and a "Lesson candidates" section in the `dev-deliver` and `dev-review`
+  reports (R-VER-5, DL-035). Levels L1 (project), L2 (this pack), L3 (Core)
+  and L4 (the user's own instructions); text that leaves its source
+  repository names only a category and a date; the user reviews every
+  lesson text word for word before a commit or post. No ledger, lessons
+  file, hooks, schedule or validator. The skill comes in PR-2, the report
+  section in PR-3 and the first use in PR-4.
 
 ### Changed
 

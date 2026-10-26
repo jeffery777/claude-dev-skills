@@ -3,3 +3,5 @@
 {"seq": 3, "at": "2026-10-26T04:57:19+00:00", "actor": "main-agent", "node": "T1", "from": "in_progress", "to": "reviewing", "evidence": "validate.sh exit 0; PR-4 deep and security reviews next"}
 {"seq": 4, "at": "2026-10-26T05:24:48+00:00", "actor": "main-agent", "node": "T1", "from": "reviewing", "to": "in_progress", "evidence": "round-1: PR4S1-001..006, PR4R1-001..007; card D19-PR4-C2 (1a 2a 3a 4a)"}
 {"seq": 5, "at": "2026-10-26T05:24:48+00:00", "actor": "main-agent", "node": "T1", "from": "in_progress", "to": "reviewing", "evidence": "round-1 fixes; user re-read of FU-022, FU-025, FU-026 and PR body v4; validate.sh exit 0"}
+{"seq": 6, "at": "2026-10-26T05:53:06+00:00", "actor": "main-agent", "node": "T1", "from": "reviewing", "to": "in_progress", "evidence": "Merge Review MR61 on 3caa07e: 0 MUST-FIX; MR61-001, MR61-002; card D19-PR4-M1 (A, 2a)"}
+{"seq": 7, "at": "2026-10-26T05:53:06+00:00", "actor": "main-agent", "node": "T1", "from": "in_progress", "to": "reviewing", "evidence": "records-only fixes; FU-027; validate.sh exit 0"}

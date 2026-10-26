@@ -45,6 +45,12 @@ sources:
   - type: chat
     locator: "Claude Code session 2026-10-26 (orchestrator session, relayed to the D-019 session, PR-4), user answers on the SKILL.md change, card D19-PR4-C1 (finding PR4-F1) and the PR-4 description draft"
     quote: "SKILL.md 一起改；PR4-C1 選 a；草稿同意"
+  - type: chat
+    locator: "Claude Code session 2026-10-26 (orchestrator session, relayed to the D-019 session, PR-4), user answer to card D19-PR4-C2 (findings PR4S1-001 to PR4S1-003, PR4R1-002, PR4R1-003, PR4R1-007; 1a: the transcript check becomes FU-026; 2a: one sentence for this pack; 3a: FU-025 risk and trigger; 4a: the Owner column is the target repository's public owner; FU-022 line numbers updated)"
+    quote: "D19-PR4-C2：1a、2a、3a、4a；FU-022 行號改成新行號"
+  - type: chat
+    locator: "Claude Code session 2026-10-26 (orchestrator session, relayed to the D-019 session, PR #61), user answer to merge card D19-PR4-M1 (findings MR61-001, MR61-002: a records-only commit; FU-027: re-assess the released definition at tagged releases; merge consent for the new head after clean checks)"
+    quote: "M1：問題 1 選 A，問題 2 選 a，問題 3 同意"
 non_goals:
   - A lessons ledger or a lessons file in a repository (card D19-C4 (a))
   - A user-level lessons file, or any other store of lessons outside the repository (card D19-C2 (a))

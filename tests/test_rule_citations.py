@@ -56,9 +56,9 @@ class RuleCitations(unittest.TestCase):
     def test_patterns_catch_bad_citations(self):
         defined = set(DEFINED_RE.findall(read(CORE)))
         self.assertNotIn("R-REV-99", defined)
-        self.assertNotIn("CB-6", defined)
+        self.assertNotIn("CB-99", defined)
         self.assertTrue(ID_RE.search("cite R-REV-99 here"))
-        self.assertTrue(ID_RE.search("cite CB-6 here"))
+        self.assertTrue(ID_RE.search("cite CB-99 here"))
         for bad in ("(dev-core §8)", "(`dev-core` section 8)", "stops at the gate (section 8)", "(§8)",
                     "dev-core Section 8", "section 8 of dev-core", "dev-core's section 8", '"""dev-core section 8: x"""'):
             self.assertTrue(SECTION_RE.search(bad), bad)

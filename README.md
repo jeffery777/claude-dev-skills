@@ -32,7 +32,7 @@ claude plugin install dev-skills@dev-skills
 
 Cowork：到 Customize > Plugins > Add marketplace，輸入 `jeffery777/claude-dev-skills`，再安裝 `dev-skills`。
 
-Cowork 有兩項尚未實測：技能能否執行 `graph.py`（需要 shell），以及 `${CLAUDE_SKILL_DIR}` 的相對路徑能否解析。不能執行時，技能仍可依文件手動操作。
+Cowork 有兩項尚未實測：技能能否執行 `graph.py`（需要 shell），以及 `${CLAUDE_SKILL_DIR}` 的相對路徑能否解析。沒有 shell 時，技能依文件手動操作。路徑無法解析時，技能會停下並回報，不會改讀工作目錄裡的同名檔案，也不會在沒有規則的情況下繼續（CB-6）。
 
 ## 技能
 
@@ -147,7 +147,7 @@ To test from a local checkout, use `claude plugin marketplace add ./` instead.
 
 Cowork: open Customize > Plugins > Add marketplace, enter `jeffery777/claude-dev-skills`, then install `dev-skills`.
 
-Two things are not yet tested in Cowork: whether skills can run `graph.py` (a shell is required), and whether relative paths from `${CLAUDE_SKILL_DIR}` resolve. If they do not, the skills still work as written procedures.
+Two things are not yet tested in Cowork: whether skills can run `graph.py` (a shell is required), and whether relative paths from `${CLAUDE_SKILL_DIR}` resolve. Without a shell, the skills use the written procedures. When a path does not resolve, a skill stops and reports it; it does not read a file with the same name from the working directory and does not continue without the rules (CB-6).
 
 ## Skills
 

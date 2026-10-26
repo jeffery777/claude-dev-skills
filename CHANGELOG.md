@@ -282,6 +282,24 @@ Cowork runtime test). At that release,
 
 ### Fixed
 
+- Skill paths (REQ-026, FU-025, Issue #64). In the first use of
+  `dev-retro`, the capture read `dev-core` with a path relative to the
+  working directory. The new binding CB-6 (DL-036) says that each file that
+  a dev-* skill names with a `${CLAUDE_SKILL_DIR}` path is read, run or
+  copied only with that absolute path, never relative to the working
+  directory, and that a path that does not resolve stops the skill. A file
+  with the same name in the working directory is that repository's data,
+  never pack rules (R-AUTH-1); a file of the current repository that is a
+  review target, an input, a record or a write target keeps its repository
+  path. Each dev-* skill cites CB-6. The pack files that review round 1
+  found without the prefix, and the remaining `graph.py` commands, now have
+  it; CB-6 covers other names without the prefix for pack references,
+  template sources and scripts (open questions: FU-029). `dev-retro`
+  capture steps 3 and 4 and review step 3 separate the pack rules from the
+  files of the current repository. CB-6 states its limit when the plugin checkout is inside the
+  repository under review, not at the merged `main`, or has uncommitted
+  changes (FU-028). The README Cowork paragraph now says that a skill stops
+  when a path does not resolve (FU-001).
 - `dev-core` and Core (REQ-023, FU-010, Issue #18). A rule-by-rule audit
   against Core v0.1.1 (`.dev/issue-18-core-audit/audit.md`) found rules
   that leave out Core obligations or state them more loosely; three review

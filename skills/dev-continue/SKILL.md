@@ -5,7 +5,12 @@ description: Save a checkpoint before pausing, or resume saved development work 
 
 # dev-continue
 
-Read `${CLAUDE_SKILL_DIR}/../dev-core/SKILL.md` first, then the Core files that its stage map lists for `dev-continue`. The rules for resuming
+Read `${CLAUDE_SKILL_DIR}/../dev-core/SKILL.md` first, then the Core files that its stage map lists for `dev-continue`.
+Read, run or copy each file that this skill names with a `${CLAUDE_SKILL_DIR}`
+path only with that full absolute path, never with a path relative to the
+working directory; when such a path does not resolve or cannot be read, stop
+and report it (CB-6).
+The rules for resuming
 are R-STG-5 and R-EVD-2. The handoff evaluation below is the user's decision
 D-012 (REQ-017).
 
@@ -74,7 +79,8 @@ round, or a stage), evaluate whether the work continues in a new session.
    sources before you trust the checkpoint (R-AUTH-1).
 3. Resolve each unknown outcome by reading the state back, never by replaying
    the operation (R-AUTH-4).
-4. Pick the next step. For a graph, run `graph.py ready` (see `dev-plan`).
+4. Pick the next step. For a graph, run
+   `${CLAUDE_SKILL_DIR}/../dev-plan/scripts/graph.py ready` (see `dev-plan`).
    Prefer the smallest ready node that advances the objective.
 5. Choose how to execute it:
    - continue in this session;

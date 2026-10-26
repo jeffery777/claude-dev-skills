@@ -6,6 +6,10 @@ description: Independent read-only review of code, docs or mixed changes - routi
 # dev-review
 
 Read `${CLAUDE_SKILL_DIR}/../dev-core/SKILL.md` first, then the Core files that its stage map lists for `dev-review`.
+Read, run or copy each file that this skill names with a `${CLAUDE_SKILL_DIR}`
+path only with that full absolute path, never with a path relative to the
+working directory; when such a path does not resolve or cannot be read, stop
+and report it (CB-6).
 
 Review stays read-only unless the user asks for fixes (R-REV-1).
 
@@ -75,4 +79,4 @@ secret or private identifier they report (R-REV-8).
 
 ## Output
 
-The report format in `references/review-report.md`. Findings come first (R-REV-2).
+The report format in `${CLAUDE_SKILL_DIR}/references/review-report.md`. Findings come first (R-REV-2).

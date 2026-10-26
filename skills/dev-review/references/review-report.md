@@ -33,7 +33,7 @@ keep as is, or needs human decision.
 
 `REQ-GAP` covers a problem that no requirement covers but one seemingly
 should. It is not fixed in the same round: it gets a decision card
-(`decision-card.md`) with the options add a requirement, defer, or reject
+(`${CLAUDE_SKILL_DIR}/../dev-review/references/decision-card.md`) with the options add a requirement, defer, or reject
 (R-REV-3).
 
 `SCOPE-CREEP` covers an addition that no requirement covers: an abstraction,
@@ -74,7 +74,7 @@ such a value (R-REV-8).
 - `Deferred` needs a target, an owner, the reason, the remaining risk, a
   verification plan, and a trigger that makes it blocking.
 - `Needs Human Decision` needs the exact question as a decision card
-  (`decision-card.md`).
+  (`${CLAUDE_SKILL_DIR}/../dev-review/references/decision-card.md`).
 
 ## Lesson candidates (R-VER-5)
 

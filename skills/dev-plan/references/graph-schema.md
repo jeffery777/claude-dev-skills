@@ -131,10 +131,10 @@ temporary files are never committed (CB-1).
 ## Commands
 
 ```bash
-python3 graph.py validate <graph> [--requirements-dir DIR]
-python3 graph.py ready <graph> [--requirements-dir DIR]     # {ready, waiting_on_conflict, warnings}
-python3 graph.py transition <graph> <node> <status> --evidence 'abc1234 tests pass' [--actor NAME]
-python3 graph.py transition <graph> <node> <status> --evidence-file <path>   # records file:<relative path> sha256:<hex>
+python3 ${CLAUDE_SKILL_DIR}/../dev-plan/scripts/graph.py validate <graph> [--requirements-dir DIR]
+python3 ${CLAUDE_SKILL_DIR}/../dev-plan/scripts/graph.py ready <graph> [--requirements-dir DIR]     # {ready, waiting_on_conflict, warnings}
+python3 ${CLAUDE_SKILL_DIR}/../dev-plan/scripts/graph.py transition <graph> <node> <status> --evidence 'abc1234 tests pass' [--actor NAME]
+python3 ${CLAUDE_SKILL_DIR}/../dev-plan/scripts/graph.py transition <graph> <node> <status> --evidence-file <path>   # records file:<relative path> sha256:<hex>
 ```
 
 Pass evidence as a short reference in single quotes (a commit SHA, a report

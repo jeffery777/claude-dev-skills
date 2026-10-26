@@ -5,7 +5,12 @@ description: Formal readiness gate before commit, push, PR or merge - checks fin
 
 # dev-gate
 
-Read `${CLAUDE_SKILL_DIR}/../dev-core/SKILL.md` first, then the Core files that its stage map lists for `dev-gate`. For merge readiness,
+Read `${CLAUDE_SKILL_DIR}/../dev-core/SKILL.md` first, then the Core files that its stage map lists for `dev-gate`.
+Read, run or copy each file that this skill names with a `${CLAUDE_SKILL_DIR}`
+path only with that full absolute path, never with a path relative to the
+working directory; when such a path does not resolve or cannot be read, stop
+and report it (CB-6).
+For merge readiness,
 also read
 `${CLAUDE_SKILL_DIR}/../../vendor/engineering-workflow-core/contracts/exact-head-and-evidence.md`
 in full. It is short, and its rules are strict.

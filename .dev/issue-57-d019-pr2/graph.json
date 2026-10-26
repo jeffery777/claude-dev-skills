@@ -30,7 +30,7 @@
       ],
       "risk": "high",
       "review": "security",
-      "status": "reviewing",
+      "status": "done",
       "dod": [
         "Every REQ-026 PR-2 acceptance item maps to a SKILL.md sentence; static walk-through of the five PR-4 cases and the PR-2 negative cases; SKILL.md cites no R-VER-5; bash scripts/validate.sh exits 0"
       ],

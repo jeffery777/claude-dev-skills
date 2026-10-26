@@ -67,8 +67,9 @@ git diff HEAD --binary --no-ext-diff --no-textconv | shasum -a 256
 `--no-optional-locks` keeps `git status` from updating `.git/index`.
 Check the exit status of each `git` command (for example with `PIPESTATUS`
 in bash or `pipestatus` in zsh), also with `set -o pipefail`; a failed
-command makes the read-back NOT_RUN, because a failed `git` command still
-gives the empty-input hash, which is also the hash of a clean tree.
+command makes the read-back NOT_RUN, because a failed piped `git` command
+(`git status` or `git diff`) still gives the empty-input hash, which is
+also the hash of a clean tree.
 
 If a read-back command fails (non-zero exit status; for example outside a
 repository or with no commit), the read-back is NOT_RUN: report it; the
@@ -273,7 +274,7 @@ the first step.
 ## Output
 
 - The report and the cards use the user's language. Records in `.dev/` and
-  `docs/` keep the current language of each file (R-WRT-1).
+  `docs/` keep the current language of each file.
 - The report gives the mode, the inputs, the read-back values before and
   after with their limits, and for each lesson: the level, the rules or
   records that already cover it, the draft text, the checklist result (item

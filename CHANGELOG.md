@@ -93,6 +93,23 @@ Cowork runtime test). At that release,
   NOT_RUN; drafts contain only visible characters; a security problem with
   an unknown fix status counts as not fixed; a card answer does not start
   a commit or post (card D19-PR2-C1, round-1 review).
+- Lesson candidates section (D-019 PR-3, Issue #57; REQ-026): new rule
+  R-VER-5 and delta DL-035 (`tighten`, Core `workflow.md:74`). The
+  `dev-deliver` final report and the `dev-review` review report each have a
+  "Lesson candidates" section with minimum triggers (the stop rule of the
+  fix loop, a `REQ-GAP` or a spec that lost a condition of its source, the
+  same kind of finding in two or more rounds; in `dev-deliver` also a user
+  correction, a refused tool call or a platform that behaved differently
+  from a rule), "none" when there is no candidate, and fixed fields for
+  each candidate. The section is report content only: it writes no file,
+  changes no rule and invokes no skill, and a candidate is never authority
+  or completion evidence. Every field of a candidate is in the agent's own
+  words and masked, uses no content of files outside the repository, of
+  native memory or of automatically loaded instruction files, and contains
+  no authorization change, which only the user writes (card D19-PR3-C1).
+  `review-report.md` carries the reviewer part of R-VER-5 word for word;
+  `dev-deliver` and `dev-retro` cite R-VER-5. The first commit records the
+  items that the PR #59 review deferred.
 
 ### Changed
 

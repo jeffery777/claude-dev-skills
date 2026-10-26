@@ -84,7 +84,8 @@ Repeat until the objective is complete or a stop condition holds (R-AUTH-5):
 ## Output
 
 Per iteration: the node advanced, the evidence, open findings, the next ready
-node and the gates. At the end: the requirement trace, the final gate result and
-residual risk. Give every decision for the user, including each `REQ-GAP`, as
+node and the gates. At the end: the requirement trace, the final gate result,
+residual risk and the Lesson candidates section (R-VER-5). Give every
+decision for the user, including each `REQ-GAP`, as
 a decision card (`${CLAUDE_SKILL_DIR}/../dev-review/references/decision-card.md`)
 (R-AUTH-6, R-REV-3).

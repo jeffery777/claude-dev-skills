@@ -110,6 +110,13 @@ Cowork runtime test). At that release,
   `review-report.md` carries the reviewer part of R-VER-5 word for word;
   `dev-deliver` and `dev-retro` cite R-VER-5. The first commit records the
   items that the PR #59 review deferred.
+- First use of `dev-retro` (D-019 PR-4, Issue #57; REQ-026): the first
+  commit applies the items that the PR #60 review deferred. The DL-035
+  summary names the quotes that a candidate must not contain and the
+  authorization-change rule of R-VER-5; the requirements log records the
+  no-loosening rule in the PR-3 acceptance list (finding MR60-002); the
+  transcript check moves from PR-3 to PR-4, and before the first use the
+  installed `dev-retro` is read back against the repository.
 
 ### Changed
 

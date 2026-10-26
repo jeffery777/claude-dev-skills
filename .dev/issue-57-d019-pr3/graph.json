@@ -33,7 +33,7 @@
       ],
       "risk": "high",
       "review": "security",
-      "status": "reviewing",
+      "status": "done",
       "dod": [
         "Every REQ-026 PR-3 acceptance item maps to file:line; R-VER-5 drops no condition of REQ-026 PR-3 and adds none; review-report.md has the reviewer part of R-VER-5 word for word with the ID; no skill text makes dev-deliver or dev-review invoke dev-retro; bash scripts/validate.sh exits 0",
         "transcript check: when a dev-deliver report has candidates and the user gives no instruction, no skill invokes dev-retro (read the tool calls in the transcript; NOT_RUN when the transcript cannot be read)"

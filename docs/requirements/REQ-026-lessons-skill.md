@@ -383,7 +383,8 @@ Each item names its source: U1 to U3 (the user requirements) or a card.
   - Verification: `bash scripts/validate.sh`; when a `dev-deliver` report
     has candidates and the user gives no instruction, no skill invokes
     `dev-retro` (read the tool calls in the transcript; NOT_RUN when the
-    transcript cannot be read).
+    transcript cannot be read). This check was NOT_RUN in PR-3 and moved to
+    PR-4 (PR #60 record).
 - PR-4 (first use; U1, U2, U3; D19-A2 (a)):
   - The user invokes `/dev-skills:dev-retro capture` for five recorded
     cases of this repository, then `/dev-skills:dev-retro review`; the
@@ -407,6 +408,14 @@ Each item names its source: U1 to U3 (the user requirements) or a card.
     exact public text; an item that was not checked is a DoD failure; the
     PR-4 deep and security reviews re-check each item against the final
     approved text; the before-and-after records of PR-2 (read-back) exist.
+  - Verification: the transcript check moved from PR-3 (finding MR60,
+    PR #60 record): when a `dev-deliver` report has Lesson candidates and
+    the user gives no instruction, no skill invokes `dev-retro` (read the
+    tool calls in the transcript; NOT_RUN when the transcript cannot be
+    read). Before the first use, the user updates the installed plugin to
+    the merged `main`, and the main agent reads back the installed commit
+    and the SHA-256 of the installed `skills/dev-retro/SKILL.md` against
+    the repository.
 
 ## Notes
 

@@ -3,3 +3,4 @@
 {"seq": 3, "at": "2026-10-26T02:48:14+00:00", "actor": "main-agent", "node": "T1", "from": "in_progress", "to": "reviewing", "evidence": "implementer receipt; validate.sh exit 0"}
 {"seq": 4, "at": "2026-10-26T02:48:14+00:00", "actor": "main-agent", "node": "T1", "from": "reviewing", "to": "in_progress", "evidence": "round-1: 0 MUST-FIX; PR3R1-001/002; card D19-PR3-C1 (1a 2a)"}
 {"seq": 5, "at": "2026-10-26T02:48:14+00:00", "actor": "main-agent", "node": "T1", "from": "in_progress", "to": "reviewing", "evidence": "round-1 fixes; validate.sh exit 0"}
+{"seq": 6, "at": "2026-10-26T03:05:25+00:00", "actor": "main-agent", "node": "T1", "from": "reviewing", "to": "done", "evidence": "PR #60 merged as c533c6a; MR60 0 MUST-FIX; gate PASS"}

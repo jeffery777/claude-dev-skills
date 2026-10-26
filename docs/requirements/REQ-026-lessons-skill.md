@@ -110,8 +110,8 @@ Each item names its source: U1 to U3 (the user requirements) or a card.
       scope of the locator rule (REQ sources and body, CHANGELOG, `deltas.md`,
       commit messages); the card states whether the answer also agrees to
       commit or post the text to the destination that it names; the
-      `.git/index` exception of the no-write rule; a review result is not
-      completion evidence;
+      `.git/index` exception of the no-write rule (narrowed in PR-2, finding
+      MS2-001); a review result is not completion evidence;
     - in PR-4: the first review report in the PR description, and the
       locator item of the DoD.
 - PR-2 (`skills/dev-retro/SKILL.md`, English; card D19-C1 (a)):
@@ -126,7 +126,8 @@ Each item names its source: U1 to U3 (the user requirements) or a card.
   - No write (D19-C1 (a)): `dev-retro` writes no file, changes no record,
     does no Git write or publication, and invokes no other skill, MCP or
     network tool. The only exceptions: `review` dispatches
-    `dev-skills:dev-reviewer`, and `git status` can update `.git/index`. The
+    `dev-skills:dev-reviewer`, and the read-back command `git diff HEAD` can
+    update `.git/index` (finding MS2-001). The
     output is only a report, draft text and cards. The front matter also has
     `disallowed-tools` that removes `Write`, `Edit` and `NotebookEdit`
     (separator syntax as the official documentation says). The skill states
@@ -138,11 +139,12 @@ Each item names its source: U1 to U3 (the user requirements) or a card.
     available, `dev-retro` stops and reports, and dispatches no other agent.
   - Read-back (D19-C1 (a)): before and after each run, `dev-retro` records
     `git rev-parse HEAD` and the SHA-256 of
-    `git status --porcelain=v1 --untracked-files=all` and of
-    `git diff HEAD --binary --no-ext-diff --no-textconv`, and states the
+    `git --no-optional-locks status --porcelain=v1 --untracked-files=all`
+    (so that `git status` does not update `.git/index`; finding MS2-001) and
+    of `git diff HEAD --binary --no-ext-diff --no-textconv`, and states the
     limits (it does not see changes in the content of untracked files,
     ignored files, `.git`, or anything outside the repository, such as the
-    user's instruction file; `git status` can update `.git/index`; equal
+    user's instruction file; `git diff HEAD` can update `.git/index`; equal
     values do not prove that no write happened). A difference is reported
     and voids that run.
   - Separate work (D19-C1 (a)): a write after the user answers a card is
@@ -176,9 +178,10 @@ Each item names its source: U1 to U3 (the user requirements) or a card.
     its source repository names only a category and a date, not the name,
     paths, PR or Issue numbers or finding IDs of the source repository; the
     source locator stays in the report of the source project. This applies
-    to L2 and L3 drafts, Issue drafts, L4 lines, FU rows, PR descriptions,
-    and the text written on the rule path below (REQ sources and body,
-    CHANGELOG, `deltas.md`, commit messages). The abstraction checklist:
+    to L2 and L3 drafts, Issue drafts, L4 lines, FU rows, PR titles and
+    descriptions, PR and Issue comments, branch names, and the text written
+    on the rule path below (REQ sources and body, CHANGELOG, `deltas.md`,
+    commit messages; finding MS2-002). The abstraction checklist:
     project names, customer names, internal system names, hosts, accounts,
     real names, email addresses, versions and vulnerability details are
     removed or turned into a category. Each item of the checklist has one of

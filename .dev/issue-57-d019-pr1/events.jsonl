@@ -11,3 +11,4 @@
 {"seq": 11, "at": "2026-10-26T00:27:01+00:00", "actor": "main-agent", "node": "T1", "from": "in_progress", "to": "reviewing", "evidence": "MR58 fixes; validate.sh exit 0"}
 {"seq": 12, "at": "2026-10-26T00:41:18+00:00", "actor": "main-agent", "node": "T1", "from": "reviewing", "to": "in_progress", "evidence": "Merge Review MR58R2 on 8bfeead: 0 MUST-FIX; MR58R2-001..003"}
 {"seq": 13, "at": "2026-10-26T00:41:19+00:00", "actor": "main-agent", "node": "T1", "from": "in_progress", "to": "reviewing", "evidence": "MR58R2 fixes (claims narrowed); validate.sh exit 0"}
+{"seq": 14, "at": "2026-10-26T01:01:37+00:00", "actor": "main-agent", "node": "T1", "from": "reviewing", "to": "done", "evidence": "PR #58 merged as fbb2456; MR58R3 0 findings; gate PASS"}

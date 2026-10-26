@@ -1,0 +1,5 @@
+{"seq": 1, "at": "2026-10-26T04:57:19+00:00", "actor": "main-agent", "node": "T1", "from": "planned", "to": "ready", "evidence": "plan: Issue #57 PR-4 (REQ-026 PR-4 acceptance)"}
+{"seq": 2, "at": "2026-10-26T04:57:19+00:00", "actor": "main-agent", "node": "T1", "from": "ready", "to": "in_progress", "evidence": "first use by the user; FU rows written from the approved card texts; V3 definition and records by dev-implementer opus/high"}
+{"seq": 3, "at": "2026-10-26T04:57:19+00:00", "actor": "main-agent", "node": "T1", "from": "in_progress", "to": "reviewing", "evidence": "validate.sh exit 0; PR-4 deep and security reviews next"}
+{"seq": 4, "at": "2026-10-26T05:24:48+00:00", "actor": "main-agent", "node": "T1", "from": "reviewing", "to": "in_progress", "evidence": "round-1: PR4S1-001..006, PR4R1-001..007; card D19-PR4-C2 (1a 2a 3a 4a)"}
+{"seq": 5, "at": "2026-10-26T05:24:48+00:00", "actor": "main-agent", "node": "T1", "from": "in_progress", "to": "reviewing", "evidence": "round-1 fixes; user re-read of FU-022, FU-025, FU-026 and PR body v4; validate.sh exit 0"}

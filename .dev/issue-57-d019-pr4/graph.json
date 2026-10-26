@@ -23,16 +23,19 @@
         "docs/requirements/REQ-026-lessons-skill.md",
         ".dev/followups.md",
         ".dev/issue-57-d019-pr4/",
+        ".dev/issue-57-d019-pr3/",
+        "skills/dev-retro/SKILL.md",
         "CHANGELOG.md"
       ],
       "risk": "high",
       "review": "security",
-      "status": "planned",
+      "status": "reviewing",
       "dod": [
         "each public text is the same as the text that the user approved; each locator points only to the target repository",
         "each item of the abstraction checklist has one of the values of PR-2, recorded item by item (model self-assessment, not a review); the results are bound to the exact public text; an item that was not checked is a DoD failure",
         "the PR-4 deep and security reviews re-check each item against the final approved text; the before-and-after records of PR-2 (read-back) exist",
-        "transcript check: when a dev-deliver report has Lesson candidates and the user gives no instruction, no skill invokes dev-retro (read the tool calls in the transcript; NOT_RUN when the transcript cannot be read); before the first use, the installed commit and the SHA-256 of the installed skills/dev-retro/SKILL.md are read back against the repository",
+        "transcript check: when a dev-deliver report has Lesson candidates and the user gives no instruction, no skill invokes dev-retro (read the tool calls in the transcript; NOT_RUN when the transcript cannot be read); NOT_RUN in PR-4, deferred as FU-026",
+        "before the first use, a new session loads the merged main: the command is listed, the capture reads dev-core from the repository, and the main checkout HEAD and the SHA-256 of skills/dev-retro/SKILL.md are the same before and after the run, and HEAD is the merged main commit",
         "bash scripts/validate.sh exits 0"
       ],
       "verify": [

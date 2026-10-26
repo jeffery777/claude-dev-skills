@@ -447,7 +447,8 @@ D-009 到 D-016 是同一天的決定。D-015 由 PR #5（Issue #4）記錄；D-
   5. review：只在使用者呼叫時執行，沒有排程。範圍是有新證據、尚未審過的教訓，以及它們指向的規則與這些規則的 REQ 來源，只讀目前 repo 的檔案（卡片 D19-C3 (a)）。新證據是新的教訓候選、已記錄的失敗或使用者指定的疑慮；單純換了模型不算新證據（Core `workflow.md:72`、`:99`），這時 review 請使用者確認範圍。審查者是唯讀的 `dev-skills:dev-reviewer`（`opus`／`xhigh`），每次綁定 exact revision。每項建議標 Core 四種判讀之一；任何會改規則、skill、REQ 或紀錄的建議都出卡，「必要修正」也出卡。capture、review 與教訓候選都不建議放寬 Core 義務或刪除必要檢查；對 Core 的意見寫成 core-feedback 草稿（REQ-019）。審查結果不是核准，也不是完成證據。
   6. 教訓變規則只有一條路：卡片 → 使用者回答 → 使用者另下指令 → dev-plan（REQ sources 記卡片 ID 與使用者原話；另一專案的卡片只記類別與日期；抽象化的原話標「抽象化轉述」）→ 實作 → 獨立 review → R-REV-9 → PR → 使用者決定 merge。每張草稿卡片的選項是核准、延後、拒絕；只有延後的教訓才寫成 FU 列，並附 Deferred 的必填欄位。不建 ledger、教訓檔、使用者層級的教訓檔、hooks、排程或 validator（卡片 D19-C4 (a)、Core `workflow.md:74`）；D-010 不變。本決策不做任何從教訓得出的規則變更。
 - 實作：四個循序 PR，每個在前一個合併之後開始；每次 merge 由使用者決定。Rigor 等級 `strict`：每個 PR 都有 deep review、R-REV-7 安全審查、R-REV-9 掃描與 exact-head gate。PR-1 紀錄（REQ-026、本決策、第 4 節與第 6 節、需求索引與 log、CHANGELOG）；PR-1 的 deep 與安全審查另外檢查規格 v4 沒經過獨立審查的新增內容，包括：R-VER-5 的三項新義務（抽象化檢查表的逐項結果、每句標事實、推論或未驗證、最小補強先縮小宣稱或加管理措施）、PR-4 DoD 的「未出現」選項，以及 PR-2 的使用者貼上的 Issue 內容作為 capture 輸入、定位規則的範圍（REQ sources 與內文、CHANGELOG、`deltas.md`、commit 訊息）、卡片說明答案是否也同意 commit 或貼到它指名的目的地、不寫入規則的 `.git/index` 例外（PR-2 縮小，finding MS2-001）、review 結果不是完成證據，和 PR-4 的 PR 說明中的第一次 review 報告與 DoD 的定位項目（卡片 D19-S2 (a) 的條件 2）。PR-2 `skills/dev-retro/SKILL.md`、`dev-core` 階段對照表一列、README（中英）；實作者重讀官方文件確認兩個呼叫控制欄位的名稱、語法與效果，讀不回或不同就是 PR-2 的 blocker。PR-3 R-VER-5、DL-035、`skills/dev-core/source-map.md` 一列、`dev-deliver` 的輸出與 reviewer 報告格式。PR-4 第一次使用：使用者對本 repo 五個已記錄的案例呼叫 capture，再呼叫 review；延後的教訓寫成 FU 列；案例 (b) 到 (e) 的判讀與第一次 review 的報告，遮蔽並抽象化後記在 PR 說明（卡片 D19-A2 (a)）。
-- 未驗證：呼叫控制欄位的名稱、語法與效果；claude.ai、Skills API 與 Cowork 是否認得這兩個欄位（在不認的環境，「只能由使用者呼叫」只靠 skill 文字）；原生 auto-memory 是否會被「記下來」觸發或自行保存教訓文字。
+- 已讀回（2026-10-26，主 agent 讀 Claude Code 文件 https://code.claude.com/docs/en/skills.md；PR-2 DoD）：兩個呼叫控制欄位的名稱、語法與效果，其中 `disallowed-tools` 的效果，文件原文為「Tools removed from Claude's available pool while this skill is active.」；這兩個欄位適用於各層級的 Claude Code skill，包含 plugin skill；claude.ai 上傳與 Skills API 只接受 `name`、`description`、`license`、`compatibility`、`metadata`、`allowed-tools`。
+- 未驗證：Cowork 是否認得這兩個欄位（在不認的環境，「只能由使用者呼叫」只靠 skill 文字）；原生 auto-memory 是否會被「記下來」觸發或自行保存教訓文字。
 - 與 REQ-005 的關係：REQ-005 的原話說技能主要由 agent 視需求呼叫；`dev-retro` 只能由使用者呼叫，是使用者自己選的例外（卡片 D19-C1 (a)）。
 - 與 REQ-001 及第 3 節（`docs/design-proposal.md:32`，Cowork）的關係：`dev-retro` 只支援 Claude Code，是使用者選的例外（卡片 D19-A3 (a)）；其他技能維持 Cowork 的目標。
 - Core 回饋：否（推論，由審查確認）。理由：Core `workflow.md:74` 已規定改善記在既有報告，不新增反思 executor、memory、hooks 或 scheduler。`dev-retro` 不套用任何變更，也不執行候選或比較，只在使用者呼叫時產出報告、草稿與卡片，所以它不是反思 executor；Core `docs/provenance/source-map.md:181` 也說自動化由接口另包驗證及取得授權。層級分類只決定本 pack 的紀錄去處。與 Core 引用的 codex-dev-skills 改善契約有一處分歧：本 pack 公開抽象化後的教訓文字，那些契約要求真實提案與評估保持私有，公開 Git 只用合成資料。這點寫進本理由，不另提 CF。
@@ -1486,11 +1487,18 @@ records D-009 to D-012.
   lessons become FU rows; the judgments of cases (b) to (e) and the first
   review report, masked and abstracted, go into the PR description (card
   D19-A2 (a)).
-- Not verified: the names, syntax and effect of the invocation control
-  fields; whether claude.ai, the Skills API and Cowork support these two
-  fields (where a platform does not, "invoked only by the user" rests on
-  the skill text only); whether the native auto-memory reacts to "remember
-  this" or saves lesson text by itself.
+- Read back (2026-10-26, the main agent read the Claude Code
+  documentation, https://code.claude.com/docs/en/skills.md; PR-2 DoD): the
+  names, syntax and effect of the two invocation control fields, where the
+  documentation gives the effect of `disallowed-tools` as "Tools removed
+  from Claude's available pool while this skill is active."; the two
+  fields apply to Claude Code skills at any level, including plugin skills;
+  claude.ai uploads and the Skills API accept only `name`, `description`,
+  `license`, `compatibility`, `metadata` and `allowed-tools`.
+- Not verified: whether Cowork supports these two fields (where a platform
+  does not, "invoked only by the user" rests on the skill text only);
+  whether the native auto-memory reacts to "remember this" or saves lesson
+  text by itself.
 - Relation to REQ-005: the REQ-005 source says that the skills are mainly
   invoked by the agent as needed; `dev-retro` is invoked only by the user,
   an exception that the user chose (card D19-C1 (a)).

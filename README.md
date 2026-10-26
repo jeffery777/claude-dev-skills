@@ -46,6 +46,7 @@ Cowork 有兩項尚未實測：技能能否執行 `graph.py`（需要 shell）�
 | `dev-docs` | 依已驗證的行為同步文件，並檢查 code 與文件是否一致 |
 | `dev-continue` | 存 checkpoint；工作項目完成時評估是否換對話（D-012）；接續時從 repo 狀態重建 |
 | `dev-deliver` | 外層編排：依 task graph 派工、整合、審查，再跑關卡 |
+| `dev-retro` | 教訓：`/dev-skills:dev-retro capture` 把使用者指定的問題寫成分層級（L1–L4）的教訓草稿與決策卡片；`/dev-skills:dev-retro review` 派唯讀 reviewer 審查有新證據的教訓及其指向的規則。只能由使用者呼叫，不寫檔（skill 規則；`disable-model-invocation` 只擋 Skill tool 呼叫，不是技術保證）；只支援 Claude Code |
 
 Subagents：`dev-explorer`（haiku）、`dev-implementer`（sonnet）、`dev-reviewer`（opus），以及 `dev-security-reviewer`（opus）。兩個 reviewer 沒有 Edit 和 Write 工具，但保留 Bash 以便跑測試；Bash 的唯讀使用靠指示約束，不是技術隔離。
 
@@ -160,6 +161,7 @@ Two things are not yet tested in Cowork: whether skills can run `graph.py` (a sh
 | `dev-docs` | Sync the docs with verified behavior and check that code and docs agree |
 | `dev-continue` | Save a checkpoint, evaluate a session handoff when a work item is complete (D-012), and rebuild from repository state when resuming |
 | `dev-deliver` | Outer loop: dispatch work from the task graph, integrate it, review it, then run the gates |
+| `dev-retro` | Lessons: `/dev-skills:dev-retro capture` turns a problem that the user names into a lesson draft with a level (L1 to L4) and a decision card; `/dev-skills:dev-retro review` dispatches the read-only reviewer to review the lessons with new evidence and the rules that they point to. Only the user invokes it; it writes no file (skill rule; `disable-model-invocation` blocks only the Skill tool call; not a technical guarantee); it supports only Claude Code |
 
 Subagents: `dev-explorer` (haiku), `dev-implementer` (sonnet), `dev-reviewer` (opus) and `dev-security-reviewer` (opus). Neither reviewer has the Edit or Write tool. They keep Bash to run tests, so read-only Bash use depends on their instructions; it is not technical isolation.
 

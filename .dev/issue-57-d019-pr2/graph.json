@@ -1,0 +1,42 @@
+{
+  "schema": "claude-dev-graph/v1",
+  "objective": {
+    "id": "issue-57-d019-pr2",
+    "title": "D-019 PR-2: the user-invoked skill dev-retro (REQ-026)",
+    "rigor": "strict",
+    "requirements": [
+      "REQ-026"
+    ]
+  },
+  "nodes": [
+    {
+      "id": "T1",
+      "title": "skills/dev-retro/SKILL.md (capture and review, front matter invocation controls); dev-core stage map row; README rows zh and EN; CHANGELOG entry; requirements log row; deferred PR #58 items and REQ-026/D-019 updates",
+      "kind": "implement",
+      "requirements": [
+        "REQ-026"
+      ],
+      "depends_on": [],
+      "owns": [
+        "skills/dev-retro/SKILL.md",
+        "skills/dev-core/SKILL.md",
+        "README.md",
+        "CHANGELOG.md",
+        "docs/requirements/log.md",
+        "docs/requirements/REQ-026-lessons-skill.md",
+        "docs/design-proposal.md",
+        ".dev/issue-57-d019-pr1/",
+        ".dev/issue-57-d019-pr2/"
+      ],
+      "risk": "high",
+      "review": "security",
+      "status": "reviewing",
+      "dod": [
+        "Every REQ-026 PR-2 acceptance item maps to a SKILL.md sentence; static walk-through of the five PR-4 cases and the PR-2 negative cases; SKILL.md cites no R-VER-5; bash scripts/validate.sh exits 0"
+      ],
+      "verify": [
+        "bash scripts/validate.sh"
+      ]
+    }
+  ]
+}

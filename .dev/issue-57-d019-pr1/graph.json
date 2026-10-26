@@ -27,7 +27,7 @@
       ],
       "risk": "high",
       "review": "security",
-      "status": "reviewing",
+      "status": "done",
       "dod": [
         "Every REQ-026 acceptance item traces to U1 to U3 or a card; D-019 zh and EN carry the same obligations (REQ-005); no contradiction between the files (R-EXH-2); the deep and security reviews give a conclusion for each spec v4 addition (card D19-S2 (a), condition 2)"
       ],

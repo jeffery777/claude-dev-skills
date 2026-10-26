@@ -47,6 +47,7 @@ Read each listed file in full. The anchors are only pointers to the main parts.
 | `dev-gate` | `authorization-and-stops.md` | `review-and-security.md`, `exact-head-and-evidence.md`, `workflow.md` | review-findings, review-security, review-evidence; exact-*; wf-capability, wf-verification |
 | `dev-continue` | `authorization-and-stops.md` | `workflow.md` | wf-stages (Continue), wf-evidence-lifecycle |
 | `dev-deliver` | `authorization-and-stops.md` | `workflow.md`, `review-and-security.md` | wf-delegation, wf-capability, wf-verification; review-risk-timing, review-findings |
+| `dev-retro` | `authorization-and-stops.md` | `workflow.md`; the `review` mode adds `review-and-security.md` | auth-scope, auth-stops, auth-data; wf-verification (improvement acceptance), wf-assumptions-and-options (judgments), wf-delegation; review-independent (`review` mode) |
 | trigger: a change of `vendor/` or of the Core pin | `authorization-and-stops.md` | `exact-head-and-evidence.md` | exact-pinning (R-EXH-5) |
 
 Subagents (review criteria):

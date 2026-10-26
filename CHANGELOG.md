@@ -77,6 +77,22 @@ Cowork runtime test). At that release,
   lesson text word for word before a commit or post. No ledger, lessons
   file, hooks, schedule or validator. The skill comes in PR-2, the report
   section in PR-3 and the first use in PR-4.
+- Skill `dev-retro` (D-019 PR-2, Issue #57; REQ-026):
+  `skills/dev-retro/SKILL.md` with the modes
+  `/dev-skills:dev-retro capture` and `/dev-skills:dev-retro review`, a
+  `dev-retro` row in the `dev-core` stage map and a README row (zh and EN).
+  Only the user invokes it (`disable-model-invocation: true` blocks only the
+  Skill tool call; a skill rule, not a technical guarantee); it supports
+  only Claude Code. It writes no file and changes no record; the output is a
+  report, draft text and cards. `disallowed-tools` removes `Write`, `Edit`,
+  `MultiEdit` and `NotebookEdit` as one defense layer, not a guarantee. The
+  read-back runs `git --no-optional-locks status`, so `git status` does not
+  update `.git/index`; `git diff HEAD` still can (finding MS2-001). The
+  locator rule also covers PR titles, PR and Issue comments and branch
+  names (finding MS2-002). A failed read-back command makes the read-back
+  NOT_RUN; drafts contain only visible characters; a security problem with
+  an unknown fix status counts as not fixed; a card answer does not start
+  a commit or post (card D19-PR2-C1, round-1 review).
 
 ### Changed
 

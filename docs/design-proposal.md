@@ -440,14 +440,15 @@ D-009 到 D-016 是同一天的決定。D-015 由 PR #5（Issue #4）記錄；D-
 - 來源：使用者 2026-10-22 在 Claude Code session（PR #2 Merge Review 5 協調 session）的訊息。01:52 UTC（U1、U2）：「是不是能變成一個主動的技能，日後發現問題時，可以主動學起來，自我改進。」「並且，隨著往後模型龻得更聰明、能力更強，新模型會自動Review這些記下來的規則或者技能，並建議適度的修改？」01:59 UTC（U3）：「教訓只寫在這repo裡…只有該專案本身才知道…後續新加的b專案可能會再犯相同的錯。所以也要有個機制來識別教訓的層級。」（「龻得」是原文（sic；變得）；「…」是省略的原文；原文見 REQ-026 sources）。設計經兩輪 deep review（停止規則觸發）後，使用者回答設計卡片 D19-C1 到 D19-C7：「C7 選 a；C1a C2a C3a C4a C5a；C6 先做 R-REV-9 backlog PR」；其中 C3 (a) 回答 REQ-GAP D1-013。規格經三輪安全設計審查與 deep review（停止規則觸發兩次，卡片 D19-S1、D19-S2）後，使用者核准規格 v4（卡片 D19-A1 (a)）。需求見 REQ-026。Phase 1 不含這個技能（D-008），所以這是新範圍。
 - 問題：session 發現的教訓只留在那次報告，或只留在一個專案。本 pack 沒有辦法把教訓變成經過審查的修改；有新證據時（例如更新的模型），沒有辦法重看已記錄的教訓與它們指向的規則；也沒有辦法判斷教訓屬於哪個層級，所以只在一個專案記下的教訓，可能在之後加入的專案再發生。
 - 決定：
-  1. 新技能 `dev-retro`，兩個模式：`/dev-skills:dev-retro capture` 與 `/dev-skills:dev-retro review`（卡片 D19-C1 (a)）。只能由使用者呼叫：frontmatter 寫 `disable-model-invocation: true`，它只擋模型用 Skill tool 呼叫；其他 skill 都不呼叫 `dev-retro`。它不寫任何檔案、不改紀錄、不做 Git 寫入或對外發布，也不呼叫其他 skill、MCP 或網路工具；例外只有：review 派唯讀的 `dev-skills:dev-reviewer`，以及 `git status` 可能更新 `.git/index`。frontmatter 的 `disallowed-tools` 移除 Write、Edit、NotebookEdit；這是一層防護，不是保證（Bash 等工具仍在，使用者送出下一則訊息後限制失效）。輸出只有報告、草稿文字與卡片。每次執行前後記錄 `git rev-parse HEAD`，以及 `git status --porcelain=v1 --untracked-files=all` 與 `git diff HEAD --binary --no-ext-diff --no-textconv` 輸出的 SHA-256，有差異就回報並作廢那次結果；限制：看不到未追蹤檔案內容的變化、ignored 檔案、`.git` 與 repo 外的任何東西（例如使用者的指示檔），`git status` 可能更新 `.git/index`，前後值相同不證明沒有寫入。只支援 Claude Code，README 與 `SKILL.md` 寫明（卡片 D19-A3 (a)）。
+  1. 新技能 `dev-retro`，兩個模式：`/dev-skills:dev-retro capture` 與 `/dev-skills:dev-retro review`（卡片 D19-C1 (a)）。只能由使用者呼叫：frontmatter 寫 `disable-model-invocation: true`，它只擋模型用 Skill tool 呼叫；其他 skill 都不呼叫 `dev-retro`。它不寫任何檔案、不改紀錄、不做 Git 寫入或對外發布，也不呼叫其他 skill、MCP 或網路工具；例外只有：review 派唯讀的 `dev-skills:dev-reviewer`，以及讀回指令 `git diff HEAD` 可能更新 `.git/index`（finding MS2-001）。frontmatter 的 `disallowed-tools` 移除 Write、Edit、NotebookEdit；這是一層防護，不是保證（Bash 等工具仍在，使用者送出下一則訊息後限制失效）。輸出只有報告、草稿文字與卡片。每次執行前後記錄 `git rev-parse HEAD`，以及 `git --no-optional-locks status --porcelain=v1 --untracked-files=all`（讓 `git status` 不更新 `.git/index`；finding MS2-001）與 `git diff HEAD --binary --no-ext-diff --no-textconv` 輸出的 SHA-256，有差異就回報並作廢那次結果；限制：看不到未追蹤檔案內容的變化、ignored 檔案、`.git` 與 repo 外的任何東西（例如使用者的指示檔），`git diff HEAD` 可能更新 `.git/index`，前後值相同不證明沒有寫入。只支援 Claude Code，README 與 `SKILL.md` 寫明（卡片 D19-A3 (a)）。
   2. `dev-deliver` 的最後報告與 `dev-review` 的審查報告加「教訓候選」小節（英文標題 "Lesson candidates"）：新規則 R-VER-5 與 DL-035，是 Core `workflow.md:74` 在這兩種報告的加嚴，不是新的報告制度。小節只是報告內容，不寫檔、不改規則、不呼叫 skill；候選是提案，不是授權或完成證據。直接用 `dev-implement`、`dev-gate`、`dev-plan` 時沒有這個小節（殘餘風險）。
   3. 層級：L1 專案、L2 本 pack、L3 Core、L4 使用者個人的指示。層級不清楚時，capture 出卡問使用者；決定前草稿只留在報告（卡片 D19-C5 (a)）。L1 的教訓與理由留在該專案，不進本 repo 的 `deltas.md`；L2 寫成給本 repo 的 dev-plan 需求草稿，屬 `dev-core` 規則的理由寫成 `deltas.md` Reason／Evidence 的草稿句；L3 寫成 `docs/core-feedback.md` 的草稿，要不要上報由使用者決定；L4 只輸出一行建議文字，附來源類別與日期，由使用者決定要不要加到自己的指示檔，`dev-retro` 不寫這個檔（卡片 D19-C2 (a)、D19-A4 (a)）。L4 文字不含授權、權限、略過確認、略過審查或掃描、自動執行；這類教訓只在卡片中說明「這是授權變更」，由使用者自己撰寫。
   4. 出處與抽象化：locator 只能指向草稿將被 commit 或貼出的那個 repo；離開來源 repo 的文字只寫類別與日期，不寫來源 repo 的名稱、路徑、PR／Issue 編號或 finding ID。抽象化檢查表（專案名、客戶名、內部系統名、主機、帳號、真名、email、版本與弱點細節）的結果是模型自評，不是審查。不把 repo 外的檔案、原生 memory 或自動載入的指示檔內容當出處或放進草稿；這些內容可能已經在 context 中，skill 無法阻止它們被載入。R-REV-9 不檢查業務機密，所以控制只有兩項：檢查表，以及使用者逐字審。任何將被 commit 或貼出的教訓文字都在卡片中逐字列出，實際文字要和核准的相同，有改動就再給使用者看一次；貼出是另一項外部寫入（R-AUTH-2），先做 R-REV-9 貼文掃描。從未修補的安全問題得出的教訓，等修補發布後才升級或公開，沒有例外（卡片 D19-S1 (a)）。
   5. review：只在使用者呼叫時執行，沒有排程。範圍是有新證據、尚未審過的教訓，以及它們指向的規則與這些規則的 REQ 來源，只讀目前 repo 的檔案（卡片 D19-C3 (a)）。新證據是新的教訓候選、已記錄的失敗或使用者指定的疑慮；單純換了模型不算新證據（Core `workflow.md:72`、`:99`），這時 review 請使用者確認範圍。審查者是唯讀的 `dev-skills:dev-reviewer`（`opus`／`xhigh`），每次綁定 exact revision。每項建議標 Core 四種判讀之一；任何會改規則、skill、REQ 或紀錄的建議都出卡，「必要修正」也出卡。capture、review 與教訓候選都不建議放寬 Core 義務或刪除必要檢查；對 Core 的意見寫成 core-feedback 草稿（REQ-019）。審查結果不是核准，也不是完成證據。
   6. 教訓變規則只有一條路：卡片 → 使用者回答 → 使用者另下指令 → dev-plan（REQ sources 記卡片 ID 與使用者原話；另一專案的卡片只記類別與日期；抽象化的原話標「抽象化轉述」）→ 實作 → 獨立 review → R-REV-9 → PR → 使用者決定 merge。每張草稿卡片的選項是核准、延後、拒絕；只有延後的教訓才寫成 FU 列，並附 Deferred 的必填欄位。不建 ledger、教訓檔、使用者層級的教訓檔、hooks、排程或 validator（卡片 D19-C4 (a)、Core `workflow.md:74`）；D-010 不變。本決策不做任何從教訓得出的規則變更。
-- 實作：四個循序 PR，每個在前一個合併之後開始；每次 merge 由使用者決定。Rigor 等級 `strict`：每個 PR 都有 deep review、R-REV-7 安全審查、R-REV-9 掃描與 exact-head gate。PR-1 紀錄（REQ-026、本決策、第 4 節與第 6 節、需求索引與 log、CHANGELOG）；PR-1 的 deep 與安全審查另外檢查規格 v4 沒經過獨立審查的新增內容，包括：R-VER-5 的三項新義務（抽象化檢查表的逐項結果、每句標事實、推論或未驗證、最小補強先縮小宣稱或加管理措施）、PR-4 DoD 的「未出現」選項，以及 PR-2 的使用者貼上的 Issue 內容作為 capture 輸入、定位規則的範圍（REQ sources 與內文、CHANGELOG、`deltas.md`、commit 訊息）、卡片說明答案是否也同意 commit 或貼到它指名的目的地、不寫入規則的 `.git/index` 例外、review 結果不是完成證據，和 PR-4 的 PR 說明中的第一次 review 報告與 DoD 的定位項目（卡片 D19-S2 (a) 的條件 2）。PR-2 `skills/dev-retro/SKILL.md`、`dev-core` 階段對照表一列、README（中英）；實作者重讀官方文件確認兩個呼叫控制欄位的名稱、語法與效果，讀不回或不同就是 PR-2 的 blocker。PR-3 R-VER-5、DL-035、`skills/dev-core/source-map.md` 一列、`dev-deliver` 的輸出與 reviewer 報告格式。PR-4 第一次使用：使用者對本 repo 五個已記錄的案例呼叫 capture，再呼叫 review；延後的教訓寫成 FU 列；案例 (b) 到 (e) 的判讀與第一次 review 的報告，遮蔽並抽象化後記在 PR 說明（卡片 D19-A2 (a)）。
-- 未驗證：呼叫控制欄位的名稱、語法與效果；claude.ai、Skills API 與 Cowork 是否認得這兩個欄位（在不認的環境，「只能由使用者呼叫」只靠 skill 文字）；原生 auto-memory 是否會被「記下來」觸發或自行保存教訓文字。
+- 實作：四個循序 PR，每個在前一個合併之後開始；每次 merge 由使用者決定。Rigor 等級 `strict`：每個 PR 都有 deep review、R-REV-7 安全審查、R-REV-9 掃描與 exact-head gate。PR-1 紀錄（REQ-026、本決策、第 4 節與第 6 節、需求索引與 log、CHANGELOG）；PR-1 的 deep 與安全審查另外檢查規格 v4 沒經過獨立審查的新增內容，包括：R-VER-5 的三項新義務（抽象化檢查表的逐項結果、每句標事實、推論或未驗證、最小補強先縮小宣稱或加管理措施）、PR-4 DoD 的「未出現」選項，以及 PR-2 的使用者貼上的 Issue 內容作為 capture 輸入、定位規則的範圍（REQ sources 與內文、CHANGELOG、`deltas.md`、commit 訊息）、卡片說明答案是否也同意 commit 或貼到它指名的目的地、不寫入規則的 `.git/index` 例外（PR-2 縮小，finding MS2-001）、review 結果不是完成證據，和 PR-4 的 PR 說明中的第一次 review 報告與 DoD 的定位項目（卡片 D19-S2 (a) 的條件 2）。PR-2 `skills/dev-retro/SKILL.md`、`dev-core` 階段對照表一列、README（中英）；實作者重讀官方文件確認兩個呼叫控制欄位的名稱、語法與效果，讀不回或不同就是 PR-2 的 blocker。PR-3 R-VER-5、DL-035、`skills/dev-core/source-map.md` 一列、`dev-deliver` 的輸出與 reviewer 報告格式。PR-4 第一次使用：使用者對本 repo 五個已記錄的案例呼叫 capture，再呼叫 review；延後的教訓寫成 FU 列；案例 (b) 到 (e) 的判讀與第一次 review 的報告，遮蔽並抽象化後記在 PR 說明（卡片 D19-A2 (a)）。
+- 已讀回（2026-10-26，主 agent 讀 Claude Code 文件 https://code.claude.com/docs/en/skills.md；PR-2 DoD）：兩個呼叫控制欄位的名稱、語法與效果，其中 `disallowed-tools` 的效果，文件原文為「Tools removed from Claude's available pool while this skill is active.」；這兩個欄位適用於各層級的 Claude Code skill，包含 plugin skill；claude.ai 上傳與 Skills API 只接受 `name`、`description`、`license`、`compatibility`、`metadata`、`allowed-tools`。
+- 未驗證：Cowork 是否認得這兩個欄位（在不認的環境，「只能由使用者呼叫」只靠 skill 文字）；原生 auto-memory 是否會被「記下來」觸發或自行保存教訓文字。
 - 與 REQ-005 的關係：REQ-005 的原話說技能主要由 agent 視需求呼叫；`dev-retro` 只能由使用者呼叫，是使用者自己選的例外（卡片 D19-C1 (a)）。
 - 與 REQ-001 及第 3 節（`docs/design-proposal.md:32`，Cowork）的關係：`dev-retro` 只支援 Claude Code，是使用者選的例外（卡片 D19-A3 (a)）；其他技能維持 Cowork 的目標。
 - Core 回饋：否（推論，由審查確認）。理由：Core `workflow.md:74` 已規定改善記在既有報告，不新增反思 executor、memory、hooks 或 scheduler。`dev-retro` 不套用任何變更，也不執行候選或比較，只在使用者呼叫時產出報告、草稿與卡片，所以它不是反思 executor；Core `docs/provenance/source-map.md:181` 也說自動化由接口另包驗證及取得授權。層級分類只決定本 pack 的紀錄去處。與 Core 引用的 codex-dev-skills 改善契約有一處分歧：本 pack 公開抽象化後的教訓文字，那些契約要求真實提案與評估保持私有，公開 Git 只用合成資料。這點寫進本理由，不另提 CF。
@@ -1373,18 +1374,21 @@ records D-009 to D-012.
      the Skill tool; no other skill invokes `dev-retro`. It writes no file,
      changes no record, does no Git write or publication, and invokes no
      other skill, MCP or network tool; the only exceptions are that review
-     dispatches the read-only `dev-skills:dev-reviewer` and that
-     `git status` can update `.git/index`. The front matter
+     dispatches the read-only `dev-skills:dev-reviewer` and that the
+     read-back command `git diff HEAD` can update `.git/index` (finding
+     MS2-001). The front matter
      `disallowed-tools` removes Write, Edit and NotebookEdit; this is one
      defense layer, not a guarantee (Bash and other tools stay, and the
      restriction clears at the next user message). The output is only a
      report, draft text and cards. Before and after each run it records
      `git rev-parse HEAD` and the SHA-256 of
-     `git status --porcelain=v1 --untracked-files=all` and of
-     `git diff HEAD --binary --no-ext-diff --no-textconv`; a difference is
+     `git --no-optional-locks status --porcelain=v1 --untracked-files=all`
+     (so that `git status` does not update `.git/index`; finding MS2-001)
+     and of `git diff HEAD --binary --no-ext-diff --no-textconv`; a
+     difference is
      reported and voids that run. The limits: it does not see changes in the content of
      untracked files, ignored files, `.git`, or anything outside the repository, such as the user's
-     instruction file; `git status` can update `.git/index`; equal values do
+     instruction file; `git diff HEAD` can update `.git/index`; equal values do
      not prove that no write happened. Only Claude Code is supported, and README and
      `SKILL.md` say so (card D19-A3 (a)).
   2. The `dev-deliver` final report and the `dev-review` review report get
@@ -1468,7 +1472,8 @@ records D-009 to D-012.
   pastes as a capture input, the scope of the locator rule (REQ sources and body,
   CHANGELOG, `deltas.md`, commit messages), the card stating whether the
   answer also agrees to commit or post to the destination that it names,
-  the `.git/index` exception of the no-write rule and that a review result
+  the `.git/index` exception of the no-write rule (narrowed in PR-2,
+  finding MS2-001) and that a review result
   is not completion evidence, and in PR-4 the first review report in the
   PR description and the locator item of the DoD (card D19-S2 (a),
   condition 2). PR-2
@@ -1482,11 +1487,18 @@ records D-009 to D-012.
   lessons become FU rows; the judgments of cases (b) to (e) and the first
   review report, masked and abstracted, go into the PR description (card
   D19-A2 (a)).
-- Not verified: the names, syntax and effect of the invocation control
-  fields; whether claude.ai, the Skills API and Cowork support these two
-  fields (where a platform does not, "invoked only by the user" rests on
-  the skill text only); whether the native auto-memory reacts to "remember
-  this" or saves lesson text by itself.
+- Read back (2026-10-26, the main agent read the Claude Code
+  documentation, https://code.claude.com/docs/en/skills.md; PR-2 DoD): the
+  names, syntax and effect of the two invocation control fields, where the
+  documentation gives the effect of `disallowed-tools` as "Tools removed
+  from Claude's available pool while this skill is active."; the two
+  fields apply to Claude Code skills at any level, including plugin skills;
+  claude.ai uploads and the Skills API accept only `name`, `description`,
+  `license`, `compatibility`, `metadata` and `allowed-tools`.
+- Not verified: whether Cowork supports these two fields (where a platform
+  does not, "invoked only by the user" rests on the skill text only);
+  whether the native auto-memory reacts to "remember this" or saves lesson
+  text by itself.
 - Relation to REQ-005: the REQ-005 source says that the skills are mainly
   invoked by the agent as needed; `dev-retro` is invoked only by the user,
   an exception that the user chose (card D19-C1 (a)).

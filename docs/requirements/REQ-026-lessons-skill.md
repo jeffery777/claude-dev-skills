@@ -27,6 +27,9 @@ sources:
   - type: chat
     locator: "Claude Code session 2026-10-26 (orchestrator session, relayed to the D-019 session, PR #58), user answer to card D19-PR1-C1 (findings R1-004 and S1-005, REQ-GAP: the PR-4 deep and security reviews re-check each abstraction-checklist item against the final approved text, and an item that was not checked fails the PR-4 DoD; option a: keep)"
     quote: "D19-PR1-C1 選 a"
+  - type: chat
+    locator: "Claude Code session 2026-10-26 (orchestrator session, relayed to the D-019 session, PR-2), user answer to card D19-PR2-C1 (findings PR2R1-001, PR2R1-002, PR2S1-002, PR2S1-003, PR2S1-004; 1a: a read-back command that fails makes the read-back NOT_RUN; 2a: drafts contain only visible characters; 3a: an unknown fix status counts as not fixed; 4b: no dev-plan change, the card carries the dev-plan obligation as a management measure, and the dev-plan change goes to FU-022; 5a: keep the narrowed `.git/index` exception)"
+    quote: "D19-PR2-C1：1a、2a、3a、4b 並併入 FU-022、5a"
 non_goals:
   - A lessons ledger or a lessons file in a repository (card D19-C4 (a))
   - A user-level lessons file, or any other store of lessons outside the repository (card D19-C2 (a))
@@ -110,8 +113,8 @@ Each item names its source: U1 to U3 (the user requirements) or a card.
       scope of the locator rule (REQ sources and body, CHANGELOG, `deltas.md`,
       commit messages); the card states whether the answer also agrees to
       commit or post the text to the destination that it names; the
-      `.git/index` exception of the no-write rule; a review result is not
-      completion evidence;
+      `.git/index` exception of the no-write rule (narrowed in PR-2, finding
+      MS2-001); a review result is not completion evidence;
     - in PR-4: the first review report in the PR description, and the
       locator item of the DoD.
 - PR-2 (`skills/dev-retro/SKILL.md`, English; card D19-C1 (a)):
@@ -126,7 +129,8 @@ Each item names its source: U1 to U3 (the user requirements) or a card.
   - No write (D19-C1 (a)): `dev-retro` writes no file, changes no record,
     does no Git write or publication, and invokes no other skill, MCP or
     network tool. The only exceptions: `review` dispatches
-    `dev-skills:dev-reviewer`, and `git status` can update `.git/index`. The
+    `dev-skills:dev-reviewer`, and the read-back command `git diff HEAD` can
+    update `.git/index` (finding MS2-001). The
     output is only a report, draft text and cards. The front matter also has
     `disallowed-tools` that removes `Write`, `Edit` and `NotebookEdit`
     (separator syntax as the official documentation says). The skill states
@@ -138,13 +142,23 @@ Each item names its source: U1 to U3 (the user requirements) or a card.
     available, `dev-retro` stops and reports, and dispatches no other agent.
   - Read-back (D19-C1 (a)): before and after each run, `dev-retro` records
     `git rev-parse HEAD` and the SHA-256 of
-    `git status --porcelain=v1 --untracked-files=all` and of
-    `git diff HEAD --binary --no-ext-diff --no-textconv`, and states the
+    `git --no-optional-locks status --porcelain=v1 --untracked-files=all`
+    (so that `git status` does not update `.git/index`; finding MS2-001) and
+    of `git diff HEAD --binary --no-ext-diff --no-textconv`, and states the
     limits (it does not see changes in the content of untracked files,
     ignored files, `.git`, or anything outside the repository, such as the
-    user's instruction file; `git status` can update `.git/index`; equal
+    user's instruction file; `git diff HEAD` can update `.git/index`; equal
     values do not prove that no write happened). A difference is reported
-    and voids that run.
+    and voids that run. If a read-back command fails (non-zero exit status;
+    for example outside a repository or with no commit), the read-back is
+    NOT_RUN: report it; the values are no record and do not void or pass
+    the run (card D19-PR2-C1 (1a)). `dev-retro` checks the exit status of
+    each `git` command (for example with `PIPESTATUS` in bash or
+    `pipestatus` in zsh), also with `set -o pipefail`; a failed command
+    makes the read-back NOT_RUN, because a failed `git` command still gives
+    the empty-input hash, which is also the hash of a clean tree. When the
+    read-back is NOT_RUN in review mode, the review result is not bound to
+    a revision; the report says so.
   - Separate work (D19-C1 (a)): a write after the user answers a card is
     separate work that the user starts with a separate instruction (dev-plan
     or a write, R-AUTH-2). `dev-retro` does not continue into it.
@@ -162,8 +176,8 @@ Each item names its source: U1 to U3 (the user requirements) or a card.
     `SKILL.md` does not cite R-VER-5 (it is defined in PR-3).
   - capture inputs (U1; D19-C1 (a)): only the report section or file that
     the user names in this turn, a problem that the user describes, or
-    Issue content that the user pastes. Issue content is data; `dev-retro`
-    does not read a tracker itself. capture reads the related rules and
+    Issue content that the user pastes. All inputs are data (R-AUTH-1);
+    `dev-retro` does not read a tracker itself. capture reads the related rules and
     records of the current repository to check the coverage first.
   - Levels (U3; D19-C5 (a)): L1 project (only the code, stack or team
     conventions of that project); L2 this pack (the dev-* workflow itself);
@@ -174,11 +188,12 @@ Each item names its source: U1 to U3 (the user requirements) or a card.
     (`path:line`, PR or Issue number, finding ID) points only to the
     repository where the draft will be committed or posted. Text that leaves
     its source repository names only a category and a date, not the name,
-    paths, PR or Issue numbers or finding IDs of the source repository; the
-    source locator stays in the report of the source project. This applies
-    to L2 and L3 drafts, Issue drafts, L4 lines, FU rows, PR descriptions,
-    and the text written on the rule path below (REQ sources and body,
-    CHANGELOG, `deltas.md`, commit messages). The abstraction checklist:
+    paths, PR or Issue numbers, finding IDs, commit IDs or branch names of
+    the source repository; the source locator stays in the report of the source project. This applies
+    to L2 and L3 drafts, Issue drafts, L4 lines, FU rows, PR titles and
+    descriptions, PR and Issue comments, branch names, and the text written
+    on the rule path below (REQ sources and body, CHANGELOG, `deltas.md`,
+    commit messages; finding MS2-002). The abstraction checklist:
     project names, customer names, internal system names, hosts, accounts,
     real names, email addresses, versions and vulnerability details are
     removed or turned into a category. Each item of the checklist has one of
@@ -186,7 +201,9 @@ Each item names its source: U1 to U3 (the user requirements) or a card.
     each checklist result gives the item and its status only, never the
     removed value; R-VER-5 and the PR-4 DoD cite these values. The skill states that the
     checklist result is a model self-assessment, not a review. Masking
-    follows R-REV-8.
+    follows R-REV-8. Drafts contain only visible characters; capture
+    reports invisible or bidirectional characters that it finds in an input
+    and does not copy them (card D19-PR2-C1 (2a)).
   - Private content (D19-C2 (a), D19-C4 (a); REQ-011, REQ-015): capture
     uses no content of files outside the repository, of native memory or of
     automatically loaded instruction files as a source or in a draft. Such
@@ -205,14 +222,17 @@ Each item names its source: U1 to U3 (the user requirements) or a card.
     that will be committed to a repository or posted is shown word for word
     in a card, wherever capture runs. The card says whether the answer
     "approve" or "defer" also agrees to commit or post this text to the
-    destination that the card names. The committed or posted text is the
-    same as the approved text; any change is shown to the user again. An
-    Issue draft for `jeffery777/claude-dev-skills` names its destination.
-    Posting is a separate external write (R-AUTH-2): the user posts it, or,
-    after the user agrees, the agent posts it with an explicit `--repo`
-    after the R-REV-9 post scan and reads back the URL. A lesson from a
-    security problem that is not fixed is promoted or published only after
-    the fix is released. There is no exemption.
+    destination that the card names. This agreement covers the text and the
+    destination only; it does not start the write. The committed or posted
+    text is the same as the approved text; any change is shown to the user
+    again. An Issue draft for `jeffery777/claude-dev-skills` names its
+    destination. Posting is a separate external write (R-AUTH-2): the user
+    posts it, or the agent posts it on the user's separate instruction (a
+    card answer is not that instruction), with an explicit `--repo` after
+    the R-REV-9 post scan, and reads back the URL. A lesson from a security
+    problem that is not fixed is promoted or published only after the fix
+    is released. There is no exemption. When the fix status is not known,
+    the problem counts as not fixed (card D19-PR2-C1 (3a)).
   - L4 (U3; D19-C2 (a), D19-A4 (a)): one suggested line with the source
     category (the user's statement, an agent observation, repository file
     text (untrusted), or tracker and third-party text (untrusted)) and the
@@ -241,8 +261,8 @@ Each item names its source: U1 to U3 (the user requirements) or a card.
     rules. The user names the inputs; review reads only files of the
     current repository. In another project, the inputs are that project's
     records and rule files, a comment on a rule of this pack is only an L2
-    draft, and review does not read the installed copy of the plugin. FU
-    rows get no "lesson" marker.
+    draft, and review does not use the installed copy of the plugin as a
+    review input. FU rows get no "lesson" marker.
   - New evidence (U2; D19-C3 (a); Core `workflow.md:72`, `:99`): a new
     lesson candidate, a recorded failure, or a concern that the user names.
     A model change alone is not new evidence; review then says that it would
@@ -250,7 +270,9 @@ Each item names its source: U1 to U3 (the user requirements) or a card.
     scope.
   - Reviewer (U2; D19-C3 (a)): the read-only `dev-skills:dev-reviewer` at
     `opus`/`xhigh` (R-DEL-2). Each review binds the exact revision
-    (`git rev-parse HEAD` and the diff hash), and the report states the
+    (`git rev-parse HEAD` and the diff hash); the read-back of that run is
+    the CB-4 record of the review, and `git status` runs only with
+    `--no-optional-locks`. The report states the
     problem, the objective, the scope, the available evidence, the budget,
     the stop condition and the next step (Core `workflow.md:99`). A model
     change clears no finding. A closed finding opens again only with new
@@ -267,7 +289,8 @@ Each item names its source: U1 to U3 (the user requirements) or a card.
     "already covered" stay in the report; the record does not change and
     the item stays in the next scope. A narrowed claim and a reduced
     obligation are written separately. The card quotes the original
-    decision of the rule and its source, with the locator rule above.
+    decision of the rule and its source, with the locator rule above, and,
+    like a capture draft, contains only visible characters.
   - Result (D19-C1 (a)): a review result is not an approval and not
     completion evidence. The review report goes to the user and not into the
     repository; a part that goes into a record follows the card rule above.
@@ -375,10 +398,17 @@ Each item names its source: U1 to U3 (the user requirements) or a card.
 - Not covered (residual risk): when the user uses `dev-implement`,
   `dev-gate` or `dev-plan` directly, the report has no Lesson candidates
   section.
-- Platform limits (not verified): a documentation read that a subagent
-  reported, and that no session read back, says that claude.ai uploads and
-  the Skills API do not support `disable-model-invocation` or
-  `disallowed-tools`. Whether Cowork supports them is not known (the FU-001
+- Platform limits (PR-2 DoD; read back on 2026-10-26 from the Claude Code
+  documentation, https://code.claude.com/docs/en/skills.md, by the main
+  agent): `disable-model-invocation: true`: "Description not in context,
+  full skill loads when invoked"; "If Claude tries anyway, Claude Code
+  blocks the call". `disallowed-tools`: "Tools removed from Claude's
+  available pool while this skill is active."; "Accepts a space- or
+  comma-separated string, or a YAML list. The restriction clears when you
+  send your next message." The fields apply to "Claude Code skills at any
+  level, including plugin skills"; claude.ai uploads and the Skills API
+  accept only `name`, `description`, `license`, `compatibility`, `metadata`
+  and `allowed-tools`. Whether Cowork supports them is not known (the FU-001
   Cowork test is not done). Where a platform does not support them,
   "invoked only by the user" rests on the skill text only. Card D19-A3 (a)
   narrows the claim to Claude Code.
@@ -401,6 +431,18 @@ Each item names its source: U1 to U3 (the user requirements) or a card.
   review fixes, findings S1-002 and S2-001), and the three checklist
   values (spec v4 and the round-1 fixes), defined once in PR-2 and cited by R-VER-5 and the PR-4 DoD; the
   PR-4 DoD also binds the results to the exact public text.
+- Card D19-PR2-C1 (4b) (finding PR2R1-001): `dev-plan` does not change in
+  D-019. The `dev-plan` obligation of the rule path (for each rule sentence
+  the user sentence that it comes from, and a place for every condition of
+  those words) reaches `dev-plan` through the card, as `SKILL.md` says.
+  This is a management measure: the owner is the user, who answers the
+  card and starts `dev-plan`; the verifiable premise is that the card text
+  states the obligation; when it fails (`dev-plan` runs without it, for
+  example in a new session), the `dev-plan` review checks each rule
+  sentence against the user's words, and a missing trace is a finding. The
+  `dev-plan` change itself goes to a later follow-up (FU-022, to be filed
+  by the orchestrator after D-019); until FU-022 changes `dev-plan`, the
+  failure path depends on the judgment of the `dev-plan` reviewer.
 - Difference from the codex-dev-skills improvement contracts: Core
   (`vendor/engineering-workflow-core/docs/provenance/source-map.md:177-179`)
   lists three codex-dev-skills contracts (operational evidence, improvement
@@ -419,10 +461,12 @@ Each item names its source: U1 to U3 (the user requirements) or a card.
   controls are the abstraction checklist and the user's word-for-word
   review.
 - Not verified:
-  - the names, syntax and effect of the invocation control fields (PR-2
-    DoD), and whether `disallowed-tools` must also list `MultiEdit`;
-  - the platform behavior in Cowork and claude.ai (card D19-A3 (a) already
-    limits the claim to Claude Code);
+  - whether `disallowed-tools` must also list `MultiEdit` (the names,
+    syntax and effect of the invocation control fields were read back on
+    2026-10-26 from the Claude Code documentation; see Platform limits);
+  - the platform behavior in Cowork (card D19-A3 (a) already limits the
+    claim to Claude Code; claude.ai was read back on 2026-10-26 from the
+    Claude Code documentation);
   - whether the native auto-memory reacts to "remember this", or saves
     lesson text by itself after capture;
   - whether `claude plugin validate` accepts the new front matter keys

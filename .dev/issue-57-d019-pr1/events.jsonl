@@ -9,3 +9,5 @@
 {"seq": 9, "at": "2026-10-26T00:27:01+00:00", "actor": "main-agent", "node": "T1", "from": "done", "to": "ready", "evidence": "reopen: Merge Review MR58 on 38959af (MR58-001 card D19-PR1-C1 (a); MR58-002..004)"}
 {"seq": 10, "at": "2026-10-26T00:27:01+00:00", "actor": "main-agent", "node": "T1", "from": "ready", "to": "in_progress", "evidence": "dispatch dev-implementer opus/high (MR58 fixes)"}
 {"seq": 11, "at": "2026-10-26T00:27:01+00:00", "actor": "main-agent", "node": "T1", "from": "in_progress", "to": "reviewing", "evidence": "MR58 fixes; validate.sh exit 0"}
+{"seq": 12, "at": "2026-10-26T00:41:18+00:00", "actor": "main-agent", "node": "T1", "from": "reviewing", "to": "in_progress", "evidence": "Merge Review MR58R2 on 8bfeead: 0 MUST-FIX; MR58R2-001..003"}
+{"seq": 13, "at": "2026-10-26T00:41:19+00:00", "actor": "main-agent", "node": "T1", "from": "in_progress", "to": "reviewing", "evidence": "MR58R2 fixes (claims narrowed); validate.sh exit 0"}

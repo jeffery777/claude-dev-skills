@@ -98,7 +98,7 @@ Each item names its source: U1 to U3 (the user requirements) or a card.
   - The PR-1 deep review and security review also check the spec v4
     additions that had no independent review, and the review report gives a
     conclusion for each (card D19-S2 (a), condition 2). These additions
-    are:
+    include:
     - the three new R-VER-5 obligations: the item-by-item result of the
       abstraction checklist; each statement marked as fact, inference or
       unverified; the smallest fix narrows a claim or adds a management measure before
@@ -114,10 +114,6 @@ Each item names its source: U1 to U3 (the user requirements) or a card.
       completion evidence;
     - in PR-4: the first review report in the PR description, and the
       locator item of the DoD.
-
-    The deep Merge Review of PR #58 (MR58) concluded that these additions
-    hold. The next exact-head Merge Review and security review of PR #58
-    check them again.
 - PR-2 (`skills/dev-retro/SKILL.md`, English; card D19-C1 (a)):
   - Invocation (U1; D19-C1 (a)): the modes are
     `/dev-skills:dev-retro capture` and `/dev-skills:dev-retro review`. The
@@ -400,10 +396,10 @@ Each item names its source: U1 to U3 (the user requirements) or a card.
   the PR-4 DoD: the PR-4 deep and security reviews re-check each item
   against the final approved text, and an item that was not checked is a
   DoD failure. The re-check by the PR-4 reviews is an extra control for
-  PR-4 text only. The rest is not part of the card: the three checklist
-  values, and the rule that a result gives the item and its status only,
-  never the removed value, are security review fixes (findings S1-002 and
-  S2-001), defined once in PR-2 and cited by R-VER-5 and the PR-4 DoD; the
+  PR-4 text only. The rest is not part of the card: the rule that a result
+  gives the item and its status only, never the removed value (security
+  review fixes, findings S1-002 and S2-001), and the three checklist
+  values (spec v4 and the round-1 fixes), defined once in PR-2 and cited by R-VER-5 and the PR-4 DoD; the
   PR-4 DoD also binds the results to the exact public text.
 - Difference from the codex-dev-skills improvement contracts: Core
   (`vendor/engineering-workflow-core/docs/provenance/source-map.md:177-179`)

@@ -1,0 +1,39 @@
+{
+  "schema": "claude-dev-graph/v1",
+  "objective": {
+    "id": "issue-57-d019-pr1",
+    "title": "D-019 PR-1: lessons skill records (REQ-026, D-019, design document, index, log, CHANGELOG)",
+    "rigor": "strict",
+    "requirements": [
+      "REQ-026"
+    ]
+  },
+  "nodes": [
+    {
+      "id": "T1",
+      "title": "REQ-026; D-019 zh and EN; design-proposal section 4 dev-retro row and section 6 D-019 items (zh and EN); requirements index and log rows; CHANGELOG entry",
+      "kind": "implement",
+      "requirements": [
+        "REQ-026"
+      ],
+      "depends_on": [],
+      "owns": [
+        "docs/requirements/REQ-026-lessons-skill.md",
+        "docs/design-proposal.md",
+        "docs/requirements/index.md",
+        "docs/requirements/log.md",
+        "CHANGELOG.md",
+        ".dev/issue-57-d019-pr1/"
+      ],
+      "risk": "high",
+      "review": "security",
+      "status": "done",
+      "dod": [
+        "Every REQ-026 acceptance item traces to U1 to U3 or a card; D-019 zh and EN carry the same obligations (REQ-005); no contradiction between the files (R-EXH-2); the deep and security reviews give a conclusion for each spec v4 addition (card D19-S2 (a), condition 2)"
+      ],
+      "verify": [
+        "bash scripts/validate.sh"
+      ]
+    }
+  ]
+}

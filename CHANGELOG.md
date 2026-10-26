@@ -110,6 +110,17 @@ Cowork runtime test). At that release,
   `review-report.md` carries the reviewer part of R-VER-5 word for word;
   `dev-deliver` and `dev-retro` cite R-VER-5. The first commit records the
   items that the PR #59 review deferred.
+- First use of `dev-retro` (D-019 PR-4, Issue #57; REQ-026): the first
+  commit applies the items that the PR #60 review deferred. The DL-035
+  summary names the quotes that a candidate must not contain and the
+  authorization-change rule of R-VER-5; the requirements log records the
+  no-loosening rule in the PR-3 acceptance list (finding MR60-002); the
+  transcript check moves from PR-3 to PR-4, and before the first use a
+  new session loads the merged `main`, read back by the main checkout
+  `HEAD` and the SHA-256 of `skills/dev-retro/SKILL.md`. For this pack, `dev-retro`
+  counts a fix as released when it is merged to `main`, and a residual
+  risk that the user accepted in a card is not an unfixed security problem
+  (review card V3 (a)); follow-up FU-025 (card D19-PR4-C1 (a)).
 
 ### Changed
 

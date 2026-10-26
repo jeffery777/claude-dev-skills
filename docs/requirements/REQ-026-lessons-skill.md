@@ -36,6 +36,21 @@ sources:
   - type: chat
     locator: "Claude Code session 2026-10-26 (orchestrator session, relayed to the D-019 session, PR-3), user answer to card D19-PR3-C1 (findings PR3S1-001 and PR3S1-002; 1a: the own-words, no-quote and R-REV-8 masking rules apply to every field of a candidate, and a candidate uses no content of files outside the repository, of native memory or of automatically loaded instruction files; 2a: a candidate contains no authorization, permission, skipped confirmation, skipped review or scan, or automatic execution, and for such a lesson only says that it is an authorization change, which the user writes; the user also agreed to the merge after the checks pass)"
     quote: "D19-PR3-C1：1a、2a，檢查通過後同意合併"
+  - type: chat
+    locator: "Claude Code session 2026-10-26 (the first-use session in the main checkout, D-019 PR-4), user answer to the dev-retro review cards V1 to V6 of the first use"
+    quote: "V1a V2a V3a V4a V5a V6a"
+  - type: chat
+    locator: "Claude Code session 2026-10-26 (orchestrator session, relayed to the D-019 session, PR-4), user decision on where the card V3 definition goes"
+    quote: "V3 定義放進 PR-4"
+  - type: chat
+    locator: "Claude Code session 2026-10-26 (orchestrator session, relayed to the D-019 session, PR-4), user answers on the SKILL.md change, card D19-PR4-C1 (finding PR4-F1) and the PR-4 description draft"
+    quote: "SKILL.md 一起改；PR4-C1 選 a；草稿同意"
+  - type: chat
+    locator: "Claude Code session 2026-10-26 (orchestrator session, relayed to the D-019 session, PR-4), user answer to card D19-PR4-C2 (findings PR4S1-001 to PR4S1-003, PR4R1-002, PR4R1-003, PR4R1-007; 1a: the transcript check becomes FU-026; 2a: one sentence for this pack; 3a: FU-025 risk and trigger; 4a: the Owner column is the target repository's public owner; FU-022 line numbers updated)"
+    quote: "D19-PR4-C2：1a、2a、3a、4a；FU-022 行號改成新行號"
+  - type: chat
+    locator: "Claude Code session 2026-10-26 (orchestrator session, relayed to the D-019 session, PR #61), user answer to merge card D19-PR4-M1 (findings MR61-001, MR61-002: a records-only commit; FU-027: re-assess the released definition at tagged releases; merge consent for the new head after clean checks)"
+    quote: "M1：問題 1 選 A，問題 2 選 a，問題 3 同意"
 non_goals:
   - A lessons ledger or a lessons file in a repository (card D19-C4 (a))
   - A user-level lessons file, or any other store of lessons outside the repository (card D19-C2 (a))
@@ -239,7 +254,10 @@ Each item names its source: U1 to U3 (the user requirements) or a card.
     the R-REV-9 post scan, and reads back the URL. A lesson from a security
     problem that is not fixed is promoted or published only after the fix
     is released. There is no exemption. When the fix status is not known,
-    the problem counts as not fixed (card D19-PR2-C1 (3a)).
+    the problem counts as not fixed (card D19-PR2-C1 (3a)). For this pack,
+    a fix counts as released when it is merged to `main`, and a residual
+    risk that the user accepted in a card is not a security problem that is
+    not fixed (review card V3 (a); card D19-PR4-C2 (2a); D-019 PR-4).
   - L4 (U3; D19-C2 (a), D19-A4 (a)): one suggested line with the source
     category (the user's statement, an agent observation, repository file
     text (untrusted), or tracker and third-party text (untrusted)) and the
@@ -383,7 +401,8 @@ Each item names its source: U1 to U3 (the user requirements) or a card.
   - Verification: `bash scripts/validate.sh`; when a `dev-deliver` report
     has candidates and the user gives no instruction, no skill invokes
     `dev-retro` (read the tool calls in the transcript; NOT_RUN when the
-    transcript cannot be read).
+    transcript cannot be read). This check was NOT_RUN in PR-3 and moved to
+    PR-4 (PR #60 record).
 - PR-4 (first use; U1, U2, U3; D19-A2 (a)):
   - The user invokes `/dev-skills:dev-retro capture` for five recorded
     cases of this repository, then `/dev-skills:dev-retro review`; the
@@ -397,7 +416,11 @@ Each item names its source: U1 to U3 (the user requirements) or a card.
     `.dev/followups.md`. The judgments of cases (b) to (e) and the first
     review report, masked and abstracted, go into the PR description, which
     the user reads word for word before it is posted, after the R-REV-9 post
-    scan. Apart from its records, PR-4 owns only `.dev/followups.md`.
+    scan. Apart from its records, PR-4 owns only `.dev/followups.md` and, by the
+    user's decision, the card V3 (a) text in `skills/dev-retro/SKILL.md`.
+  - PR-4 also writes the card V3 (a) definition into REQ-026 and
+    `skills/dev-retro/SKILL.md`, and FU-025 (finding PR4-F1, card
+    D19-PR4-C1 (a)).
   - DoD (D19-A2 (a); the re-check by the PR-4 reviews and the DoD failure
     of an item that was not checked: card D19-PR1-C1 (a)): each public
     text is the same as the text that the user approved;
@@ -407,6 +430,16 @@ Each item names its source: U1 to U3 (the user requirements) or a card.
     exact public text; an item that was not checked is a DoD failure; the
     PR-4 deep and security reviews re-check each item against the final
     approved text; the before-and-after records of PR-2 (read-back) exist.
+  - Verification: the transcript check moved from PR-3 (PR #60 Merge
+    Review record): when a `dev-deliver` report has Lesson candidates and
+    the user gives no instruction, no skill invokes `dev-retro` (read the
+    tool calls; NOT_RUN in PR-4, deferred as FU-026). Before the first use,
+    a new session must load the merged `main`: the command is listed in the
+    new session, the capture reads `dev-core` from the repository, the main
+    checkout `HEAD` and the SHA-256 of `skills/dev-retro/SKILL.md` are the
+    same before and after the run, and `HEAD` is the merged `main` commit
+    (the plugin is read from the repository folder, so the installed-plugin
+    record does not show the loaded version).
 
 ## Notes
 
@@ -455,8 +488,8 @@ Each item names its source: U1 to U3 (the user requirements) or a card.
   states the obligation; when it fails (`dev-plan` runs without it, for
   example in a new session), the `dev-plan` review checks each rule
   sentence against the user's words, and a missing trace is a finding. The
-  `dev-plan` change itself goes to a later follow-up (FU-022, to be filed
-  by the orchestrator after D-019); until FU-022 changes `dev-plan`, the
+  `dev-plan` change itself goes to a later follow-up (FU-022, filed in
+  D-019 PR-4 from card R4); until FU-022 changes `dev-plan`, the
   failure path depends on the judgment of the `dev-plan` reviewer.
 - Difference from the codex-dev-skills improvement contracts: Core
   (`vendor/engineering-workflow-core/docs/provenance/source-map.md:177-179`)

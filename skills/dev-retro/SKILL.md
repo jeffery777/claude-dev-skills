@@ -172,7 +172,9 @@ write happened.
 - A lesson from a security problem that is not fixed is promoted or
   published only after the fix is released. Mark its draft "publish only
   after the fix is released". There is no exemption. When the fix status
-  is not known, the problem counts as not fixed.
+  is not known, the problem counts as not fixed. For this pack, a fix
+  counts as released when it is merged to `main`, and a residual risk that
+  the user accepted in a card is not a security problem that is not fixed.
 
 ### L4 lines
 

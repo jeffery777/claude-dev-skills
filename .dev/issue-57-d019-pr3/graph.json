@@ -1,0 +1,46 @@
+{
+  "schema": "claude-dev-graph/v1",
+  "objective": {
+    "id": "issue-57-d019-pr3",
+    "title": "D-019 PR-3: the Lesson candidates section (R-VER-5, DL-035; REQ-026)",
+    "rigor": "strict",
+    "requirements": [
+      "REQ-026"
+    ]
+  },
+  "nodes": [
+    {
+      "id": "T1",
+      "title": "R-VER-5 in dev-core; DL-035; source-map wf-verification row; review-report.md Lesson candidates section; dev-deliver Output and dev-retro cite R-VER-5; CHANGELOG entry; requirements log rows; deferred PR #59 items and REQ-026/D-019 updates",
+      "kind": "implement",
+      "requirements": [
+        "REQ-026"
+      ],
+      "depends_on": [],
+      "owns": [
+        "skills/dev-core/SKILL.md",
+        "skills/dev-core/deltas.md",
+        "skills/dev-core/source-map.md",
+        "skills/dev-deliver/SKILL.md",
+        "skills/dev-review/references/review-report.md",
+        "skills/dev-retro/SKILL.md",
+        "CHANGELOG.md",
+        "docs/requirements/log.md",
+        "docs/requirements/REQ-026-lessons-skill.md",
+        "docs/design-proposal.md",
+        ".dev/issue-57-d019-pr2/",
+        ".dev/issue-57-d019-pr3/"
+      ],
+      "risk": "high",
+      "review": "security",
+      "status": "reviewing",
+      "dod": [
+        "Every REQ-026 PR-3 acceptance item maps to file:line; R-VER-5 drops no condition of REQ-026 PR-3 and adds none; review-report.md has the reviewer part of R-VER-5 word for word with the ID; no skill text makes dev-deliver or dev-review invoke dev-retro; bash scripts/validate.sh exits 0",
+        "transcript check: when a dev-deliver report has candidates and the user gives no instruction, no skill invokes dev-retro (read the tool calls in the transcript; NOT_RUN when the transcript cannot be read)"
+      ],
+      "verify": [
+        "bash scripts/validate.sh"
+      ]
+    }
+  ]
+}

@@ -5,3 +5,4 @@
 {"seq": 5, "at": "2026-10-26T01:29:51+00:00", "actor": "main-agent", "node": "T1", "from": "in_progress", "to": "reviewing", "evidence": "round-1 fixes; validate.sh exit 0"}
 {"seq": 6, "at": "2026-10-26T01:38:21+00:00", "actor": "main-agent", "node": "T1", "from": "reviewing", "to": "in_progress", "evidence": "round-2: 0 MUST-FIX; fixes PR2S2-001..005, PR2R2-001, PR2R2-003"}
 {"seq": 7, "at": "2026-10-26T01:38:21+00:00", "actor": "main-agent", "node": "T1", "from": "in_progress", "to": "reviewing", "evidence": "round-2 fixes; validate.sh exit 0"}
+{"seq": 8, "at": "2026-10-26T02:11:48+00:00", "actor": "main-agent", "node": "T1", "from": "reviewing", "to": "done", "evidence": "PR #59 merged as 799d910; MR59 0 MUST-FIX; gate PASS"}

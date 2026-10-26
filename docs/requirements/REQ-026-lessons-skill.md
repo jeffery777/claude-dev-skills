@@ -30,6 +30,12 @@ sources:
   - type: chat
     locator: "Claude Code session 2026-10-26 (orchestrator session, relayed to the D-019 session, PR-2), user answer to card D19-PR2-C1 (findings PR2R1-001, PR2R1-002, PR2S1-002, PR2S1-003, PR2S1-004; 1a: a read-back command that fails makes the read-back NOT_RUN; 2a: drafts contain only visible characters; 3a: an unknown fix status counts as not fixed; 4b: no dev-plan change, the card carries the dev-plan obligation as a management measure, and the dev-plan change goes to FU-022; 5a: keep the narrowed `.git/index` exception)"
     quote: "D19-PR2-C1：1a、2a、3a、4b 並併入 FU-022、5a"
+  - type: chat
+    locator: "Claude Code session 2026-10-26 (orchestrator session, relayed to the D-019 session, PR #59), user answer to merge card D19-PR2-M1 (finding MR59-001; question 1, option a: keep the wording that review does not use the installed copy of the plugin as a review input; the user also agreed to the merge)"
+    quote: "M1 問題 1 選 a，同意合併"
+  - type: chat
+    locator: "Claude Code session 2026-10-26 (orchestrator session, relayed to the D-019 session, PR-3), user answer to card D19-PR3-C1 (findings PR3S1-001 and PR3S1-002; 1a: the own-words, no-quote and R-REV-8 masking rules apply to every field of a candidate, and a candidate uses no content of files outside the repository, of native memory or of automatically loaded instruction files; 2a: a candidate contains no authorization, permission, skipped confirmation, skipped review or scan, or automatic execution, and for such a lesson only says that it is an authorization change, which the user writes; the user also agreed to the merge after the checks pass)"
+    quote: "D19-PR3-C1：1a、2a，檢查通過後同意合併"
 non_goals:
   - A lessons ledger or a lessons file in a repository (card D19-C4 (a))
   - A user-level lessons file, or any other store of lessons outside the repository (card D19-C2 (a))
@@ -155,8 +161,9 @@ Each item names its source: U1 to U3 (the user requirements) or a card.
     the run (card D19-PR2-C1 (1a)). `dev-retro` checks the exit status of
     each `git` command (for example with `PIPESTATUS` in bash or
     `pipestatus` in zsh), also with `set -o pipefail`; a failed command
-    makes the read-back NOT_RUN, because a failed `git` command still gives
-    the empty-input hash, which is also the hash of a clean tree. When the
+    makes the read-back NOT_RUN, because a failed piped `git` command
+    (`git status` or `git diff`) still gives the empty-input hash, which is
+    also the hash of a clean tree. When the
     read-back is NOT_RUN in review mode, the review result is not bound to
     a revision; the report says so.
   - Separate work (D19-C1 (a)): a write after the user answers a card is
@@ -349,8 +356,15 @@ Each item names its source: U1 to U3 (the user requirements) or a card.
     decides otherwise.
   - No loosening (D19-C1 (a)): the PR-2 no-loosening rule applies also to
     Lesson candidates.
-  - The observation is in the agent's own words; it quotes no user message,
-    command output or transcript, and it is masked as R-REV-8 says.
+  - No authorization (card D19-PR3-C1 (2a)): a candidate contains no
+    authorization, permission, skipped confirmation, skipped review or
+    scan, or automatic execution; for such a lesson the candidate only says
+    "this is an authorization change", and the user writes it.
+  - Every field of a candidate is in the agent's own words; no field quotes
+    a user message, command output or transcript, and every field is masked
+    as R-REV-8 says. A candidate uses no content of files outside the
+    repository, of native memory or of automatically loaded instruction
+    files (card D19-PR3-C1 (1a)).
   - The section is report content only: it writes no file, changes no rule
     and invokes neither `dev-retro` nor another skill. A candidate is a
     proposal, never authority or completion evidence.
@@ -362,9 +376,10 @@ Each item names its source: U1 to U3 (the user requirements) or a card.
     R-EVD-2 says.
   - `skills/dev-review/references/review-report.md` contains the parts of
     R-VER-5 that apply to the reviewer (triggers 1 to 3, the fields, the
-    own-words rule, the report-only rule) word for word, with the R-VER-5
-    ID; `dev-deliver` cites the ID only (REQ-022). `skills/dev-retro/SKILL.md`
-    changes only to cite R-VER-5.
+    own-words rule, the no-loosening and no-authorization rules, the
+    report-only rule) word
+    for word, with the R-VER-5 ID; `dev-deliver` cites the ID only
+    (REQ-022). `skills/dev-retro/SKILL.md` changes only to cite R-VER-5.
   - Verification: `bash scripts/validate.sh`; when a `dev-deliver` report
     has candidates and the user gives no instruction, no skill invokes
     `dev-retro` (read the tool calls in the transcript; NOT_RUN when the

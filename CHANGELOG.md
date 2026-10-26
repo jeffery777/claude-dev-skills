@@ -261,6 +261,25 @@ Cowork runtime test). At that release,
   the escalation order; its evaluation is deferred to FU-020. Agent file
   defaults do not change.
 
+- `dev-plan` (Issue #62; REQ-027): step 2 adds the source trace (FU-022;
+  cards D19-PR2-C1 (4b) and FU022-C1 (a)): for every spec or REQ from a
+  user decision, a `dev-retro` card included, each rule sentence names the
+  user sentence that it comes from, and every condition of those words has
+  a place; a condition that the spec does not keep is listed with its
+  reason and shown to the user; the review of the spec checks the trace. Step 6 keeps the smallest coherent
+  slices and adds review units chosen by risk and review cost: a unit is
+  one write node of the task graph that lists the DoD, verification and
+  requirements of each of its slices; in a `strict` objective, and for a
+  high-risk slice, each slice is a unit of its own with the early reviews
+  and scans of R-REV-6; in a `light` or `standard` objective, slices that
+  are not high risk with a close review scope may be reviewed together and
+  delivered as one change; when joining adds risk or is unclear, a
+  decision card goes to the user; the mapping to issues, branches and
+  change requests follows the project's own rules (card FU022-R2-C1 (a)).
+  `dev-review` step 2 tells the reviewer to check the source trace. The
+  `.dev/followups.md` header prefers card IDs, rule IDs or section names to
+  line numbers (card FU022-C2 (a)).
+
 ### Fixed
 
 - `dev-core` and Core (REQ-023, FU-010, Issue #18). A rule-by-rule audit

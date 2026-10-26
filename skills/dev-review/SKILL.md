@@ -34,7 +34,11 @@ secret or private identifier they report (R-REV-8).
    working-tree diff including untracked files (R-REV-6). Note the scope, DoD and
    requirement IDs.
 2. Gather the context the reviewer needs: requirement files, the plan or graph
-   node, and the verification output. When GitNexus is available, add
+   node, and the verification output. When `dev-plan` step 2 requires a
+   source trace (a spec or REQ from a user decision), the brief tells the
+   reviewer to check it: a missing trace, or a condition of the user's
+   words dropped without a reason, is a finding.
+   When GitNexus is available, add
    `gitnexus detect-changes` to map the hunks to affected symbols and flows,
    and label it advisory (CB-3).
 3. Dispatch the reviewer subagent with a brief (R-DEL-1). Give the target, the

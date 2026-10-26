@@ -35,6 +35,17 @@ interactive planning, use plan mode; this skill adds what plan mode lacks
      inferred stays `status: proposed` until the user confirms it.
    - If an existing REQ already covers the need, add the source to that REQ
      instead of creating a duplicate.
+   - For every spec or REQ from a user decision (a card answer or the
+     user's own words), including a spec from a `dev-retro` card (the rule
+     path in `${CLAUDE_SKILL_DIR}/../dev-retro/SKILL.md`), name for each
+     rule sentence the user sentence that it comes from, and check that
+     every condition of those words has a place in the spec. List a
+     condition that the spec does not keep, with its reason, and show it to
+     the user; never drop it silently. Put this source trace in the plan.
+     The review of the spec checks the trace; a missing trace, or a
+     condition dropped without a reason, is a finding. The trace does not
+     limit a fix of a Core blocker (R-REV-4) or the `REQ-GAP` path
+     (R-REV-3).
    - If sources contradict each other, keep both sides with their locators
      under `## Conflicts`, set `status: conflict`, and ask the user. Never
      pick a side or overwrite one.
@@ -63,6 +74,32 @@ interactive planning, use plan mode; this skill adds what plan mode lacks
    paths, DoD, verification commands and a review mode. Apply the fake-edge
    test: a dependency exists only when the later slice consumes a concrete
    output of the earlier one.
+   Then choose the review units by risk and review cost (Core `workflow.md`
+   `wf-assumptions-and-options`: maintenance and review cost). A review
+   unit is one write node of the task graph (one task of the plan when
+   there is no graph). Its slices are reviewed together, in the same review
+   rounds, and delivered as one change. The slices stay the smallest
+   coherent slices: the node lists the DoD, verification and requirements
+   of each of its slices. Record the units in the plan.
+   - In a `strict` objective, each slice is a review unit of its own. A
+     high-risk slice is always a review unit of its own. Such units go one
+     at a time, with the early reviews and scans that R-REV-6 requires.
+     High-risk slices include every slice that R-REV-7 names and every
+     slice whose risk is unknown (R-RIG-2), whatever its `risk` value.
+     When a slice is re-assessed as high risk, re-plan it as a review unit
+     of its own.
+   - In a `light` or `standard` objective, slices that are not high risk
+     by the bullet above (`low` or `medium`) and have a close review scope
+     may share one review unit, also when they mix features and fixes, so
+     that each small slice does not cost review rounds of its own. The unit gets the highest risk
+     and the strictest review mode of its slices.
+   - When you judge that joining slices adds risk, or you cannot tell
+     whether slices may share a unit, ask the user with a decision card
+     (R-AUTH-6) before you join them.
+   - How review units map to issues, branches and change requests follows
+     the project's own rules (Core `authorization-and-stops.md`
+     `auth-scope`). When those rules need separate change requests, the
+     slices are separate review units.
 7. **Write the task graph** (standard and strict tiers; R-RIG-1). Create
    `.dev/<objective-id>/graph.json` as described in
    `${CLAUDE_SKILL_DIR}/references/graph-schema.md`, then run:
@@ -84,7 +121,8 @@ interactive planning, use plan mode; this skill adds what plan mode lacks
 
 - Objective and requirement IDs (with non-goals)
 - Rigor tier and reason; risk and unknowns
-- Slices (or the graph path plus the `ready` output)
+- Source trace, when step 2 requires it
+- Slices (or the graph path plus the `ready` output) and review units
 - DoD and verification plan
 - Review and security plan with timing
 - Human gates and open decisions

@@ -1,0 +1,41 @@
+{
+  "schema": "claude-dev-graph/v1",
+  "objective": {
+    "id": "issue-62-fu022-dev-plan",
+    "title": "FU-022 and slicing cost: dev-plan traces source sentences and sets review units by risk and review cost",
+    "rigor": "standard",
+    "requirements": [
+      "REQ-027"
+    ]
+  },
+  "nodes": [
+    {
+      "id": "T1",
+      "title": "dev-plan step 2 source trace (FU-022 parts 1 and 2), step 6 review units, Output; followups header location rule and FU-022; REQ-027, index, log; CHANGELOG; dev-review step 2 trace check",
+      "kind": "implement",
+      "requirements": [
+        "REQ-027"
+      ],
+      "depends_on": [],
+      "owns": [
+        "skills/dev-plan/SKILL.md",
+        "skills/dev-review/SKILL.md",
+        "docs/requirements/REQ-027-plan-trace-and-slicing-cost.md",
+        "docs/requirements/index.md",
+        "docs/requirements/log.md",
+        "CHANGELOG.md",
+        ".dev/followups.md",
+        ".dev/issue-62-fu022-dev-plan/"
+      ],
+      "risk": "medium",
+      "review": "deep",
+      "status": "reviewing",
+      "dod": [
+        "Each REQ-027 acceptance item holds in skills/dev-plan/SKILL.md; no Core obligation is relaxed; dev-reviewer deep review finds no open MUST-FIX or SHOULD-FIX"
+      ],
+      "verify": [
+        "bash scripts/validate.sh"
+      ]
+    }
+  ]
+}

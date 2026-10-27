@@ -30,9 +30,11 @@ claude plugin install dev-skills@dev-skills
 
 在本機的 checkout 測試時，改用 `claude plugin marketplace add ./`。
 
+安裝到用戶層級時，pack 檔案在工作目錄之外。每個技能宣告兩條範圍很窄的 Read 規則（CB-7），所以在呼叫技能的那一回合，技能讀自己的 pack 檔案不會跳出權限詢問。之後的回合可能再次詢問：再呼叫一次技能（例如 `/dev-skills:dev-continue`），或同意該詢問。不需要改設定。不要改在設定裡加入範圍更大的 Read 規則。這些行為只在 headless 執行中測過；互動 session 與實際安裝的測試尚待進行（FU-031）。
+
 Cowork：到 Customize > Plugins > Add marketplace，輸入 `jeffery777/claude-dev-skills`，再安裝 `dev-skills`。
 
-Cowork 有兩項尚未實測：技能能否執行 `graph.py`（需要 shell），以及 `${CLAUDE_SKILL_DIR}` 的相對路徑能否解析。沒有 shell 時，技能依文件手動操作。路徑無法解析時，技能會停下並回報，不會改讀工作目錄裡的同名檔案，也不會在沒有規則的情況下繼續（CB-6）。
+Cowork 有三項尚未實測：技能能否執行 `graph.py`（需要 shell）、`${CLAUDE_SKILL_DIR}` 的相對路徑能否解析，以及使用 `${CLAUDE_PLUGIN_ROOT}` 的 `allowed-tools` 規則能否生效（FU-001）。沒有 shell 時，技能依文件手動操作。路徑無法解析時，技能會停下並回報，不會改讀工作目錄裡的同名檔案，也不會在沒有規則的情況下繼續（CB-6）。
 
 ## 技能
 
@@ -80,7 +82,7 @@ Subagents：`dev-explorer`（haiku）、`dev-implementer`（sonnet）、`dev-rev
 
 1. Core 檔案與集合 digest 比對。
 2. Core 錨點覆蓋檢查。
-3. 技能、agent 與 REQ 的結構檢查。
+3. 技能、agent 與 REQ 的結構檢查，也檢查 plugin 的封閉清單（closed world）：根目錄與 `.claude-plugin/` 只能有清單上的名稱，所以根目錄的本機檔案（例如 `.DS_Store`）也會讓檢查失敗；`skills/` 只能放含 `SKILL.md` 的非隱藏技能目錄，`agents/` 只能放非隱藏的 `*.md` 檔案。錯誤訊息會說明兩種原因：新的 plugin 元件需要修改 `check_pack.py` 並經過審查；`.DS_Store` 這類本機檔案則應移除。
 4. 單元測試，包含 graph 的正反 fixtures。
 5. `claude plugin validate`。
 
@@ -145,9 +147,11 @@ claude plugin install dev-skills@dev-skills
 
 To test from a local checkout, use `claude plugin marketplace add ./` instead.
 
+In a user-level install, the pack files are outside the working directory. Each skill declares two narrow Read rules for them (CB-7), so in the turn that invokes a skill, the skills read their pack files without a permission prompt. A later turn can prompt again: invoke a skill again (for example `/dev-skills:dev-continue`) or approve the prompt. No settings change is needed. Do not add a broad Read rule to your settings instead. This was tested in headless runs only; tests in interactive sessions and with a real install are pending (FU-031).
+
 Cowork: open Customize > Plugins > Add marketplace, enter `jeffery777/claude-dev-skills`, then install `dev-skills`.
 
-Two things are not yet tested in Cowork: whether skills can run `graph.py` (a shell is required), and whether relative paths from `${CLAUDE_SKILL_DIR}` resolve. Without a shell, the skills use the written procedures. When a path does not resolve, a skill stops and reports it; it does not read a file with the same name from the working directory and does not continue without the rules (CB-6).
+Three things are not yet tested in Cowork: whether skills can run `graph.py` (a shell is required), whether relative paths from `${CLAUDE_SKILL_DIR}` resolve, and whether the `allowed-tools` rules with `${CLAUDE_PLUGIN_ROOT}` work (FU-001). Without a shell, the skills use the written procedures. When a path does not resolve, a skill stops and reports it; it does not read a file with the same name from the working directory and does not continue without the rules (CB-6).
 
 ## Skills
 
@@ -195,7 +199,7 @@ The script runs these checks in order:
 
 1. Core file and set digests.
 2. Core anchor coverage.
-3. Structure of skills, agents and REQ files.
+3. Structure of skills, agents and REQ files, and the plugin's closed-world layout: the root and `.claude-plugin/` may hold only the listed names, so a local file at the root such as `.DS_Store` makes the check fail; `skills/` may hold only non-hidden skill directories with a `SKILL.md`, and `agents/` only non-hidden `*.md` files. The error names both causes: a new plugin component needs a change of `check_pack.py` with review; a local file such as `.DS_Store` must be removed.
 4. Unit tests, including the positive and negative graph fixtures.
 5. `claude plugin validate`.
 

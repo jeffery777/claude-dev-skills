@@ -1,6 +1,9 @@
 ---
 name: dev-docs
 description: Update project documentation from verified code, specs, requirements or behavior, and check code-docs coherence. Use when docs must match implemented behavior, when behavior changed, or for bilingual docs that must stay aligned.
+allowed-tools:
+  - Read(/${CLAUDE_PLUGIN_ROOT}/skills/**)
+  - Read(/${CLAUDE_PLUGIN_ROOT}/vendor/engineering-workflow-core/contracts/**)
 ---
 
 # dev-docs

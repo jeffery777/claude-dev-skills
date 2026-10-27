@@ -1,6 +1,9 @@
 ---
 name: dev-continue
 description: Save a checkpoint before pausing, or resume saved development work from repository state - re-grounds from files and Git, not chat memory, then selects the next safe task or handoff. Use for "continue", "resume", "where were we", handoffs, when context is getting long, and when a work item is complete, to evaluate a session handoff.
+allowed-tools:
+  - Read(/${CLAUDE_PLUGIN_ROOT}/skills/**)
+  - Read(/${CLAUDE_PLUGIN_ROOT}/vendor/engineering-workflow-core/contracts/**)
 ---
 
 # dev-continue

@@ -31,3 +31,4 @@ One row per requirement. Agents read this first, then open only the files they n
 | REQ-025 | On-demand loading of the original Core text; project readings of two unclear Core sentences (FU-005) | active | [[REQ-025-on-demand-core-loading]] |
 | REQ-026 | Lessons - the user-invoked `dev-retro` skill and a Lesson candidates section in reports (D-019) | active | [[REQ-026-lessons-skill]] |
 | REQ-027 | dev-plan - source trace of rule sentences (FU-022) and review units by risk and review cost | active | [[REQ-027-plan-trace-and-slicing-cost]] |
+| REQ-028 | User-level install without permission allow rules - a narrow Read grant for the pack files (Issue #66) | active | [[REQ-028-user-level-read-grant]] |

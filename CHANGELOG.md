@@ -121,6 +121,47 @@ Cowork runtime test). At that release,
   counts a fix as released when it is merged to `main`, and a residual
   risk that the user accepted in a card is not an unfixed security problem
   (review card V3 (a)); follow-up FU-025 (card D19-PR4-C1 (a)).
+- Read grant for the pack files (REQ-028, Issue #66; cards A1 and B1). For a
+  user-level install without permission allow rules, each dev-* skill
+  declares exactly two `allowed-tools` rules,
+  `Read(/${CLAUDE_PLUGIN_ROOT}/skills/**)` and
+  `Read(/${CLAUDE_PLUGIN_ROOT}/vendor/engineering-workflow-core/contracts/**)`.
+  The new binding CB-7 (DL-037) records the headless test results: the
+  grant holds only in the turn that invokes the skill, also for a
+  `general-purpose` subagent dispatched in that turn; the next turn without
+  a skill was denied, and a later turn that invokes a skill was allowed
+  again (a later turn can prompt: re-invoke a skill or approve the
+  prompt); a denied pack read stops as CB-6 says; the grant is never
+  widened. Interactive sessions and a real install are not verified
+  (FU-031). `scripts/check_pack.py`, run by `scripts/validate.sh` and CI
+  (not when Claude Code loads the plugin), checks a closed world (card
+  I66-R2-C1 (a); the agent key allowlist is from card I66-R1-C1 (a)): the
+  plugin root holds only the tracked
+  names and `.git` and `.claude`, which are allowed root names but not
+  plugin components (`.claude` holds local session worktrees in this
+  repository), in exact case, so `hooks/`,
+  `monitors/`, `bin/`, `.mcp.json`, `settings.json` or any new component
+  path fails; `.claude-plugin/` holds exactly `plugin.json` and
+  `marketplace.json`, valid JSON with keys inside allowlists of the keys in
+  use, and one marketplace entry, `dev-skills` with source `./`; `skills/`
+  holds only non-hidden directories with a regular `SKILL.md`, and
+  `agents/` only non-hidden regular `*.md` files; hidden names count, and
+  names in one directory under `skills/`, `agents/` or `vendor/` that
+  differ only in case fail (root names must match exactly). The raw front
+  matter of each skill and agent file must be printable ASCII with LF line
+  ends, with only the keys in use, each once, `allowed-tools` exactly the
+  two rules; every other value follows a closed grammar (card I66-M3 (a)):
+  exactly one space after the colon, then a non-empty YAML plain scalar
+  that does not start with a space, a backtick or any of
+  `- ? : , [ ] { } # & * ! | > ' " % @`, holds no `: `, ` #` or `---`,
+  and does not end with `:` or a space, so no quoted, tagged, anchored,
+  alias, flow or block value. A `skills`, `agents` or `vendor` root entry
+  that is a symlink fails, and so do symlinks and hardlinked files under
+  `skills/` and `vendor/`. Each rule has negative tests, apart from the
+  cases that FU-033 lists.
+  The README Install section states the limit, and that the rules are not
+  tested in Cowork (FU-001). FU-025 is closed with the second-repository
+  check of Issue #66; follow-ups FU-030 (card D1) and FU-031 (card C1).
 
 ### Changed
 

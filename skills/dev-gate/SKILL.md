@@ -1,6 +1,9 @@
 ---
 name: dev-gate
 description: Formal readiness gate before commit, push, PR or merge - checks finding dispositions, verification, requirement trace and, once a PR/MR or base..head range exists, a complete exact-head Merge Review; reports content, platform and authority separately. Use when a workflow needs a blocking PASS/BLOCKED decision, not for ordinary review.
+allowed-tools:
+  - Read(/${CLAUDE_PLUGIN_ROOT}/skills/**)
+  - Read(/${CLAUDE_PLUGIN_ROOT}/vendor/engineering-workflow-core/contracts/**)
 ---
 
 # dev-gate

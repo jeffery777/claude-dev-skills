@@ -1,6 +1,9 @@
 ---
 name: dev-review
 description: Independent read-only review of code, docs or mixed changes - routine, deep, or security - with stable finding IDs, requirement relations, severities including SCOPE-CREEP and REQ-GAP, and dispositions. Use for review requests and for the Review-and-Fix stage of standard or strict work.
+allowed-tools:
+  - Read(/${CLAUDE_PLUGIN_ROOT}/skills/**)
+  - Read(/${CLAUDE_PLUGIN_ROOT}/vendor/engineering-workflow-core/contracts/**)
 ---
 
 # dev-review

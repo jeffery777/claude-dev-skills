@@ -3,6 +3,9 @@ name: dev-retro
 description: Lessons, invoked only by the user with `/dev-skills:dev-retro capture` or `/dev-skills:dev-retro review`. Supports only Claude Code. `capture` turns a report section or file that the user names, a problem that the user describes, or Issue content that the user pastes into a lesson draft with a level (L1 project, L2 this pack, L3 Core, L4 the user's own instructions) and a decision card. `review` dispatches the read-only `dev-skills:dev-reviewer` to review lessons with new evidence and the rules that they point to. It writes no file and changes no record; the output is a report, draft text and cards.
 disable-model-invocation: true
 disallowed-tools: Write, Edit, MultiEdit, NotebookEdit
+allowed-tools:
+  - Read(/${CLAUDE_PLUGIN_ROOT}/skills/**)
+  - Read(/${CLAUDE_PLUGIN_ROOT}/vendor/engineering-workflow-core/contracts/**)
 ---
 
 # dev-retro

@@ -18,6 +18,9 @@ sources:
   - type: chat
     locator: "Claude Code session 2026-10-27 (orchestrator session, relayed to the Issue #66 session), user answer to merge card I66-M1 for PR #67 head 2991b4a (question 1: I66R3-001 was not a new blocker in the mechanism, so no move to option (b) of card I66-R2-C1; question 2: one fix commit for MR67-001 and the NITs; merge after the checks pass)"
     quote: "I66-M1：問題 1 選 a，問題 2 選 a，檢查通過後同意合併"
+  - type: chat
+    locator: "Claude Code session 2026-10-27 (orchestrator session, relayed to the Issue #66 session), user answer to merge card I66-M2 for PR #67 head 47f6a77 (option (a): one fix commit for MR67B-001, MR67B-002 and MR67T-001, with the stop condition of the card: if the next exact-head Merge Review finds only test-coverage findings of the same kind, with the detection confirmed correct, they are Deferred to a follow-up row and the round passes; any other blocker goes to a card; merge after the checks pass)"
+    quote: "I66-M2 選 a，加停止條件，檢查通過後同意合併"
 non_goals:
   - No change of the user's settings, no permission allow rule and no `additionalDirectories` setup step (card A1).
   - No rule for the whole plugin root, no bare `Read`, `Grep` or `Glob`, and no grant for another tool, Bash included (card A1).

@@ -117,7 +117,7 @@ class FrontMatterGuards(unittest.TestCase):
                 fh.write(text.replace(old, new, 1))
         return self.check_tree(edit, rel if same_file else None)
 
-    def check_tree(self, change, same_file=None, count=1):
+    def check_tree(self, change, same_file=None, count=1, restore=None):
         mod = load("check_pack")
         tmp = tempfile.mkdtemp()
         try:
@@ -133,6 +133,8 @@ class FrontMatterGuards(unittest.TestCase):
                 self.assertEqual(out.count("\n  - "), count, out)  # the edit is the only problem, or gives `count`
             return code, out
         finally:
+            if restore:  # Issue #66 MR67B-001: undo a change such as chmod 0 before the tree is removed
+                restore(tmp)
             shutil.rmtree(tmp)
 
     def test_bad_model_fails(self):
@@ -499,9 +501,12 @@ class FrontMatterGuards(unittest.TestCase):
         self.assertIn("  - skills/dev-core/x.md: not a regular file (CB-7)", out)
         if os.geteuid() == 0:
             self.skipTest("root reads a file without read permission")
-        code, out = self.check_tree(lambda tmp: os.chmod(os.path.join(tmp, "skills", "dev-core", "deltas.md"), 0))
-        self.assertEqual(code, 1)
-        self.assertIn("  - skills/dev-core/deltas.md: cannot be read: Permission denied (CB-7)", out)
+        for rel in ("skills/dev-core/deltas.md", "skills/dev-core/SKILL.md", "agents/dev-reviewer.md"):  # MR67B-001
+            with self.subTest(rel=rel):
+                code, out = self.check_tree(lambda tmp: os.chmod(os.path.join(tmp, rel), 0),
+                                            restore=lambda tmp: os.chmod(os.path.join(tmp, rel), 0o644))
+                self.assertEqual(code, 1)  # check_tree asserts that this is the only problem
+                self.assertIn(f"  - {rel}: cannot be read: Permission denied (CB-7)", out)
 
     def test_missing_or_non_utf8_manifest_fails(self):  # CB-7, Issue #66 MR67S-005
         plugin = os.path.join(".claude-plugin", "plugin.json")

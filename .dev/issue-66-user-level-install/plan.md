@@ -67,6 +67,27 @@
   backslash inside. It refuses a `skills`, `agents` or `vendor` root entry
   that is a symlink, and symlinks and hardlinked files under `skills/` and
   `vendor/`.
+- Merge Review (PR #67, head `47f6a77`): deep review MR67B-001 to
+  MR67B-003 (BLOCKED), Security Diff Scan MR67T-001 and MR67T-002
+  (PASSED). User answer to card I66-M2: 「I66-M2 選 a，加停止條件，檢查通過
+  後同意合併」. Option (a) is this fix commit. The stop condition: if the
+  next Merge Review of the exact head finds only test-coverage findings of
+  the same kind, with the detection confirmed correct, they are Deferred to
+  a follow-up row and the round passes; any other blocker goes to a card.
+  Dispositions: MR67B-001 Fixed (subtests: a `SKILL.md` and an agent file
+  with mode 0 each give exactly one problem `cannot be read: Permission
+  denied (CB-7)`; skipped as root, like the `deltas.md` case; the mode is
+  restored before the temporary tree is removed); MR67T-002 Fixed (the same
+  as MR67B-001); MR67B-002 Fixed (the `|` in inline code in the FU-032 row
+  is escaped, so the row has nine cells); MR67T-001 Fixed (the MR67-002 and
+  MR67S-004 dispositions of the `2991b4a` round are `Rejected`, with source
+  and reason); MR67B-003 (PR body) Fixed by the main agent on the platform,
+  not in this commit. Before the next Merge Review, the main agent built
+  the REQ-028 acceptance × scope → test table: nine cases had no negative
+  test, each with the detection probed correct; they are Deferred to
+  FU-033 by the stop condition; that row also covers same-kind findings
+  of the next round, which the merge report names. By the same answer, the user approves the merge once the
+  checks of the new head pass.
 - Merge Review (PR #67, head `2991b4a`): deep review MR67-001 to MR67-004
   (BLOCKED), Security Diff Scan MR67S-001 to MR67S-005 (PASSED with
   `NIT`s). User answer to card I66-M1: 「I66-M1：問題 1 選 a，問題 2 選
@@ -74,8 +95,10 @@
   new blocker in the mechanism, so the work stays on option (a) of card
   I66-R2-C1; question 2 (a) is this fix commit. Dispositions: MR67-001
   Fixed (negative test for two `vendor/` names that differ only in case;
-  `skipTest` on a case-insensitive file system); MR67-002 resolved by the
-  user's decision (question 1); MR67-003 Fixed (README validation item in
+  `skipTest` on a case-insensitive file system); MR67-002 `Rejected`
+  (source: card I66-M1 question 1 (a), user answer 「I66-M1：問題 1 選 a，
+  問題 2 選 a，檢查通過後同意合併」; reason: I66R3-001 was a test gap, not a
+  new blocker in the guard mechanism); MR67-003 Fixed (README validation item in
   both languages: only the root and `.claude-plugin/` are name
   allowlists; `skills/` and `agents/` hold only entries of the checked
   form); MR67-004 Fixed (`check_pack.py` docstring: no other quote of that
@@ -83,8 +106,9 @@
   loaded, no check change); MR67S-002 Fixed (a `*.md` path under a skill
   directory that is a directory, or a file that cannot be read, gives a
   clear error, not a traceback; with tests); MR67S-003 Fixed (FU-032 names
-  agent files in Remaining risk and Verification plan); MR67S-004 is
-  MR67-002, resolved by the user; MR67S-005 Fixed (tests for a missing
+  agent files in Remaining risk and Verification plan); MR67S-004 (the
+  same finding as MR67-002) `Rejected` with the same source and reason;
+  MR67S-005 Fixed (tests for a missing
   `plugin.json` and a non-UTF-8 manifest). By the same answer, the user
   approves the merge once the checks of the new head pass.
 - Review round 3 (confirmation): deep review I66R3-001 to I66R3-003,

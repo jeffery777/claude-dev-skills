@@ -1,6 +1,9 @@
 ---
 name: dev-deliver
 description: Drive a larger bounded objective end to end - plan, task graph, dispatch slices to subagents, integrate, verify, review, docs sync and gate - stopping only at real human gates. Use when the user delegates a multi-step feature or project; use the focused dev-* skill directly for a single clear task.
+allowed-tools:
+  - Read(/${CLAUDE_PLUGIN_ROOT}/skills/**)
+  - Read(/${CLAUDE_PLUGIN_ROOT}/vendor/engineering-workflow-core/contracts/**)
 ---
 
 # dev-deliver

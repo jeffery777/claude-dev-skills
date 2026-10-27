@@ -1,7 +1,29 @@
 #!/usr/bin/env python3
 """Structural checks for the skill pack (stdlib only).
 
+- closed world (CB-7): the plugin root holds only the names in ROOT_NAMES (exact case);
+  .claude-plugin/ holds exactly plugin.json and marketplace.json, both valid JSON; skills/
+  holds only non-hidden real directories, each with a regular file named exactly SKILL.md;
+  agents/ holds only non-hidden regular files named *.md; no two names in one directory under
+  skills/, agents/ or vendor/ differ only in case. Hidden names count (os.listdir). Every
+  SKILL.md, agent file and *.md file under a skill directory is valid UTF-8, and a manifest
+  that does not parse (deep nesting included) is an error, not a traceback;
 - every skills/<dir>/SKILL.md has name == <dir> and a description of at most 1,024 characters;
+- every skills/<dir>/SKILL.md has allowed-tools as a list of exactly the two pack Read rules
+  in SKILL_ALLOWED_TOOLS: no bare tool, no other rule or tool, no string form (CB-7);
+- the raw front matter text of every skills/<dir>/SKILL.md is printable ASCII with LF line
+  ends, and each line is a column-0 `key: value` line with a key from SKILL_KEYS, used once,
+  or one of the two allowed-tools item lines right after `allowed-tools:`; a value holds no
+  `---` and, if it starts with a quote, ends with it and holds no other quote or backslash
+  (CB-7). The parsed check above uses a permissive subset parser; this raw check is the guard;
+- the raw front matter text of every agents/*.md follows the same text rules, with a key
+  from AGENT_KEYS, used once (CB-7);
+- the keys of .claude-plugin/plugin.json, of .claude-plugin/marketplace.json and of its
+  plugins[] entry stay inside the allowlists in MANIFEST_KEYS, so no manifest key points at
+  other component paths, and marketplace.json has exactly one plugins[] entry, with name
+  dev-skills and source ./ (CB-7);
+- skills/, agents/ and vendor/ are not symlinks; no symlink and no hardlinked regular file
+  under skills/ or vendor/ (CB-7);
 - every agents/*.md has name == file stem, a description, a model alias and an effort level;
 - read-only agents list their tools and expose no Edit, Write or NotebookEdit tool
   (they keep Bash; read-only Bash use is enforced by instructions, not by this check);
@@ -18,8 +40,10 @@ from __future__ import annotations
 
 import glob
 import importlib.util
+import json
 import os
 import re
+import stat
 import sys
 from typing import Any
 
@@ -29,6 +53,25 @@ EFFORTS = {"low", "medium", "high", "xhigh", "max"}
 WRITE_TOOLS = {"Edit", "MultiEdit", "Write", "NotebookEdit"}
 READ_ONLY_AGENTS = {"dev-explorer", "dev-reviewer", "dev-security-reviewer"}
 SOURCE_TYPES = {"doc", "chat", "issue", "commit", "external"}
+SKILL_ALLOWED_TOOLS = [  # CB-7: the only grant a skill declares; never widen it
+    "Read(/${CLAUDE_PLUGIN_ROOT}/skills/**)",
+    "Read(/${CLAUDE_PLUGIN_ROOT}/vendor/engineering-workflow-core/contracts/**)",
+]
+SKILL_KEYS = {"name", "description", "allowed-tools", "disable-model-invocation", "disallowed-tools"}
+AGENT_KEYS = {"name", "description", "model", "effort", "tools", "disallowedTools", "color"}  # the keys in use
+ROOT_NAMES = {  # CB-7 closed world: the tracked root names, and .git and .claude (not plugin components;
+    # .claude holds local session worktrees in this repository)
+    ".claude-plugin", ".dev", ".github", ".gitignore", "CHANGELOG.md", "LICENSE", "README.md",
+    "agents", "docs", "scripts", "skills", "tests", "vendor", ".git", ".claude"}
+CLOSED_WORLD_HINT = ("a new plugin component needs a change of check_pack.py with review; a local file such as "
+                     ".DS_Store must be removed (CB-7)")
+MANIFEST_NAMES = ("plugin.json", "marketplace.json")  # the only files in .claude-plugin/
+MANIFEST_KEYS = {  # the keys in use; (manifest, part) -> allowed keys
+    (".claude-plugin/plugin.json", "top level"): {
+        "name", "displayName", "version", "description", "author", "homepage", "repository", "license", "keywords"},
+    (".claude-plugin/marketplace.json", "top level"): {"name", "owner", "description", "plugins"},
+    (".claude-plugin/marketplace.json", "plugins[] entry"): {"name", "source", "description", "version"},
+}
 
 _spec = importlib.util.spec_from_file_location("graph", os.path.join(ROOT, "skills", "dev-plan", "scripts", "graph.py"))
 graph = importlib.util.module_from_spec(_spec)
@@ -43,6 +86,70 @@ def tool_set(value: Any) -> set[str]:
     """Tool names, ignoring permission specifiers such as Write(docs/**)."""
     items = value if isinstance(value, list) else re.findall(r"[^,(]+(?:\([^)]*\))?", str(value or ""))
     return {graph._unquote(t.strip()).split("(", 1)[0].strip() for t in items if t.strip()}
+
+
+def casefold_duplicates(names: list[str]) -> list[str]:
+    """The names that equal an earlier name in `names` after casefold (CB-7)."""
+    seen: dict[str, str] = {}
+    return [name for name in sorted(names) if seen.setdefault(name.casefold(), name) != name]
+
+
+def is_utf8(path: str) -> bool:
+    """Whether the file at `path` decodes as UTF-8, so a later read gives no traceback (CB-7)."""
+    try:
+        with open(path, encoding="utf-8") as fh:
+            fh.read()
+    except UnicodeDecodeError:
+        return False
+    return True
+
+
+def raw_front_matter_problem(path: str, keys: set[str]) -> str | None:
+    """The first problem in the raw front matter text of a SKILL.md or agent file, or None (CB-7).
+
+    Each line must be a column-0 `key: value` line with a key from `keys`, used once. When
+    `keys` has allowed-tools (skills), that line must exist, be exactly `allowed-tools:` and
+    be followed by the two SKILL_ALLOWED_TOOLS item lines. Reads with newline="" and splits
+    on "\n" only, so CR, U+0085, U+2028 and other characters that a YAML reader or
+    str.splitlines treats as a line break stay visible.
+    """
+    with open(path, encoding="utf-8", newline="") as fh:
+        lines = fh.read().split("\n")
+    end = lines.index("---", 1) if lines[0] == "---" and "---" in lines[1:] else None
+    if end is None:
+        return "front matter must open and close with a line that is exactly '---', with LF line ends"
+    for i in range(1, end):
+        bad = [ch for ch in lines[i] if not " " <= ch <= "~"]
+        if bad:
+            return f"front matter line {i + 1}: only printable ASCII is allowed, found {bad[0]!r}"
+    seen: set[str] = set()
+    i = 1
+    while i < end:
+        line = lines[i]
+        m = re.fullmatch(r"([A-Za-z_][A-Za-z0-9_-]*):(?: .*)?", line)
+        if not m or m.group(1) not in keys:
+            return (f"front matter line {i + 1}: {line!r} is not a column-0 'key: value' line with a key in "
+                    f"{sorted(keys)}" + (" or an allowed-tools item right after 'allowed-tools:'"
+                                         if "allowed-tools" in keys else ""))
+        if m.group(1) in seen:
+            return f"front matter line {i + 1}: key {m.group(1)!r} appears twice"
+        value = line[len(m.group(1)) + 2:]
+        if "---" in value:
+            return f"front matter line {i + 1}: a value must not contain '---'"
+        if value[:1] in {'"', "'"} and (len(value) < 2 or value[-1] != value[0]
+                                         or value[0] in value[1:-1] or "\\" in value):
+            return (f"front matter line {i + 1}: a quoted value must end with its opening quote and "
+                    f"contain no other quote of that kind and no backslash")
+        seen.add(m.group(1))
+        if m.group(1) == "allowed-tools":
+            if line != "allowed-tools:" or lines[i + 1:i + 3] != ["  - " + rule for rule in SKILL_ALLOWED_TOOLS]:
+                return (f"front matter line {i + 1}: allowed-tools must be the line 'allowed-tools:' followed "
+                        f"directly by the item lines '  - ' + each of {SKILL_ALLOWED_TOOLS}, in this order")
+            i += 2
+        i += 1
+    if "allowed-tools" in keys and "allowed-tools" not in seen:
+        return "front matter has no 'allowed-tools:' line"
+    return None
 
 
 def sources(block: list[str]) -> tuple[list[dict[str, str]], list[str]]:
@@ -96,7 +203,29 @@ def sources(block: list[str]) -> tuple[list[dict[str, str]], list[str]]:
 def main() -> int:
     errors: list[str] = []
 
-    for skill_md in sorted(glob.glob(os.path.join(ROOT, "skills", "*", "SKILL.md"))):
+    for name in sorted(os.listdir(ROOT)):  # CB-7 closed world; hidden names included
+        if name not in ROOT_NAMES:
+            same = [n for n in sorted(ROOT_NAMES) if n.casefold() == name.casefold()]
+            errors.append(f"{name}: not in the root allowlist ROOT_NAMES" + (f" (case differs from {same[0]!r})" if same else "")
+                          + "; " + CLOSED_WORLD_HINT)
+
+    skill_mds: list[str] = []
+    skills_dir = os.path.join(ROOT, "skills")
+    for name in sorted(os.listdir(skills_dir)) if os.path.isdir(skills_dir) else []:
+        path = os.path.join(skills_dir, name)
+        if name.startswith("."):
+            errors.append(f"skills/{name}: hidden names under skills/ are not allowed; " + CLOSED_WORLD_HINT)
+        elif os.path.islink(path) or not os.path.isdir(path):
+            errors.append(f"skills/{name}: every entry under skills/ must be a skill directory, not a file or symlink; "
+                          + CLOSED_WORLD_HINT)
+        elif "SKILL.md" not in os.listdir(path) or not stat.S_ISREG(os.lstat(os.path.join(path, "SKILL.md")).st_mode):
+            errors.append(f"skills/{name}: has no regular file named exactly SKILL.md (CB-7)")
+        elif not is_utf8(os.path.join(path, "SKILL.md")):
+            errors.append(f"skills/{name}/SKILL.md: not valid UTF-8 (CB-7)")
+        else:
+            skill_mds.append(os.path.join(path, "SKILL.md"))
+
+    for skill_md in skill_mds:
         skill_dir = os.path.dirname(skill_md)
         rel = os.path.relpath(skill_md, ROOT)
         if front_block(skill_md) is None:
@@ -109,7 +238,20 @@ def main() -> int:
             errors.append(f"{rel}: description missing")
         elif len(meta["description"]) > 1024:
             errors.append(f"{rel}: description longer than 1024 characters (Cowork limit)")
+        if "allowed-tools" not in meta:
+            errors.append(f"{rel}: allowed-tools missing; it must be the list {SKILL_ALLOWED_TOOLS} (CB-7)")
+        elif meta["allowed-tools"] != SKILL_ALLOWED_TOOLS:
+            errors.append(f"{rel}: allowed-tools must be a YAML list of exactly {SKILL_ALLOWED_TOOLS}, "
+                          f"found {meta['allowed-tools']!r} (CB-7)")
+        raw_problem = raw_front_matter_problem(skill_md, SKILL_KEYS)
+        if raw_problem:
+            errors.append(f"{rel}: {raw_problem} (CB-7)")
         for doc in sorted(glob.glob(os.path.join(skill_dir, "**", "*.md"), recursive=True)):
+            if os.path.islink(doc):
+                continue  # reported by the symlink check below; a broken link must not crash this loop
+            if not is_utf8(doc):
+                errors.append(f"{os.path.relpath(doc, ROOT)}: not valid UTF-8 (CB-7)")
+                continue
             with open(doc, encoding="utf-8") as fh:
                 text = fh.read()
             for ref in sorted(set(re.findall(r"\$\{CLAUDE_SKILL_DIR\}/([^\s`'\")]+)", text))):
@@ -120,12 +262,79 @@ def main() -> int:
                 if target and not os.path.exists(os.path.normpath(os.path.join(skill_dir, target))):
                     errors.append(f"{os.path.relpath(doc, ROOT)}: referenced path does not exist: ${{CLAUDE_SKILL_DIR}}/{ref}")
 
-    for agent_md in sorted(glob.glob(os.path.join(ROOT, "agents", "*.md"))):
+    for top in ("skills", "agents", "vendor"):
+        if os.path.islink(os.path.join(ROOT, top)):
+            errors.append(f"{top}: symlink is not allowed (CB-7)")
+    for top in ("skills", "vendor"):
+        top_dir = os.path.join(ROOT, top)
+        if os.path.islink(top_dir):
+            continue  # reported above
+        for dirpath, dirnames, filenames in os.walk(top_dir):  # does not follow links
+            for name in sorted(dirnames + filenames):
+                path = os.path.join(dirpath, name)
+                st = os.lstat(path)
+                if stat.S_ISLNK(st.st_mode):
+                    errors.append(f"{os.path.relpath(path, ROOT)}: symlink under {top}/ is not allowed (CB-7)")
+                elif stat.S_ISREG(st.st_mode) and st.st_nlink > 1:
+                    errors.append(f"{os.path.relpath(path, ROOT)}: hardlinked file under {top}/ is not allowed (CB-7)")
+
+    for top in ("skills", "agents", "vendor"):
+        for dirpath, dirnames, filenames in os.walk(os.path.join(ROOT, top)):
+            for name in casefold_duplicates(dirnames + filenames):
+                errors.append(f"{os.path.relpath(os.path.join(dirpath, name), ROOT)}: another name in this "
+                              f"directory differs only in case (CB-7)")
+
+    plugin_dir = os.path.join(ROOT, ".claude-plugin")
+    present = os.listdir(plugin_dir) if os.path.isdir(plugin_dir) else []
+    for name in sorted(set(present) - set(MANIFEST_NAMES)):
+        errors.append(f".claude-plugin/{name}: only {list(MANIFEST_NAMES)} are allowed in .claude-plugin/; "
+                      + CLOSED_WORLD_HINT)
+    for name in MANIFEST_NAMES:
+        manifest = ".claude-plugin/" + name
+        path = os.path.join(ROOT, manifest)
+        if name not in present or not os.path.isfile(path):
+            errors.append(f"{manifest}: missing (CB-7)")
+            continue
+        try:
+            with open(path, encoding="utf-8") as fh:
+                data = json.load(fh)
+        except (ValueError, RecursionError) as exc:  # JSONDecodeError, a UTF-8 BOM, UnicodeDecodeError, deep nesting
+            errors.append(f"{manifest}: not valid JSON in UTF-8 without a BOM: {exc} (CB-7)")
+            continue
+        parts = [("top level", data)]
+        if name == "marketplace.json":
+            plugins = data.get("plugins") if isinstance(data, dict) else None
+            if not (isinstance(plugins, list) and len(plugins) == 1 and isinstance(plugins[0], dict)
+                    and plugins[0].get("name") == "dev-skills" and plugins[0].get("source") == "./"):
+                errors.append(f"{manifest}: plugins must be a list of exactly one entry with name 'dev-skills' "
+                              f"and source './', found {plugins!r} (CB-7)")
+            parts += [("plugins[] entry", entry) for entry in plugins] if isinstance(plugins, list) else []
+        for part, value in parts:
+            allowed = MANIFEST_KEYS[(manifest, part)]
+            extra = sorted(set(value) - allowed) if isinstance(value, dict) else [f"<not an object: {value!r}>"]
+            if extra:
+                errors.append(f"{manifest}: {part} keys {extra} are not in the allowlist {sorted(allowed)} (CB-7)")
+
+    agent_mds: list[str] = []
+    agents_dir = os.path.join(ROOT, "agents")
+    for name in sorted(os.listdir(agents_dir)) if os.path.isdir(agents_dir) else []:
+        path = os.path.join(agents_dir, name)
+        if name.startswith(".") or not name.endswith(".md") or not stat.S_ISREG(os.lstat(path).st_mode):
+            errors.append(f"agents/{name}: agents/ may hold only non-hidden regular files named *.md; " + CLOSED_WORLD_HINT)
+        elif not is_utf8(path):
+            errors.append(f"agents/{name}: not valid UTF-8 (CB-7)")
+        else:
+            agent_mds.append(path)
+
+    for agent_md in agent_mds:
         rel = os.path.relpath(agent_md, ROOT)
         stem = os.path.splitext(os.path.basename(agent_md))[0]
         if front_block(agent_md) is None:
             errors.append(f"{rel}: front matter is not closed with '---'")
             continue
+        raw_problem = raw_front_matter_problem(agent_md, AGENT_KEYS)
+        if raw_problem:
+            errors.append(f"{rel}: {raw_problem} (CB-7)")
         meta = graph.frontmatter(agent_md)
         if meta.get("name") != stem:
             errors.append(f"{rel}: name must equal the file name")

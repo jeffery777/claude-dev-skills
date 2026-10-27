@@ -1,0 +1,52 @@
+{
+  "schema": "claude-dev-graph/v1",
+  "objective": {
+    "id": "issue-66-user-level-install",
+    "title": "User-level install without permission allow rules: narrow allowed-tools Read rules for pack files; FU-025 second-repository record",
+    "rigor": "strict",
+    "requirements": [
+      "REQ-028"
+    ]
+  },
+  "nodes": [
+    {
+      "id": "T1",
+      "title": "Read grant: two allowed-tools Read rules in each skill, CB-7 and DL-037 in dev-core, check_pack guard and tests, README, CHANGELOG, REQ-028, follow-up rows (FU-025 closed, FU-030, FU-031)",
+      "kind": "implement",
+      "requirements": [
+        "REQ-028"
+      ],
+      "depends_on": [],
+      "owns": [
+        "skills/dev-continue/SKILL.md",
+        "skills/dev-core/SKILL.md",
+        "skills/dev-core/deltas.md",
+        "skills/dev-deliver/SKILL.md",
+        "skills/dev-docs/SKILL.md",
+        "skills/dev-gate/SKILL.md",
+        "skills/dev-implement/SKILL.md",
+        "skills/dev-plan/SKILL.md",
+        "skills/dev-retro/SKILL.md",
+        "skills/dev-review/SKILL.md",
+        "scripts/check_pack.py",
+        "tests/test_core_checks.py",
+        "docs/requirements/REQ-028-user-level-read-grant.md",
+        "docs/requirements/index.md",
+        "docs/requirements/log.md",
+        "CHANGELOG.md",
+        "README.md",
+        ".dev/followups.md",
+        ".dev/issue-66-user-level-install/"
+      ],
+      "risk": "high",
+      "review": "deep",
+      "status": "reviewing",
+      "dod": [
+        "Each skills/*/SKILL.md declares exactly the two Read rules; check_pack.py refuses any other allowed-tools value and any symlink under skills/ or vendor/, with negative tests; CB-7 states the one-turn limit, the subagent reach, never widen, and re-invoke; a --plugin-dir run of the worktree reads dev-core and a Core contract without a denial and a read outside the two trees is denied; the independent deep review and the Security Diff Scan find no open MUST-FIX or SHOULD-FIX"
+      ],
+      "verify": [
+        "bash scripts/validate.sh"
+      ]
+    }
+  ]
+}

@@ -1,6 +1,9 @@
 ---
 name: dev-implement
 description: Implement one clear, bounded code change or bug fix, verify it, and inspect the diff. Use for implementation requests whose target behavior is clear; use dev-plan first when it is not, and dev-review for review-only requests.
+allowed-tools:
+  - Read(/${CLAUDE_PLUGIN_ROOT}/skills/**)
+  - Read(/${CLAUDE_PLUGIN_ROOT}/vendor/engineering-workflow-core/contracts/**)
 ---
 
 # dev-implement

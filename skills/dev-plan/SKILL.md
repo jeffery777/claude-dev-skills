@@ -1,6 +1,9 @@
 ---
 name: dev-plan
 description: Clarify a development request and plan it before code changes - objective, requirements, DoD, risk and rigor tier, smallest slices, and (standard/strict) a validated task graph. Use when scope, assumptions, acceptance or task order are unclear, or before multi-step delivery.
+allowed-tools:
+  - Read(/${CLAUDE_PLUGIN_ROOT}/skills/**)
+  - Read(/${CLAUDE_PLUGIN_ROOT}/vendor/engineering-workflow-core/contracts/**)
 ---
 
 # dev-plan

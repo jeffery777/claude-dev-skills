@@ -15,6 +15,9 @@ sources:
   - type: chat
     locator: "Claude Code session 2026-10-27 (orchestrator session, relayed to the Issue #66 session), user answer to review card I66-R2-C1 (R-VER-2 stop rule after review round 2: replace the listed check_pack checks with a closed-world allowlist of the root, .claude-plugin, skills and agents, a pinned marketplace entry and two front matter value rules)"
     quote: "I66-R2-C1 選 a"
+  - type: chat
+    locator: "Claude Code session 2026-10-27 (orchestrator session, relayed to the Issue #66 session), user answer to merge card I66-M1 for PR #67 head 2991b4a (question 1: I66R3-001 was not a new blocker in the mechanism, so no move to option (b) of card I66-R2-C1; question 2: one fix commit for MR67-001 and the NITs; merge after the checks pass)"
+    quote: "I66-M1：問題 1 選 a，問題 2 選 a，檢查通過後同意合併"
 non_goals:
   - No change of the user's settings, no permission allow rule and no `additionalDirectories` setup step (card A1).
   - No rule for the whole plugin root, no bare `Read`, `Grep` or `Glob`, and no grant for another tool, Bash included (card A1).
@@ -93,7 +96,8 @@ accepted: re-invoke a skill or approve the prompt.
   file or not named `*.md`; and names in one directory under `skills/`,
   `agents/` or `vendor/` that differ only in case. It fails on a
   `SKILL.md`, an agent file or a `*.md` file under a skill directory that
-  is not valid UTF-8 (a clear error, not a traceback). It fails on a
+  is not a readable regular file in valid UTF-8, a directory named `*.md`
+  included (a clear error, not a traceback). It fails on a
   `skills`, `agents` or `vendor` root entry that is a symlink, and on any
   symlink and any hardlinked regular file under `skills/` or `vendor/`.
   `tests/test_core_checks.py` has a negative test for each case;

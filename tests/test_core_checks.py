@@ -349,6 +349,15 @@ class FrontMatterGuards(unittest.TestCase):
         self.assertEqual(code, 1)
         self.assertIn("  - agents/x.md: another name in this directory differs only in case", out)
 
+    def test_vendor_names_differing_only_in_case_fail(self):  # CB-7, Issue #66 MR67-001
+        if not self.case_sensitive_fs():
+            self.skipTest(self.CASE_SKIP)
+        contracts = os.path.join("vendor", "engineering-workflow-core", "contracts")
+        code, out = self.check_tree(lambda tmp: shutil.copy(os.path.join(tmp, contracts, "workflow.md"),
+                                                             os.path.join(tmp, contracts, "Workflow.md")))
+        self.assertEqual(code, 1)
+        self.assertIn(f"  - {contracts}/workflow.md: another name in this directory differs only in case", out)
+
     def test_front_matter_value_rules(self):  # CB-7, Issue #66 review round 2, card I66-R2-C1 (a)
         for rel, old in ((os.path.join("skills", "dev-core", "SKILL.md"), "\ndescription: "),
                          (os.path.join("agents", "dev-reviewer.md"), "\ndescription: ")):
@@ -479,6 +488,34 @@ class FrontMatterGuards(unittest.TestCase):
                 code, out = self.check_tree(change)
                 self.assertEqual(code, 1)
                 self.assertIn(f"  - {rel}: not valid UTF-8 (CB-7)", out)
+
+    def test_markdown_path_that_is_not_a_readable_file_fails(self):  # CB-7, Issue #66 MR67S-002
+        def directory(tmp):
+            os.makedirs(os.path.join(tmp, "skills", "dev-core", "x.md"))
+            with open(os.path.join(tmp, "skills", "dev-core", "x.md", "inner.txt"), "w", encoding="utf-8") as fh:
+                fh.write("x\n")
+        code, out = self.check_tree(directory)
+        self.assertEqual(code, 1)
+        self.assertIn("  - skills/dev-core/x.md: not a regular file (CB-7)", out)
+        if os.geteuid() == 0:
+            self.skipTest("root reads a file without read permission")
+        code, out = self.check_tree(lambda tmp: os.chmod(os.path.join(tmp, "skills", "dev-core", "deltas.md"), 0))
+        self.assertEqual(code, 1)
+        self.assertIn("  - skills/dev-core/deltas.md: cannot be read: Permission denied (CB-7)", out)
+
+    def test_missing_or_non_utf8_manifest_fails(self):  # CB-7, Issue #66 MR67S-005
+        plugin = os.path.join(".claude-plugin", "plugin.json")
+        code, out = self.check_tree(lambda tmp: os.remove(os.path.join(tmp, plugin)))
+        self.assertEqual(code, 1)
+        self.assertIn("  - .claude-plugin/plugin.json: missing (CB-7)", out)
+        for name in ("plugin.json", "marketplace.json"):
+            with self.subTest(name=name):
+                def change(tmp):
+                    with open(os.path.join(tmp, ".claude-plugin", name), "ab") as fh:
+                        fh.write(b"\xff\n")
+                code, out = self.check_tree(change)
+                self.assertEqual(code, 1)
+                self.assertIn(f"  - .claude-plugin/{name}: not valid JSON in UTF-8 without a BOM", out)
 
     def test_deeply_nested_manifest_fails(self):  # CB-7, Issue #66 I66S3-004
         def change(tmp):

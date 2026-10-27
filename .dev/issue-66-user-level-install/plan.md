@@ -67,6 +67,26 @@
   backslash inside. It refuses a `skills`, `agents` or `vendor` root entry
   that is a symlink, and symlinks and hardlinked files under `skills/` and
   `vendor/`.
+- Merge Review (PR #67, head `2991b4a`): deep review MR67-001 to MR67-004
+  (BLOCKED), Security Diff Scan MR67S-001 to MR67S-005 (PASSED with
+  `NIT`s). User answer to card I66-M1: 「I66-M1：問題 1 選 a，問題 2 選
+  a，檢查通過後同意合併」. Question 1 (a) confirms that I66R3-001 was not a
+  new blocker in the mechanism, so the work stays on option (a) of card
+  I66-R2-C1; question 2 (a) is this fix commit. Dispositions: MR67-001
+  Fixed (negative test for two `vendor/` names that differ only in case;
+  `skipTest` on a case-insensitive file system); MR67-002 resolved by the
+  user's decision (question 1); MR67-003 Fixed (README validation item in
+  both languages: only the root and `.claude-plugin/` are name
+  allowlists; `skills/` and `agents/` hold only entries of the checked
+  form); MR67-004 Fixed (`check_pack.py` docstring: no other quote of that
+  kind and no backslash); MR67S-001 Fixed in records (FU-031: measured not
+  loaded, no check change); MR67S-002 Fixed (a `*.md` path under a skill
+  directory that is a directory, or a file that cannot be read, gives a
+  clear error, not a traceback; with tests); MR67S-003 Fixed (FU-032 names
+  agent files in Remaining risk and Verification plan); MR67S-004 is
+  MR67-002, resolved by the user; MR67S-005 Fixed (tests for a missing
+  `plugin.json` and a non-UTF-8 manifest). By the same answer, the user
+  approves the merge once the checks of the new head pass.
 - Review round 3 (confirmation): deep review I66R3-001 to I66R3-003,
   Security Diff Scan I66S3-001 to I66S3-007. The Security Diff Scan found
   no new `MUST-FIX` or `SHOULD-FIX` in the detection mechanism. I66R3-001

@@ -6,16 +6,18 @@
   holds only non-hidden real directories, each with a regular file named exactly SKILL.md;
   agents/ holds only non-hidden regular files named *.md; no two names in one directory under
   skills/, agents/ or vendor/ differ only in case. Hidden names count (os.listdir). Every
-  SKILL.md, agent file and *.md file under a skill directory is valid UTF-8, and a manifest
-  that does not parse (deep nesting included) is an error, not a traceback;
+  SKILL.md, agent file and *.md file under a skill directory is a readable regular file in
+  valid UTF-8 (a directory named *.md fails), and a manifest that does not parse (deep
+  nesting included) is an error, not a traceback;
 - every skills/<dir>/SKILL.md has name == <dir> and a description of at most 1,024 characters;
 - every skills/<dir>/SKILL.md has allowed-tools as a list of exactly the two pack Read rules
   in SKILL_ALLOWED_TOOLS: no bare tool, no other rule or tool, no string form (CB-7);
 - the raw front matter text of every skills/<dir>/SKILL.md is printable ASCII with LF line
   ends, and each line is a column-0 `key: value` line with a key from SKILL_KEYS, used once,
   or one of the two allowed-tools item lines right after `allowed-tools:`; a value holds no
-  `---` and, if it starts with a quote, ends with it and holds no other quote or backslash
-  (CB-7). The parsed check above uses a permissive subset parser; this raw check is the guard;
+  `---` and, if it starts with a quote, ends with it and holds no other quote of that kind
+  and no backslash (CB-7). The parsed check above uses a permissive subset parser; this raw
+  check is the guard;
 - the raw front matter text of every agents/*.md follows the same text rules, with a key
   from AGENT_KEYS, used once (CB-7);
 - the keys of .claude-plugin/plugin.json, of .claude-plugin/marketplace.json and of its
@@ -94,14 +96,18 @@ def casefold_duplicates(names: list[str]) -> list[str]:
     return [name for name in sorted(names) if seen.setdefault(name.casefold(), name) != name]
 
 
-def is_utf8(path: str) -> bool:
-    """Whether the file at `path` decodes as UTF-8, so a later read gives no traceback (CB-7)."""
+def utf8_problem(path: str) -> str | None:
+    """Why `path` is not a readable regular file in UTF-8, or None, so a later read gives no traceback (CB-7)."""
+    if not os.path.isfile(path):  # a directory or FIFO named *.md; checked first, so open() neither fails nor blocks
+        return "not a regular file"
     try:
         with open(path, encoding="utf-8") as fh:
             fh.read()
     except UnicodeDecodeError:
-        return False
-    return True
+        return "not valid UTF-8"
+    except OSError as exc:
+        return f"cannot be read: {exc.strerror or exc}"
+    return None
 
 
 def raw_front_matter_problem(path: str, keys: set[str]) -> str | None:
@@ -220,8 +226,8 @@ def main() -> int:
                           + CLOSED_WORLD_HINT)
         elif "SKILL.md" not in os.listdir(path) or not stat.S_ISREG(os.lstat(os.path.join(path, "SKILL.md")).st_mode):
             errors.append(f"skills/{name}: has no regular file named exactly SKILL.md (CB-7)")
-        elif not is_utf8(os.path.join(path, "SKILL.md")):
-            errors.append(f"skills/{name}/SKILL.md: not valid UTF-8 (CB-7)")
+        elif problem := utf8_problem(os.path.join(path, "SKILL.md")):
+            errors.append(f"skills/{name}/SKILL.md: {problem} (CB-7)")
         else:
             skill_mds.append(os.path.join(path, "SKILL.md"))
 
@@ -249,8 +255,8 @@ def main() -> int:
         for doc in sorted(glob.glob(os.path.join(skill_dir, "**", "*.md"), recursive=True)):
             if os.path.islink(doc):
                 continue  # reported by the symlink check below; a broken link must not crash this loop
-            if not is_utf8(doc):
-                errors.append(f"{os.path.relpath(doc, ROOT)}: not valid UTF-8 (CB-7)")
+            if problem := utf8_problem(doc):
+                errors.append(f"{os.path.relpath(doc, ROOT)}: {problem} (CB-7)")
                 continue
             with open(doc, encoding="utf-8") as fh:
                 text = fh.read()
@@ -321,8 +327,8 @@ def main() -> int:
         path = os.path.join(agents_dir, name)
         if name.startswith(".") or not name.endswith(".md") or not stat.S_ISREG(os.lstat(path).st_mode):
             errors.append(f"agents/{name}: agents/ may hold only non-hidden regular files named *.md; " + CLOSED_WORLD_HINT)
-        elif not is_utf8(path):
-            errors.append(f"agents/{name}: not valid UTF-8 (CB-7)")
+        elif problem := utf8_problem(path):
+            errors.append(f"agents/{name}: {problem} (CB-7)")
         else:
             agent_mds.append(path)
 

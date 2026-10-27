@@ -82,7 +82,7 @@ Subagents：`dev-explorer`（haiku）、`dev-implementer`（sonnet）、`dev-rev
 
 1. Core 檔案與集合 digest 比對。
 2. Core 錨點覆蓋檢查。
-3. 技能、agent 與 REQ 的結構檢查，也檢查 plugin 的封閉清單（closed world）：根目錄、`.claude-plugin/`、`skills/` 與 `agents/` 只能有已知的名稱，所以根目錄的本機檔案（例如 `.DS_Store`）也會讓檢查失敗。錯誤訊息會說明兩種原因：新的 plugin 元件需要修改 `check_pack.py` 並經過審查；`.DS_Store` 這類本機檔案則應移除。
+3. 技能、agent 與 REQ 的結構檢查，也檢查 plugin 的封閉清單（closed world）：根目錄與 `.claude-plugin/` 只能有清單上的名稱，所以根目錄的本機檔案（例如 `.DS_Store`）也會讓檢查失敗；`skills/` 只能放含 `SKILL.md` 的非隱藏技能目錄，`agents/` 只能放非隱藏的 `*.md` 檔案。錯誤訊息會說明兩種原因：新的 plugin 元件需要修改 `check_pack.py` 並經過審查；`.DS_Store` 這類本機檔案則應移除。
 4. 單元測試，包含 graph 的正反 fixtures。
 5. `claude plugin validate`。
 
@@ -199,7 +199,7 @@ The script runs these checks in order:
 
 1. Core file and set digests.
 2. Core anchor coverage.
-3. Structure of skills, agents and REQ files, and the plugin's closed-world layout: the root, `.claude-plugin/`, `skills/` and `agents/` may hold only known names, so a local file at the root such as `.DS_Store` makes the check fail. The error names both causes: a new plugin component needs a change of `check_pack.py` with review; a local file such as `.DS_Store` must be removed.
+3. Structure of skills, agents and REQ files, and the plugin's closed-world layout: the root and `.claude-plugin/` may hold only the listed names, so a local file at the root such as `.DS_Store` makes the check fail; `skills/` may hold only non-hidden skill directories with a `SKILL.md`, and `agents/` only non-hidden `*.md` files. The error names both causes: a new plugin component needs a change of `check_pack.py` with review; a local file such as `.DS_Store` must be removed.
 4. Unit tests, including the positive and negative graph fixtures.
 5. `claude plugin validate`.
 

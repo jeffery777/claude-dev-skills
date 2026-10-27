@@ -21,6 +21,9 @@ sources:
   - type: chat
     locator: "Claude Code session 2026-10-27 (orchestrator session, relayed to the Issue #66 session), user answer to merge card I66-M2 for PR #67 head 47f6a77 (option (a): one fix commit for MR67B-001, MR67B-002 and MR67T-001, with the stop condition of the card: if the next exact-head Merge Review finds only test-coverage findings of the same kind, with the detection confirmed correct, they are Deferred to a follow-up row and the round passes; any other blocker goes to a card; merge after the checks pass)"
     quote: "I66-M2 選 a，加停止條件，檢查通過後同意合併"
+  - type: chat
+    locator: "Claude Code session 2026-10-27 (orchestrator session, relayed to the Issue #66 session), user answer to merge card I66-M3 for PR #67 head 3c512ff (option (a): a closed value grammar for every skill and agent front matter value, which closes MR67C-001, MR67U-001, MR67U-002 and FU-032; the stop condition of card I66-M2 still applies, and if the next round finds another detection blocker in the guard, the work moves to option (b) without another card; merge after the checks pass)"
+    quote: "I66-M3 選 a，檢查通過後同意合併"
 non_goals:
   - No change of the user's settings, no permission allow rule and no `additionalDirectories` setup step (card A1).
   - No rule for the whole plugin root, no bare `Read`, `Grep` or `Glob`, and no grant for another tool, Bash included (card A1).
@@ -69,10 +72,12 @@ accepted: re-invoke a skill or approve the prompt.
   column-0 `key: value` line with an unquoted key from `name`,
   `description`, `allowed-tools`, `disable-model-invocation` and
   `disallowed-tools`, used once, any `allowed-tools` that is not the
-  line `allowed-tools:` followed directly by the two item lines in order,
-  and any value that contains `---` or that starts with a quote and does
-  not end with the same quote, or holds another such quote or a backslash
-  (card I66-R2-C1 (a)). It applies the same text rules to each
+  line `allowed-tools:` followed directly by the two item lines in order
+  (card I66-R2-C1 (a)), and any other value outside a closed grammar
+  (card I66-M3 (a)): exactly one space after the colon, then a non-empty
+  YAML plain scalar that does not start with a space, a backtick or any of
+  `- ? : , [ ] { } # & * ! | > ' " % @`, holds no `: `, ` #` or `---`,
+  and does not end with `:` or a space. It applies the same text rules to each
   `agents/*.md`, with only the keys that the agents use (`name`, `description`, `model`, `effort`,
   `tools`, `disallowedTools`, `color`), so a key such as `permissionMode`,
   `hooks`, `mcpServers` or `skills` fails (card I66-R1-C1 (a)). It checks
@@ -103,7 +108,8 @@ accepted: re-invoke a skill or approve the prompt.
   included (a clear error, not a traceback). It fails on a
   `skills`, `agents` or `vendor` root entry that is a symlink, and on any
   symlink and any hardlinked regular file under `skills/` or `vendor/`.
-  `tests/test_core_checks.py` has a negative test for each case;
+  `tests/test_core_checks.py` has a negative test for each case, apart from
+  the cases that FU-033 lists (Deferred by the card I66-M2 stop condition);
   `bash scripts/validate.sh` passes. The check runs in
   `scripts/validate.sh` and CI, not when Claude Code loads the plugin.
 - A headless run with `--plugin-dir <worktree>` from a directory outside the

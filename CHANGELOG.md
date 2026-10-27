@@ -150,11 +150,15 @@ Cowork runtime test). At that release,
   differ only in case fail (root names must match exactly). The raw front
   matter of each skill and agent file must be printable ASCII with LF line
   ends, with only the keys in use, each once, `allowed-tools` exactly the
-  two rules, and no value with `---`; a value that starts with a quote must
-  end with the same quote, with no other such quote and no backslash
-  inside. A `skills`, `agents` or `vendor` root entry that is a symlink
-  fails, and so do symlinks and hardlinked files under `skills/` and
-  `vendor/`. Each rule has negative tests.
+  two rules; every other value follows a closed grammar (card I66-M3 (a)):
+  exactly one space after the colon, then a non-empty YAML plain scalar
+  that does not start with a space, a backtick or any of
+  `- ? : , [ ] { } # & * ! | > ' " % @`, holds no `: `, ` #` or `---`,
+  and does not end with `:` or a space, so no quoted, tagged, anchored,
+  alias, flow or block value. A `skills`, `agents` or `vendor` root entry
+  that is a symlink fails, and so do symlinks and hardlinked files under
+  `skills/` and `vendor/`. Each rule has negative tests, apart from the
+  cases that FU-033 lists.
   The README Install section states the limit, and that the rules are not
   tested in Cowork (FU-001). FU-025 is closed with the second-repository
   check of Issue #66; follow-ups FU-030 (card D1) and FU-031 (card C1).

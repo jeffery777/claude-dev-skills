@@ -14,10 +14,12 @@
   in SKILL_ALLOWED_TOOLS: no bare tool, no other rule or tool, no string form (CB-7);
 - the raw front matter text of every skills/<dir>/SKILL.md is printable ASCII with LF line
   ends, and each line is a column-0 `key: value` line with a key from SKILL_KEYS, used once,
-  or one of the two allowed-tools item lines right after `allowed-tools:`; a value holds no
-  `---` and, if it starts with a quote, ends with it and holds no other quote of that kind
-  and no backslash (CB-7). The parsed check above uses a permissive subset parser; this raw
-  check is the guard;
+  or one of the two allowed-tools item lines right after `allowed-tools:`; every other value
+  follows the closed value grammar: one space after the colon, then a non-empty YAML plain
+  scalar that does not start with a space or a character of PLAIN_START_BANNED, holds no
+  `: `, ` #` or `---`, and does not end with `:` or a space, so no quote, tag, anchor, alias,
+  flow or block value (CB-7). The parsed check above uses a permissive subset parser; this
+  raw check is the guard;
 - the raw front matter text of every agents/*.md follows the same text rules, with a key
   from AGENT_KEYS, used once (CB-7);
 - the keys of .claude-plugin/plugin.json, of .claude-plugin/marketplace.json and of its
@@ -61,6 +63,7 @@ SKILL_ALLOWED_TOOLS = [  # CB-7: the only grant a skill declares; never widen it
 ]
 SKILL_KEYS = {"name", "description", "allowed-tools", "disable-model-invocation", "disallowed-tools"}
 AGENT_KEYS = {"name", "description", "model", "effort", "tools", "disallowedTools", "color"}  # the keys in use
+PLAIN_START_BANNED = "-?:,[]{}#&*!|>'\"%@`"  # CB-7: YAML indicators; a value never starts with one (card I66-M3 (a))
 ROOT_NAMES = {  # CB-7 closed world: the tracked root names, and .git and .claude (not plugin components;
     # .claude holds local session worktrees in this repository)
     ".claude-plugin", ".dev", ".github", ".gitignore", "CHANGELOG.md", "LICENSE", "README.md",
@@ -115,7 +118,8 @@ def raw_front_matter_problem(path: str, keys: set[str]) -> str | None:
 
     Each line must be a column-0 `key: value` line with a key from `keys`, used once. When
     `keys` has allowed-tools (skills), that line must exist, be exactly `allowed-tools:` and
-    be followed by the two SKILL_ALLOWED_TOOLS item lines. Reads with newline="" and splits
+    be followed by the two SKILL_ALLOWED_TOOLS item lines. Every other value follows the
+    closed value grammar of the module docstring. Reads with newline="" and splits
     on "\n" only, so CR, U+0085, U+2028 and other characters that a YAML reader or
     str.splitlines treats as a line break stay visible.
     """
@@ -139,19 +143,27 @@ def raw_front_matter_problem(path: str, keys: set[str]) -> str | None:
                                          if "allowed-tools" in keys else ""))
         if m.group(1) in seen:
             return f"front matter line {i + 1}: key {m.group(1)!r} appears twice"
-        value = line[len(m.group(1)) + 2:]
-        if "---" in value:
-            return f"front matter line {i + 1}: a value must not contain '---'"
-        if value[:1] in {'"', "'"} and (len(value) < 2 or value[-1] != value[0]
-                                         or value[0] in value[1:-1] or "\\" in value):
-            return (f"front matter line {i + 1}: a quoted value must end with its opening quote and "
-                    f"contain no other quote of that kind and no backslash")
         seen.add(m.group(1))
         if m.group(1) == "allowed-tools":
             if line != "allowed-tools:" or lines[i + 1:i + 3] != ["  - " + rule for rule in SKILL_ALLOWED_TOOLS]:
                 return (f"front matter line {i + 1}: allowed-tools must be the line 'allowed-tools:' followed "
                         f"directly by the item lines '  - ' + each of {SKILL_ALLOWED_TOOLS}, in this order")
             i += 2
+        else:  # the closed value grammar: a restricted YAML plain scalar (Issue #66 card I66-M3 (a))
+            value = line[len(m.group(1)) + 2:]
+            where = f"front matter line {i + 1}: "
+            if not value:
+                return where + "a value must not be empty"
+            if value[0] == " ":
+                return where + "exactly one space must follow the colon"
+            if value[0] in PLAIN_START_BANNED:
+                return where + f"a value must not start with any of {PLAIN_START_BANNED!r}"
+            if ": " in value or " #" in value:
+                return where + "a value must not contain ': ' or ' #'"
+            if value[-1] in ": ":
+                return where + "a value must not end with ':' or a space"
+            if "---" in value:
+                return where + "a value must not contain '---'"
         i += 1
     if "allowed-tools" in keys and "allowed-tools" not in seen:
         return "front matter has no 'allowed-tools:' line"

@@ -62,11 +62,34 @@
   raw front matter of each skill (printable ASCII with LF line ends, five
   allowed keys, each once, `allowed-tools` exactly the two item lines) and
   agent file (the same text rules, only the seven keys in use; card
-  I66-R1-C1 (a)); no value contains `---`, and a value that starts with a
-  quote must end with the same quote, with no other such quote and no
-  backslash inside. It refuses a `skills`, `agents` or `vendor` root entry
+  I66-R1-C1 (a)); every other value follows the closed value grammar of
+  card I66-M3 (a): one space after the colon, then a non-empty YAML plain
+  scalar that does not start with a space or a YAML indicator, holds no
+  `: `, ` #` or `---`, and does not end with `:` or a space. It refuses a `skills`, `agents` or `vendor` root entry
   that is a symlink, and symlinks and hardlinked files under `skills/` and
   `vendor/`.
+- Merge Review (PR #67, head `3c512ff`): deep review MR67C-001 to
+  MR67C-003 (BLOCKED), Security Diff Scan MR67U-001 to MR67U-003
+  (BLOCKED). User answer to card I66-M3: 「I66-M3 選 a，檢查通過後同意合併」.
+  Option (a) is this fix commit: a closed value grammar for every skill and
+  agent front matter value (one space after the colon, then a non-empty
+  YAML plain scalar that does not start with a space or a YAML indicator,
+  holds no `: `, ` #` or `---`, and does not end with `:` or a space); it
+  replaces the quote rule, and FU-032 is closed. If the next round finds
+  another detection blocker in the guard, the work moves to option (b)
+  without another card; the stop condition of card I66-M2 still applies.
+  Dispositions: MR67C-001 and MR67U-001 (the same finding: a second space,
+  a tag or anchor before a quote, or an unclosed quote that swallows keys
+  passed the value rule) Fixed (the closed value grammar; a negative test
+  for each form in a skill and an agent file, and the reviewers' inputs);
+  MR67U-002 (a tag, or an anchor and alias, hid a write tool from the
+  read-only check) Fixed (the closed value grammar); MR67C-002 (the PR
+  body said "negative tests for each case", against FU-033) Fixed by the
+  main agent on the platform (PR body), not in this commit; MR67U-003 (the
+  same claim in the CHANGELOG and the PR body) Fixed (CHANGELOG names
+  FU-033; the PR body by the main agent); MR67C-003 (FU-033 said U+0085 was
+  not probed) Fixed (FU-033: the reviewer probed it, detected). By the same
+  answer, the user approves the merge once the checks of the new head pass.
 - Merge Review (PR #67, head `47f6a77`): deep review MR67B-001 to
   MR67B-003 (BLOCKED), Security Diff Scan MR67T-001 and MR67T-002
   (PASSED). User answer to card I66-M2: 「I66-M2 選 a，加停止條件，檢查通過

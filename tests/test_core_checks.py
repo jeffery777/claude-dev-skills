@@ -154,7 +154,7 @@ class FrontMatterGuards(unittest.TestCase):
                 (os.path.join("docs", "requirements", "REQ-001-claude-skill-pack.md"), "\nstatus: active\n", "\nstatus:\n",
                  "status must be one of")):
             with self.subTest(rel=rel, field=new.strip()):
-                code, out = self.check(rel, old, new)
+                code, out = self.check(rel, old, new, same_file=True)  # an agent file also fails the value grammar
                 self.assertEqual(code, 1)
                 self.assertIn(message, out)
 
@@ -360,24 +360,73 @@ class FrontMatterGuards(unittest.TestCase):
         self.assertEqual(code, 1)
         self.assertIn(f"  - {contracts}/workflow.md: another name in this directory differs only in case", out)
 
-    def test_front_matter_value_rules(self):  # CB-7, Issue #66 review round 2, card I66-R2-C1 (a)
-        for rel, old in ((os.path.join("skills", "dev-core", "SKILL.md"), "\ndescription: "),
-                         (os.path.join("agents", "dev-reviewer.md"), "\ndescription: ")):
-            for case, new, message in (
-                    ("'---' in a value", old + "a --- b ", "a value must not contain '---'"),
-                    ("unclosed double quote", old + '"', "a quoted value must end with its opening quote"),
-                    ("unclosed single quote", old + "'", "a quoted value must end with its opening quote")):
+    def check_edits(self, rel, *pairs):  # several replacements in one file; the result must be exactly one problem
+        def change(tmp):
+            path = os.path.join(tmp, rel)
+            with open(path, encoding="utf-8", newline="") as fh:
+                text = fh.read()
+            for old, new in pairs:
+                self.assertIn(old, text)
+                text = text.replace(old, new, 1)
+            with open(path, "w", encoding="utf-8", newline="") as fh:
+                fh.write(text)
+        return self.check_tree(change)
+
+    VALUE_SCOPES = ((os.path.join("skills", "dev-retro", "SKILL.md"), "disable-model-invocation", "true",
+                     "\ndisallowed-tools: Write, Edit, MultiEdit, NotebookEdit\n"),
+                    (os.path.join("agents", "dev-reviewer.md"), "color", "yellow",
+                     "\ndisallowedTools: Edit, Write, NotebookEdit\n"))
+
+    def test_front_matter_value_grammar(self):  # CB-7, Issue #66 card I66-M3 (a): MR67C-001, MR67U-001, MR67U-002, FU-032
+        start = "a value must not start with any of "
+        forms = [("two spaces", "  x", "exactly one space must follow the colon"),
+                 ("empty value", "", "a value must not be empty"),
+                 ("space, then empty", " ", "a value must not be empty"),
+                 ("inner ': '", " a: b", "a value must not contain ': ' or ' #'"),
+                 ("inner ' #'", " a #b", "a value must not contain ': ' or ' #'"),
+                 ("trailing ':'", " a:", "a value must not end with ':' or a space"),
+                 ("trailing space", " a ", "a value must not end with ':' or a space"),
+                 ("'---' inside", " a --- b", "a value must not contain '---'")]
+        forms += [(f"first character {ch!r}", " " + ch + "x", start) for ch in "-?:,[]{}#&*!|>'\"%@`"]  # not from check_pack
+        for rel, key, value, _ in self.VALUE_SCOPES:
+            for case, new, message in forms:
                 with self.subTest(rel=rel, case=case):
-                    code, out = self.check(rel, old, new, same_file=True)
-                    self.assertEqual(code, 1)
+                    code, out = self.check(rel, f"\n{key}: {value}\n", f"\n{key}:{new}\n")
+                    self.assertEqual(code, 1)  # check_tree asserts that this is the only problem
+                    self.assertIn(f"  - {rel}: front matter line ", out)
                     self.assertIn(message, out)
-        rel = os.path.join("agents", "dev-reviewer.md")
-        for case, new in (("inner double quote", 'color: "a"b"'), ("escaped closing quote", 'color: "a\\"'),
-                          ("single quote inside", "color: 'a'b'"), ("lone quote", 'color: "')):
-            with self.subTest(case=case):
-                code, out = self.check(rel, "\ncolor: yellow\n", "\n" + new + "\n", same_file=True)
+        for rel, key, value, later in self.VALUE_SCOPES:  # an unclosed quote that closes on a later key line
+            with self.subTest(rel=rel, case="unclosed quote spanning lines"):
+                code, out = self.check_edits(rel, (f"\n{key}: {value}\n", f'\n{key}: "{value}\n'),
+                                             (later, later[:-1] + '"\n'))
                 self.assertEqual(code, 1)
-                self.assertIn("a quoted value must end with its opening quote", out)
+                self.assertIn(f"  - {rel}: front matter line ", out)
+                self.assertIn(start, out)
+
+    def test_front_matter_value_bypasses_from_review(self):  # CB-7, Issue #66 card I66-M3 (a): the reviewers' inputs
+        start = "a value must not start with any of "
+        agent = os.path.join("agents", "dev-reviewer.md")
+        skill = os.path.join("skills", "dev-retro", "SKILL.md")
+        tools = "\ntools: Read, Grep, Glob, Bash\n"
+        color = "\ncolor: yellow\n"
+        for case, rel, pairs, message in (
+                ("MR67C-001 two spaces hide \\x45dit", agent,
+                 [(tools, '\ntools:  "Read, Grep, Glob, Bash, \\x45dit"\n')], "exactly one space must follow the colon"),
+                ("MR67U-001 tag before a quote that closes on a later key line", agent,
+                 [("\ndescription: ", '\ndescription: !!str "'), (color, '\ncolor: yellow"\n')], start),
+                ("MR67U-001 anchor before a quote that closes on a later key line", agent,
+                 [("\ndescription: ", '\ndescription: &d "'), (color, '\ncolor: yellow"\n')], start),
+                ("MR67U-002 tag hides Edit", agent, [(tools, "\ntools: !!str Edit, Read, Grep, Glob, Bash\n")], start),
+                ("MR67U-002 anchor and alias hide Edit", agent,
+                 [(tools, "\ntools: [Read, Grep, Glob, Bash, *e]\n"), (color, "\ncolor: &e Edit\n")], start),
+                ("MR67C-001 skill quote after two spaces closes on disallowed-tools", skill,
+                 [("\ndescription: Lessons", '\ndescription:  "Lessons'),
+                  ("NotebookEdit\n", 'NotebookEdit"\n')], "exactly one space must follow the colon")):
+            with self.subTest(case=case):
+                code, out = self.check_edits(rel, *pairs)
+                self.assertEqual(code, 1)  # check_tree asserts that this is the only problem
+                self.assertIn(f"  - {rel}: front matter line ", out)
+                self.assertIn(message, out)
 
     def test_manifest_key_outside_the_allowlist_fails(self):  # CB-7, Issue #66 review round 1 (main agent addition, now part of card I66-R2-C1 (a))
         plugin = os.path.join(".claude-plugin", "plugin.json")

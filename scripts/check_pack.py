@@ -29,8 +29,19 @@
 - skills/, agents/ and vendor/ are not symlinks; no symlink and no hardlinked regular file
   under skills/ or vendor/ (CB-7);
 - every agents/*.md has name == file stem, a description, a model alias and an effort level;
-- read-only agents list their tools and expose no Edit, Write or NotebookEdit tool
-  (they keep Bash; read-only Bash use is enforced by instructions, not by this check);
+- every read-only agent file (stem in READ_ONLY_AGENTS) is at most AGENT_MAX_BYTES bytes, this
+  repository's own lower limit; Claude Code skips an agent file over 1,048,576 bytes (inferred
+  from reading the Claude Code 2.1.310 code, not run; Issue #69 R69S1-002);
+- the read-only agents in READ_ONLY_AGENTS exist as regular files named in exact case, no other
+  agent file stem equals one of their names after agent_key normalization (NFKC, casefold, no
+  whitespace, `_` or Pd dash; inferred from reading the Claude Code 2.1.310 code, not run: when
+  no agent has the exact dispatch name and exactly one agent matches after normalization, Claude
+  Code dispatches that agent; Issue #69 R69S1-002),
+  and the raw `tools` and `disallowedTools` values of each equal the pinned strings exactly
+  (absent where pinned to None), so no other spelling (a space-separated write tool, `*`, a
+  specifier) and no removed `disallowedTools` passes, whatever split rule Claude Code uses
+  (Issue #69, MR67V-001). They keep Bash; read-only Bash use is enforced by instructions, not
+  by this check (CB-5);
 - every ${CLAUDE_SKILL_DIR}/... path named in a skill exists;
 - every REQ file in docs/requirements/ has closed front matter, an id matching its
   name, a valid status, typed relations as REQ-id lists, and sources entries with
@@ -49,19 +60,27 @@ import os
 import re
 import stat
 import sys
-from typing import Any
+import unicodedata
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 MODELS = {"haiku", "sonnet", "opus", "fable", "inherit"}
 EFFORTS = {"low", "medium", "high", "xhigh", "max"}
-WRITE_TOOLS = {"Edit", "MultiEdit", "Write", "NotebookEdit"}
-READ_ONLY_AGENTS = {"dev-explorer", "dev-reviewer", "dev-security-reviewer"}
+READ_ONLY_AGENTS = {  # CB-5, DL-009: stem -> the exact raw tools and disallowedTools values (None: no such line);
+    # a change needs a change of check_pack.py with review (Issue #69)
+    "dev-explorer": {"tools": "Read, Grep, Glob, Bash", "disallowedTools": None},
+    "dev-reviewer": {"tools": "Read, Grep, Glob, Bash", "disallowedTools": "Edit, Write, NotebookEdit"},
+    "dev-security-reviewer": {"tools": "Read, Grep, Glob, Bash", "disallowedTools": "Edit, Write, NotebookEdit"},
+}
+AGENT_MAX_BYTES = 65536  # Issue #69 R69S1-002: this repository's own lower limit for a read-only agent file (ours
+# are < 10 KB); Claude Code skips an agent file over 1,048,576 bytes (inferred from reading the 2.1.310 code, not run)
 SOURCE_TYPES = {"doc", "chat", "issue", "commit", "external"}
 SKILL_ALLOWED_TOOLS = [  # CB-7: the only grant a skill declares; never widen it
     "Read(/${CLAUDE_PLUGIN_ROOT}/skills/**)",
     "Read(/${CLAUDE_PLUGIN_ROOT}/vendor/engineering-workflow-core/contracts/**)",
 ]
 SKILL_KEYS = {"name", "description", "allowed-tools", "disable-model-invocation", "disallowed-tools"}
+# AGENT_KEYS is part of the read-only guarantee (CB-5): a key such as `memory` can add tools to an agent (inferred
+# from reading the Claude Code 2.1.310 code, not run), so adding a key needs a CB-5 review
 AGENT_KEYS = {"name", "description", "model", "effort", "tools", "disallowedTools", "color"}  # the keys in use
 PLAIN_START_BANNED = "-?:,[]{}#&*!|>'\"%@`"  # CB-7: YAML indicators; a value never starts with one (card I66-M3 (a))
 ROOT_NAMES = {  # CB-7 closed world: the tracked root names, and .git and .claude (not plugin components;
@@ -87,10 +106,37 @@ REQ_ID = graph.REQ_RE
 front_block = graph.frontmatter_lines
 
 
-def tool_set(value: Any) -> set[str]:
-    """Tool names, ignoring permission specifiers such as Write(docs/**)."""
-    items = value if isinstance(value, list) else re.findall(r"[^,(]+(?:\([^)]*\))?", str(value or ""))
-    return {graph._unquote(t.strip()).split("(", 1)[0].strip() for t in items if t.strip()}
+def raw_values(path: str) -> dict[str, str]:
+    """The raw text after `key: ` of the first column-0 line of each key in the front matter (Issue #69).
+
+    No YAML parsing: the pinned READ_ONLY_AGENTS values are compared with this text, so the
+    check does not depend on how Claude Code splits a tools list. raw_front_matter_problem
+    reports duplicate keys and other line forms.
+    """
+    with open(path, encoding="utf-8", newline="") as fh:
+        lines = fh.read().split("\n")
+    end = lines.index("---", 1) if lines[0] == "---" and "---" in lines[1:] else 0
+    values: dict[str, str] = {}
+    for line in lines[1:end]:
+        m = re.fullmatch(r"([A-Za-z_][A-Za-z0-9_-]*):(?: (.*))?", line)
+        if m:
+            values.setdefault(m.group(1), m.group(2) or "")
+    return values
+
+
+def agent_key(stem: str) -> str:
+    """The file stem after the normalization of Claude Code's fallback agent match (Issue #69 R69S1-002).
+
+    Inferred from reading the Claude Code 2.1.310 code, not run: the fallback applies only when no
+    agent has the exact dispatch name and exactly one agent matches after normalization. Claude
+    Code normalizes the agent type `<plugin>:<name>` with the front matter `name` (NFKC,
+    toLowerCase, drops White_Space, Pd and `_`); within this plugin the prefix is the same. This
+    key on the file stem is equivalent here only because check_pack requires name == stem and
+    printable ASCII front matter; on ASCII, isspace also drops 0x1c-0x1f, so it may report more
+    matches, never fewer.
+    """
+    return "".join(c for c in unicodedata.normalize("NFKC", stem).casefold()
+                   if not c.isspace() and c != "_" and unicodedata.category(c) != "Pd")
 
 
 def casefold_duplicates(names: list[str]) -> list[str]:
@@ -335,10 +381,23 @@ def main() -> int:
 
     agent_mds: list[str] = []
     agents_dir = os.path.join(ROOT, "agents")
-    for name in sorted(os.listdir(agents_dir)) if os.path.isdir(agents_dir) else []:
+    agent_names = sorted(os.listdir(agents_dir)) if os.path.isdir(agents_dir) else []
+    for stem in sorted(READ_ONLY_AGENTS):  # CB-4 names in exact case (Issue #69 R69R1-001); a missing file is reported
+        if stem + ".md" not in agent_names or not stat.S_ISREG(os.lstat(os.path.join(agents_dir, stem + ".md")).st_mode):
+            errors.append(f"agents/{stem}.md: missing; the read-only agents {sorted(READ_ONLY_AGENTS)} must exist (CB-4)")
+    read_only_keys = {agent_key(stem): stem for stem in READ_ONLY_AGENTS}
+    for name in agent_names:
         path = os.path.join(agents_dir, name)
+        stem = name[:-3] if name.endswith(".md") else name
+        if stem not in READ_ONLY_AGENTS and agent_key(stem) in read_only_keys:  # Issue #69 R69S1-002
+            errors.append(f"agents/{name}: the name equals the read-only agent {read_only_keys[agent_key(stem)]!r} after "
+                          f"normalization (case, NFKC, whitespace, '_', dashes); Claude Code may dispatch it (CB-5)")
         if name.startswith(".") or not name.endswith(".md") or not stat.S_ISREG(os.lstat(path).st_mode):
             errors.append(f"agents/{name}: agents/ may hold only non-hidden regular files named *.md; " + CLOSED_WORLD_HINT)
+        elif stem in READ_ONLY_AGENTS and os.lstat(path).st_size > AGENT_MAX_BYTES:
+            errors.append(f"agents/{name}: larger than AGENT_MAX_BYTES ({AGENT_MAX_BYTES} bytes), this repository's "
+                          f"limit for a read-only agent file; Claude Code skips an agent file over 1,048,576 bytes "
+                          f"(inferred from the 2.1.310 code, not run; Issue #69 R69S1-002)")
         elif problem := utf8_problem(path):
             errors.append(f"agents/{name}: {problem} (CB-7)")
         else:
@@ -363,11 +422,12 @@ def main() -> int:
         if not isinstance(meta.get("effort"), str) or meta.get("effort") not in EFFORTS:
             errors.append(f"{rel}: effort must be one of {sorted(EFFORTS)}")
         if stem in READ_ONLY_AGENTS:
-            if not meta.get("tools"):
-                errors.append(f"{rel}: read-only agent must list tools explicitly")
-            exposed = tool_set(meta.get("tools")) & WRITE_TOOLS
-            if exposed:
-                errors.append(f"{rel}: read-only agent exposes write tools {sorted(exposed)}")
+            raw = raw_values(agent_md)
+            for key, pinned in READ_ONLY_AGENTS[stem].items():
+                if raw.get(key) != pinned:
+                    want = "no line" if pinned is None else f"the line '{key}: {pinned}'"
+                    errors.append(f"{rel}: read-only agent must have {want} for {key}, found "
+                                  f"{raw.get(key)!r} (CB-5, Issue #69)")
 
     req_dir = os.path.join(ROOT, "docs", "requirements")
     for req in sorted(p for p in glob.glob(os.path.join(req_dir, "REQ-*.md")) if graph.REQ_FILE_RE.match(os.path.basename(p))):

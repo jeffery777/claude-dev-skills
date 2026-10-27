@@ -367,6 +367,27 @@ Cowork runtime test). At that release,
 - `scripts/check_pack.py` reads `>+` and `|+` block scalars in REQ `sources`
   (PR-C2), with regression tests for the agent model and effort checks and
   the REQ status check.
+- The read-only agent check of `scripts/check_pack.py` (CB-5, DL-009;
+  Issue #69, MR67V-001). It split `tools` on commas only, while Claude Code
+  2.1.310 (inferred from its binary, confirmed by a probe) also splits on
+  spaces outside parentheses and reads `*` as all tools, so
+  `tools: Read, Grep, Glob, Bash Edit` or a list with `*` passed. Now the raw
+  `tools` and `disallowedTools` lines of `dev-explorer`, `dev-reviewer` and
+  `dev-security-reviewer` must equal pinned strings (`dev-explorer`: no
+  `disallowedTools` line), whatever split rule Claude Code uses. Each of the
+  three files must exist with its exact name, also on a case-insensitive
+  file system. A read-only agent file larger than 65,536 bytes (this
+  repository's limit) fails. Another agent file whose name equals a
+  read-only agent name after normalization (case, `_`, dashes, spaces,
+  NFKC) fails. Reason for the last two (inferred from the Claude Code
+  2.1.310 code, not run): Claude Code skips an agent file over 1,048,576
+  bytes, and when no agent has the exact name, it can pick the one agent
+  whose name matches after normalization.
+  A change of these values needs a change of `check_pack.py` with review.
+  Negative tests cover a space-separated write tool, `*`, a specifier, an
+  added tool, a removed or changed `disallowedTools`, a missing or renamed
+  file, an oversized file and a name collision. The cases of FU-033 also
+  get negative tests. The agent files do not change.
 
 ### Security
 

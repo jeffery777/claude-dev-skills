@@ -78,11 +78,6 @@ class TemplateParses(unittest.TestCase):
 
 
 class PackChecks(unittest.TestCase):
-    def test_tool_set_ignores_specifiers(self):
-        mod = load("check_pack")
-        self.assertEqual(mod.tool_set("Read, Write(docs/**), Bash"), {"Read", "Write", "Bash"})
-        self.assertEqual(mod.tool_set(["Read", "MultiEdit"]), {"Read", "MultiEdit"})
-
     def test_duplicate_req_file_fails(self):
         mod = load("check_pack")
         tmp = tempfile.mkdtemp()
@@ -242,6 +237,104 @@ class FrontMatterGuards(unittest.TestCase):
                 self.assertIn("agents/dev-reviewer.md: front matter line", out)
                 self.assertIn(message, out)
 
+    def test_read_only_agent_tools_are_pinned(self):  # CB-5, Issue #69 (MR67V-001): no split rule to imitate
+        explorer, reviewer, security = (os.path.join("agents", n + ".md")
+                                        for n in ("dev-explorer", "dev-reviewer", "dev-security-reviewer"))
+        tools, denied = "\ntools: Read, Grep, Glob, Bash\n", "\ndisallowedTools: Edit, Write, NotebookEdit\n"
+        for case, rel, old, new in (
+                ("space-separated write tool", explorer, tools, "\ntools: Read, Grep, Glob, Bash Edit\n"),
+                ("comma-separated write tool", explorer, tools, "\ntools: Read, Grep, Glob, Bash, Edit\n"),
+                ("'*' in the list", reviewer, tools, "\ntools: Read, Grep, Glob, Bash, *\n"),
+                ("write tool with a specifier", explorer, tools, "\ntools: Read, Grep, Glob, Bash, Write(docs/**)\n"),
+                ("Agent tool", security, tools, "\ntools: Read, Grep, Glob, Bash, Agent\n"),
+                ("no spaces", explorer, tools, "\ntools: Read,Grep,Glob,Bash\n"),
+                ("tools removed", explorer, tools, "\n"),
+                ("disallowedTools removed", reviewer, denied, "\n"),
+                ("disallowedTools removed", security, denied, "\n"),
+                ("disallowedTools without NotebookEdit", security, denied, "\ndisallowedTools: Edit, Write\n"),
+                ("disallowedTools space-separated", reviewer, denied, "\ndisallowedTools: Edit Write NotebookEdit\n"),
+                ("disallowedTools added", explorer, tools, tools + "disallowedTools: Edit\n")):
+            with self.subTest(case=case, rel=rel):
+                code, out = self.check(rel, old, new)  # check_tree asserts that this is the only problem
+                self.assertEqual(code, 1)
+                self.assertIn(f"  - {rel}: read-only agent must have ", out)
+        code, out = self.check(explorer, tools, "\ntools: *\n", same_file=True)  # the value grammar also fails
+        self.assertEqual(code, 1)
+        self.assertIn("  - agents/dev-explorer.md: read-only agent must have the line 'tools: Read, Grep, Glob, Bash' "
+                      "for tools, found '*'", out)
+        code, out = self.check_tree(lambda tmp: os.remove(os.path.join(tmp, security)))
+        self.assertEqual(code, 1)
+        self.assertIn("  - agents/dev-security-reviewer.md: missing; the read-only agents", out)
+
+    def test_read_only_agent_name_variants_fail(self):  # CB-5, Issue #69 R69R1-001, R69S1-002
+        def write(name, text):
+            def change(tmp):
+                with open(os.path.join(tmp, "agents", name), "w", encoding="utf-8", newline="") as fh:
+                    fh.write(text)
+            return change
+        with open(os.path.join(ROOT, "agents", "dev-reviewer.md"), encoding="utf-8", newline="") as fh:
+            reviewer = fh.read()
+        def rename(tmp):  # a case-only rename works on a case-insensitive file system too
+            os.rename(os.path.join(tmp, "agents", "dev-reviewer.md"), os.path.join(tmp, "agents", "Dev-Reviewer.md"))
+            write("Dev-Reviewer.md", reviewer.replace("\nname: dev-reviewer\n", "\nname: Dev-Reviewer\n", 1))(tmp)
+        code, out = self.check_tree(rename, count=2)
+        self.assertEqual(code, 1)
+        self.assertIn("  - agents/dev-reviewer.md: missing; the read-only agents", out)
+        self.assertIn("  - agents/Dev-Reviewer.md: the name equals the read-only agent 'dev-reviewer'", out)
+        name_line = "\nname: dev-reviewer\n"
+        code, out = self.check_tree(write("dev_reviewer.md", reviewer.replace(name_line, "\nname: dev_reviewer\n", 1)))
+        self.assertEqual(code, 1)
+        self.assertIn("  - agents/dev_reviewer.md: the name equals the read-only agent 'dev-reviewer'", out)
+        code, out = self.check_tree(write("dev reviewer.md", reviewer.replace(name_line, "\nname: dev reviewer\n", 1)))
+        self.assertEqual(code, 1)  # whitespace is dropped (Issue #69 R69S2-001)
+        self.assertIn("  - agents/dev reviewer.md: the name equals the read-only agent 'dev-reviewer'", out)
+        for name in ("dev\u2013reviewer.md", "\uff44\uff45\uff56\uff0dreviewer.md"):  # en dash; fullwidth letters and dash
+            with self.subTest(name=name):
+                rel = os.path.join("agents", name)
+                code, out = self.check_tree(write(name, reviewer.replace(name_line, f"\nname: {name[:-3]}\n", 1)),
+                                            same_file=rel)  # the non-ASCII name line is reported too
+                self.assertEqual(code, 1)
+                self.assertIn(f"  - {rel}: the name equals the read-only agent 'dev-reviewer'", out)
+        code, out = self.check_tree(write("dev-reviewer.md", reviewer + "x" * 65536 + "\n"))  # past AGENT_MAX_BYTES
+        self.assertEqual(code, 1)
+        self.assertIn("  - agents/dev-reviewer.md: larger than AGENT_MAX_BYTES (65536 bytes)", out)
+
+    def test_fu033_cases(self):  # CB-7, FU-033: cases that REQ-028 acceptance names; each gives one clear error
+        agent, skill = os.path.join("agents", "dev-reviewer.md"), os.path.join("skills", "dev-core", "SKILL.md")
+        market = os.path.join(".claude-plugin", "marketplace.json")
+        color = "\ncolor: yellow\n"
+        for case, rel, old, new, message, same_file in (
+                ("CR line end", agent, color, "\ncolor: yellow\r\n", "only printable ASCII is allowed, found '\\r'", False),
+                ("tab", agent, color, "\ncolor:\tyellow\n", "only printable ASCII is allowed, found '\\t'", False),
+                ("U+0085", agent, color, "\ncolor: yellow\u0085\n", "only printable ASCII is allowed, found '\\x85'", False),
+                ("quoted key", agent, color, '\n"color": yellow\n', "is not a column-0 'key: value' line", False),
+                ("allowed-tools item names Grep", skill, "  - Read(/${CLAUDE_PLUGIN_ROOT}/skills/**)\n",
+                 "  - Grep(/${CLAUDE_PLUGIN_ROOT}/skills/**)\n", "allowed-tools must be", True)):
+            with self.subTest(case=case):
+                code, out = self.check(rel, old, new, same_file=same_file)
+                self.assertEqual(code, 1)
+                self.assertIn(f"  - {rel}: ", out)
+                self.assertIn(message, out)
+        def empty_plugins(tmp):
+            path = os.path.join(tmp, market)
+            with open(path, encoding="utf-8") as fh:
+                data = json.load(fh)
+            data["plugins"] = []
+            with open(path, "w", encoding="utf-8") as fh:
+                json.dump(data, fh)
+        code, out = self.check_tree(empty_plugins)
+        self.assertEqual(code, 1)
+        self.assertIn(f"  - {market}: plugins must be a list of exactly one", out)
+        def nest(tmp):
+            with open(os.path.join(tmp, market), "w", encoding="utf-8") as fh:
+                fh.write("[" * 100000 + "]" * 100000)
+        code, out = self.check_tree(nest)
+        self.assertEqual(code, 1)
+        self.assertIn(".claude-plugin/marketplace.json: not valid JSON in UTF-8 without a BOM", out)
+        code, out = self.check_tree(lambda tmp: os.mkdir(os.path.join(tmp, "agents", "x.md")))
+        self.assertEqual(code, 1)
+        self.assertIn("  - agents/x.md: agents/ may hold only", out)
+
     def test_root_outside_the_allowlist_fails(self):  # CB-7, Issue #66 review round 2, card I66-R2-C1 (a)
         def touch(path):
             open(path, "w", encoding="utf-8").close()
@@ -360,7 +453,7 @@ class FrontMatterGuards(unittest.TestCase):
         self.assertEqual(code, 1)
         self.assertIn(f"  - {contracts}/workflow.md: another name in this directory differs only in case", out)
 
-    def check_edits(self, rel, *pairs):  # several replacements in one file; the result must be exactly one problem
+    def check_edits(self, rel, *pairs, count=1):  # several replacements in one file; the result must give `count` problems
         def change(tmp):
             path = os.path.join(tmp, rel)
             with open(path, encoding="utf-8", newline="") as fh:
@@ -370,7 +463,7 @@ class FrontMatterGuards(unittest.TestCase):
                 text = text.replace(old, new, 1)
             with open(path, "w", encoding="utf-8", newline="") as fh:
                 fh.write(text)
-        return self.check_tree(change)
+        return self.check_tree(change, count=count)
 
     VALUE_SCOPES = ((os.path.join("skills", "dev-retro", "SKILL.md"), "disable-model-invocation", "true",
                      "\ndisallowed-tools: Write, Edit, MultiEdit, NotebookEdit\n"),
@@ -397,9 +490,12 @@ class FrontMatterGuards(unittest.TestCase):
                     self.assertIn(message, out)
         for rel, key, value, later in self.VALUE_SCOPES:  # an unclosed quote that closes on a later key line
             with self.subTest(rel=rel, case="unclosed quote spanning lines"):
+                pinned = rel.startswith("agents")  # `later` is the pinned disallowedTools line (Issue #69)
                 code, out = self.check_edits(rel, (f"\n{key}: {value}\n", f'\n{key}: "{value}\n'),
-                                             (later, later[:-1] + '"\n'))
+                                             (later, later[:-1] + '"\n'), count=2 if pinned else 1)
                 self.assertEqual(code, 1)
+                if pinned:
+                    self.assertIn(f"  - {rel}: read-only agent must have the line 'disallowedTools: ", out)
                 self.assertIn(f"  - {rel}: front matter line ", out)
                 self.assertIn(start, out)
 
@@ -423,10 +519,13 @@ class FrontMatterGuards(unittest.TestCase):
                  [("\ndescription: Lessons", '\ndescription:  "Lessons'),
                   ("NotebookEdit\n", 'NotebookEdit"\n')], "exactly one space must follow the colon")):
             with self.subTest(case=case):
-                code, out = self.check_edits(rel, *pairs)
-                self.assertEqual(code, 1)  # check_tree asserts that this is the only problem
+                pinned = any(old == tools for old, _ in pairs)  # the pinned tools line also fails (Issue #69)
+                code, out = self.check_edits(rel, *pairs, count=2 if pinned else 1)
+                self.assertEqual(code, 1)  # check_tree asserts that these are the only problems
                 self.assertIn(f"  - {rel}: front matter line ", out)
                 self.assertIn(message, out)
+                if pinned:
+                    self.assertIn(f"  - {rel}: read-only agent must have the line 'tools: ", out)
 
     def test_manifest_key_outside_the_allowlist_fails(self):  # CB-7, Issue #66 review round 1 (main agent addition, now part of card I66-R2-C1 (a))
         plugin = os.path.join(".claude-plugin", "plugin.json")

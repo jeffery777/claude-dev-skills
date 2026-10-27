@@ -1,0 +1,40 @@
+{
+  "schema": "claude-dev-graph/v1",
+  "objective": {
+    "id": "issue-69-readonly-tools-check",
+    "title": "Issue #69 (MR67V-001): pin the tools and disallowedTools values of the read-only agents in check_pack.py",
+    "rigor": "standard",
+    "requirements": [
+      "REQ-028"
+    ]
+  },
+  "nodes": [
+    {
+      "id": "T1",
+      "title": "check_pack.py: pinned raw tools and disallowedTools values of dev-explorer, dev-reviewer and dev-security-reviewer; the three files must exist in exact case; a size limit for them and a normalized-name collision check; negative tests; FU-033 tests; records",
+      "kind": "implement",
+      "requirements": [
+        "REQ-028"
+      ],
+      "depends_on": [],
+      "owns": [
+        "scripts/check_pack.py",
+        "tests/test_core_checks.py",
+        "docs/requirements/REQ-028-user-level-read-grant.md",
+        "docs/requirements/log.md",
+        "CHANGELOG.md",
+        ".dev/followups.md",
+        ".dev/issue-69-readonly-tools-check/"
+      ],
+      "risk": "medium",
+      "review": "deep",
+      "status": "reviewing",
+      "dod": [
+        "check_pack.py fails when a read-only agent file is missing, or when its raw tools or disallowedTools line differs from the pinned string (a space-separated write tool, '*', a specifier, an added tool, a removed or changed disallowedTools); each case has a negative test that fails when the pin check is removed; the current tree passes; the independent review and the Security Diff Scan find no open MUST-FIX or SHOULD-FIX"
+      ],
+      "verify": [
+        "bash scripts/validate.sh"
+      ]
+    }
+  ]
+}

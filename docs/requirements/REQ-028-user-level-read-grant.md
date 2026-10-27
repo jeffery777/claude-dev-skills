@@ -108,8 +108,8 @@ accepted: re-invoke a skill or approve the prompt.
   included (a clear error, not a traceback). It fails on a
   `skills`, `agents` or `vendor` root entry that is a symlink, and on any
   symlink and any hardlinked regular file under `skills/` or `vendor/`.
-  `tests/test_core_checks.py` has a negative test for each case, apart from
-  the cases that FU-033 lists (Deferred by the card I66-M2 stop condition);
+  `tests/test_core_checks.py` has a negative test for each case (the cases
+  that FU-033 listed were added by Issue #69);
   `bash scripts/validate.sh` passes. The check runs in
   `scripts/validate.sh` and CI, not when Claude Code loads the plugin.
 - A headless run with `--plugin-dir <worktree>` from a directory outside the

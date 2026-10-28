@@ -369,7 +369,8 @@ Cowork runtime test). At that release,
   change.
 - Model and effort of started sessions and subagents; tier re-assessment
   at Discover (REQ-009, REQ-003, D-023, Issue #75; user answer
-  「D1 a，D2 a，D3 a，D4 b（全域那一行由你加），D5 a，D6 b」; DL-034, DL-039). R-DEL-2: the
+  「D1 a，D2 a，D3 a，D4 b（全域那一行由你加），D5 a，D6 b」 and, for review
+  round 2, 「那依你的建議選a」; DL-034, DL-039). R-DEL-2: the
   main agent does not change its own model or effort; when it starts a
   session or a subagent, it chooses and sets that model and effort by
   R-DEL-2 and the `dev-deliver` table where the host lets it, never below
@@ -377,9 +378,10 @@ Cowork runtime test). At that release,
   later the recorded value or `unknown`; only the user loosens a floor; for
   these choices, a relayed user answer counts when it quotes the user's
   words (current practice; R-AUTH-1 unchanged), and a relayed loosening of
-  a floor counts only after the user confirms it in the session that acts
-  on it. The `dev-deliver` Output and the
-  `dev-continue` new-session offer give these values. R-RIG-1: `strict`
+  a floor, or a relayed decision that sets a model or effort below its
+  value in the `dev-deliver` or `dev-review` table, counts only after the
+  user confirms it in the session that acts on it. The `dev-deliver`
+  Output and the `dev-continue` new-session offer give these values. R-RIG-1: `strict`
   adds a change to a security rule and packaging, every change to the rule
   text of a skill pack in a public repository is public-contract work, and
   `strict` asks for an early deep and security review of the design before

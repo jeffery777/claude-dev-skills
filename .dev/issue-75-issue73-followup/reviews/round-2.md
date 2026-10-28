@@ -29,6 +29,11 @@ Residual risk noted by S2 (no finding):
 - Inside the D5 (a) scope, a relayed answer that quotes the user can lower
   a table value that is above the floor (for example an R-REV-9 scan from
   `xhigh` to `high`) without the user's confirmation in this session.
+  Resolved by card I75-R2-C1 (a) (user answer 「那依你的建議選a」): a
+  relayed decision that sets a model or effort below its value in the
+  `dev-deliver` or `dev-review` table also counts only after the user
+  confirms it in the session that acts on it. Fix T2 (see below);
+  reviewed in round 4 (`reviews/round-4.md`).
 - Pre-existing: a tier set at Discover can be lowered at a later
   re-assessment without a user decision.
 
@@ -60,3 +65,28 @@ Target: uncommitted candidate on `9628c99` after fix round 2 (tracked diff
   checked this by numstat and by reading, not by byte comparison.
 - No security re-review ran on round 3 alone. The commit scan by
   `dev-security-reviewer` covers the full staged diff.
+
+## Fix T2 (card I75-R2-C1 (a); commit scan C1 NITs)
+
+- `dev-implementer` T2, requested `opus`/`high`; recorded `unknown` (the
+  main agent did not read the transcript field).
+- Card I75-R2-C1 (a): R-DEL-2 in `skills/dev-core/SKILL.md` extends the
+  relay exception sentence (still one sentence): a relayed loosening of a
+  floor, or a relayed decision that sets a model or effort below its value
+  in the `dev-deliver` or `dev-review` table, counts only after the user
+  confirms it in this session. Copies with the same meaning: section 4 and
+  D-023 (origin 5, rule 1, residual risk 6; both languages) of
+  `docs/design-proposal.md`, REQ-009 (acceptance and a new source entry),
+  DL-034, CHANGELOG, one new row in `docs/requirements/log.md`, and the
+  plan (source trace, dispatch record, user answer).
+- C1-002: the `T1` title in `graph.json` now names FU-037.
+- Reviewed in round 4 (`reviews/round-4.md`).
+
+## Correction note (commit scan C1, finding C1-001)
+
+The evidence of `events.jsonl` seq 4 says "7bdb9bb5 R3 PASS; S2 PASS".
+The bindings are: R3 at the tracked diff prefix `7bdb9bb565276e0d`; S2 at
+the tracked diff prefix `dc534d9f7f75b4e6` (round 2 target), not at
+`7bdb9bb5`. No security re-review ran on round 3 alone. The event line
+stays as written: the event log is append-only, and `graph.py` has no
+correction command.

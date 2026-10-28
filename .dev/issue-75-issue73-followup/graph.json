@@ -16,7 +16,7 @@
   "nodes": [
     {
       "id": "T1",
-      "title": "Items 1 to 5 in dev-core (R-RIG-1, R-RIG-2, R-DEL-2), deltas (DL-034, DL-039), dev-deliver, dev-plan, dev-continue, design proposal (section 4, D-004, D-022, D-023; both languages), README, REQ-003, REQ-009, index, log, CHANGELOG, followups (FU-021, FU-036) and the Issue #73 records",
+      "title": "Items 1 to 5 in dev-core (R-RIG-1, R-RIG-2, R-DEL-2), deltas (DL-034, DL-039), dev-deliver, dev-plan, dev-continue, design proposal (section 4, D-004, D-022, D-023; both languages), README, REQ-003, REQ-009, index, log, CHANGELOG, followups (FU-021, FU-036, FU-037) and the Issue #73 records",
       "kind": "docs",
       "requirements": [
         "REQ-003",

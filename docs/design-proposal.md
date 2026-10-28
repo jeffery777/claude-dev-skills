@@ -76,11 +76,11 @@ Phase 1 之後新增的技能（不屬於 D-008 的 Phase 1 範圍）：
 | 實作（`light`） | sonnet；跨模組或不明確的 slice 用 opus | medium；opus 時 high |
 | 實作（`standard`） | opus；單一模組內機械、範圍明確的 slice 用 sonnet | high；sonnet 時 medium |
 | 實作（`strict`，或適用 R-DEL-2 下限時） | opus | high |
-| 一般 review | opus | high |
-| 深入 review、高風險設計、commit／push 掃描 | opus | xhigh |
+| 一般 review | opus；`light` 層級用 sonnet，符合 `dev-review` 列出的升級條件時用 opus，之後該節點的每一輪 review 都用 opus（D-022） | high；sonnet 時 medium |
+| 深入 review、高風險設計、commit／push 掃描、merge readiness 掃描 | opus | xhigh |
 | 安全 review | opus | xhigh；使用者要求時才用 max |
 
-主 session 自己實作時，plan 記錄它 transcript 上的 model 與 effort，讀不到時寫 `unknown` 和原因。主代理不改自己的 model 與 effort，由使用者在 app 設定。屬於下限範圍的工作，主 session 的 model 不是 opus、effort 低於 high，或其中之一是 `unknown` 時，主代理在實作前請使用者切換到 opus/high，或用 opus/high 把實作派給 `dev-implementer`；其他工作低於上表時，plan 要寫明。一輪 review 與修正沒有解決問題時，先分類失敗原因。spec、驗收條件或設計造成的失敗不算 quality：它走 R-VER-2 的停止規則和重新評估，不升級。只有 quality 類失敗才升級，而且只升修正的一方（implementer 或主 session），reviewer 照上表：先升 effort（low → medium → high），到 high 以上改升 model（haiku → sonnet → opus），到 opus 再升 effort（xhigh，然後 max）。升級後的設定在該節點剩下的工作中不降回。任何設定都不低於下限。升級不重設 review 輪數，也不清除 findings。證據互相矛盾時（例如兩份 review 對同一變更的結論相反），也重新評估 model 和 effort；重新評估本身不會升級。Fable 評估前不列入升級順序（D-007 規則 4；FU-018 卡 2 選 c，評估延後，由 FU-020 追蹤）。
+`dev-deliver` 的 Dispatch 預設在本 session 執行節點；只有符合列出的條件時才委派給一個 subagent：可以和其他唯讀工作平行的唯讀工作，或只需要結論的大範圍查讀；本 session 放不下的 context；每一個必要的 review 或掃描；本 session 不符合節點的下限且使用者沒有切換；使用者要求委派（D-022）。主 session 自己實作時，plan 記錄它 transcript 上的 model 與 effort，讀不到時寫 `unknown` 和原因。主代理不改自己的 model 與 effort，由使用者在 app 設定。屬於下限範圍的工作，主 session 的 model 不是 opus、effort 低於 high，或其中之一是 `unknown` 時，主代理在 Dispatch 步驟、本 session 執行任何屬於下限範圍的節點（探索、實作或文件）之前，以及主 session 自己修正或寫入這類節點的任何部分（修正輪、重新套用的變更、所屬檔案裡的一行紀錄）之前（不在之後），請使用者切換到 opus/high，或用 opus/high 把實作或修正派給 `dev-implementer`（探索節點派給 `dev-explorer`）；其他工作低於上表時，plan 要寫明。一輪 review 與修正沒有解決問題時，先分類失敗原因。spec、驗收條件或設計造成的失敗不算 quality：它走 R-VER-2 的停止規則和重新評估，不升級。只有 quality 類失敗才升級，而且只升修正的一方（implementer 或主 session），reviewer 照上表：先升 effort（low → medium → high），到 high 以上改升 model（haiku → sonnet → opus），到 opus 再升 effort（xhigh，然後 max）。升級後的設定在該節點剩下的工作中不降回。任何設定都不低於下限。升級不重設 review 輪數，也不清除 findings。證據互相矛盾時（例如兩份 review 對同一變更的結論相反），也重新評估 model 和 effort；重新評估本身不會升級。Fable 評估前不列入升級順序（D-007 規則 4；FU-018 卡 2 選 c，評估延後，由 FU-020 追蹤）。
 
 ## 5. Graph Engineering
 
@@ -495,6 +495,24 @@ D-009 到 D-016 是同一天的決定。D-015 由 PR #5（Issue #4）記錄；D-
 - 與 Core 的差異：K1 到 K4 都是收緊或中性。K1 只寫明本 pack 怎麼修改自己的加嚴規則，放寬 Core 仍是缺陷（中性）；K2 是 Core `exact-transition` 允許的證據重用的確定性寫法（DL-013，中性）；K3 讓掃描看到更多內容（收緊）；K4 在 push 前多一道確定性檢查，不取代任何掃描（收緊，DL-010）。
 - Core 回饋：否（推論，未經審查確認）。理由：push 掃描本身是本 pack 對 Core 的收緊（DL-010），本決策只在這項收緊上加一道檢查；E2 的重用條件在 Core `exact-transition` 允許的範圍內。
 
+### D-022 模型分派：`light` 一般 review 可用 sonnet；Dispatch 預設在主 session，執行節點前先檢查下限（已決定，2026-10-27；C3 延後，2026-10-28）
+
+- 來源：Issue #73（GitHub Issue #73 本文，Goal 與 Change）。需求見 REQ-009。使用者的回答（Claude Code session，orchestrator 轉述）：
+  1. 2026-10-27，成本提案的卡片 C3 到 C5：「C3 選 a，C4/C5 同意」。
+  2. PR #70 偏差的決定 I69-M1：「I69-M1 a」。
+  3. 2026-10-28，review 第 1 輪的卡片 I73-R1-C1 與 I73-R1-C2：「I73-R1-C1 選 c，I73-R1-C2 選 a。工具該裝還是得裝，你可以建議你認為適合的工具。」
+  4. 2026-10-28，review 第 2 輪的卡片 I73-R2-C1 與 I73-R2-C2：「I73-R2-C1 選 a，接受 S2-001；I73-R2-C2 選 a」。
+  5. 2026-10-28，review 第 3 輪的卡片 I73-R3-C1：「I73-R3-C1 選 a」。
+- 問題：一般工作的模型成本偏高（main f7b2ea8）。一般 review 在每個嚴謹層級都用 opus／high；`dev-deliver` 的 Dispatch 步驟只寫「在本 session 執行，或委派」，沒有選擇的條件。PR #70 中，主 session 在比對自己的 model 與 effort 和 R-DEL-2 下限之前，就實作了一個權限邊界的變更；使用者接受了這個偏差（I69-M1）。
+- 使用者決定的內容：
+  1. C4：`light` 層級的一般 review 可以用 `dev-reviewer` 的 sonnet／medium。符合下列任一條件時，升到 opus／high；派工前依 diff 與 plan 判斷，review 後再檢查一次：(1) 適用 R-DEL-2 下限：安全、信任邊界或其他 R-REV-7 情形、資料、持久狀態、migration 或對外契約；(2) 變更涉及打包、安裝、CI 或依賴；(3) 變更涉及一個以上的模組；(4) 發現有爭議：主代理或作者否定一項發現，或兩份 review 對同一變更的結論不同；(5) reviewer 回報目標中有它無法檢查的部分。review 後才發現的條件，在同一目標上以 opus／high 重新 review；第一份報告和它的發現保留。用 sonnet／medium 的 `light` 一般 review，brief 列出條件 1 到 3，請 reviewer 回報其中是否有條件成立；reviewer 回報任一條件成立時，照條件 5 的方式以 opus／high 重跑，該節點維持 opus／high（卡 I73-R2-C2 選 a，來源 4）。報告沒有逐一說明條件 1 到 3 是否成立時，算作條件 5，以 opus／high 重跑（卡 I73-R3-C1 選 a，來源 5）。某個條件一旦適用於一個節點，該節點之後每一輪 review 都用 opus／high，不再回到 sonnet／medium（卡 I73-R1-C2 選 a；和「升級後的設定在該節點剩下的工作中不降回」一致）。條件清單只寫在 `dev-review` 的「Choose the mode」一處。`standard` 與 `strict` 的一般 review 仍用 opus／high。
+  2. C5：`dev-deliver` 的 Dispatch 預設在本 session 執行節點（Core `workflow.md#wf-delegation`：只委派獨立、可驗證、能改善品質或耗時的有界工作）。符合下列任一條件時，用 `task-brief.md` 的 brief 委派給一個 subagent：可以和其他唯讀工作平行的唯讀工作，或只需要結論的大範圍查讀；本 session 放不下的 context；每一個必要的 review 或掃描（一律由獨立 subagent 執行，R-REV-1、R-REV-9）；本 session 不符合節點的 R-DEL-2 下限，且使用者沒有切換；使用者要求委派。本 session 執行任何屬於 R-DEL-2 下限範圍的節點（探索、實作或文件）之前，以及主 session 自己修正或寫入這類節點的任何部分（修正輪、重新套用的變更、所屬檔案裡的一行紀錄）之前（review 第 2 輪發現 S2-002，卡 I73-R2-C1 選 a），先讀自己的 model 與 effort，和下限及該節點的列比對；model 不是 opus、effort 低於 high，或其中之一是 `unknown` 時，請使用者切換，或用 opus／high 派出該節點或修正（探索派給 `dev-explorer`，實作或文件派給 `dev-implementer`），絕不先實作（I69-M1 的教訓）。plan 記錄這些值與選擇。`verify` 節點、`gate` 與 `human_gate` 不在這項檢查內，理由（推論）：`verify` 節點執行它列出的確定性檢查；`gate` 依已記錄的證據判斷是否就緒，它的 review 與掃描交給 subagent；`human_gate` 由使用者決定。
+  3. C3 延後：C3（單獨執行的貼文前文字掃描，在確定性秘密掃描乾淨通過時用 `dev-security-reviewer` 的 sonnet／high，作為 R-DEL-2 下限的書面例外；使用者原本選 a）由使用者決定延後（卡 I73-R1-C1 選 c，原話見來源 3），改由 follow-up FU-034 追蹤。本 PR 不含 C3：貼文前的文字掃描維持 opus／xhigh，和 main 相同。
+- 維持不變：貼文前的文字掃描，以及 commit、push 與 merge readiness 的掃描（merge readiness 掃描包含 merge 或 squash commit 的文字），都維持 opus／xhigh；R-DEL-2 的下限沒有例外；深入 review 與安全 review 不變；agent 檔的預設值不變。
+- 送出的內容：`dev-core` 的 R-DEL-2；`dev-review` 的模式表、升級條件（含 reviewer 對條件 1 到 3 的回報）、commit／push 掃描的目標（加上 merge readiness）與步驟 6 指向下限檢查的一句；`dev-deliver` 的 Dispatch 步驟、對照表與步驟 5；`task-brief.md` 的「Why this model/effort」與升級條件一行；`deltas.md` 的 DL-034 與新的 DL-038；第 4 節的對照表與其後段落；REQ-009；`review-report.md` 中 `light` 一般 review 的條件回報欄位；`.dev/followups.md` 的 FU-034、FU-035 與 FU-021 的註記。
+- 與 Core 的差異：C4 是高於 Core 要求的對照表數值。C5 重述 Core `wf-delegation` 的委派條件，並加上一道檢查（收緊，DL-038）。
+- Core 回饋：否（推論，未經審查確認）。理由：兩項都只改本 pack 自己的加嚴規則與數值，不改 Core 的義務。
+
 ---
 
 <a id="english"></a>
@@ -615,17 +633,27 @@ There are two layers:
 | Implementation (`light`) | sonnet; opus for a cross-module or unclear slice | medium; high with opus |
 | Implementation (`standard`) | opus; sonnet for a mechanical, clearly bounded slice in one module | high; medium with sonnet |
 | Implementation (`strict`, or when the R-DEL-2 floor applies) | opus | high |
-| Routine review | opus | high |
-| Deep review, high-risk design, commit or push scan | opus | xhigh |
+| Routine review | opus; sonnet at the `light` tier, opus when an escalation trigger that `dev-review` lists applies and for every later review round of that node (D-022) | high; medium with sonnet |
+| Deep review, high-risk design, commit or push scan, merge-readiness scan | opus | xhigh |
 | Security review | opus | xhigh; max only when the user asks |
 
-When the main session implements, the plan records the model and effort that
-its transcript records, or `unknown` with the reason. The main agent does not
-change its own model or effort; the user sets them in the app. For work under
-the floor, when the main session's model is not opus, its effort is below
-high, or either is `unknown`, the main agent asks the user to switch to
-opus/high before it implements, or dispatches the
-implementation to `dev-implementer` at opus/high; for other work, the plan
+The `dev-deliver` Dispatch step runs a node in this session by default. It
+delegates to one subagent only when a listed condition applies: read-only
+work that can run in parallel with other read-only work, or a broad read
+whose conclusion is all the session needs; a context too large for the
+session; every required review or scan; a session that does not meet the
+floor of the node, when the user does not switch it; the user asks for
+delegation (D-022). When the main session implements, the plan records the
+model and effort that its transcript records, or `unknown` with the reason.
+The main agent does not change its own model or effort; the user sets them in
+the app. For work under the floor, when the main session's model is not opus,
+its effort is below high, or either is `unknown`, the main agent asks the
+user to switch to opus/high at the Dispatch step, before this session runs
+any node under the floor (explore, implement or docs), and again before the
+main session fixes or writes any part of such a node itself (a fix round, a
+re-applied change, a record line in an owned file), never after, or
+dispatches the implementation or the fix to `dev-implementer` at opus/high
+(an explore node to `dev-explorer`); for other work, the plan
 says when the effort is below this table. After one review and fix round that
 did not solve the problem, the main agent classifies the failure. A failure
 that the spec, the acceptance criteria or the design caused is not a quality
@@ -1735,5 +1763,100 @@ records D-009 to D-012.
   push scan itself is a tightening of Core by this pack (DL-010), and this
   decision only adds a check to that tightening; the E2 reuse condition
   stays inside what Core `exact-transition` allows.
+
+### D-022 Model routing: sonnet for `light` routine review; Dispatch defaults to the main session with a floor check before running a node (decided, 2026-10-27; C3 deferred, 2026-10-28)
+
+- Origin: Issue #73 (GitHub Issue #73 body, Goal and Change). The
+  requirement is REQ-009. The user's answers (Claude Code session,
+  orchestrator relay):
+  1. 2026-10-27, cards C3 to C5 of the cost proposal: "C3 選 a，C4/C5 同意".
+  2. Decision I69-M1 on the PR #70 deviation: "I69-M1 a".
+  3. 2026-10-28, review round 1 cards I73-R1-C1 and I73-R1-C2:
+     "I73-R1-C1 選 c，I73-R1-C2 選 a。工具該裝還是得裝，你可以建議你認為適合的工具。"
+  4. 2026-10-28, review round 2 cards I73-R2-C1 and I73-R2-C2:
+     "I73-R2-C1 選 a，接受 S2-001；I73-R2-C2 選 a".
+  5. 2026-10-28, review round 3 card I73-R3-C1: "I73-R3-C1 選 a".
+- Problem: the model cost of routine work is high (main f7b2ea8). Routine
+  review uses opus/high at every rigor tier; the `dev-deliver` Dispatch
+  step says only "run the node in this session, or delegate it", with no
+  criterion for the choice. In PR #70, the main session implemented a
+  permission-boundary change before it compared its own model and effort
+  with the R-DEL-2 floor; the user accepted the deviation (I69-M1).
+- What the user decided:
+  1. C4: at the `light` tier, routine review may use `dev-reviewer` at
+     sonnet/medium. It escalates to opus/high when any of these applies,
+     decided before the dispatch from the diff and the plan, and checked
+     again after the review: (1) the R-DEL-2 floor applies: security, a
+     trust boundary or another R-REV-7 case, data, persistent state,
+     migration, or a public contract; (2) the change touches packaging,
+     installation, CI or dependencies; (3) the change touches more than one
+     module; (4) a finding is disputed: the main agent or the author
+     rejects a finding, or two reviews of the same change disagree; (5) the
+     reviewer reports a part of the target that it could not check. A
+     trigger found after the review re-runs the review at opus/high on the
+     same target; the first report and its findings stay. The brief of a
+     `light` routine review at sonnet/medium lists triggers 1 to 3 and asks
+     the reviewer to report whether any of them holds; when the reviewer
+     reports one, the review re-runs at opus/high, as for trigger 5, and the
+     node keeps opus/high (card I73-R2-C2 (a), origin 4). A report that does
+     not say, for each of triggers 1 to 3, whether it holds counts as
+     trigger 5: the review re-runs at opus/high (card I73-R3-C1 (a), origin
+     5). Once a trigger
+     applies to a node, every later review round of that node uses
+     opus/high, never sonnet/medium again (card I73-R1-C2 (a); consistent
+     with "an escalated setting is never lowered for the rest of the
+     node"). The list is written once, in "Choose the mode" of
+     `dev-review`. Routine review at the `standard` and `strict` tiers
+     stays opus/high.
+  2. C5: the `dev-deliver` Dispatch step runs a node in this session by
+     default (Core `workflow.md#wf-delegation`: delegate only bounded work
+     that is independent, verifiable and improves quality or time). It
+     delegates to one subagent with a brief from `task-brief.md` when any
+     of these applies: read-only work that can run in parallel with other
+     read-only work, or a broad read whose conclusion is all the session
+     needs; a context too large for the session; every required review or
+     scan (always an independent subagent, R-REV-1, R-REV-9); the session
+     does not meet the R-DEL-2 floor of the node and the user does not
+     switch it; the user asks for delegation. Before the session runs any
+     node under the R-DEL-2 floor (explore, implement or docs), and again
+     before the main session fixes or writes any part of such a node itself
+     (a fix round, a re-applied change, a record line in an owned file;
+     review round 2 finding S2-002, card I73-R2-C1 (a)), it reads its own
+     model and effort and compares them with the floor and the row of the
+     node; when the model is not opus, the effort is below high, or either
+     is `unknown`, it asks the user to switch or dispatches the node or the
+     fix at opus/high (`dev-explorer` for explore, `dev-implementer` for
+     implement or docs), and never implements first (the I69-M1 lesson).
+     The plan records the values and the choice. A `verify` node, a `gate`
+     and a `human_gate` are outside the check; the reason (inference): a
+     `verify` node runs the deterministic checks that it names; a `gate`
+     decides readiness from recorded evidence, and its reviews and scans go
+     to subagents; a `human_gate` is the user's decision.
+  3. C3 deferred: C3 (a text scan before posting that runs on its own may
+     use `dev-security-reviewer` at sonnet/high after a clean pass of a
+     deterministic secret scan, as a written exception to the R-DEL-2
+     floor; the user first chose option a) is deferred by the user (card
+     I73-R1-C1 (c), quote in origin 3) to follow-up FU-034. This PR does
+     not contain C3: text scans before posting stay opus/xhigh, as on main.
+- What stays: text scans before posting and the commit, push and
+  merge-readiness scans (the merge-readiness scan includes the merge or
+  squash commit text) stay opus/xhigh; the R-DEL-2 floor has no exception;
+  deep review and security review do not change; the agent file defaults do
+  not change.
+- What ships: R-DEL-2 of `dev-core`; the `dev-review` mode table,
+  escalation triggers (with the reviewer's report on triggers 1 to 3), the
+  commit or push scan target (merge readiness added) and the step 6 pointer
+  to the floor check; the `dev-deliver` Dispatch step, table and step 5;
+  the "Why this model/effort" line and the escalation-trigger line of
+  `task-brief.md`; DL-034 and the new DL-038 in `deltas.md`; the table of
+  section 4 and the paragraph after it; REQ-009; the trigger-answer field
+  of a `light` routine review in `review-report.md`; FU-034, FU-035 and the
+  FU-021 note in `.dev/followups.md`.
+- Difference from Core: C4 is a table value above any Core requirement. C5
+  restates the Core `wf-delegation` criterion and adds a check (a
+  tightening, DL-038).
+- Core feedback: no (inference, not confirmed by a review). Reason: both
+  change only this pack's own tightenings and values, not a Core
+  obligation.
 
 </details>

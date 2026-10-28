@@ -344,6 +344,29 @@ Cowork runtime test). At that release,
   commit-time scan records and report binding; review round 3 found that
   the binding let a published scan report confirm a guessed identity
   (R3-001).
+- Model routing (REQ-009, D-022, Issue #73; user answers
+  「C3 選 a，C4/C5 同意」, 「I69-M1 a」, 「I73-R1-C1 選 c，I73-R1-C2 選 a」 and
+  「I73-R2-C1 選 a，接受 S2-001；I73-R2-C2 選 a」 and 「I73-R3-C1 選 a」; DL-034,
+  DL-038). C4: at the `light` tier, routine review uses
+  `sonnet`/`medium` unless an escalation trigger that `dev-review` lists
+  applies (the R-DEL-2 floor; packaging, installation, CI or dependencies;
+  more than one module; a disputed finding; a part the reviewer could not
+  check); a trigger found after the review re-runs it at `opus`/`high` and
+  keeps the first report; the brief of a `sonnet`/`medium` review lists
+  triggers 1 to 3 and the reviewer reports whether any holds, and a reported
+  trigger, or a report without an answer for each, re-runs the review at
+  `opus`/`high`; once a trigger applies to a
+  node, every later review round of that node uses `opus`/`high`. C5: the
+  `dev-deliver` Dispatch step runs a node in this session by default and
+  lists when to delegate; before this session runs any node under the floor
+  (explore, implement or docs), and again before it fixes or writes any part
+  of such a node itself, it checks its own model and effort against the
+  floor and never implements first; `verify`, `gate` and `human_gate` nodes
+  are outside the check, with the reason. C3 (an R-REV-9 text scan at `sonnet`/`high`
+  with a deterministic secret scan, as an exception to the R-DEL-2 floor)
+  is deferred to FU-034 by the user: the floor has no exception, and text
+  scans before posting stay `opus`/`xhigh`. Agent file defaults do not
+  change.
 
 ### Fixed
 

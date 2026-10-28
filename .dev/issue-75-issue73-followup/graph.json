@@ -1,0 +1,60 @@
+{
+  "schema": "claude-dev-graph/v1",
+  "objective": {
+    "id": "issue-75-issue73-followup",
+    "title": "Issue #75: Issue #73 follow-up fixes (MR73D-001 to MR73D-004); the main agent chooses the model and effort of the sessions and subagents that it starts (R-DEL-2); tier re-assessment at Discover and the strict scope (R-RIG-1, R-RIG-2)",
+    "rigor": "strict",
+    "requirements": [
+      "REQ-003",
+      "REQ-008",
+      "REQ-009",
+      "REQ-011",
+      "REQ-017",
+      "REQ-022"
+    ]
+  },
+  "nodes": [
+    {
+      "id": "T1",
+      "title": "Items 1 to 5 in dev-core (R-RIG-1, R-RIG-2, R-DEL-2), deltas (DL-034, DL-039), dev-deliver, dev-plan, dev-continue, design proposal (section 4, D-004, D-022, D-023; both languages), README, REQ-003, REQ-009, index, log, CHANGELOG, followups (FU-021, FU-036, FU-037) and the Issue #73 records",
+      "kind": "docs",
+      "requirements": [
+        "REQ-003",
+        "REQ-008",
+        "REQ-009",
+        "REQ-011",
+        "REQ-017",
+        "REQ-022"
+      ],
+      "depends_on": [],
+      "owns": [
+        "skills/dev-core/SKILL.md",
+        "skills/dev-core/deltas.md",
+        "skills/dev-deliver/SKILL.md",
+        "skills/dev-plan/SKILL.md",
+        "skills/dev-continue/SKILL.md",
+        "docs/design-proposal.md",
+        "docs/requirements/REQ-003-proportionate-rigor.md",
+        "docs/requirements/REQ-009-subagent-model-effort.md",
+        "docs/requirements/index.md",
+        "docs/requirements/log.md",
+        "README.md",
+        "CHANGELOG.md",
+        ".dev/followups.md",
+        ".dev/issue-73-model-routing/",
+        ".dev/issue-75-issue73-followup/"
+      ],
+      "risk": "high",
+      "review": "deep",
+      "status": "done",
+      "dod": [
+        "Every new rule sentence of the Issue #75 design v3, with the answers D1 to D6, is in skills/dev-core/SKILL.md once; the other copies cite it or restate it with the same meaning, and zh and en agree; no new rule without a source; log.md only gets new rows; no private value added; validate.sh passes; graph.py validate passes for this graph and the Issue #73 graph; the independent deep review and the Security Diff Scan find no open MUST-FIX or SHOULD-FIX"
+      ],
+      "verify": [
+        "bash scripts/validate.sh",
+        "python3 skills/dev-plan/scripts/graph.py validate .dev/issue-75-issue73-followup/graph.json",
+        "python3 skills/dev-plan/scripts/graph.py validate .dev/issue-73-model-routing/graph.json"
+      ]
+    }
+  ]
+}

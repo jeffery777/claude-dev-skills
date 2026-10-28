@@ -1,0 +1,8 @@
+{"seq": 1, "at": "2026-10-28T07:51:07+00:00", "actor": "dev-implementer", "node": "T1", "from": "planned", "to": "ready", "evidence": "cfc35650 (T1 candidate diff prefix)"}
+{"seq": 2, "at": "2026-10-28T07:51:07+00:00", "actor": "dev-implementer", "node": "T1", "from": "ready", "to": "in_progress", "evidence": "cfc35650 (T1 candidate diff prefix)"}
+{"seq": 3, "at": "2026-10-28T07:51:07+00:00", "actor": "dev-implementer", "node": "T1", "from": "in_progress", "to": "reviewing", "evidence": "cfc35650 (T1 candidate diff prefix)"}
+{"seq": 4, "at": "2026-10-28T08:18:04+00:00", "actor": "dev-implementer", "node": "T1", "from": "reviewing", "to": "done", "evidence": "7bdb9bb5 R3 PASS; S2 PASS"}
+{"seq": 5, "at": "2026-10-28T08:39:14+00:00", "actor": "dev-implementer", "node": "T1", "from": "done", "to": "ready", "evidence": "58272b6e T2 fix, card I75-R2-C1 (a)"}
+{"seq": 6, "at": "2026-10-28T08:39:19+00:00", "actor": "dev-implementer", "node": "T1", "from": "ready", "to": "in_progress", "evidence": "58272b6e T2 fix, card I75-R2-C1 (a)"}
+{"seq": 7, "at": "2026-10-28T08:39:20+00:00", "actor": "dev-implementer", "node": "T1", "from": "in_progress", "to": "reviewing", "evidence": "58272b6e R4 deep, S4 security narrow re-reviews"}
+{"seq": 8, "at": "2026-10-28T08:39:20+00:00", "actor": "dev-implementer", "node": "T1", "from": "reviewing", "to": "done", "evidence": "58272b6e R4 PASS except R4-001 graph state (fixed here); S4 PASS"}

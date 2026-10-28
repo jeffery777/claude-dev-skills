@@ -56,7 +56,8 @@ Subagents：`dev-explorer`（haiku）、`dev-implementer`（sonnet）、`dev-rev
 
 - `light`：低風險的局部修改，不建 graph 檔。若要 commit、push 或開 PR，仍須先經獨立 review 與 commit gate。
 - `standard`：一般功能。要有 task graph 和獨立 reviewer。
-- `strict`：涉及安全、資料、migration、對外契約或 release。要初期就做深入或安全審查，並通過 exact-head 關卡與 human gate。
+- `strict`：涉及安全（包括修改安全規則）、資料、migration、對外契約、打包或 release。公開 repository 中 skill pack 規則文字的任何修改都算對外契約。實作前要先對設計做深入與安全審查，有程式碼後盡早做深入的程式碼 review，並通過 exact-head 關卡與 human gate。
+- 在 Discover 之前寫好的等級（例如寫在 Issue 或 brief 裡）只是提議。Discover 時要重新評估：可以調高，調低要由使用者決定；轉述的調低決定，要等使用者在本 session 確認後才算數（R-RIG-2）。
 - 所有等級：每次 commit 與 push 之前，由 `dev-security-reviewer` 掃描已 stage 的 diff 與 commit 的身分和訊息，或 push 要送出的全部內容（D-015；R-REV-9 列出掃描不涵蓋的情況）。
 
 每個寫入任務都要對應到需求（`REQ-…`）。對應不到需求的新增，會成為 `SCOPE-CREEP` finding。
@@ -173,7 +174,8 @@ Subagents: `dev-explorer` (haiku), `dev-implementer` (sonnet), `dev-reviewer` (o
 
 - `light`: a low-risk local change, with no graph file. Before a commit, push or PR, it still needs an independent review and the commit gate.
 - `standard`: a normal feature. It needs a task graph and an independent reviewer.
-- `strict`: security, data, migration, public contract or release work. It needs early deep or security review, the exact-head gate and a human gate.
+- `strict`: security work (a change to a security rule included), data, migration, public contract, packaging or release. Every change to the rule text of a skill pack in a public repository is public-contract work. It needs an early deep and security review of the design before implementation, an early deep code review as soon as code exists, the exact-head gate and a human gate.
+- A tier written before Discover (for example in an Issue or a brief) is a proposal. Discover re-assesses it: it may go up, and only the user's decision lowers it; a relayed decision to lower it counts only after the user confirms it in this session (R-RIG-2).
 - Every tier: before every commit and push, `dev-security-reviewer` scans the staged diff and the commit identity and message, or everything the push sends (D-015; R-REV-9 lists what the scans do not cover).
 
 Every write task must trace to a requirement (`REQ-…`). An addition that no requirement covers becomes a `SCOPE-CREEP` finding.

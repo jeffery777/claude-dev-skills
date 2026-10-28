@@ -60,7 +60,9 @@ round, or a stage), evaluate whether the work continues in a new session.
      and does not repeat them.
    - Offer a new session through the app's native session handoff (for
      example a new-session card), with the checkpoint as its full handoff
-     brief. The new session starts only after the user confirms it. Without
+     brief. The offer gives the proposed model and effort of the new
+     session and the reason (R-DEL-2). The new session starts only after the
+     user confirms it. Without
      a native handoff, give the brief in your report and tell the user how
      to start the new session.
    - The handoff is complete when the user confirms it (or, without a native

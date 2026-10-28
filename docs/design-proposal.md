@@ -356,7 +356,7 @@ Phase 1 之後新增的技能（不屬於 D-008 的 Phase 1 範圍）：
   1. 嚴重度門檻：MUST-FIX 只限 Core 的阻擋項；判斷不出是不是阻擋項時，算 MUST-FIX。SHOULD-FIX 必須有可重現的失敗，並影響需求、DoD 或文件寫明的行為。NIT 只限這次變更造成的回歸，或不實的文件內容。其餘列為剩餘風險（residual risk），不列為 finding。
   2. 修補前先分類：每個 finding 判讀為必要修正、值得改善、維持現狀或需要人類決策。修補要在需求範圍內；需求沒考量到的缺陷，先交給使用者決定（見 D-016）。Core 的阻擋項例外：先修正。管理措施（流程、文件、人工檢查）是有效的修補方式，但要寫明責任人、可驗證的前提與失效時的處理。
   3. 新增機制前，要說明它的獨特作用，以及對應哪一條需求；說不出來就列為 SCOPE-CREEP。`dev-core` R-RIG-3 已經有這條規則，所以本次不改。
-  4. 修正後、push 前，由獨立 reviewer 做窄範圍的確認。完整 Merge Review 仍涵蓋整個 base..head 範圍；可證未受之後任何變更影響的部分，可以重用先前的證據，但要寫明理由與覆蓋範圍。
+  4. 修正後、push 前，由獨立 reviewer 做窄範圍的確認。完整 Merge Review 仍涵蓋整個 base..head 範圍；可證未受之後任何變更影響的部分，可以重用先前的證據，但要寫明理由與覆蓋範圍。自 D-021（Issue #68，E2）起，可重用的內容證據綁定 tree 與 diff，重用條件見 D-021。
   5. 連續兩輪 review 仍出現新的阻擋項，或同一個機制連續兩輪修了又出新問題時，停止修正循環，不進入下一輪修正。先重新評估規格、驗收標準與做法；範圍問題用決策卡片（D-014）交給使用者。第二個條件由使用者在 PR-B 的決策卡片 1 加入。
   6. PR 建立後，這個 head 的審查與 gate 紀錄不 commit 到 PR 分支。commit 會產生新的 head，新的 head 又需要一次完整審查，這就是結構性的循環。使用者授權貼 comment 時，紀錄寫成 PR comment（貼出前先做 R-REV-9 掃描）；沒有授權時，紀錄不 commit，放進給使用者的報告。
 - 與 Core 的差異：Core 沒有定義嚴重度門檻；Core 把連續兩輪未完成的 review 視為重新評估的時機，而不是停止。這些都是收緊，記錄在 `skills/dev-core/deltas.md` 的 DL-011、DL-012、DL-013。Core 的阻擋項一律保留為 MUST-FIX。
@@ -381,7 +381,7 @@ D-009 到 D-016 是同一天的決定。D-015 由 PR #5（Issue #4）記錄；D-
 - 來源：PR #2 的 SEC-01。分支上 10 個 commit 的作者與 committer 是由本機帳號與主機名稱推導出來的，push 後已經公開。內容審查沒有檢查 commit 的中繼資料，到合併前的安全掃描才發現。需求見 REQ-011。
 - 規則（`dev-core` R-REV-9）：每次 commit 與每次 push 之前，由獨立的 `dev-security-reviewer` 掃描「實際要公開的內容」。小改動或只改文件也不例外，這項掃描永遠不能標為「不適用」。
   - commit 前：已 stage 的 diff，以及這個 commit 會帶的作者、committer（用 `git var GIT_AUTHOR_IDENT` 與 `git var GIT_COMMITTER_IDENT` 讀出）、訊息與 trailer。掃描後不得再覆寫身分；commit 後立刻用 `git log -1 --format=fuller` 讀回。
-  - push 前：這次 push 要送出的全部內容。主代理用和實際 push 完全相同的參數執行 `git push --dry-run --porcelain`，之後也用完全相同的參數 push。掃描它列出的每個 ref 上遠端還沒有的每一個 commit，包含身分、訊息、解決 merge 衝突時加入的內容，以及 annotated tag 的 tagger 與訊息。並確認實際記錄的身分與訊息和掃描時相同。
+  - push 前：這次 push 要送出的全部內容。主代理用和實際 push 完全相同的參數執行 `git push --dry-run --porcelain`，之後也用完全相同的參數 push。掃描它列出的每個 ref 上遠端還沒有的每一個 commit，包含身分、訊息、解決 merge 衝突時加入的內容，以及 annotated tag 的 tagger 與訊息。並確認實際記錄的身分與訊息和掃描時相同。D-021 記錄了改變這一點的計畫；未啟用（回退 (c)）。
   - 掃描要看到內容，而不是編碼後的資料：每個掃描指令加上 `--text --no-textconv --no-ext-diff`。
   - 貼出 PR 或 MR 的標題、內文、留言或審查紀錄之前：掃描要貼出的原文。（Issue #12 把 Issue 的標題、內文與留言也加進來，見 FU-007 與 REQ-011。）
   - 合併前：base..head 範圍內的每一個 commit，不只看最後的 diff；以及平台合併時會建立的 merge 或 squash commit：合併方式、作者、訊息與 trailer（例如由分支 commit 產生的 `Co-authored-by:`）。
@@ -467,6 +467,33 @@ D-009 到 D-016 是同一天的決定。D-015 由 PR #5（Issue #4）記錄；D-
 - 已知代價：每個 skill 讀進的 bytes 估計約為現在的 1.5 到 1.85 倍；token 沒有量測。context 的優化（例如依 anchor 讀段落）之後依 FU-004 的量測決定。
 - 與 D-001 的關係：D-001「日常執行只載入 `dev-core`」由本決策取代（PR-2 起生效）；Core 仍是唯一權威，`dev-core` 仍不放寬 Core。
 - Core 回饋：是。CF-007（接口按階段讀取 Core 原文，不改寫成摘要）；兩處讀法作為 engineering-workflow-core#27 第 4、5 點的補充（由協調 session 起草，本專案不張貼）。
+
+### D-021 push 前的確定性預檢；證據綁定 tree（已決定，2026-10-27；回退 (c)，2026-10-28）
+
+- 來源：Issue #68（GitHub Issue #68 本文，Goal）。需求見 REQ-011、REQ-012。使用者的回答（Claude Code session，orchestrator 轉述）：
+  1. 2026-10-27，成本提案的卡片 E1、E2 與第 4 項：「E1 選 A，E2 同意」，並決定把不退化定義寫進 `dev-core`。
+  2. 兩個獨立的唯讀設計審查（`dev-security-reviewer` 與 `dev-reviewer`；兩個都是 BLOCKED，兩位都說方向正確，但草稿不能照原樣實作）之後，設計卡片 I68-C1 到 I68-C7：「I68-C1a、C2a、C3a、C4a、C5b、C6a、C7a」。
+  3. 第 1 輪審查後，卡片 I68-R1-C1 與 I68-R1-C2：「R1-C1a、R1-C2c 加 b（檢查寫在 script 外）」。
+  4. 第 2 輪審查後（R-VER-2 停止規則觸發），卡片 I68-R2-C1：「R2-C1a，.pyc 可刪」：做限定範圍的第 3 輪修正，reviewer 自己重算 binding 的每個輸入；事先約定，第 3 輪若在綁定機制出現新的阻擋項，就改走 (c)。
+  5. 2026-10-28，第 3 輪審查後：「繼續，c1」。
+- 問題：R-REV-9 push 的第 8 步由 reviewer 再掃描一次遠端還沒有的每個 commit，即使 commit 時的掃描已經涵蓋同一個 commit（main 7c5af9a）。內容沒變的 commit 被 AI 重複掃描。
+- 使用者決定的內容：
+  1. E1 A：commit 時的掃描通過後寫入一筆紀錄；push 前，主代理用確定性的 script 比對每個要送出的 commit 和它的紀錄；沒有觸發時，不派 reviewer 做 push 掃描。
+  2. E2：可重用的內容證據綁定 tree 與 diff，不綁 commit ID。新的 head 仍做完整的 Merge Review：綁定精確的 base、head 與 merge-base，並給出自己的結論。新的 head 和審查過的 head 只差在身分或訊息時（base 相同、commit 數相同，而且 `git rev-list --reverse <base>..<head>` 中每個 commit 的 tree（`git rev-parse <commit>^{tree}`）依序相同），可以重用審查過的 head 的內容證據；`git range-diff` 只當參考，變了的身分或訊息照 R-REV-9 掃描。其他部分重用照 R-CAP-3 原有的句子。這是完整審查內的重用，不是略過審查（R-EXH-3）。
+  3. 卡片：I68-C1a，紀錄放在 Git 的共用目錄；I68-C2a，用 script 做紀錄與比對，並用暫存 repo 測試；I68-C3a，任何觸發都由 reviewer 掃描這次 push 送出的全部內容；I68-C4a，沒有觸發時，step 7 的來源檢查由主代理用 script 執行，不再由獨立 reviewer 重做（使用者在不退化定義下核准的放寬）；I68-C5b，merge readiness 不改，維持全量 range 掃描；I68-C6a，commit 掃描的 brief 帶這個 commit 要推到的 branch，名稱存入紀錄；I68-C7a，不退化定義（見下面「送出的內容」第 1 項）。
+  4. I68-R1-C1a：push step 8 與 merge readiness 的 range 掃描的 `log -p` 指令加上 `--ignore-submodules=none`。I68-R1-C2c 加 b：step 4b，在規則文字裡（不在 script 裡）檢查要送出的 commit 是否改了 script 或它的測試，並在「不涵蓋」記下執行中的那一份 script。
+  5. I68-R2-C1a：見上面來源第 4 項。
+- 三輪審查：第 1 輪，binding 沒有綁住訊息與身分；第 2 輪，reviewer 只照抄 brief 裡的 binding（R-VER-2 停止規則觸發）；第 3 輪，深度審查 R3-001（MUST-FIX）：為了讓 reviewer 自己重算，nonce 改成公開，而 binding 的其他欄位都是公開的值，或本來就寫在報告裡。掃描報告會被 commit 或貼出，所以同時含 nonce 與 binding 行的報告，可以讓任何人離線確認猜測的身分（猜一個 email、重算 binding、比對）。這和 PR #2 SEC-01 是同一類洩漏。第 3 輪也找到 R3-002（SHOULD-FIX：brief 範本的 receipt 有一行 `Status:`，`record` 會把它算成第二行狀態行）。安全審查沒有發現 R3-001，但深度審查已用合成身分實際重現。
+- 回退：R3-001 是綁定機制的新阻擋項，符合事先約定（「R2-C1a」）的 (c) 條件。綁定機制已連續三輪出現新問題。使用者選 (c1)（「繼續，c1」）：本 PR 移除 `prepare`、`bind`、`record`、`void` 與它們的測試，不送出沒有用到、而且已知有洩漏設計的程式碼（R-RIG-3）。
+- 送出的內容（K1 到 K4）：
+  1. 不退化定義（卡片 I68-C7a）寫在 `skills/dev-core/deltas.md` 的前言，`dev-core` 開頭用一句話指過去：本 pack 以審查過的變更修改一條加嚴規則時，若同一風險仍在同一個或更早的公開關口、以同等涵蓋範圍與獨立性被擋下，這條加嚴的保護就算維持。只重跑「輸入已由確定性檢查證明沒變」的檢查、沒有增加保護的步驟，可以不保留；這個判定由使用者確認並記錄。其他削弱都是放寬，只有使用者能決定，並記下來源、原話、權責、理由與範圍。放寬 Core 一律是缺陷；放寬高於 Core 的加嚴，只能由使用者決定。執行時不得用這段定義跳過任何步驟。
+  2. E2，限於「只差在身分或訊息」：`dev-core` R-EXH-3、`dev-gate` step 2、DL-013、REQ-012，以及 D-013 第 4 項的指引。
+  3. I68-R1-C1a：push step 8 與 merge readiness 的 range 掃描指令加 `--ignore-submodules=none`；commit 掃描的檢視指令加 `--ignore-submodules=none --submodule=short`，讓 gitlink 的變更以 object ID 顯示；`dev-gate` step 1 與 `review-report.md` 的 commit 掃描 hash 指令也加上這兩個選項（第 4 輪 S4-002，使用者回答「commit 掃描也加，這個 PR 修」）；`agents/dev-security-reviewer.md` 同步。
+  4. 確定性預檢：R-REV-9 push 新增 step 4a，執行 `skills/dev-gate/scripts/push_precheck.py verify --dry-run <存下的 dry-run 輸出> --remote-ids <step 6 的 ID 清單檔>`。它執行 step 7 的來源檢查，每個 Git 呼叫都檢查結束碼；結束碼 0 表示檢查通過，2（`STOP <原因>`）表示停下。結果不是 0 就停下（step 5）。結束碼 0 不取代任何掃描：step 6 到 8 一律執行，reviewer 仍執行 step 7，並掃描這次 push 送出的全部內容。script 不存紀錄，也不寫檔案。測試在 `tests/test_push_precheck.py`。
+- 未啟用：E1 A 的「push 不掃」路徑；I68-C1a（紀錄檔）；I68-C2a 的紀錄與綁定部分（`prepare`、`bind`、`record`、`void`）；I68-C3a 與 I68-C4a（push 一律做全量掃描，所以沒有「觸發」，step 7 也仍由 reviewer 做）；I68-C6a（commit 掃描不帶 branch 名稱）；step 4b（沒有 script 判定是否略過掃描，所以不需要）。I68-C5b 照原樣（merge readiness 不改）。push 掃描的成本不變，E1 A 省成本的目的這次沒有達到。
+- 後續：Issue #71 重新設計「commit 時的綁定」，帶入 R3-001、R3-002、第 3 輪安全審查的 S3-001 到 S3-007 與三輪的教訓。
+- 與 Core 的差異：K1 到 K4 都是收緊或中性。K1 只寫明本 pack 怎麼修改自己的加嚴規則，放寬 Core 仍是缺陷（中性）；K2 是 Core `exact-transition` 允許的證據重用的確定性寫法（DL-013，中性）；K3 讓掃描看到更多內容（收緊）；K4 在 push 前多一道確定性檢查，不取代任何掃描（收緊，DL-010）。
+- Core 回饋：否（推論，未經審查確認）。理由：push 掃描本身是本 pack 對 Core 的收緊（DL-010），本決策只在這項收緊上加一道檢查；E2 的重用條件在 Core `exact-transition` 允許的範圍內。
 
 ---
 
@@ -1089,6 +1116,8 @@ records the mapping.
      them in a narrow review. The complete Merge Review still covers the
      whole base..head range. Parts that are provably unaffected by every later
      change may reuse earlier evidence when the review records the reason and the coverage.
+     Since D-021 (Issue #68, E2), reusable content evidence is bound to the
+     tree and the diff; D-021 gives the reuse condition.
   5. When two consecutive review rounds still report new blockers, or the
      same mechanism needed fixes and produced new problems in two
      consecutive rounds, stop the fix loop and do not start the next fix
@@ -1163,7 +1192,8 @@ records D-009 to D-012.
     commit the remote does not have yet on each listed ref, with identities,
     messages and merge-resolution content, and the tagger and message of each
     listed annotated tag. Confirm that the recorded identity and message match
-    what was scanned.
+    what was scanned. D-021 records a plan to change this; not enabled
+    (fallback (c)).
   - The scan shows content, not encoded data: every scan command uses
     `--text --no-textconv --no-ext-diff`.
   - Before posting a PR or MR title, body or comment, or a review record: the
@@ -1577,5 +1607,133 @@ records D-009 to D-012.
   stage instead of rewriting it into a digest); the two readings as input
   for engineering-workflow-core#27 items 4 and 5 (drafted by the
   orchestrator session; this project posts nothing).
+
+### D-021 A deterministic pre-check before a push; evidence bound to the tree (decided, 2026-10-27; fallback (c), 2026-10-28)
+
+- Origin: Issue #68 (GitHub Issue #68 body, Goal). The requirements are
+  REQ-011 and REQ-012. The user's answers (Claude Code session,
+  orchestrator relay):
+  1. 2026-10-27, cards E1 and E2 and item 4 of the cost proposal:
+     "E1 選 A，E2 同意", and the no-regression definition goes into
+     `dev-core`.
+  2. After two independent read-only design reviews (`dev-security-reviewer`
+     and `dev-reviewer`; both BLOCKED, both said that the direction is right
+     but that the draft could not be implemented as written), the design
+     cards I68-C1 to I68-C7: "I68-C1a、C2a、C3a、C4a、C5b、C6a、C7a".
+  3. After review round 1, cards I68-R1-C1 and I68-R1-C2:
+     "R1-C1a、R1-C2c 加 b（檢查寫在 script 外）".
+  4. After review round 2 (the R-VER-2 stop rule), card I68-R2-C1:
+     "R2-C1a，.pyc 可刪": a bounded round 3 in which the reviewer computes
+     every input of the binding itself; agreed in advance: if round 3 shows
+     a new blocker in the binding mechanism, switch to (c).
+  5. 2026-10-28, after review round 3: "繼續，c1".
+- Problem: in R-REV-9 push step 8, the reviewer scans again every commit
+  that the remote does not have yet, also when a commit scan already
+  covered the same commit (main 7c5af9a). The AI scans unchanged commits
+  twice.
+- What the user decided:
+  1. E1 A: after a commit scan passes, a record is written; before a push,
+     the main agent checks every commit to send against its record with a
+     deterministic script; without a trigger, no reviewer push scan runs.
+  2. E2: reusable content evidence is bound to the tree and the diff, not
+     to the commit ID. A new head still gets a complete Merge Review that
+     binds the exact base, head and merge-base and gives its own verdict.
+     When a new head differs from a reviewed head only in identities or
+     messages (the same base, the same number of commits, and equal trees
+     (`git rev-parse <commit>^{tree}`), one by one, for the commits in
+     `git rev-list --reverse <base>..<head>`), the content evidence of the
+     reviewed head may be reused; `git range-diff` is only a view, and the
+     changed identities or messages get the R-REV-9 scans. Other partial
+     reuse follows the existing R-CAP-3 sentence. This is reuse inside a
+     complete review, never a skipped review (R-EXH-3).
+  3. Cards: I68-C1a, the record file in the Git common directory; I68-C2a,
+     a script for the records and the check, with temporary-repository
+     tests; I68-C3a, any trigger gives a reviewer scan of everything the
+     push sends; I68-C4a, without a trigger, the main agent runs the source
+     checks of step 7 with the script and no independent reviewer repeats
+     them (a loosening that the user approved under the no-regression
+     definition); I68-C5b, merge readiness does not change and keeps the
+     full range scan; I68-C6a, the commit scan brief gives the branch that
+     the commit will be pushed to, and the record keeps that name; I68-C7a,
+     the no-regression definition (item 1 of "What ships" below).
+  4. I68-R1-C1a: the `log -p` commands of push step 8 and of the
+     merge-readiness range scan get `--ignore-submodules=none`. I68-R1-C2c
+     with b: step 4b, a check in the rule text (not in the script) whether a
+     commit to send changes the script or its tests, and a "Not covered"
+     item for the copy of the script that runs.
+  5. I68-R2-C1a: see item 4 of the origin above.
+- Three review rounds: in round 1, the binding did not bind the message
+  and the identity; in round 2, the reviewer only copied the binding from
+  the brief (the R-VER-2 stop rule); in round 3, the deep review found
+  R3-001 (MUST-FIX): so that the reviewer could compute the binding itself,
+  the nonce became public, and the other fields of the binding are public
+  values or are already in the report. Scan reports are committed or
+  posted, so a report with the nonce and the binding line lets anyone
+  confirm a guessed identity offline (guess an email, compute the binding
+  again, compare). This is the same class of leak as PR #2 SEC-01. Round 3
+  also found R3-002 (SHOULD-FIX: the receipt of the brief template has a
+  `Status:` line, which `record` counts as a second status line). The
+  security review did not find R3-001; the deep review reproduced it with
+  a synthetic identity.
+- Fallback: R3-001 is a new blocker in the binding mechanism, so the
+  condition of (c) that was agreed in advance ("R2-C1a") holds. The binding
+  mechanism had new problems in three rounds in a row. The user chose (c1)
+  ("繼續，c1"): this PR removes `prepare`, `bind`, `record`, `void` and their
+  tests, so that it ships no code that nothing uses and whose design is
+  known to leak (R-RIG-3).
+- What ships (K1 to K4):
+  1. The no-regression definition (card I68-C7a) is in the preamble of
+     `skills/dev-core/deltas.md`, and one sentence at the top of `dev-core`
+     points to it: when this pack changes a project tightening through a
+     reviewed change, the tightening keeps its protection if the same risk
+     is still stopped at the same or an earlier public gate, with the same
+     coverage and the same independence. A step that only reruns a check
+     whose input a deterministic check proves unchanged, and so adds no
+     protection, need not stay; the user confirms that judgment, and it is
+     recorded. Any other weakening is a loosening: only the user decides
+     it, and the record gives the source, the quote, the authority, the
+     reason and the scope. Relaxing Core is always a defect; relaxing a
+     project tightening that is stricter than Core is for the user to
+     decide. A run never uses this definition to skip a step.
+  2. E2, limited to a new head that differs only in identities or
+     messages: `dev-core` R-EXH-3, `dev-gate` step 2, DL-013, REQ-012 and
+     the pointer in item 4 of D-013.
+  3. I68-R1-C1a: the commands of push step 8 and of the merge-readiness
+     range scan get `--ignore-submodules=none`; the commit-scan view gets
+     `--ignore-submodules=none --submodule=short`, so that a gitlink change
+     shows as its object IDs; the commit-scan hash command of `dev-gate`
+     step 1 and `review-report.md` gets the same two options (round 4,
+     S4-002; user answer 「commit 掃描也加，這個 PR 修」);
+     `agents/dev-security-reviewer.md` matches.
+  4. The deterministic pre-check: the new R-REV-9 push step 4a runs
+     `skills/dev-gate/scripts/push_precheck.py verify --dry-run <saved dry-run output> --remote-ids <file with the step-6 ID list>`.
+     It runs the source checks of step 7, with an exit-code check for
+     every Git call; exit 0 means the checks passed, and exit 2
+     (`STOP <reason>`) means stop. Any result other than 0 stops the push
+     (step 5). Exit 0 does not replace any scan: steps 6 to 8 always run,
+     and the reviewer still runs step 7 and scans everything the push
+     sends. The script keeps no records and writes no file. The tests are
+     in `tests/test_push_precheck.py`.
+- Not enabled: the E1 A push path without a scan; I68-C1a (the record
+  file); the record and binding parts of I68-C2a (`prepare`, `bind`,
+  `record`, `void`); I68-C3a and I68-C4a (every push gets the full scan, so
+  there is no trigger, and the reviewer still runs step 7); I68-C6a (the
+  commit scan gives no branch name); step 4b (no script decides whether a
+  scan is skipped, so it is not needed). I68-C5b stays as decided (merge
+  readiness does not change). The cost of the push scan does not change:
+  the cost goal of E1 A is not reached this time.
+- Follow-up: Issue #71 redesigns the commit-time binding, with
+  R3-001, R3-002, S3-001 to S3-007 of the round-3 security review and the
+  lessons of the three rounds.
+- Difference from Core: K1 to K4 are tightenings or neutral. K1 only says
+  how this pack changes its own tightenings, and relaxing Core stays a
+  defect (neutral); K2 is a deterministic form of the evidence reuse that
+  Core `exact-transition` allows (DL-013, neutral); K3 lets the scans show
+  more (a tightening); K4 adds a deterministic check before a push and
+  replaces no scan (a tightening, DL-010).
+- Core feedback: no (inference, not confirmed by a review). Reason: the
+  push scan itself is a tightening of Core by this pack (DL-010), and this
+  decision only adds a check to that tightening; the E2 reuse condition
+  stays inside what Core `exact-transition` allows.
 
 </details>

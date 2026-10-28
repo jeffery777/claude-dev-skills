@@ -33,6 +33,9 @@ sources:
   - type: chat
     locator: "Claude Code session 2026-10-20 (post-merge PR split), user message 1"
     quote: "先用 dev-plan 拆成 PR-A（D-015、R-REV-1、--evidence-file）、PR-B（D-013、D-014、D-016）、PR-C（D-009 到 D-012、context 成本那句話、CHANGELOG、core-feedback、清理項目），一次只做一個，從 PR-A 開始。"
+  - type: issue
+    locator: "GitHub Issue #68 body, Goal (user decisions of 2026-10-27 on cards E1 and E2 and item 4 of the cost proposal; E2: evidence bound to the tree)"
+    quote: "E1 選 A，E2 同意"
 non_goals:
   - D-009 to D-012, the context-cost sentence, CHANGELOG, core-feedback and cleanups (PR-C)
   - Changes to engineering-workflow-core, codex-dev-skills or grok-build-dev-skills
@@ -58,6 +61,19 @@ in a row, stop the fix loop for a re-evaluation. Review records never create a n
   the narrow confirmation before a push, evidence reuse in the Merge Review
   for provably unaffected parts with reason and coverage, the stop rule, and record storage without a new
   head; `deltas.md` records each difference from Core.
+- Issue #68 (E2): `dev-core` R-EXH-3 binds reusable content evidence to the
+  tree and the diff. When a new head differs from a reviewed head only in
+  identities or messages (the same base, the same number of commits, and
+  equal trees, one by one, for the commits in
+  `git rev-list --reverse <base>..<head>`), the content evidence of the
+  reviewed head may be reused when the other R-CAP-3 conditions still
+  match and the review records the tree comparison as the reason and the
+  coverage (review round 4, R4-002); `git range-diff` is only a view. Other
+  partial reuse follows the existing R-CAP-3 sentence (review round 1,
+  R1-004). The new review still binds the exact
+  base, head and merge-base and gives its own verdict; this is reuse inside
+  a complete review, never a skipped review. `dev-gate` never reuses a
+  previous head's verdict. D-021 records the decision.
 - `dev-review` and `dev-gate` apply these rules.
 - `docs/design-proposal.md` records D-013 in zh and EN with a Core-feedback
   note.

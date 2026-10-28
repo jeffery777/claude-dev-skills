@@ -75,6 +75,24 @@ sources:
   - type: chat
     locator: "Claude Code session 2026-10-25 (orchestrator session, relayed to the FU-017 session, Issue #54), user answer to round-2 cards FU017-R2-C2 (finding S2-001: tag signature inside the last message line; check changed) and FU017-R2-C3 (findings R2-001, R2-002, S2-003: an allowed signature finding is Rejected for this push) and extras 1 to 4 (R2-003, S2-002, S2-004, round-3 convention)"
     quote: "R2-C2 選 a，R2-C3 選 a，附帶 1–4 同意"
+  - type: issue
+    locator: "GitHub Issue #68 body, Goal (user decisions of 2026-10-27 on cards E1 and E2 and item 4 of the cost proposal)"
+    quote: "E1 選 A，E2 同意"
+  - type: chat
+    locator: "Claude Code session 2026-10-27 (orchestrator relay), user answer to the Issue #68 design cards I68-C1 to I68-C7"
+    quote: "I68-C1a、C2a、C3a、C4a、C5b、C6a、C7a"
+  - type: chat
+    locator: "Claude Code session 2026-10-27 (orchestrator relay), user answer to the Issue #68 review round 1 cards I68-R1-C1 (finding R1-009: the log -p views without --ignore-submodules=none) and I68-R1-C2 (finding S1-003: which copy of scan_records.py runs)"
+    quote: "R1-C1a、R1-C2c 加 b（檢查寫在 script 外）"
+  - type: chat
+    locator: "Claude Code session 2026-10-27 (orchestrator relay), user answer to the Issue #68 review round 2 card I68-R2-C1 (R-VER-2 stop: a bounded round 3 in which the reviewer computes every input of the binding itself; if round 3 shows a new blocker in the binding mechanism, fallback (c))"
+    quote: "R2-C1a，.pyc 可刪"
+  - type: chat
+    locator: "Claude Code session 2026-10-28 (orchestrator relay), user answer after Issue #68 review round 3 (finding R3-001, a new blocker in the binding mechanism): fallback (c) with option (c1), the record and binding subcommands removed with their tests"
+    quote: "繼續，c1"
+  - type: chat
+    locator: "Claude Code session 2026-10-28 (orchestrator relay), user answer to the Issue #68 review round 4 REQ-GAP S4-002 (the commit-scan hash command has no --ignore-submodules=none)"
+    quote: "commit 掃描也加，這個 PR 修"
 non_goals:
   - Installing gitleaks or Git hooks without the user's approval
   - Review convergence, decision cards and REQ-GAP (PR-B, D-013, D-014, D-016)
@@ -267,6 +285,42 @@ committed by default.
   installed). This acceptance replaces item 3 of the Issue #54 acceptance
   on the commit scan: by finding R1-004, the commit-scan note is a fact
   sentence in the "Before a commit" bullet, not a Not-covered item.
+- Issue #68, fallback (c) (option (c1); D-021): the commit-scan view of
+  R-REV-9 has `--ignore-submodules=none --submodule=short`, so that a
+  gitlink change stays visible as its object IDs, and the `log -p` commands
+  of push step 8 and of the merge-readiness range scan have
+  `--ignore-submodules=none`, in `dev-core` and in
+  `agents/dev-security-reviewer.md` (card I68-R1-C1a). The commit-scan
+  hash command of `dev-gate` step 1 and `review-report.md` also has
+  `--ignore-submodules=none --submodule=short`, and the agent file says so
+  for the staged diff (finding S4-002; user answer
+  「commit 掃描也加，這個 PR 修」). Push step 4a runs
+  `skills/dev-gate/scripts/push_precheck.py verify --dry-run <file> --remote-ids <file>`
+  in the worktree of the dry-run. It runs the source checks of step 7 (at
+  least one ref line; one `:` per refspec; no `+`, `-` or `!` ref line; a
+  known flag; names of `[A-Za-z0-9._/-]`; a source that starts with
+  `refs/heads/` or `refs/tags/` or is a full object ID; an old value that is
+  the start of a remote ID; a source that is a commit or a tag whose target
+  is a commit) with `git --no-replace-objects`, no shell and an exit-code
+  check for every Git call. It exits 0 (the checks passed) or 2
+  (`STOP <reason>`, also for a Git error or an unexpected error, without a
+  traceback); its output carries no identity and no path; it keeps no
+  record and writes no file. Any result other than exit 0 stops the push;
+  exit 0 replaces no scan, and steps 6 to 8 always run.
+  Temporary-repository tests (`tests/test_push_precheck.py`, subprocesses
+  with `-B`) show a passing push (new commits, a new branch and an
+  annotated tag, in a SHA-1 and a SHA-256 repository; an up-to-date push)
+  and each STOP case: a bad source or destination name, a source of the
+  wrong kind, a tree or a tag of a tree as the source, a source that does
+  not exist, a `+`, `-` or `!` ref line, an old value that is not in the
+  remote IDs, bad remote IDs, bad ref lines, a missing, symlinked,
+  directory or non-UTF-8 input file, a directory that is not a repository
+  and an unexpected error (no bytecode written). They also show that the
+  step-8 and range commands taken from `dev-core` show a gitlink change
+  under `diff.ignoreSubmodules=all`, which the same command without the
+  option hides. Not enabled (fallback (c)): commit-time scan records, the
+  binding of the commit scan report, and a push without a reviewer scan
+  (E1 A).
 - REQ-011 has a threat model (user decision on the FU-015 PR-2 threat model
   proposal): R-REV-9 addresses accidental leaks under legitimate
   configuration, within the coverage it states; deliberately malicious
@@ -298,4 +352,4 @@ FU-014 decision (cards 1a, 4a, 2026-10-22): the push scan no longer runs
 stops the push in that case.
 
 Origin: PR #2 SEC-01 (a hostname-derived author email was pushed). Design
-record: D-015 in `docs/design-proposal.md`. Related: [[REQ-003]], [[REQ-007]].
+records: D-015 and, since Issue #68, D-021 in `docs/design-proposal.md`. Related: [[REQ-003]], [[REQ-007]].

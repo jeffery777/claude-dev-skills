@@ -60,7 +60,10 @@ When the user asked for it, use this order (R-REV-9):
    dry-run exits 0 with `Done` as its last line, lists at least one
    tab-separated ref line and lists no `+` (forced update) or `-` (delete)
    ref line, and check the names it lists
-   without substituting them (R-REV-9). Have `dev-security-reviewer` scan
+   without substituting them (R-REV-9). Run
+   `python3 -I ${CLAUDE_SKILL_DIR}/../dev-gate/scripts/push_precheck.py verify --dry-run <saved dry-run output> --remote-ids <file with the ID list of R-REV-9 step 6>`
+   in the worktree of the dry-run; any result other than exit 0 stops the
+   push, and exit 0 replaces no scan (R-REV-9 step 4a). Have `dev-security-reviewer` scan
    everything it lists: every commit the remote does not have yet and any
    annotated tag; a signed commit or tag stops the push for the user's
    decision (R-REV-9).

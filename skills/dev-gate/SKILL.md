@@ -37,7 +37,7 @@ commit, push, PR, merge or other external write (R-REV-5, R-AUTH-1).
    HEAD, `git status --porcelain` (which lists untracked files) and a hash of
    `git diff HEAD` with untracked files included (`git add -N` first). Also
    bind what the R-REV-9 scan covered: for a commit, the hash of
-   `git --no-replace-objects diff --cached --no-relative --binary --no-textconv --no-ext-diff` and the author, committer and message; for a
+   `git --no-replace-objects diff --cached --no-relative --binary --no-textconv --no-ext-diff --ignore-submodules=none --submodule=short` and the author, committer and message; for a
    push, the exact push command, the refs and commit range its dry-run lists, and the remote object IDs given to the scan. The scan record must show the
    same values.
 2. Collect the evidence: the review reports, verification output, the graph
@@ -45,6 +45,14 @@ commit, push, PR, merge or other external write (R-REV-5, R-AUTH-1).
    content (including the uncommitted diff), revision, scope, assumptions,
    policy, stage, environment and freshness still match (R-CAP-3). For merge readiness, a pre-commit
    or previous-head review never satisfies the gate (R-EXH-1, R-EXH-3).
+   Inside the new complete review, content evidence of a previous head is
+   bound to the tree and the diff. When the new head differs from a reviewed
+   head only in identities or messages (the same base, the same number of
+   commits, equal trees one by one), that content evidence may be reused as
+   R-EXH-3 says, when the other R-CAP-3 conditions above still match and the
+   review records the tree comparison as the reason and the coverage; other
+   partial reuse follows R-CAP-3 above. A previous
+   head's verdict is never reused (Issue #68, E2).
 3. For merge readiness, run or dispatch the complete base-to-head review:
    - `dev-review` in deep mode over `base...head`. The review covers the
      whole range; parts that are provably unaffected by every change since an

@@ -320,6 +320,30 @@ Cowork runtime test). At that release,
   `dev-review` step 2 tells the reviewer to check the source trace. The
   `.dev/followups.md` header prefers card IDs, rule IDs or section names to
   line numbers (card FU022-C2 (a)).
+- R-REV-9 push pre-check and scan views (REQ-011, REQ-012, D-021, Issue
+  #68; user decisions E1 A and E2, cards I68-C7a and I68-R1-C1a; fallback
+  (c) with option (c1) after review round 3). Push step 4a runs the new
+  `skills/dev-gate/scripts/push_precheck.py verify` on the saved dry-run
+  output and the step-6 ID list: the source checks of step 7, exit 0 (the
+  checks passed) or 2 (`STOP <reason>`, the push stops). Exit 0 replaces no
+  scan: steps 6 to 8 always run, and the reviewer still scans everything
+  the push sends. The commit-scan view adds
+  `--ignore-submodules=none --submodule=short`, and the `log -p` commands
+  of push step 8 and the merge-readiness range scan add
+  `--ignore-submodules=none`, so that a gitlink change stays visible; the
+  commit-scan hash command of `dev-gate` and `review-report.md` adds
+  `--ignore-submodules=none --submodule=short` too (S4-002).
+  `deltas.md` adds the no-regression definition for changes to project
+  tightenings (card I68-C7a). R-EXH-3 binds reusable content evidence to
+  the tree and the diff: when a new head differs from a reviewed head only
+  in identities or messages (the same base, the same number of commits and
+  equal trees one by one), its content evidence may be reused; the new
+  review still binds the exact base, head and merge-base and gives its own
+  verdict (E2). Temporary-repository tests in `tests/test_push_precheck.py`.
+  Not enabled: the push path without a reviewer scan (E1 A), with its
+  commit-time scan records and report binding; review round 3 found that
+  the binding let a published scan report confirm a guessed identity
+  (R3-001).
 
 ### Fixed
 

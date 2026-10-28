@@ -33,6 +33,6 @@ cited Core section (see review round 1, DR-001 to DR-008, in
 | `review-and-security.md#review-evidence` | R-REV-8 | covered | R-REV-8 adds the masking rule for review and gate records (DL-016) |
 | `exact-head-and-evidence.md#exact-identity` | R-EXH-1 | covered | |
 | `exact-head-and-evidence.md#exact-coherence` | R-EXH-2 | covered | |
-| `exact-head-and-evidence.md#exact-transition` | R-EXH-3 | covered | Records of a PR head are never committed to the PR branch; a PR comment only with the user's authority, otherwise uncommitted in the report; evidence reuse only for provably unaffected parts, with reason and coverage (DL-013) |
+| `exact-head-and-evidence.md#exact-transition` | R-EXH-3 | covered | Records of a PR head are never committed to the PR branch; a PR comment only with the user's authority, otherwise uncommitted in the report; evidence reuse only for provably unaffected parts, with reason and coverage; reusable content evidence is bound to the tree and the diff, and the new review binds the exact base, head and merge-base (Issue #68 E2, DL-013) |
 | `exact-head-and-evidence.md#exact-dimensions` | R-EXH-4 | covered | |
 | `exact-head-and-evidence.md#exact-pinning` | R-EXH-5 | covered | Lock records source, consumer, assembler, layout, environment, sections used and closure; `scripts/verify_core.py` checks digests and, with `--upstream`, the tag |

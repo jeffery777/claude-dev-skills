@@ -42,8 +42,35 @@ Repeat until the objective is complete or a stop condition holds (R-AUTH-5):
    objective. A listed node that is still
    `planned` moves to `ready` first. A `STRANDED` warning in the `ready` output means a dependency
    was cancelled: re-plan that edge with `dev-plan` or cancel the node.
-2. **Dispatch.** Run the node in this session, or delegate it to one subagent
-   with a brief from `${CLAUDE_SKILL_DIR}/references/task-brief.md`.
+2. **Dispatch.** By default, run the node in this session. Delegate only
+   bounded work that is independent, verifiable and improves quality or time
+   (Core `workflow.md#wf-delegation`). Delegate the node to one subagent with
+   a brief from `${CLAUDE_SKILL_DIR}/references/task-brief.md` when any of
+   these applies (Issue #73, C5):
+   - read-only work that can run in parallel with other read-only work, or a
+     broad read whose conclusion is all this session needs;
+   - a context too large for this session;
+   - a required review or scan: it always goes to an independent subagent
+     (R-REV-1, R-REV-9);
+   - this session does not meet the R-DEL-2 floor of the node, and the user
+     does not switch it (floor check below);
+   - the user asks for delegation.
+
+   Floor check before running or writing a node: before this session runs
+   any node under the R-DEL-2 floor (explore, implement or docs), and again
+   before it fixes or writes any part of such a node itself (a fix round, a
+   re-applied change, a record line in an owned file), it reads its own
+   model and effort (R-DEL-2) and compares them with the floor and the row
+   of the node below. When the model is not `opus`, the effort is below
+   `high`, or either is `unknown`, ask the user to switch, or dispatch the
+   node or the fix at `opus`/`high` (`dev-explorer` for explore,
+   `dev-implementer` for implement or docs). Never run or implement first
+   and check later (decision I69-M1). The plan records the values and the
+   choice. Other kinds are outside this check: a review or scan always goes
+   to a subagent; a `verify` node runs the deterministic checks that it
+   names; a `gate` decides readiness from recorded evidence, and its reviews
+   and scans go to subagents; a `human_gate` is the user's decision.
+
    Read-only nodes (explore, review) may run in parallel with each other when
    their targets are fixed and independent (R-CAP-2). Never run two writers
    at once. Choose the agent, model and effort per node before the dispatch,
@@ -54,10 +81,10 @@ Repeat until the objective is complete or a stop condition holds (R-AUTH-5):
    | --- | --- | --- |
    | explore | `dev-explorer` | haiku/low; sonnet/medium for synthesis; opus/high when the objective is security, data, migration or public-contract work (R-DEL-2 floor) |
    | implement, docs | `dev-implementer` | `light`: sonnet/medium, or opus/high for a cross-module or unclear slice; `standard`: opus/high, or sonnet/medium for a mechanical, clearly bounded slice in one module; `strict`: opus/high; opus/high whenever the R-DEL-2 floor applies |
-   | review (routine) | `dev-reviewer` | opus/high |
+   | review (routine) | `dev-reviewer` | opus/high; `light`: sonnet/medium unless an escalation trigger in `dev-review` applies |
    | review (deep) | `dev-reviewer` | opus/xhigh |
    | review (security) | `dev-security-reviewer` | opus/xhigh; max only when the user asks |
-   | commit / push scan (R-REV-9) | `dev-security-reviewer` | opus/xhigh |
+   | commit / push scan, and merge readiness (R-REV-9) | `dev-security-reviewer` | opus/xhigh |
 
    When the main session implements a node itself, the implement row is the
    level that the plan compares with the session's recorded effort; for work
@@ -76,8 +103,9 @@ Repeat until the objective is complete or a stop condition holds (R-AUTH-5):
 5. **Review** each write node through its `review` mode with `dev-review`.
    The reviewer gets a fresh context and tries to disprove the change.
    Classify each finding before you fix it, and keep fixes inside the
-   requirements (R-REV-4). Fix and re-review. Apply the re-assessment and
-   the stop rule of R-VER-2.
+   requirements (R-REV-4). Fix and re-review; before this session fixes any
+   part of a node under the R-DEL-2 floor itself, run the floor check of
+   step 2 again. Apply the re-assessment and the stop rule of R-VER-2.
    When a review and fix round is complete, run the handoff evaluation of
    `dev-continue` (D-012).
 6. **Docs sync** with `dev-docs` once behavior has settled.

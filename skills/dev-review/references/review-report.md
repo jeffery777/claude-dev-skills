@@ -9,6 +9,7 @@
 - Commit / push scan only (R-REV-9): sha256 of `git --no-replace-objects diff --cached --no-relative --binary --no-textconv --no-ext-diff --ignore-submodules=none --submodule=short`, or the refs and commit range the push sends and the remote object IDs given, or the PR or Issue text; the author, committer and message checked (masked)
 - Reviewer: <agent> (requested model/effort: <model>/<effort>; recorded: (main agent fills in, R-DEL-2); effective: unknown)
 - Scope: <paths>  Requirements: REQ-…  DoD: <ref>
+- `light` routine review at `sonnet`/`medium` only (`dev-review` "Choose the mode"): triggers 1 to 3, each `holds` or `does not hold`; a missing answer counts as trigger 5
 - Writing: written per ASD-STE100 principles; full conformance not verified (R-WRT-1)
 
 ## Findings

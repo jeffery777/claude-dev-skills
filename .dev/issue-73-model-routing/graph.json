@@ -1,0 +1,45 @@
+{
+  "schema": "claude-dev-graph/v1",
+  "objective": {
+    "id": "issue-73-model-routing",
+    "title": "Issue #73: light routine review at sonnet with escalation triggers (C4); Dispatch defaults to the main session with a floor check before each node and each write under the floor (C5); C3 deferred to FU-034",
+    "rigor": "standard",
+    "requirements": [
+      "REQ-009"
+    ]
+  },
+  "nodes": [
+    {
+      "id": "T1",
+      "title": "C4 and C5 in dev-core, dev-review (with review-report.md), dev-deliver, task-brief, deltas, design proposal (both languages, D-022), REQ-009, log, CHANGELOG and followups (C3 deferred to FU-034; floor-check entry points to FU-035)",
+      "kind": "docs",
+      "requirements": [
+        "REQ-009"
+      ],
+      "depends_on": [],
+      "owns": [
+        "skills/dev-core/SKILL.md",
+        "skills/dev-core/deltas.md",
+        "skills/dev-review/SKILL.md",
+        "skills/dev-review/references/review-report.md",
+        "skills/dev-deliver/SKILL.md",
+        "skills/dev-deliver/references/task-brief.md",
+        "docs/design-proposal.md",
+        "docs/requirements/REQ-009-subagent-model-effort.md",
+        "docs/requirements/log.md",
+        "CHANGELOG.md",
+        ".dev/followups.md",
+        ".dev/issue-73-model-routing/"
+      ],
+      "risk": "medium",
+      "review": "deep",
+      "status": "reviewing",
+      "dod": [
+        "Every copy states C4 and C5 as plan.md says after review rounds 1 to 3 (C4: light routine review at sonnet/medium with the dev-review triggers, the reviewer's answer for each of triggers 1 to 3, a missing answer counting as trigger 5, opus/high for the rest of the node once a trigger applies; C5: Dispatch default and delegation conditions, floor check before each node under the floor and before each fix or write of such a node), with the same values and conditions in both languages of the design proposal; C3 is deferred to FU-034, the R-DEL-2 floor has no exception and text scans stay opus/xhigh; REQ-011 and the R-REV-9 text equal f7b2ea8; validate.sh passes; deep review and Security Diff Scan have no open MUST-FIX or SHOULD-FIX"
+      ],
+      "verify": [
+        "bash scripts/validate.sh"
+      ]
+    }
+  ]
+}

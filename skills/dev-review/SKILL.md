@@ -20,10 +20,36 @@ Review stays read-only unless the user asks for fixes (R-REV-1).
 
 | Mode | When | Reviewer |
 | --- | --- | --- |
-| routine | low or medium risk | `dev-reviewer`, model `opus`, effort `high` |
+| routine | low or medium risk | `dev-reviewer`, model `opus`, effort `high`; at the `light` tier, model `sonnet`, effort `medium` unless an escalation trigger below applies |
 | deep | high or unknown risk, cross-module contracts, packaging, migrations, integrations (R-REV-6) | `dev-reviewer`, model `opus`, effort `xhigh` |
 | security | trust boundaries, auth, permissions, sensitive data, dependencies, installers (R-REV-7) | `dev-security-reviewer`, model `opus`, effort `xhigh` (`max` only when the user asks, R-DEL-2) |
-| commit / push scan | before every commit and every push, at any tier (R-REV-9) | `dev-security-reviewer`, model `opus`, effort `xhigh` |
+| commit / push scan | before every commit and every push, and at merge readiness, at any tier (R-REV-9) | `dev-security-reviewer`, model `opus`, effort `xhigh` |
+
+Escalation triggers for `light` routine review (Issue #73, C4). Decide them
+before the dispatch from the diff and the plan, and check them again after
+the review. When any of them applies, the routine review uses model `opus`,
+effort `high`:
+
+1. The R-DEL-2 floor applies: security, a trust boundary or another R-REV-7
+   case, data, persistent state, migration, or a public contract.
+2. The change touches packaging, installation, CI or dependencies.
+3. The change touches more than one module.
+4. A finding is disputed: the main agent or the author rejects a finding, or
+   two reviews of the same change disagree.
+5. The reviewer reports a part of the target that it could not check.
+
+A trigger found after the review re-runs the review at `opus`/`high` on the
+same target; the first report and its findings stay. The brief of a `light`
+routine review at `sonnet`/`medium` lists triggers 1 to 3 and asks the
+reviewer to report, for each of them, whether it holds (card I73-R2-C2 (a)). When the
+reviewer reports one, the review re-runs at `opus`/`high`, as for trigger 5,
+and the node keeps `opus`/`high`. A report that does not say, for each of
+triggers 1 to 3, whether it holds counts as trigger 5: the review re-runs at
+`opus`/`high` (card I73-R3-C1 (a)). Once a trigger applies
+to a node, every later review round of that node uses `opus`/`high`, never
+`sonnet`/`medium` again (R-DEL-2: an escalated setting is never lowered for
+the rest of the node). The `standard` and `strict` tiers always use
+`opus`/`high` for routine review.
 
 Decide the mode from the actual impact, not the file type (R-REV-7). When unsure, use
 the stronger mode. A required security review or scan always uses
@@ -31,7 +57,8 @@ the stronger mode. A required security review or scan always uses
 
 For a commit / push scan, the target is exactly what will be published: the
 staged diff plus the author, committer, message and trailers the commit will
-carry, or everything the push sends, or the PR or Issue text to be posted (R-REV-9).
+carry, or everything the push sends, or the range and the merge or squash
+commit at merge readiness, or the PR or Issue text to be posted (R-REV-9).
 Review records are committed or posted too, so both reviewer agents mask any
 secret or private identifier they report (R-REV-8).
 
@@ -76,7 +103,9 @@ secret or private identifier they report (R-REV-8).
    Once a PR exists, store the records of a review of its head by
    R-EXH-3.
 6. When fixes follow, apply them with `dev-implement` or `dev-docs`, then
-   re-review proportionally (R-REV-4). Before a push, an independent
+   re-review proportionally (R-REV-4). Before the main session fixes a node
+   under the R-DEL-2 floor itself, the floor check of `dev-deliver` step 2
+   runs first. Before a push, an independent
    reviewer confirms the fixes in a narrow review. Apply the re-assessment
    and the stop rule of R-VER-2.
 

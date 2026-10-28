@@ -3,7 +3,7 @@
   "objective": {
     "id": "issue-73-model-routing",
     "title": "Issue #73: light routine review at sonnet with escalation triggers (C4); Dispatch defaults to the main session with a floor check before each node and each write under the floor (C5); C3 deferred to FU-034",
-    "rigor": "standard",
+    "rigor": "strict",
     "requirements": [
       "REQ-009"
     ]

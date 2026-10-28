@@ -367,6 +367,28 @@ Cowork runtime test). At that release,
   is deferred to FU-034 by the user: the floor has no exception, and text
   scans before posting stay `opus`/`xhigh`. Agent file defaults do not
   change.
+- Model and effort of started sessions and subagents; tier re-assessment
+  at Discover (REQ-009, REQ-003, D-023, Issue #75; user answer
+  「D1 a，D2 a，D3 a，D4 b（全域那一行由你加），D5 a，D6 b」; DL-034, DL-039). R-DEL-2: the
+  main agent does not change its own model or effort; when it starts a
+  session or a subagent, it chooses and sets that model and effort by
+  R-DEL-2 and the `dev-deliver` table where the host lets it, never below
+  the floor, and tells the user each requested value with the reason and
+  later the recorded value or `unknown`; only the user loosens a floor; for
+  these choices, a relayed user answer counts when it quotes the user's
+  words (current practice; R-AUTH-1 unchanged), and a relayed loosening of
+  a floor counts only after the user confirms it in the session that acts
+  on it. The `dev-deliver` Output and the
+  `dev-continue` new-session offer give these values. R-RIG-1: `strict`
+  adds a change to a security rule and packaging, every change to the rule
+  text of a skill pack in a public repository is public-contract work, and
+  `strict` asks for an early deep and security review of the design before
+  implementation and an early deep code review as soon as code exists
+  (R-REV-6). R-RIG-2: a tier written before Discover, for example in
+  an Issue or a brief, is a proposal that Discover re-assesses; only the
+  user's decision lowers it, and a relayed decision to lower it counts only
+  after the user confirms it in this session. The R-DEL-2 floor list does
+  not change (FU-036 evaluates it).
 
 ### Fixed
 
@@ -435,6 +457,14 @@ Cowork runtime test). At that release,
   added tool, a removed or changed `disallowedTools`, a missing or renamed
   file, an oversized file and a name collision. The cases of FU-033 also
   get negative tests. The agent files do not change.
+- Issue #73 follow-up records (Issue #75 items 1 to 3; user decision
+  「I73-M1 選 a，接受偏差 2～5，同意合併 PR #74」). MR73D-001: the
+  `dev-deliver` table row is now `commit / push scan, and the merge
+  readiness scan (R-REV-9)`, and DL-034 and D-022 trace the scans to
+  REQ-011 and their `xhigh` value to REQ-009 card C5b. MR73D-002: the
+  `dev-deliver` description says "run or dispatch each node". MR73D-003
+  and MR73D-004: the Issue #73 plan and graph record the rigor as
+  `strict`, and review round 4 records the recorded value `unknown`.
 
 ### Security
 

@@ -1,6 +1,6 @@
 ---
 name: dev-deliver
-description: Drive a larger bounded objective end to end - plan, task graph, dispatch slices to subagents, integrate, verify, review, docs sync and gate - stopping only at real human gates. Use when the user delegates a multi-step feature or project; use the focused dev-* skill directly for a single clear task.
+description: Drive a larger bounded objective end to end - plan, task graph, run or dispatch each node, integrate, verify, review, docs sync and gate - stopping only at real human gates. Use when the user delegates a multi-step feature or project; use the focused dev-* skill directly for a single clear task.
 allowed-tools:
   - Read(/${CLAUDE_PLUGIN_ROOT}/skills/**)
   - Read(/${CLAUDE_PLUGIN_ROOT}/vendor/engineering-workflow-core/contracts/**)
@@ -84,7 +84,7 @@ Repeat until the objective is complete or a stop condition holds (R-AUTH-5):
    | review (routine) | `dev-reviewer` | opus/high; `light`: sonnet/medium unless an escalation trigger in `dev-review` applies |
    | review (deep) | `dev-reviewer` | opus/xhigh |
    | review (security) | `dev-security-reviewer` | opus/xhigh; max only when the user asks |
-   | commit / push scan, and merge readiness (R-REV-9) | `dev-security-reviewer` | opus/xhigh |
+   | commit / push scan, and the merge readiness scan (R-REV-9) | `dev-security-reviewer` | opus/xhigh |
 
    When the main session implements a node itself, the implement row is the
    level that the plan compares with the session's recorded effort; for work
@@ -121,7 +121,8 @@ Repeat until the objective is complete or a stop condition holds (R-AUTH-5):
 ## Output
 
 Per iteration: the node advanced, the evidence, open findings, the next ready
-node and the gates. At the end: the requirement trace, the final gate result,
+node, the gates, and for each session and subagent started, the requested
+model and effort and the recorded value or `unknown` (R-DEL-2). At the end: the requirement trace, the final gate result,
 residual risk and the Lesson candidates section (R-VER-5). Give every
 decision for the user, including each `REQ-GAP`, as
 a decision card (`${CLAUDE_SKILL_DIR}/../dev-review/references/decision-card.md`)

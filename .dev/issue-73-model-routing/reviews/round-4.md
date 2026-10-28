@@ -7,9 +7,11 @@ prefix `ef3cf16f`; HEAD and `git status --porcelain` equal at start and end).
   `opus`/`high` (floor met). Card I73-R3-C1 (a) named `dev-implementer` for
   the change; the main session made it itself because its setting met the
   floor (recorded deviation from the card's wording, reported to the user).
-- Deep review R4: `dev-reviewer`, requested `opus`/`xhigh`; effective
-  `unknown`. PASS; five NITs and one SCOPE-CREEP. The decided sentence is in
-  every copy with the same meaning.
+- Deep review R4: `dev-reviewer`, requested `opus`/`xhigh`; recorded
+  `unknown` (not read back); the dispatch table of the Issue #73 merge card
+  lists `opus`/`xhigh` (added later, Issue #75); effective `unknown`. PASS;
+  five NITs and one SCOPE-CREEP. The decided sentence is in every copy with
+  the same meaning.
 
 ## Findings and dispositions (all Fixed by the main session at `opus`/`high`)
 

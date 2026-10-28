@@ -71,7 +71,8 @@ interactive planning, use plan mode; this skill adds what plan mode lacks
    - Ingest applies to every tier. If the user declines to create the wiki,
      list the requirements inline in the plan with the same `sources`
      fields, and say that no REQ files exist.
-3. **Assess risk and choose a tier** (R-RIG-1, R-RIG-2, R-REV-6). Write the
+3. **Assess risk and choose a tier** (R-RIG-1; R-RIG-2: a tier written
+   before Discover is a proposal; R-REV-6). Write the
    reason. Unknown risk means `standard` or higher.
 4. **Check impact** (advisory). When GitNexus has indexed the repo, run
    `gitnexus impact <symbol>` for the symbols you plan to change. Report the

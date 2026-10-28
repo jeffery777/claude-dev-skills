@@ -1,0 +1,4 @@
+{"seq": 1, "at": "2026-10-28T07:51:07+00:00", "actor": "dev-implementer", "node": "T1", "from": "planned", "to": "ready", "evidence": "cfc35650 (T1 candidate diff prefix)"}
+{"seq": 2, "at": "2026-10-28T07:51:07+00:00", "actor": "dev-implementer", "node": "T1", "from": "ready", "to": "in_progress", "evidence": "cfc35650 (T1 candidate diff prefix)"}
+{"seq": 3, "at": "2026-10-28T07:51:07+00:00", "actor": "dev-implementer", "node": "T1", "from": "in_progress", "to": "reviewing", "evidence": "cfc35650 (T1 candidate diff prefix)"}
+{"seq": 4, "at": "2026-10-28T08:18:04+00:00", "actor": "dev-implementer", "node": "T1", "from": "reviewing", "to": "done", "evidence": "7bdb9bb5 R3 PASS; S2 PASS"}

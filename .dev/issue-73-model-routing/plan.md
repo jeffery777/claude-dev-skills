@@ -8,6 +8,7 @@
   the pack publishes (public contract) and the R-DEL-2 floor of security
   work, so the review is deep and a Security Diff Scan runs (R-REV-7: agent
   tool and model policy of a security scan).
+- Correction (Issue #75): by R-RIG-1 this was `strict` work (public contract).
 - Base: `main` f7b2ea8, branch `73-model-routing`.
 
 ## Requirement trace

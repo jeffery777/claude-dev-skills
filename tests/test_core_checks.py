@@ -299,6 +299,95 @@ class FrontMatterGuards(unittest.TestCase):
         self.assertEqual(code, 1)
         self.assertIn("  - agents/dev-reviewer.md: larger than AGENT_MAX_BYTES (65536 bytes)", out)
 
+    def test_pinned_agent_settings(self):  # R-DEL-2, Issue #77 (cards I77-C1 (a), I77-C5 (a); S3-06, S3-07, S3-08)
+        self.assertEqual(load("check_pack").PINNED_AGENT_SETTINGS, {
+            "dev-implementer": {"model": "opus", "effort": "high"},
+            "dev-reviewer": {"model": "opus", "effort": "high"},
+            "dev-security-reviewer": {"model": "opus", "effort": "xhigh"}})
+        pins = {"dev-implementer": "high", "dev-reviewer": "high", "dev-security-reviewer": "xhigh"}
+        for stem, effort in pins.items():
+            rel = os.path.join("agents", stem + ".md")
+            for model in ("sonnet", "haiku", "fable", "inherit"):  # lower, other and inherited models
+                with self.subTest(stem=stem, model=model):
+                    code, out = self.check(rel, "\nmodel: opus\n", f"\nmodel: {model}\n")
+                    self.assertEqual(code, 1)
+                    self.assertIn(f"  - {rel}: pinned agent must have the line 'model: opus' for model, found "
+                                  f"{model!r}", out)
+            for level in ("low", "medium", "high", "xhigh", "max"):  # a lower and a higher value both fail
+                if level == effort:
+                    continue
+                with self.subTest(stem=stem, effort=level):
+                    code, out = self.check(rel, f"\neffort: {effort}\n", f"\neffort: {level}\n")
+                    self.assertEqual(code, 1)
+                    self.assertIn(f"  - {rel}: pinned agent must have the line 'effort: {effort}' for effort", out)
+        implementer = os.path.join("agents", "dev-implementer.md")
+        for case, old, new in (
+                ("full model ID", "\nmodel: opus\n", "\nmodel: claude-opus-5-5\n"),
+                ("model line removed", "\nmodel: opus\n", "\n"),
+                ("effort line removed", "\neffort: high\n", "\n"),
+                ("duplicate key, lower value last", "\nmodel: opus\n", "\nmodel: opus\nmodel: sonnet\n"),
+                ("quote over the pinned lines", "\ndescription: Bounded", "\ndescription: \"Bounded"),
+                ("trailing comment", "\neffort: high\n", "\neffort: high # pinned\n"),
+                ("CRLF on a pinned line", "\neffort: high\n", "\neffort: high\r\n")):
+            with self.subTest(case=case):
+                code, out = self.check(implementer, old, new, same_file=True)
+                self.assertEqual(code, 1)
+        with open(os.path.join(ROOT, implementer), encoding="utf-8", newline="") as fh:
+            text = fh.read()
+        low = text.replace("\nmodel: opus\neffort: high\n", "\nmodel: sonnet\neffort: medium\n", 1)
+        self.assertNotEqual(low, text)
+        def write(name, body):
+            def change(tmp):
+                with open(os.path.join(tmp, "agents", name), "w", encoding="utf-8", newline="") as fh:
+                    fh.write(body)
+            return change
+        # a quote that opens in the description and closes after the pinned lines, with lower values after it:
+        # a YAML reader takes opus/high as part of the description; raw_values reads opus/high, so the value
+        # grammar must stop it at the opening quote (round 2 findings I77-R2-01, I77-RS2-01)
+        hidden = text.replace("\ndescription: Bounded", "\ndescription: \"Bounded", 1).replace(
+            "\neffort: high\n", "\neffort: high\ncolor: green\"\nmodel: sonnet\neffort: medium\n", 1)
+        self.assertEqual(hidden.split("\n---\n", 1)[0].count("\""), 2)  # both quotes are in the front matter
+        code, out = self.check_tree(write("dev-implementer.md", hidden), same_file=implementer)
+        self.assertEqual(code, 1)
+        self.assertIn(f"  - {implementer}: front matter line 3: a value must not start with", out)
+        def remove(tmp):
+            os.remove(os.path.join(tmp, implementer))
+        code, out = self.check_tree(remove)  # one error for the missing pinned agent
+        self.assertEqual(code, 1)
+        self.assertIn("  - agents/dev-implementer.md: missing; the read-only agents", out)
+        def rename_case(tmp):
+            remove(tmp)
+            write("Dev-Implementer.md", text.replace("\nname: dev-implementer\n", "\nname: Dev-Implementer\n", 1))(tmp)
+        code, out = self.check_tree(rename_case, count=2)
+        self.assertEqual(code, 1)
+        self.assertIn("  - agents/dev-implementer.md: missing; the read-only agents", out)
+        self.assertIn("  - agents/Dev-Implementer.md: the name equals the pinned agent 'dev-implementer'", out)
+        code, out = self.check_tree(write("dev_implementer.md", low.replace(
+            "\nname: dev-implementer\n", "\nname: dev_implementer\n", 1)))
+        self.assertEqual(code, 1)
+        self.assertIn("  - agents/dev_implementer.md: the name equals the pinned agent 'dev-implementer'", out)
+        def moved(tmp):  # another file name that keeps the dispatch name, with lower values
+            remove(tmp)
+            write("implementer.md", low)(tmp)
+        code, out = self.check_tree(moved, count=2)
+        self.assertEqual(code, 1)
+        self.assertIn("  - agents/dev-implementer.md: missing; the read-only agents", out)
+        self.assertIn("  - agents/implementer.md: name must equal the file name", out)
+        code, out = self.check_tree(write("other.md", low),  # a second file with the same dispatch name
+                                    same_file=os.path.join("agents", "other.md"))
+        self.assertEqual(code, 1)
+        code, out = self.check_tree(write("dev-implementer.md", text + "x" * 65536 + "\n"))  # past AGENT_MAX_BYTES
+        self.assertEqual(code, 1)
+        self.assertIn("  - agents/dev-implementer.md: larger than AGENT_MAX_BYTES (65536 bytes)", out)
+        outside = tempfile.mkdtemp()  # the link target is outside the tree, so only the link is reported
+        self.addCleanup(shutil.rmtree, outside)
+        def symlinked(tmp):
+            path = os.path.join(tmp, implementer)
+            os.rename(path, os.path.join(outside, "dev-implementer.md"))
+            os.symlink(os.path.join(outside, "dev-implementer.md"), path)
+        code, out = self.check_tree(symlinked, same_file=implementer)
+        self.assertEqual(code, 1)
+
     def test_fu033_cases(self):  # CB-7, FU-033: cases that REQ-028 acceptance names; each gives one clear error
         agent, skill = os.path.join("agents", "dev-reviewer.md"), os.path.join("skills", "dev-core", "SKILL.md")
         market = os.path.join(".claude-plugin", "marketplace.json")

@@ -29,10 +29,10 @@
 - skills/, agents/ and vendor/ are not symlinks; no symlink and no hardlinked regular file
   under skills/ or vendor/ (CB-7);
 - every agents/*.md has name == file stem, a description, a model alias and an effort level;
-- every read-only agent file (stem in READ_ONLY_AGENTS) is at most AGENT_MAX_BYTES bytes, this
+- every read-only or pinned agent file (stem in REQUIRED_AGENTS) is at most AGENT_MAX_BYTES bytes, this
   repository's own lower limit; Claude Code skips an agent file over 1,048,576 bytes (inferred
   from reading the Claude Code 2.1.310 code, not run; Issue #69 R69S1-002);
-- the read-only agents in READ_ONLY_AGENTS exist as regular files named in exact case, no other
+- the read-only and pinned agents in REQUIRED_AGENTS exist as regular files named in exact case, no other
   agent file stem equals one of their names after agent_key normalization (NFKC, casefold, no
   whitespace, `_` or Pd dash; inferred from reading the Claude Code 2.1.310 code, not run: when
   no agent has the exact dispatch name and exactly one agent matches after normalization, Claude
@@ -42,6 +42,10 @@
   specifier) and no removed `disallowedTools` passes, whatever split rule Claude Code uses
   (Issue #69, MR67V-001). They keep Bash; read-only Bash use is enforced by instructions, not
   by this check (CB-5);
+- the raw `model` and `effort` values of each agent in PINNED_AGENT_SETTINGS equal the pinned
+  values exactly, so a lower and a higher value both fail (R-DEL-2, Issue #77). This checks the
+  file text only; whether the host applies the values rests on the controlled test that REQ-009
+  records;
 - every ${CLAUDE_SKILL_DIR}/... path named in a skill exists;
 - every REQ file in docs/requirements/ has closed front matter, an id matching its
   name, a valid status, typed relations as REQ-id lists, and sources entries with
@@ -71,7 +75,14 @@ READ_ONLY_AGENTS = {  # CB-5, DL-009: stem -> the exact raw tools and disallowed
     "dev-reviewer": {"tools": "Read, Grep, Glob, Bash", "disallowedTools": "Edit, Write, NotebookEdit"},
     "dev-security-reviewer": {"tools": "Read, Grep, Glob, Bash", "disallowedTools": "Edit, Write, NotebookEdit"},
 }
-AGENT_MAX_BYTES = 65536  # Issue #69 R69S1-002: this repository's own lower limit for a read-only agent file (ours
+PINNED_AGENT_SETTINGS = {  # R-DEL-2, Issue #77: stem -> the exact raw model and effort values; they protect a dispatch
+    # that leaves out a value. A change needs a change of check_pack.py with review
+    "dev-implementer": {"model": "opus", "effort": "high"},
+    "dev-reviewer": {"model": "opus", "effort": "high"},
+    "dev-security-reviewer": {"model": "opus", "effort": "xhigh"},
+}
+REQUIRED_AGENTS = sorted(set(READ_ONLY_AGENTS) | set(PINNED_AGENT_SETTINGS))
+AGENT_MAX_BYTES = 65536  # Issue #69 R69S1-002: this repository's own lower limit for a read-only or pinned agent file (ours
 # are < 10 KB); Claude Code skips an agent file over 1,048,576 bytes (inferred from reading the 2.1.310 code, not run)
 SOURCE_TYPES = {"doc", "chat", "issue", "commit", "external"}
 SKILL_ALLOWED_TOOLS = [  # CB-7: the only grant a skill declares; never widen it
@@ -109,7 +120,7 @@ front_block = graph.frontmatter_lines
 def raw_values(path: str) -> dict[str, str]:
     """The raw text after `key: ` of the first column-0 line of each key in the front matter (Issue #69).
 
-    No YAML parsing: the pinned READ_ONLY_AGENTS values are compared with this text, so the
+    No YAML parsing: the pinned READ_ONLY_AGENTS and PINNED_AGENT_SETTINGS values are compared with this text, so the
     check does not depend on how Claude Code splits a tools list. raw_front_matter_problem
     reports duplicate keys and other line forms.
     """
@@ -382,21 +393,24 @@ def main() -> int:
     agent_mds: list[str] = []
     agents_dir = os.path.join(ROOT, "agents")
     agent_names = sorted(os.listdir(agents_dir)) if os.path.isdir(agents_dir) else []
-    for stem in sorted(READ_ONLY_AGENTS):  # CB-4 names in exact case (Issue #69 R69R1-001); a missing file is reported
+    for stem in REQUIRED_AGENTS:  # CB-4 names in exact case (Issue #69 R69R1-001; Issue #77); a missing file is reported
         if stem + ".md" not in agent_names or not stat.S_ISREG(os.lstat(os.path.join(agents_dir, stem + ".md")).st_mode):
-            errors.append(f"agents/{stem}.md: missing; the read-only agents {sorted(READ_ONLY_AGENTS)} must exist (CB-4)")
-    read_only_keys = {agent_key(stem): stem for stem in READ_ONLY_AGENTS}
+            errors.append(f"agents/{stem}.md: missing; the read-only agents {sorted(READ_ONLY_AGENTS)} and the pinned "
+                          f"agents {sorted(PINNED_AGENT_SETTINGS)} must exist (CB-4, Issue #77)")
+    required_keys = {agent_key(stem): stem for stem in REQUIRED_AGENTS}
     for name in agent_names:
         path = os.path.join(agents_dir, name)
         stem = name[:-3] if name.endswith(".md") else name
-        if stem not in READ_ONLY_AGENTS and agent_key(stem) in read_only_keys:  # Issue #69 R69S1-002
-            errors.append(f"agents/{name}: the name equals the read-only agent {read_only_keys[agent_key(stem)]!r} after "
-                          f"normalization (case, NFKC, whitespace, '_', dashes); Claude Code may dispatch it (CB-5)")
+        if stem not in REQUIRED_AGENTS and agent_key(stem) in required_keys:  # Issue #69 R69S1-002; Issue #77
+            match = required_keys[agent_key(stem)]
+            role, rule = ("read-only agent", "CB-5") if match in READ_ONLY_AGENTS else ("pinned agent", "R-DEL-2, Issue #77")
+            errors.append(f"agents/{name}: the name equals the {role} {match!r} after "
+                          f"normalization (case, NFKC, whitespace, '_', dashes); Claude Code may dispatch it ({rule})")
         if name.startswith(".") or not name.endswith(".md") or not stat.S_ISREG(os.lstat(path).st_mode):
             errors.append(f"agents/{name}: agents/ may hold only non-hidden regular files named *.md; " + CLOSED_WORLD_HINT)
-        elif stem in READ_ONLY_AGENTS and os.lstat(path).st_size > AGENT_MAX_BYTES:
+        elif stem in REQUIRED_AGENTS and os.lstat(path).st_size > AGENT_MAX_BYTES:
             errors.append(f"agents/{name}: larger than AGENT_MAX_BYTES ({AGENT_MAX_BYTES} bytes), this repository's "
-                          f"limit for a read-only agent file; Claude Code skips an agent file over 1,048,576 bytes "
+                          f"limit for a read-only or pinned agent file; Claude Code skips an agent file over 1,048,576 bytes "
                           f"(inferred from the 2.1.310 code, not run; Issue #69 R69S1-002)")
         elif problem := utf8_problem(path):
             errors.append(f"agents/{name}: {problem} (CB-7)")
@@ -428,6 +442,12 @@ def main() -> int:
                     want = "no line" if pinned is None else f"the line '{key}: {pinned}'"
                     errors.append(f"{rel}: read-only agent must have {want} for {key}, found "
                                   f"{raw.get(key)!r} (CB-5, Issue #69)")
+        if stem in PINNED_AGENT_SETTINGS:
+            raw = raw_values(agent_md)
+            for key, pinned in PINNED_AGENT_SETTINGS[stem].items():
+                if raw.get(key) != pinned:
+                    errors.append(f"{rel}: pinned agent must have the line '{key}: {pinned}' for {key}, found "
+                                  f"{raw.get(key)!r} (R-DEL-2, Issue #77)")
 
     req_dir = os.path.join(ROOT, "docs", "requirements")
     for req in sorted(p for p in glob.glob(os.path.join(req_dir, "REQ-*.md")) if graph.REQ_FILE_RE.match(os.path.basename(p))):

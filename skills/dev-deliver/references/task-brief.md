@@ -41,4 +41,6 @@ that the runtime writes in the subagent's transcript, never the message text,
 the brief or the receipt, and nothing else from the transcript. When the tool
 could not set the effort or there is no transcript or field to read back, it
 writes `unknown` and names the case, never a path, a session ID or transcript
-text (R-DEL-2).
+text (R-DEL-2). A `reasoning_effort` value in a context, what the subagent says
+about its own setting, and a value inferred from the requested value or from
+the tested-host record of R-DEL-2 are not recorded values (R-DEL-2).

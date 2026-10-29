@@ -1,0 +1,74 @@
+{
+  "schema": "claude-dev-graph/v1",
+  "objective": {
+    "id": "issue-78-relay-edges",
+    "title": "Issue #78: one rule for relayed model and effort answers with a reference value for each node (R-DEL-2, D-025); README explains Discover",
+    "rigor": "strict",
+    "requirements": [
+      "REQ-003",
+      "REQ-005",
+      "REQ-008",
+      "REQ-009",
+      "REQ-022"
+    ]
+  },
+  "nodes": [
+    {
+      "id": "T1",
+      "title": "R-DEL-2 Relayed answers bullet and pointer; section 4, D-023 notes and D-025 (both languages); DL-034; REQ-009; REQ-003 trace; log; CHANGELOG; FU-039 to FU-044",
+      "kind": "docs",
+      "requirements": [
+        "REQ-003",
+        "REQ-005",
+        "REQ-008",
+        "REQ-009",
+        "REQ-022"
+      ],
+      "depends_on": [],
+      "owns": [
+        "skills/dev-core/SKILL.md",
+        "skills/dev-core/deltas.md",
+        "docs/design-proposal.md",
+        "docs/requirements/REQ-003-proportionate-rigor.md",
+        "docs/requirements/REQ-009-subagent-model-effort.md",
+        "docs/requirements/log.md",
+        "CHANGELOG.md",
+        ".dev/followups.md",
+        ".dev/issue-78-relay-edges/plan.md",
+        ".dev/issue-78-relay-edges/reviews/"
+      ],
+      "risk": "high",
+      "review": "deep",
+      "status": "reviewing",
+      "dod": [
+        "The R-DEL-2 Relayed answers bullet and the pointer sentence are in skills/dev-core/SKILL.md once with the design rev 4 text, and the two replaced sentences are gone; section 4, the D-023 notes, D-025, DL-034, REQ-009, the REQ-003 trace, the log rows, the CHANGELOG and FU-039 to FU-044 agree with it in meaning; zh and en agree; log.md only gets new rows; no notes path, session ID or private value; a read of the whole of skills/dev-core/SKILL.md after the change, in parts where the read tool limits it, reaches the last rule (CB-7), and the plan records the byte size; validate.sh passes; graph.py validate passes for this graph; the independent deep review and the Security Diff Scan find no open MUST-FIX or SHOULD-FIX"
+      ],
+      "verify": [
+        "bash scripts/validate.sh"
+      ]
+    },
+    {
+      "id": "T2",
+      "title": "README Discover line (zh :60, en :178)",
+      "kind": "docs",
+      "requirements": [
+        "REQ-003",
+        "REQ-005"
+      ],
+      "depends_on": [],
+      "owns": [
+        "README.md",
+        ".dev/issue-78-relay-edges/t2/"
+      ],
+      "risk": "low",
+      "review": "routine",
+      "status": "reviewing",
+      "dod": [
+        "Both README lines read as in the design; the Discover sentence matches dev-plan step 1 and the rest matches R-RIG-2; no new rule ID; the T2 dispatch record (requested and recorded model and effort) and the T2 review record are in .dev/issue-78-relay-edges/t2/, not in plan.md; validate.sh passes; the routine review at opus/high finds no open MUST-FIX or SHOULD-FIX"
+      ],
+      "verify": [
+        "bash scripts/validate.sh"
+      ]
+    }
+  ]
+}

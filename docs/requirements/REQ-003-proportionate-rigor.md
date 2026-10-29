@@ -18,6 +18,9 @@ sources:
   - type: chat
     locator: "Claude Code session 2026-10-28 (orchestrator relay), user answer to the Issue #75 review round-1 cards I75-R1-C1 to I75-R1-C3 (R1-C3 (b): R-RIG-2 adds that a relayed decision to lower a tier written before Discover counts only after the user confirms it in this session)"
     quote: "R1-C1 a，R1-C2 b，R1-C3 b"
+  - type: issue
+    locator: "GitHub Issue #78 body, Change 1 (finding MR1-001 of the PR #76 Merge Review: the README rigor lines use the word Discover without explaining it)"
+    quote: 'README uses the word "Discover" in the two new lines and does not explain it. Explain it or link the stage.'
 non_goals:
   - Weakening Core obligations to reduce ceremony
 depends_on: []
@@ -36,6 +39,7 @@ Rigor scales with risk, and every change traces back to the user's original requ
 - Work is classified into light, standard and strict tiers with a recorded reason.
 - Additions without a requirement are reported as SCOPE-CREEP findings.
 - Issue #75 item 5 (D-023, DL-039; cards I75-D2 (a) and I75-D4 (b)): R-RIG-1 `strict` names security work (a change to a security rule included), data, migration, public contract, packaging or release; every change to the rule text of a skill pack in a public repository is public-contract work; `strict` asks for an early deep and security review of the design before implementation and an early deep code review as soon as code exists. R-RIG-2: a tier written before Discover, for example in an Issue or a brief, is a proposal; Discover re-assesses it with R-RIG-1 and the plan records the result; the re-assessment may raise the tier, and it lowers such a tier only with the user's decision, with the reason in the plan; a relayed decision to lower it counts only after the user confirms it in this session (card I75-R1-C3 (b)). `dev-plan` step 3 cites R-RIG-2; README and D-004 (both languages) agree.
+- Issue #78 item 1 (finding MR1-001): the README line on a tier written before Discover says what Discover is (the first stage of the work, `dev-plan` step 1), in both languages.
 
 ## Notes
 

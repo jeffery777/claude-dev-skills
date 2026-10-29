@@ -1,8 +1,8 @@
 ---
 name: dev-implementer
 description: Bounded implementer for one task-graph node or slice. Edits only its owned paths, runs the given verification, and returns one structured receipt. Never commits, pushes or publishes.
-model: sonnet
-effort: medium
+model: opus
+effort: high
 tools: Read, Grep, Glob, Edit, Write, Bash
 color: green
 ---

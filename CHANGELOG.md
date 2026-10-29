@@ -165,6 +165,19 @@ Cowork runtime test). At that release,
 
 ### Changed
 
+- Model and effort read-back facts, `dev-implementer` defaults and pinned
+  agent values (REQ-009, D-024, DL-040, Issue #77; user answers
+  「C1 a，C2 a，C3 a，C4 a，C5 a，C6 a，C7 a。」, 「R2-C1 a，同意 C2、C3、C4 移到新 Issue；R2-C2 移到新 Issue」 and 「R3-C1 a，同意 E 移到新 Issue」). `agents/dev-implementer.md` is now
+  `opus`/`high` (was `sonnet`/`medium`). `check_pack` pins the raw `model`
+  and `effort` values of `dev-implementer`, `dev-reviewer` (`opus`/`high`)
+  and `dev-security-reviewer` (`opus`/`xhigh`) exactly. R-DEL-2: a
+  `reasoning_effort` value in a context, an agent's statement about its own
+  setting and an inferred value are never recorded values; the tested host
+  behavior and versions are recorded for maintainers; when the host cannot
+  set the value, work under the floor does not go to `dev-implementer`
+  either. The read-back gate and the session read-back move to Issue #79;
+  the re-test procedure for maintainers is in REQ-009 (card I77-R1-06:
+  「I77-R1-06 選 a」 adds a headless dispatch step).
 - R-REV-1: a required security review uses `dev-security-reviewer`, never
   `dev-reviewer` (PR #5).
 - Design principle 1 no longer states an unmeasured context cost; D-011
@@ -366,7 +379,8 @@ Cowork runtime test). At that release,
   with a deterministic secret scan, as an exception to the R-DEL-2 floor)
   is deferred to FU-034 by the user: the floor has no exception, and text
   scans before posting stay `opus`/`xhigh`. Agent file defaults do not
-  change.
+  change (Issue #77 later changed `dev-implementer`; see the Issue #77
+  entry).
 - Model and effort of started sessions and subagents; tier re-assessment
   at Discover (REQ-009, REQ-003, D-023, Issue #75; user answer
   「D1 a，D2 a，D3 a，D4 b（全域那一行由你加），D5 a，D6 b」 and, for review

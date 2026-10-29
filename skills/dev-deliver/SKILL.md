@@ -79,7 +79,7 @@ Repeat until the objective is complete or a stop condition holds (R-AUTH-5):
 
    | Node | Agent | Model / effort |
    | --- | --- | --- |
-   | explore | `dev-explorer` | haiku/low; sonnet/medium for synthesis; opus/high when the objective is security, data, migration or public-contract work (R-DEL-2 floor) |
+   | explore | `dev-explorer` | haiku/low; sonnet/medium for synthesis; opus/high when the objective is security, data, migration or public-contract work (R-DEL-2 floor; pass the model and the effort: the agent file is haiku/low) |
    | implement, docs | `dev-implementer` | `light`: sonnet/medium, or opus/high for a cross-module or unclear slice; `standard`: opus/high, or sonnet/medium for a mechanical, clearly bounded slice in one module; `strict`: opus/high; opus/high whenever the R-DEL-2 floor applies |
    | review (routine) | `dev-reviewer` | opus/high; `light`: sonnet/medium unless an escalation trigger in `dev-review` applies |
    | review (deep) | `dev-reviewer` | opus/xhigh |

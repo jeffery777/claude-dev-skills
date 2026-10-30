@@ -1,0 +1,43 @@
+{
+  "schema": "claude-dev-graph/v1",
+  "objective": {
+    "id": "issue-85-retest-values",
+    "title": "Issue #85 (Issue #79 slice A): re-test with dispatch values that differ from the agent file (MR77D-01), re-test trigger and owner, floor-check pointer (I77-RS1-04)",
+    "rigor": "strict",
+    "requirements": [
+      "REQ-008",
+      "REQ-009",
+      "REQ-022"
+    ]
+  },
+  "nodes": [
+    {
+      "id": "T1",
+      "title": "REQ-009 sources, Issue #77 note, Issue #79 slice A group and Notes limit; dev-deliver floor-check pointer; FU-045, FU-046, FU-021 note; D-024 residual risk 2 notes (both languages); log row; CHANGELOG",
+      "kind": "docs",
+      "requirements": [
+        "REQ-008",
+        "REQ-009",
+        "REQ-022"
+      ],
+      "depends_on": [],
+      "owns": [
+        "docs/requirements/REQ-009-subagent-model-effort.md",
+        "docs/requirements/log.md",
+        "skills/dev-deliver/SKILL.md",
+        "docs/design-proposal.md",
+        "CHANGELOG.md",
+        ".dev/followups.md"
+      ],
+      "risk": "high",
+      "review": "deep",
+      "status": "reviewing",
+      "dod": [
+        "Every text of design rev 2 (A1 to A3) is in the owned files once, with the existing format and line wrapping; no other rule text changes; R-DEL-2, agent files and check_pack pins are unchanged; no local path, session ID or transcript content; validate.sh passes; the deep review and the Security Diff Scan at opus/xhigh find no open MUST-FIX or SHOULD-FIX"
+      ],
+      "verify": [
+        "bash scripts/validate.sh"
+      ]
+    }
+  ]
+}

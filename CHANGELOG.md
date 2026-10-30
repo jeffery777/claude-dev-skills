@@ -165,6 +165,30 @@ Cowork runtime test). At that release,
 
 ### Changed
 
+- Re-test values, trigger and owner for the model and effort re-test
+  (REQ-009, Issue #85, slice A of Issue #79; user answers relayed by the
+  orchestrator: 「I79-C1 a+d，I79-C2 a」). In the re-test procedure for
+  maintainers, every run that dispatches an agent runs from a
+  `sonnet`/`medium` parent session, which the maintainer starts or sets, and
+  the procedure dispatches `dev-explorer` with `opus`/`high` and
+  `dev-reviewer` with `opus`/`xhigh`, so that the transcript can tell the
+  requested value from the agent file and the parent values (finding
+  MR77D-01). A run whose parent transcript does not record a Sonnet model ID
+  and `medium` on the turn that dispatches is void, and a dispatch step
+  passes only when the subagent transcript records the value that the step
+  expects. The repository maintainer owns the re-test; the trigger is a
+  Claude Code version of a surface that differs from the tested-host record
+  of R-DEL-2, or each update of a surface whose version source shows no
+  version or gives `unknown`; an agent does not look up the version. The
+  `dev-deliver` floor check restates the R-DEL-2 exception for a host that
+  cannot set the model or the effort, so asking the user is the one option
+  left (finding I77-RS1-04); no rule changes. Issue #79 is now a tracking
+  Issue for four slices, one sub-Issue each. Item 7 of Issue #79 (cheaper
+  sources such as `CLAUDE_EFFORT` and host metadata, and a deterministic
+  host version check) moves to FU-045; FU-046, a proposed deferral pending
+  card I85-C1, tracks what a failed re-test step or a re-test result changes
+  in the tested-host record. The procedure text changes; the re-test has not
+  run.
 - One rule for relayed model and effort answers (REQ-009, D-025, DL-034,
   Issue #78; user answers 「I75-M1 選 a，同意合併 PR #76」,
   「D1–D7 選 a，D3 補說明，188 行先列 follow-up」 and, for the design

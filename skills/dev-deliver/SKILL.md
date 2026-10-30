@@ -64,12 +64,17 @@ Repeat until the objective is complete or a stop condition holds (R-AUTH-5):
    of the node below. When the model is not `opus`, the effort is below
    `high`, or either is `unknown`, ask the user to switch, or dispatch the
    node or the fix at `opus`/`high` (`dev-explorer` for explore,
-   `dev-implementer` for implement or docs). Never run or implement first
-   and check later (decision I69-M1). The plan records the values and the
-   choice. Other kinds are outside this check: a review or scan always goes
-   to a subagent; a `verify` node runs the deterministic checks that it
-   names; a `gate` decides readiness from recorded evidence, and its reviews
-   and scans go to subagents; a `human_gate` is the user's decision.
+   `dev-implementer` for implement or docs). When the host cannot set the
+   model or the effort of that dispatch, do not dispatch the node or the fix
+   to an agent whose agent file is below the floor (such as `dev-explorer`),
+   to an agent without an agent file, or to `dev-implementer`, although its
+   agent file is at the floor; ask the user to switch this session
+   (R-DEL-2). Never run or implement first and check later (decision
+   I69-M1). The plan records the values and the choice. Other kinds are
+   outside this check: a review or scan always goes to a subagent; a
+   `verify` node runs the deterministic checks that it names; a `gate`
+   decides readiness from recorded evidence, and its reviews and scans go to
+   subagents; a `human_gate` is the user's decision.
 
    Read-only nodes (explore, review) may run in parallel with each other when
    their targets are fixed and independent (R-CAP-2). Never run two writers

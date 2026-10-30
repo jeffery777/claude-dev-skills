@@ -163,7 +163,7 @@
   5. `workflow.md:76`：「狀態或旁支問題先簡答再續行，除非明確取消／替換目標」。例外是限制「續行」，還是也限制同段前面「保留仍適用成果並重查受影響證據」？第 2 輪（R2-001）與第 3 輪（R3-004）的 reviewer 讀法不同。
   6. `authorization-and-stops.md:21`：破壞性操作列出「刪除／purge／prune」。Core 沒有寫清楚：push 前為了正確判斷要掃描哪些 commit 而 prune 本機 remote-tracking refs（`git fetch --prune`）算不算。使用者在卡片 4 同意記為專案規則；之後的審查（R3-006、MR19-001、MR19-002）又找到 preview、設定讀回與當下確認的問題，所以使用者把它移到 FU-014 另外設計（卡片 8a）。結果（FU-014，Issue #24）：push 前改用 `git ls-remote --heads --tags <remote>` 取得 remote 的狀態，不執行 `git fetch`，所以本專案不再需要 prune。Core 的用語問題仍然存在。
   7. 摘要的做法（沒有單一 Core 行；相關的是 `exact-head-and-evidence.md:58`：衍生副本保留唯一來源，共享 Markdown 不能證明等價）：壓縮過的摘要無法保住 Core 每一句的條件。Issue #18 的三輪審查，每輪都找到新的漏寫義務或少了條件的句子（R-VER-2 停止規則兩次觸發）。建議 Core 在給接口作者的說明中寫明：接口應引用或按需載入權威原文，不要改寫；比 Core 嚴格的接口規則另外列出（與 CF-007、CF-008 相關）。本專案已用 D-020 實作這個做法（CF-007）。
-  8. `authorization-and-stops.md:50`：Core 要求搬移或歸檔前查核必要的 preview，清理前先 dry-run。本專案在搬移、歸檔與清理前都要 dry-run（DL-018，不退步清單 C-1）。Core 的字面是清楚的：只有清理要 dry-run。問題是 Core 是否有意如此：搬移與歸檔只要 preview 就夠，還是也應該 dry-run？證據：Issue #18 第 3 輪的 R3-009（搬移與歸檔前的 dry-run 被誤刪，之後補回）。
+  8. `authorization-and-stops.md:50`：Core 要求搬移、歸檔或清理前都要查核必要的 preview，清理另外要先 dry-run。本專案在搬移、歸檔與清理前都要 dry-run（DL-018，不退步清單 C-1）。Core 的字面是清楚的：只有清理要 dry-run。問題是 Core 是否有意如此：搬移與歸檔只要 preview 就夠，還是也應該 dry-run？證據：Issue #18 第 3 輪的 R3-009（搬移與歸檔前的 dry-run 被誤刪，之後補回）。
   9. `workflow.md:115`：未解或間歇的失敗、安全或資料遺失事件，以及共享或仍被引用的證據，「須依專案有效要求及保護例外適當保留」。本專案無條件保留這些紀錄（DL-023，不退步清單 C-7；DL-023 沒有記錄實例）。Core 沒有寫清楚：專案的要求或例外能不能縮短這些紀錄的保留，還是只決定保留的位置與方式。本專案的無條件保留只在保留時間上比 Core 的字面嚴格；如果保護例外要求移除資料（例如 `authorization-and-stops.md:52` 不能公開的內容），兩者可能衝突，這也是本點要問的。
   10. `review-and-security.md:39`：每次 review 與 scan 綁定「含適用未提交修改」的內容。本專案綁定所有未提交的修改（DL-025，不退步清單 C-20）。Core 沒有寫清楚由誰判斷哪些未提交的修改「適用」。同一個限定詞「適用」也出現在 `exact-head-and-evidence.md:22`「專案提供且適用的 deterministic offline … checks」（本專案 R-EXH-2 寫成執行 repository 的 deterministic checks；DL-026，不退步清單 C-21），Core 同樣沒有說由誰判斷。類似的限定詞在 `review-and-security.md:47`「具有安全影響的 executable」（本專案 R-REV-7 寫成 executables；DL-027，不退步清單 C-22）；但 `:45` 到 `:47` 已規定適用性依權責與政策、依實際影響判斷，所以這一處不需要問誰判斷。三處本專案都省略了限定詞，所以字面上比 Core 嚴格。證據：FU-005 設計審查的 R2-004（FU-005 規格第 8 節第 6 項）。
 - 提議的 Core 修改：在伴讀說明中補上第 1 到 6 點與第 8 到 10 點的明確讀法，以及第 7 點的建議；權威原文要改時，走修改型流程。
@@ -177,7 +177,7 @@
 ### CF-010 什麼算使用者的確認，什麼是轉述（候選）
 
 - 來源：D-025（Issue #78，卡片 I78-D4 (a)）；`dev-core` R-DEL-2 的「Relayed answers」；FU-041；設計審查 finding DS1-06、DS2-02、DS3-05。
-- 問題：Core `auth-scope`（`authorization-and-stops.md:9`、`:11`）規定授權要追溯到有效的使用者指示或適用的核可平台機制，但沒有定義什麼算使用者的確認。另一個 session、agent、hook、工具或背景工作加進 session 的文字，host 可能顯示成使用者的訊息。
+- 問題：Core `auth-scope`（`authorization-and-stops.md:11`）規定授權要追溯到有效的使用者指示或適用的核可平台機制，但沒有定義什麼算使用者的確認。另一個 session、agent、hook、工具或背景工作加進 session 的文字，host 可能顯示成使用者的訊息。
 - 本專案的規則（只用在 R-DEL-2 的 model 與 effort 選擇）：確認是使用者在本 session 自己的訊息；另一個 session、agent、hook、工具、排程或背景工作加進本 session 的文字，即使 host 顯示成使用者的訊息，也不是確認；本 session 分不出是不是使用者自己的訊息時，當成轉述。
 - 證據：沒有實際發生的實例。host 怎麼顯示其他來源加進 session 的文字沒有驗證（D-025 殘餘風險 6、FU-041 第 (2) 項）。DS1-06、DS2-02、DS3-05 是設計審查推論出的風險。
 - 提議的 Core 修改：在 `auth-scope` 的伴讀說明中寫明這個定義，適用於所有需要使用者確認的地方。
@@ -711,7 +711,8 @@ adopt it and the other two projects can re-pin it themselves (REQ-019).
      to CF-007 and CF-008). This project implemented this method with D-020
      (CF-007).
   8. `authorization-and-stops.md:50`: Core asks for a check of the required
-     preview before moving or archiving, and a dry-run before cleaning. This
+     preview before moving, archiving or cleaning, and also a dry-run before
+     cleaning. This
      project asks for a dry-run before moving, archiving and cleaning
      (DL-018, no-regression checklist C-1). The literal Core text is clear:
      only cleaning needs a dry-run. The question is whether Core means it:
@@ -780,7 +781,7 @@ adopt it and the other two projects can re-pin it themselves (REQ-019).
 
 - Origin: D-025 (Issue #78, card I78-D4 (a)); "Relayed answers" in R-DEL-2
   of `dev-core`; FU-041; design review findings DS1-06, DS2-02 and DS3-05.
-- Problem: Core `auth-scope` (`authorization-and-stops.md:9` and `:11`) says
+- Problem: Core `auth-scope` (`authorization-and-stops.md:11`) says
   that authority traces to a valid user instruction or an applicable
   approved platform mechanism, but does not define
   what counts as the user's confirmation. The host can show text that

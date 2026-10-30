@@ -189,6 +189,24 @@ Cowork runtime test). At that release,
 
 ### Changed
 
+- The floor check of a main session covers every write, records included
+  (REQ-009, D-026, DL-041, Issue #91, slice C0 of Issue #79; user answers
+  relayed by the orchestrator: 「I79C0-C1 a，C2 a，C3 a」 and, for the
+  design review round 2 stop card,
+  「I91-R2-C1 c，加逐字比對，做窄範圍第 3 輪」). R-DEL-2 only gets added
+  sentences; every word of its text on main stays, and a deterministic word
+  diff of the eight changed `SKILL.md` files shows no removed word. Records
+  are never exempt: a write of a node under the floor includes every record
+  line, a commit message, Issue or PR text, and a change through a command,
+  a tool or a script. The check runs again before each fix or write, also
+  within one turn. When the check does not pass, the values and the choice
+  go into the reply to the user, and a later turn whose check passes, or the
+  dispatched `dev-implementer`, writes them to the plan. The entry points of
+  `dev-deliver`, `dev-review`, `dev-gate`, `dev-implement`, `dev-docs`,
+  `dev-plan` and `dev-continue` point to the check. FU-035 and FU-021 item
+  (2) are closed; FU-052 tracks the format, the placement and the severity
+  of a check record line.
+
 - `docs/core-feedback.md` is up to date (REQ-019, Issue #84). The record
   states the upstream state on 2026-10-30 (no reply, Core still v0.1.1)
   and gives an overview table. CF-001 to CF-009 get their current status

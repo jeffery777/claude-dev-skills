@@ -1,0 +1,3 @@
+{"seq": 1, "at": "2026-10-30T07:23:02+00:00", "actor": "main", "node": "T1", "from": "planned", "to": "ready", "evidence": "graph.py validate ok; design rev 3 after round 3 (no added sentence wider than main)"}
+{"seq": 2, "at": "2026-10-30T07:23:02+00:00", "actor": "main", "node": "T1", "from": "ready", "to": "in_progress", "evidence": "T1 dispatched to dev-implementer at base 03cc3dd"}
+{"seq": 3, "at": "2026-10-30T07:33:52+00:00", "actor": "main", "node": "T1", "from": "in_progress", "to": "reviewing", "evidence": "validate.sh passed; word diff NO-WORD-REMOVED on the working tree; diff read back"}

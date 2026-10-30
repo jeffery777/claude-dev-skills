@@ -30,6 +30,9 @@ commit, push, PR, merge or other external write (R-REV-5, R-AUTH-1).
 
 ## Workflow
 
+When the main session does this itself for work under the R-DEL-2 floor,
+the floor check of R-DEL-2 applies (`dev-core`).
+
 1. Bind the identity: the repository, the branch, and the exact base, head
    and merge-base SHAs (`git rev-parse`, `git merge-base`). Bind the diff
    identity (`git diff --stat base...head` plus a hash of the diff), and the

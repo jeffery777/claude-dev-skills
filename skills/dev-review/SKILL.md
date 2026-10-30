@@ -100,6 +100,8 @@ secret or private identifier they report (R-REV-8).
    (`${CLAUDE_SKILL_DIR}/references/decision-card.md`); do not fix a
    `REQ-GAP` in the same round (R-REV-3, R-AUTH-6). Save the report to
    `.dev/<objective-id>/reviews/<round>.md` for standard and strict work.
+   When the main session does this itself for work under the R-DEL-2 floor,
+   the floor check of R-DEL-2 applies (`dev-core`).
    Once a PR exists, store the records of a review of its head by
    R-EXH-3.
 6. When fixes follow, apply them with `dev-implement` or `dev-docs`, then

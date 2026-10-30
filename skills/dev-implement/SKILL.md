@@ -16,6 +16,9 @@ and report it (CB-6).
 
 ## Workflow
 
+When the main session does this itself for work under the R-DEL-2 floor,
+the floor check of R-DEL-2 applies (`dev-core`).
+
 1. Read the project instructions, the relevant files and tests, and the Git
    state (R-STG-2). If a task graph node drives this work, read the node and
    move it to `in_progress` with

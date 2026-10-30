@@ -19,6 +19,9 @@ D-012 (REQ-017).
 
 ## Save a checkpoint
 
+When the main session does this itself for work under the R-DEL-2 floor,
+the floor check of R-DEL-2 applies (`dev-core`).
+
 Write `.dev/<objective-id>/checkpoint.md`:
 
 ```markdown
@@ -49,7 +52,9 @@ round, or a stage), evaluate whether the work continues in a new session.
      asking first. D-012 covers this checkpoint commit and no other commit.
      Every commit rule still applies: the `dev-gate` commit gate, the R-REV-9
      scan before the commit, and the `commit_state` setting (CB-1; with `false`, do
-     not commit the checkpoint).
+     not commit the checkpoint). When the main session does this itself for
+     work under the R-DEL-2 floor, the floor check of R-DEL-2 applies
+     (`dev-core`).
    - Once a PR exists, never commit the checkpoint: a commit on the PR
      branch makes a new head that needs a new complete review (R-EXH-3).
      Keep it uncommitted, and post its key points as a PR comment so that
@@ -57,7 +62,9 @@ round, or a stage), evaluate whether the work continues in a new session.
      covers this comment and no other comment. `dev-security-reviewer` scans
      the exact comment text before it is posted (R-REV-9); without that
      scan, do not post. The checkpoint points to the review and gate records
-     and does not repeat them.
+     and does not repeat them. When the main session does this itself for
+     work under the R-DEL-2 floor, the floor check of R-DEL-2 applies
+     (`dev-core`).
    - Offer a new session through the app's native session handoff (for
      example a new-session card), with the checkpoint as its full handoff
      brief. The offer gives the proposed model and effort of the new
@@ -93,6 +100,9 @@ round, or a stage), evaluate whether the work continues in a new session.
    - a new session, through the app's native session handoff, with the
      checkpoint as its brief;
    - stop at a human gate.
+
+   When the main session does this itself for work under the R-DEL-2 floor,
+   the floor check of R-DEL-2 applies (`dev-core`).
 
    Never present a prepared handoff as already started or as done.
 

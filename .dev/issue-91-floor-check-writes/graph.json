@@ -1,0 +1,51 @@
+{
+  "schema": "claude-dev-graph/v1",
+  "objective": {
+    "id": "issue-91-floor-check-writes",
+    "title": "Issue #91 (Issue #79 slice C0): the floor check of the main session covers every write, records included, from every entry point (FU-035, FU-021 item (2)); added sentences only",
+    "rigor": "strict",
+    "requirements": [
+      "REQ-008",
+      "REQ-009",
+      "REQ-022"
+    ]
+  },
+  "nodes": [
+    {
+      "id": "T1",
+      "title": "Added sentences in R-DEL-2 and pointer sentences at the entry points of eight skills; REQ-009, deltas, design-proposal (D-026), followups (FU-035, FU-021, FU-052), log, CHANGELOG",
+      "kind": "docs",
+      "requirements": [
+        "REQ-008",
+        "REQ-009",
+        "REQ-022"
+      ],
+      "depends_on": [],
+      "owns": [
+        "skills/dev-core/SKILL.md",
+        "skills/dev-core/deltas.md",
+        "skills/dev-deliver/SKILL.md",
+        "skills/dev-review/SKILL.md",
+        "skills/dev-gate/SKILL.md",
+        "skills/dev-implement/SKILL.md",
+        "skills/dev-docs/SKILL.md",
+        "skills/dev-plan/SKILL.md",
+        "skills/dev-continue/SKILL.md",
+        "docs/requirements/REQ-009-subagent-model-effort.md",
+        "docs/requirements/log.md",
+        "docs/design-proposal.md",
+        "CHANGELOG.md",
+        ".dev/followups.md"
+      ],
+      "risk": "high",
+      "review": "deep",
+      "status": "reviewing",
+      "dod": [
+        "The sentences of design rev 3 (A1 to A4, the pointer sentence at each place of section B, the step 2 sentence) and the records of section C and G are in place; the word diff of section G against 03cc3dd prints NO-WORD-REMOVED for the eight skill files; validate.sh passes; the deep review and the Security Diff Scan at opus/xhigh find no open MUST-FIX or SHOULD-FIX"
+      ],
+      "verify": [
+        "bash scripts/validate.sh"
+      ]
+    }
+  ]
+}

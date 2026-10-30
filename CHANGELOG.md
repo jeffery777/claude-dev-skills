@@ -185,9 +185,12 @@ Cowork runtime test). At that release,
   left (finding I77-RS1-04); no rule changes. Issue #79 is now a tracking
   Issue for four slices, one sub-Issue each. Item 7 of Issue #79 (cheaper
   sources such as `CLAUDE_EFFORT` and host metadata, and a deterministic
-  host version check) moves to FU-045; FU-046, a proposed deferral pending
-  card I85-C1, tracks what a failed re-test step or a re-test result changes
-  in the tested-host record. The procedure text changes; the re-test has not
+  host version check) moves to FU-045; FU-046 (card I85-C1 (a)) tracks
+  what a failed re-test step or a re-test result changes in the tested-host
+  record; FU-047 and FU-048 (card I85-C2 (a)) track the `dev-explorer`
+  agent file values that the re-test relies on and the `dev-deliver` copy
+  of the R-DEL-2 exception (user answer relayed by the orchestrator:
+  「I85-C1 a，I85-C2 a」). The procedure text changes; the re-test has not
   run.
 - One rule for relayed model and effort answers (REQ-009, D-025, DL-034,
   Issue #78; user answers 「I75-M1 選 a，同意合併 PR #76」,

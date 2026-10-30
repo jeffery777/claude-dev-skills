@@ -51,6 +51,10 @@ relay).
   the maintainer starts the headless parent run (I85-S1-03); the FU-045
   caveats are split by source and keep one exclusion for every evaluation
   (I85-S1-01, I85-R2-02); FU-046 also asks when a void run stops.
+- From the user answer 「I85-C1 a，I85-C2 a」 (Claude Code session
+  2026-10-30, orchestrator relay): the REQ-GAP of a failed re-test step is
+  deferred to FU-046; FU-047 and FU-048 track two residual risks of the PR
+  #86 Merge Review.
 - From S4-04 and D4-02: the trigger and the owner of the re-test.
 - From I77-RS1-04: the `dev-deliver` pointer, worded as R-DEL-2 (D1-03,
   S1-02).
@@ -83,7 +87,7 @@ Scan), PASS, 1 SHOULD-FIX, 2 NIT.
 | ID | Severity | Disposition |
 | --- | --- | --- |
 | I85-R1-01 | SHOULD-FIX | Fixed: this Source trace section |
-| I85-R1-02 | SHOULD-FIX | Card I85-C1 for the user (REQ-GAP I79A-D1-08: defer to FU-046, add, or reject); FU-046 says "proposed deferral" until the answer |
+| I85-R1-02 | SHOULD-FIX | Card I85-C1 (a) (user answer, relayed: 「I85-C1 a，I85-C2 a」): REQ-GAP I79A-D1-08 is Deferred to FU-046 |
 | I85-R1-03 | NIT | Fixed: the CHANGELOG entry and the log row name the runs that dispatch an agent |
 | I85-R1-04 | NIT | Fixed in round 2 (I85-R2-01): line wrapping in the CHANGELOG, `dev-deliver` and this plan |
 | I85-S1-01 | SHOULD-FIX | Fixed: FU-045 splits the `CLAUDE_EFFORT` read, the version check (S3-03) and host metadata (S3-05) |
@@ -104,11 +108,12 @@ NIT, no new blocker (R-VER-2); the commit scan and the check of the round
 
 | Round | Target | Result | Outcome |
 | --- | --- | --- | --- |
-| 1 | Design rev 1 | deep: no MUST-FIX, 5 SHOULD-FIX, 2 NIT, 1 REQ-GAP; security: PASS, 5 SHOULD-FIX, 2 NIT | rev 2 applies every in-scope finding; I79A-D1-08 (REQ-GAP) goes to FU-046 |
+| 1 | Design rev 1 | deep: no MUST-FIX, 5 SHOULD-FIX, 2 NIT, 1 REQ-GAP; security: PASS, 5 SHOULD-FIX, 2 NIT | rev 2 applies every in-scope finding; the REQ-GAP I79A-D1-08 is not applied: card I85-C1 (a) deferred it to FU-046 |
 
-Both reviewers: requested `opus`/`xhigh`; recorded `opus`/`xhigh` from the
-transcript fields; effective `unknown`. Round 1 raised no blocker and every
-finding was inside the requirements, so the implementation review checks
+Both reviewers: requested `opus`/`xhigh`; recorded
+`claude-opus-5-5`/`xhigh` from the transcript fields; effective `unknown`.
+Round 1 raised no blocker, and every finding except the REQ-GAP
+I79A-D1-08 was inside the requirements, so the implementation review checks
 rev 2 (as Issue #77 did with its rev 4 findings); there is no round 2 of
 the design review.
 

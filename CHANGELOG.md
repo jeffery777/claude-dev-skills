@@ -165,6 +165,26 @@ Cowork runtime test). At that release,
 
 ### Changed
 
+- `docs/core-feedback.md` is up to date (REQ-019, Issue #84). The record
+  states the upstream state on 2026-10-30 (no reply, Core still v0.1.1)
+  and gives an overview table. CF-001 to CF-009 get their current status
+  and evidence: CF-007 becomes history (implemented by D-020, not
+  proposed), CF-008 records FU-011 and the agent-file copies, and CF-009
+  records the results of points 2 and 6 and the posted comment on points 4
+  and 5. New candidates: CF-001 points 4 and 5 (what to do after an
+  R-VER-2 stop; a spec or design failure is not a quality failure), CF-002
+  points 2 and 3 (scope additions; a masking format for public records),
+  CF-009 points 8 to 10 (DL-018, DL-023, DL-025), CF-010 (what counts as a
+  confirmation), CF-011 (a tier written in advance is a proposal) and,
+  by user card I84-C1 (a), CF-012 (how a subagent gets Core) and two more
+  places in CF-009 point 10 (the qualifier "applicable" in
+  `exact-head-and-evidence.md:22`, DL-026; a similar qualifier in
+  `review-and-security.md:47`, DL-027). The
+  table of decisions not fed back to Core adds D-019, D-021, the choice of
+  model and effort (D-007 rule 2, FU-018, DL-034, D-022, D-023, D-025), D-024 and
+  DL-037. Upstream
+  references are code spans. Nothing is posted upstream; no rule text
+  changes.
 - Re-test values, trigger and owner for the model and effort re-test
   (REQ-009, Issue #85, slice A of Issue #79; user answers relayed by the
   orchestrator: 「I79-C1 a+d，I79-C2 a」). In the re-test procedure for

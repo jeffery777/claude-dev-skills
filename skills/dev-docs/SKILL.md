@@ -18,6 +18,9 @@ R-WRT-1.
 
 ## Workflow
 
+When the main session does this itself for work under the R-DEL-2 floor,
+the floor check of R-DEL-2 applies (`dev-core`).
+
 1. Read the code, tests, requirements, and the docs in scope. Name the reader
    and the purpose of each doc (R-WRT-1).
 2. List the claims the docs make: commands, paths, flags, feature states,

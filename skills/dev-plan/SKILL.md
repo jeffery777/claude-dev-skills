@@ -22,6 +22,9 @@ interactive planning, use plan mode; this skill adds what plan mode lacks
 
 ## Workflow
 
+When the main session does this itself for work under the R-DEL-2 floor,
+the floor check of R-DEL-2 applies (`dev-core`).
+
 1. **Discover** (R-STG-2). Read CLAUDE.md or AGENTS.md, README, the relevant
    code, `docs/requirements/` and the Git state. Separate facts, inferences and
    unknowns.

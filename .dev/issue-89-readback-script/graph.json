@@ -1,0 +1,44 @@
+{
+  "schema": "claude-dev-graph/v1",
+  "objective": {
+    "id": "issue-89-readback-script",
+    "title": "Issue #89 (Issue #79 slice B): read-back script for the recorded model and effort of a subagent transcript, with its threat model and synthetic tests (no gate wiring)",
+    "rigor": "strict",
+    "requirements": [
+      "REQ-008",
+      "REQ-009",
+      "REQ-022"
+    ]
+  },
+  "nodes": [
+    {
+      "id": "T1",
+      "title": "skills/dev-core/scripts/model_effort_readback.py, tests/test_model_effort_readback.py, skills/dev-core/references/model-effort-readback.md; REQ-009 non-goal, sources and slice B group; FU-021, FU-035 and FU-049; log row; CHANGELOG",
+      "kind": "implement",
+      "requirements": [
+        "REQ-008",
+        "REQ-009",
+        "REQ-022"
+      ],
+      "depends_on": [],
+      "owns": [
+        "skills/dev-core/scripts/model_effort_readback.py",
+        "skills/dev-core/references/model-effort-readback.md",
+        "tests/test_model_effort_readback.py",
+        "docs/requirements/REQ-009-subagent-model-effort.md",
+        "docs/requirements/log.md",
+        "CHANGELOG.md",
+        ".dev/followups.md"
+      ],
+      "risk": "high",
+      "review": "deep",
+      "status": "reviewing",
+      "dod": [
+        "The script, the reference and the tests follow design rev 2 with the rev 3 changes; every closed token is produced by at least one test; the static test passes; no skill rule names the script or the reference; R-DEL-2 and other rule text are unchanged; no real transcript data, local path or session ID in the repository; validate.sh passes locally and in the Linux CI; the deep review and the Security Diff Scan at opus/xhigh find no open MUST-FIX or SHOULD-FIX"
+      ],
+      "verify": [
+        "bash scripts/validate.sh"
+      ]
+    }
+  ]
+}

@@ -68,6 +68,17 @@ gives the same; requested value `unknown` (set by the session that started
 it). Observations of the Issue #79 Discover stay outside the repository
 (card I79-C2 (a)). The fixes ran at `opus`/`high`.
 
+The main session wrote the record lines of the second commit (cards
+I85-C1 and I85-C2; FU-047, FU-048, the log row, the CHANGELOG and this
+plan) itself. Its floor check for that write rested on the read of its
+transcript at the end of the turn before; it did not read the transcript
+again right before the write (Merge Review finding MR85B-01). A read after
+the write shows `claude-opus-5-5`/`high` on every turn of that write: the
+values met the floor, but the timing of the check did not meet decision
+I69-M1 (check before the write, never after), and a later read never
+replaces that check. The main session read its transcript again before
+it wrote this paragraph: `claude-opus-5-5`/`high`.
+
 | Node or step | Agent | Requested | Recorded | Effective |
 | --- | --- | --- | --- | --- |
 | Discover survey | `dev-explorer` | `opus`/`high` | `claude-opus-5-5`/`high` | `unknown` |

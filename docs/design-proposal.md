@@ -574,7 +574,7 @@ D-009 到 D-016 是同一天的決定。D-015 由 PR #5（Issue #4）記錄；D-
 - 規則（只寫在 `dev-core`；這裡是摘要）：R-DEL-2 寫明 context 裡的 `reasoning_effort` 值、agent 從自己 context 說出的設定，以及從請求值或測試紀錄推出的值，都不算 recorded value；記錄測過的主機行為與版本，給維護者用，不是 agent 執行的檢查；agent 不自己查主機版本；主機無法設定值時，也不把下限工作派給 `dev-implementer`；下限範圍的 explore 派工要帶 model 與 effort。
 - 殘餘風險與限制：
   1. 下限範圍的派工，以及必要的 review 與 R-REV-9 掃描，靠的是請求值、鎖定的 agent 檔和這次測試，不是讀回。`recorded` 大多仍是 `unknown`。
-  2. 只測了兩個主機版本與兩種環境。主機升級後，要由維護者依 REQ-009 重測；沒有確定性的版本比對（移到新 Issue）。
+  2. 只測了兩個主機版本與兩種環境。主機升級後，要由維護者依 REQ-009 重測；沒有確定性的版本比對（移到新 Issue）（之後再移到 FU-045，卡片 I79-C1 (d)）。
   3. session 的 effort 沒有套用就開始工作的情形，在新 Issue 完成前沒有新的防護；現有的下限檢查照常運作。
   4. 下限範圍的 explore 漏帶 effort 時，只有規則文字擋著，和 Issue #77 之前一樣。
   5. 設計審查：rev 1 到 rev 4 各有一輪深入與安全審查（`dev-reviewer`、`dev-security-reviewer`，要求 opus／xhigh，transcript 欄位讀回也是 opus／xhigh）；第 2、3 輪停止規則成立；第 4 輪沒有 MUST-FIX。
@@ -2258,7 +2258,8 @@ records D-009 to D-012.
      read-back. `recorded` mostly stays `unknown`.
   2. Only two host versions and two surfaces are tested. After a host
      update, the maintainers run the test again by REQ-009; there is no
-     deterministic version check (moved to the new Issue).
+     deterministic version check (moved to the new Issue) (then moved to
+     FU-045, card I79-C1 (d)).
   3. A session that starts work before its effort applies has no new
      protection until the new Issue; the current floor check still runs.
   4. A floor-range explore that leaves out the effort is stopped only by

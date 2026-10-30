@@ -1,0 +1,3 @@
+{"seq": 1, "at": "2026-10-30T04:08:01+00:00", "actor": "main", "node": "T1", "from": "planned", "to": "ready", "evidence": "graph.py validate ok; design rev 3 per card I79B-R2-C1 (a)"}
+{"seq": 2, "at": "2026-10-30T04:08:01+00:00", "actor": "main", "node": "T1", "from": "ready", "to": "in_progress", "evidence": "T1 dispatched to dev-implementer at base 852b4de"}
+{"seq": 3, "at": "2026-10-30T04:30:05+00:00", "actor": "main", "node": "T1", "from": "in_progress", "to": "reviewing", "evidence": "validate.sh passed; 61 new tests pass on Python 3.13 and 3.9; diff read back"}

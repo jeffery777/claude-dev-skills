@@ -162,6 +162,30 @@ Cowork runtime test). At that release,
   The README Install section states the limit, and that the rules are not
   tested in Cowork (FU-001). FU-025 is closed with the second-repository
   check of Issue #66; follow-ups FU-030 (card D1) and FU-031 (card C1).
+- Read-back script for the recorded model and effort of one subagent
+  transcript (REQ-009, Issue #89, slice B of Issue #79; user answers
+  relayed by the orchestrator: 「I79-C1 a+d，I79-C2 a」,
+  「I79B-C1 a，I79B-C2 a」 and, for the design review round 2 stop card,
+  「I79B-R2-C1 a」). `skills/dev-core/scripts/model_effort_readback.py`
+  (one file, standard library only, Python 3.9 or later) has one mode,
+  `subagent`. It finds `agent-<ID>.jsonl` under the projects directory
+  with directory file descriptors, follows no symlink at or under the
+  projects directory, enters no directory whose name is out of format,
+  needs exactly one match, and checks that the file is regular, owned by
+  the user, has one link and is within the size limits. It parses each
+  line as strict JSON, binds every assistant record to the agent ID, the
+  session directory and `isSidechain`, reads only the model and effort
+  fields, and gives the lowest model and the lowest effort. The model
+  allowlist holds only `claude-opus-5-5`; Sonnet and Haiku IDs stop until
+  FU-049. The output is one line, `OK`, `PASS`, `BELOW` or `STOP` with one
+  of 17 closed reason tokens, and carries no path, ID or transcript text.
+  The reference `skills/dev-core/references/model-effort-readback.md` is
+  not a rule: it gives the tokens, the threat model and what the script
+  cannot prove. Tests use synthetic fixtures only. No skill rule tells an
+  agent to run the script; slice C decides, and slice D covers sessions.
+  FU-021 says which items the script covers; FU-049 tracks the Sonnet and
+  Haiku IDs, an exact-match mode and the re-test use of the script (card
+  I79B-C2 (a)).
 
 ### Changed
 

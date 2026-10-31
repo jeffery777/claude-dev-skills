@@ -43,4 +43,7 @@ could not set the effort or there is no transcript or field to read back, it
 writes `unknown` and names the case, never a path, a session ID or transcript
 text (R-DEL-2). A `reasoning_effort` value in a context, what the subagent says
 about its own setting, and a value inferred from the requested value or from
-the tested-host record of R-DEL-2 are not recorded values (R-DEL-2).
+the tested-host record of R-DEL-2 are not recorded values (R-DEL-2). For a
+subagent, the main agent reads the fields with the read-back script of
+R-DEL-2; when its own floor check does not pass, R-DEL-2 says who writes
+the value and when.

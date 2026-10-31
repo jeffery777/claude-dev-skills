@@ -2,7 +2,11 @@
 
 This file describes a script; it is not a rule. No dev-* skill tells an
 agent to run it; Issue #79 slice C decides whether and how. Until then the
-manual reading of R-DEL-2 stays as it is.
+manual reading of R-DEL-2 stays as it is. Issue #93 (slice C1 of
+Issue #79) now tells the main agent to run it for every subagent
+read-back, and the gate of R-DEL-2 covers the dispatches of work under the
+floor; R-DEL-2 has the rule. The second and the third sentence of this
+paragraph describe the state before Issue #93.
 
 The script is `scripts/model_effort_readback.py` in this skill folder:
 one file, Python 3.9 or later, standard library only, no other module of
@@ -128,7 +132,7 @@ are `haiku`, `sonnet`, `opus` and `low`, `medium`, `high`, `xhigh`, `max`.
 | `INTERNAL` | Any other error. |
 
 This file gives no action for a token. Slice C of Issue #79 decides what a
-token means for the work.
+token means for the work. R-DEL-2 gives the actions.
 
 ## Allowlist
 
@@ -179,7 +183,8 @@ or `__builtins__`). FU-050 tracks a stricter check.
   `unknown`.
 - The transcript is in a location that the user can write. It can be
   rewritten or deleted; the lowest value only stops appended lines. Card
-  I77-R2-C2 is for slice C to decide.
+  I77-R2-C2 is for slice C to decide. Card I79C-C4 (a) accepted it as a
+  residual risk (R-DEL-2; FU-051).
 - An agent ID can be swapped, for example when a subagent quotes another
   agent's ID in its report.
 - The script cannot show that the file belongs to the session that

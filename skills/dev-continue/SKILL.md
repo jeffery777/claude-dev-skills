@@ -102,7 +102,9 @@ round, or a stage), evaluate whether the work continues in a new session.
    - stop at a human gate.
 
    When the main session does this itself for work under the R-DEL-2 floor,
-   the floor check of R-DEL-2 applies (`dev-core`).
+   the floor check of R-DEL-2 applies (`dev-core`). For a subagent that
+   runs work under the R-DEL-2 floor, the read-back of R-DEL-2 applies
+   before the session uses its result (`dev-core`).
 
    Never present a prepared handoff as already started or as done.
 

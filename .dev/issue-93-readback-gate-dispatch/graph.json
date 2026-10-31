@@ -1,0 +1,48 @@
+{
+  "schema": "claude-dev-graph/v1",
+  "objective": {
+    "id": "issue-93-readback-gate-dispatch",
+    "title": "Issue #93 (Issue #79 slice C1): fail-closed read-back gate for dispatches of work under the floor, with the core rules (added sentences only)",
+    "rigor": "strict",
+    "requirements": [
+      "REQ-008",
+      "REQ-009",
+      "REQ-022"
+    ]
+  },
+  "nodes": [
+    {
+      "id": "T1",
+      "title": "Added sentences G1 to G6 in R-DEL-2 (rev 2 plus rev 3); wiring in dev-deliver steps 2, 3 and Output, dev-continue Resume step 5, task-brief and the script reference; REQ-009, DL-042, design section 4 and D-027, FU-051 and FU-053 to FU-055 and notes, log, CHANGELOG",
+      "kind": "docs",
+      "requirements": [
+        "REQ-008",
+        "REQ-009",
+        "REQ-022"
+      ],
+      "depends_on": [],
+      "owns": [
+        "skills/dev-core/SKILL.md",
+        "skills/dev-core/deltas.md",
+        "skills/dev-core/references/model-effort-readback.md",
+        "skills/dev-deliver/SKILL.md",
+        "skills/dev-deliver/references/task-brief.md",
+        "skills/dev-continue/SKILL.md",
+        "docs/requirements/REQ-009-subagent-model-effort.md",
+        "docs/requirements/log.md",
+        "docs/design-proposal.md",
+        "CHANGELOG.md",
+        ".dev/followups.md"
+      ],
+      "risk": "high",
+      "review": "deep",
+      "status": "reviewing",
+      "dod": [
+        "Every sentence of design rev 2 and rev 3 is added at its place and no word of an existing sentence changes (the word diff prints NO-WORD-REMOVED for every changed pack file); the records of rev 2 section 3 are in place; validate.sh passes; the deep review and the Security Diff Scan at opus/xhigh find no open MUST-FIX or SHOULD-FIX"
+      ],
+      "verify": [
+        "bash scripts/validate.sh"
+      ]
+    }
+  ]
+}

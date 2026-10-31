@@ -189,6 +189,29 @@ Cowork runtime test). At that release,
 
 ### Changed
 
+- The main agent reads the recorded model and effort of every subagent with
+  the read-back script, and a dispatch of work under the floor whose
+  read-back does not pass stops the node (REQ-009, D-027, DL-042, Issue
+  #93, slice C1 of Issue #79; user answers relayed by the orchestrator:
+  「I79C-C1 a，C2 b，C3 c，C4 a，這些我同意你的建議」, 「I93-C1 a，C2 a」
+  and, for the design review round 2 stop card, 「I93-R2-C1 a」). R-DEL-2
+  only gets added sentences; a deterministic word diff of the six changed
+  pack files (`deltas.md` only gains the DL-042 row) shows no removed word.
+  The script runs after the subagent has finished, with a time limit, with
+  the agent ID from the harness line, the projects directory from the host
+  and the expected values of the main agent's own dispatch call; inside the
+  repository of the change, the copy of the script at the bound base runs.
+  Only a `PASS` at or above the floor and the row value lets the main agent
+  use the result of an explore, implement or docs dispatch under the floor;
+  otherwise the main agent asks the user with the facts and does not re-run
+  the dispatch. Only the user's own message in the session approves the use
+  of such a result, and it never counts as work at the floor. A host whose
+  ability to set the value is not known counts as one that cannot set it.
+  `dev-deliver`, `dev-continue`, `task-brief.md` and the script reference
+  point to the rule. FU-021 item (1) is closed for subagent dispatches of
+  work under the floor; FU-051 and FU-053 to FU-055 track the residual
+  risks.
+
 - The floor check of a main session covers every write, records included
   (REQ-009, D-026, DL-041, Issue #91, slice C0 of Issue #79; user answers
   relayed by the orchestrator: 「I79C0-C1 a，C2 a，C3 a」 and, for the

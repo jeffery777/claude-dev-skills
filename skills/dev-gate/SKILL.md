@@ -55,7 +55,8 @@ the floor check of R-DEL-2 applies (`dev-core`).
    R-EXH-3 says, when the other R-CAP-3 conditions above still match and the
    review records the tree comparison as the reason and the coverage; other
    partial reuse follows R-CAP-3 above. A previous
-   head's verdict is never reused (Issue #68, E2).
+   head's verdict is never reused (Issue #68, E2). The evidence of a review
+   that does not count by R-DEL-2 is never reused.
 3. For merge readiness, run or dispatch the complete base-to-head review:
    - `dev-review` in deep mode over `base...head`. The review covers the
      whole range; parts that are provably unaffected by every change since an
@@ -63,6 +64,12 @@ the floor check of R-DEL-2 applies (`dev-core`).
      (R-EXH-3);
    - the deterministic repo checks;
    - the code ↔ docs coherence checks (R-EXH-2).
+
+   The read-back of R-DEL-2 applies to that review and to the merge readiness
+   scan before the gate uses them (`dev-core`). The session that merges
+   dispatches and reads back the Merge Review, each security review that the
+   head needs (R-REV-7) and the merge readiness scan itself; a review or scan
+   of another session is not evidence for this gate (R-DEL-2).
 4. Check the blockers (R-REV-5, R-REV-7, R-AUTH-5). Any one blocks the gate:
    - an unresolved MUST-FIX, a missing or incomplete disposition, or an open
      Needs Human Decision (including an undecided `REQ-GAP`) (R-REV-3,
@@ -74,6 +81,9 @@ the floor check of R-DEL-2 applies (`dev-core`).
      (R-AUTH-5, R-REV-7);
    - a missing R-REV-9 scan, or one that does not match the current staged
      content, commit identity and message, or commit range (R-REV-9);
+   - a required review or scan that does not count by R-DEL-2 (`unknown` and
+     a review or scan of another session included), except a `light` routine
+     review at `sonnet`/`medium` while R-DEL-2 lets it skip the gate;
    - an unresolved substantive security risk, with or without a finding ID
      (R-REV-7);
    - a write change without a requirement, or a `SCOPE-CREEP` finding without
@@ -121,6 +131,7 @@ Identity: repo, base, head, merge-base, diff hash, PR
 Findings and dispositions: (table or link)
 Verification evidence: (commands and results)
 Commit / push security scan (R-REV-9): PASSED | FINDINGS | NOT_RUN — scope (staged diff, identity, message, commit range)
+Read-back (R-DEL-2): each required review and scan of this session — call form, requested values, result line and exit code | unknown (case)
 Requirement trace: complete | gaps
 Open decisions: one decision card each | none
 Residual risk:

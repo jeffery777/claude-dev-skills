@@ -351,5 +351,12 @@ FU-014 decision (cards 1a, 4a, 2026-10-22): the push scan no longer runs
 (REQ-023). A push URL that differs from the fetch URL is FU-015 (card 4a); FU-015 PR-2
 stops the push in that case.
 
+Note (Issue #95, Issue #79 slice C2, D-028): a scan that does not count by
+R-DEL-2 counts as no scan: the main agent reads back the model
+and effort of every R-REV-9 scan, and only a `PASS` at or above the table
+value lets the scan count; no commit, push, post or merge proceeds on a scan
+that does not count, also when push step 5 counts it as passed. REQ-009 has
+the requirement.
+
 Origin: PR #2 SEC-01 (a hostname-derived author email was pushed). Design
 records: D-015 and, since Issue #68, D-021 in `docs/design-proposal.md`. Related: [[REQ-003]], [[REQ-007]].

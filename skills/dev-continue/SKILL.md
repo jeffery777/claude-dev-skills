@@ -54,14 +54,16 @@ round, or a stage), evaluate whether the work continues in a new session.
      scan before the commit, and the `commit_state` setting (CB-1; with `false`, do
      not commit the checkpoint). When the main session does this itself for
      work under the R-DEL-2 floor, the floor check of R-DEL-2 applies
-     (`dev-core`).
+     (`dev-core`). The read-back of R-DEL-2 applies to the R-REV-9 scan of
+     that commit (`dev-core`).
    - Once a PR exists, never commit the checkpoint: a commit on the PR
      branch makes a new head that needs a new complete review (R-EXH-3).
      Keep it uncommitted, and post its key points as a PR comment so that
      another clone can take over. The user's answer to PR-C1 decision card 1
      covers this comment and no other comment. `dev-security-reviewer` scans
      the exact comment text before it is posted (R-REV-9); without that
-     scan, do not post. The checkpoint points to the review and gate records
+     scan, do not post. A scan that does not count by R-DEL-2 counts as no
+     scan (`dev-core`). The checkpoint points to the review and gate records
      and does not repeat them. When the main session does this itself for
      work under the R-DEL-2 floor, the floor check of R-DEL-2 applies
      (`dev-core`).

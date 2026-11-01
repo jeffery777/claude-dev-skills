@@ -1,0 +1,54 @@
+{
+  "schema": "claude-dev-graph/v1",
+  "objective": {
+    "id": "issue-95-readback-gate-reviews",
+    "title": "Issue #95 (Issue #79 slice C2): read-back gate for required reviews and scans (added text only)",
+    "rigor": "strict",
+    "requirements": [
+      "REQ-008",
+      "REQ-009",
+      "REQ-011",
+      "REQ-022"
+    ]
+  },
+  "nodes": [
+    {
+      "id": "T1",
+      "title": "Added sentences A1 to A4 (R-DEL-2 and R-REV-9) and B to H (script reference, dev-review, review-report, dev-implement, dev-deliver step 7, dev-gate, dev-continue) of design rev 3; REQ-009, REQ-011, DL-043, design section 4 and D-005 notes and D-028, FU-056 to FU-058 and notes, log, CHANGELOG",
+      "kind": "docs",
+      "requirements": [
+        "REQ-008",
+        "REQ-009",
+        "REQ-011",
+        "REQ-022"
+      ],
+      "depends_on": [],
+      "owns": [
+        "skills/dev-core/SKILL.md",
+        "skills/dev-core/deltas.md",
+        "skills/dev-core/references/model-effort-readback.md",
+        "skills/dev-review/SKILL.md",
+        "skills/dev-review/references/review-report.md",
+        "skills/dev-implement/SKILL.md",
+        "skills/dev-deliver/SKILL.md",
+        "skills/dev-gate/SKILL.md",
+        "skills/dev-continue/SKILL.md",
+        "docs/requirements/REQ-009-subagent-model-effort.md",
+        "docs/requirements/REQ-011-security-review-before-commit-push.md",
+        "docs/requirements/log.md",
+        "docs/design-proposal.md",
+        "CHANGELOG.md",
+        ".dev/followups.md"
+      ],
+      "risk": "high",
+      "review": "deep",
+      "status": "reviewing",
+      "dod": [
+        "Every sentence of design rev 3 sections A to H is added at its anchor and no word of an existing sentence changes (the word diff prints NO-WORD-REMOVED for the nine changed pack files and for every changed record file that exists at the base); the records of rev 3 are in place; validate.sh passes; the placeholder grep of design rev 3 prints nothing; the deep review and the Security Diff Scan at opus/xhigh, read back by R-DEL-2, find no open MUST-FIX or SHOULD-FIX"
+      ],
+      "verify": [
+        "bash scripts/validate.sh"
+      ]
+    }
+  ]
+}

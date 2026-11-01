@@ -189,6 +189,46 @@ Cowork runtime test). At that release,
 
 ### Changed
 
+- Required reviews and R-REV-9 scans pass through the read-back gate too
+  (REQ-009, REQ-011, D-028, DL-043, Issue #95, slice C2 of Issue #79; user
+  answers relayed by the orchestrator:
+  「I79C-C1 a，C2 b，C3 c，C4 a，這些我同意你的建議」,
+  「同意，兩點放進 C2 開頭，開始 C2」,
+  「I95-C1 c，C2 a，C3 b，另開模型設定檔 Issue 取代 FU-049」 and, for the
+  design review round 2 cards,
+  「I95-R2-C1 c，R2-C2 c，Merge Review 改由 orchestrator 做」). R-DEL-2 and
+  R-REV-9 only get added sentences; a deterministic word diff of the nine
+  changed pack files (`deltas.md` only gains the DL-043 row) and of the
+  changed record files shows no removed word. The full base ID of the call
+  at the bound base is a literal, never a shell variable; the `<task-id>`
+  field of a background task notification only confirms the ID of the
+  harness line. Only a `PASS` at or above the value of its mode in the
+  `dev-review` table lets a review or scan count; one that does not count is
+  not evidence, keeps its findings open and goes to the user without a
+  re-run (except the `opus`/`high` re-run of `dev-review` after a trigger found after a `light` review, card I95-I1-C1 (a)), and a scan that does not count counts as no scan. A review or scan
+  counts only in the session that dispatched it and read it back: the
+  session that merges runs the Merge Review, the head security review and
+  the merge readiness scan itself. A `light` routine review at
+  `sonnet`/`medium` skips the gate while its read-back gives
+  `STOP MODEL_NOT_ALLOWED`; Issue #96 replaces the scope of FU-049. A
+  native pass in a subagent is the primary pass only when it counts.
+  `dev-review`, `review-report.md`, `dev-implement`, `dev-deliver`,
+  `dev-gate`, `dev-continue` and the script reference point to the rule.
+  FU-056 to FU-058 track the residual risks.
+  When the model that `opus` names on a host is not in the allowlist (for
+  example a model ID of a non-first-party provider, or an older Opus
+  generation), every review and scan does not count from this slice on (the `light` routine review exception of R-DEL-2 aside), so
+  every commit, push, post and merge stops, as for a newer Opus; the script
+  reference already says that such provider IDs always give
+  `MODEL_NOT_ALLOWED` (card I95-I1-C2 (a)). By the user's decision of
+  2026-10-31 (the orchestrator's proposal, agreed by the user in their words below), Issue #96 will turn an unrecognized model ID from "does not
+  count" into "counts, with a recorded warning"; a recognized model or effort
+  below the floor still does not count; the threat model is agent and host
+  error, not deliberate changes by the user (user answers relayed by the
+  orchestrator:
+  「I95-I1-C1 a，C2 a，不認得的 ID 只提醒併入 #96，#96 排在 C2 之後」 and
+  「對，你身為任務編排的責任盡到了、子session的任務盡到了就行，用戶惡搞，那就是用戶自己要負責。」).
+
 - The main agent reads the recorded model and effort of every subagent with
   the read-back script, and a dispatch of work under the floor whose
   read-back does not pass stops the node (REQ-009, D-027, DL-042, Issue

@@ -6,7 +6,8 @@ manual reading of R-DEL-2 stays as it is. Issue #93 (slice C1 of
 Issue #79) now tells the main agent to run it for every subagent
 read-back, and the gate of R-DEL-2 covers the dispatches of work under the
 floor; R-DEL-2 has the rule. The second and the third sentence of this
-paragraph describe the state before Issue #93.
+paragraph describe the state before Issue #93. Issue #95 (slice C2) adds
+the required reviews and scans to the gate.
 
 The script is `scripts/model_effort_readback.py` in this skill folder:
 one file, Python 3.9 or later, standard library only, no other module of
@@ -140,7 +141,12 @@ token means for the work. R-DEL-2 gives the actions.
 allowlist policy is in REQ-009
 (`docs/requirements/REQ-009-subagent-model-effort.md`, item "Allowlist");
 this file does not restate it (REQ-022). FU-049 tracks the Sonnet and
-Haiku IDs.
+Haiku IDs. Issue #96 is to replace the scope of FU-049 with a model
+configuration file that the script and the rules will read from the bound
+base (card I95-C2 (a)). It is a separate strict Issue: its file maps each
+role to an alias with an allowed effort range and each alias to its model
+IDs, so that a model change edits only that file. That Issue also changes
+the sentences of R-DEL-2 that name the allowlist.
 
 ## Threat model
 
@@ -176,6 +182,20 @@ script is a regression aid only: it checks the imports, the direct
 `os.<name>` attributes and a list of names, and it does not cover every
 way of writing a call (for example `os.path` functions, chained attributes
 or `__builtins__`). FU-050 tracks a stricter check.
+
+## Calls from the rules (read-backs, 2026-10-31)
+
+Seven real background dispatches on this repository (desktop app, macOS,
+zsh) gave `PASS` with the copy at the bound base: one `dev-explorer` at
+`opus`/`high` (the C1 smoke test) and six dispatches at `opus`/`xhigh`
+(`dev-reviewer` and `dev-security-reviewer`; Issue #95). Each task
+notification at the end had no `agentId:` line; its structured `<task-id>`
+field held the ID of the harness line of the dispatch result (R-DEL-2 says
+how the main agent uses both). The base ID written as `$B:skills/...` in
+zsh lost the path in the repository, and the empty script exited 0 with no
+output; an unset or empty variable names the copy in the index. R-DEL-2
+says how to write the base ID. No dispatch that does not run in the
+background, no resume and no headless run was read back.
 
 ## What it cannot prove
 
@@ -230,3 +250,7 @@ or `__builtins__`). FU-050 tracks a stricter check.
 - CI does not run Python 3.9.
 - The synthetic fixtures of `tests/test_model_effort_readback.py` prove
   only the outcomes that they list (R-VER-1).
+- Headless runs, a read-back after a resume, a dispatch that does not run
+  in the background and a read-back in a session that merges a change of
+  another session are not tested with a real transcript (FU-056). Windows,
+  NFS and containers are not tested either (see above).

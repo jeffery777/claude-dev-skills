@@ -46,6 +46,10 @@
   values exactly, so a lower and a higher value both fail (R-DEL-2, Issue #77). This checks the
   file text only; whether the host applies the values rests on the controlled test that REQ-009
   records;
+- skills/dev-core/model-config.json passes validate_config() of the read-back script, its families and tiers
+  follow PINNED_FAMILY_TIERS (each tier equals its pin or is null), its roles equal PINNED_ROLE_VALUES, each agent
+  in REQUIRED_AGENTS has exactly one agent_default role, the raw `model` and `effort` of that agent file equal the
+  family and the lowest effort of that role, and EFFORTS equals EFFORT_ORDER of the script (Issue #96);
 - every ${CLAUDE_SKILL_DIR}/... path named in a skill exists;
 - every REQ file in docs/requirements/ has closed front matter, an id matching its
   name, a valid status, typed relations as REQ-id lists, and sources entries with
@@ -82,6 +86,22 @@ PINNED_AGENT_SETTINGS = {  # R-DEL-2, Issue #77: stem -> the exact raw model and
     "dev-security-reviewer": {"model": "opus", "effort": "xhigh"},
 }
 REQUIRED_AGENTS = sorted(set(READ_ONLY_AGENTS) | set(PINNED_AGENT_SETTINGS))
+PINNED_FAMILY_TIERS = {"haiku": 1, "sonnet": 2, "opus": 3, "fable": 4}  # Issue #96, card I96-C12 (a): the family set
+# is fixed and each tier equals its pin or is null (retired); a change needs a change of check_pack.py with review
+PINNED_ROLE_VALUES = {  # Issue #96 PR-1: the roles equal today's routing tables; PR-2 turns this pin into floors
+    "orchestration": {"family": "opus", "effort": ["high", "high"]},
+    "explore": {"family": "haiku", "effort": ["low", "low"], "agent": "dev-explorer", "agent_default": True},
+    "explore-synthesis": {"family": "sonnet", "effort": ["medium", "medium"], "agent": "dev-explorer"},
+    "implement": {"family": "opus", "effort": ["high", "high"], "agent": "dev-implementer", "agent_default": True},
+    "implement-reduced": {"family": "sonnet", "effort": ["medium", "medium"], "agent": "dev-implementer"},
+    "review-routine": {"family": "opus", "effort": ["high", "high"], "agent": "dev-reviewer", "agent_default": True},
+    "review-routine-light": {"family": "sonnet", "effort": ["medium", "medium"], "agent": "dev-reviewer"},
+    "review-deep": {"family": "opus", "effort": ["xhigh", "xhigh"], "agent": "dev-reviewer"},
+    "review-security": {"family": "opus", "effort": ["xhigh", "xhigh"], "agent": "dev-security-reviewer",
+                        "agent_default": True},
+    "scan": {"family": "opus", "effort": ["xhigh", "xhigh"], "agent": "dev-security-reviewer"},
+}
+MODEL_CONFIG = os.path.join("skills", "dev-core", "model-config.json")
 AGENT_MAX_BYTES = 65536  # Issue #69 R69S1-002: this repository's own lower limit for a read-only or pinned agent file (ours
 # are < 10 KB); Claude Code skips an agent file over 1,048,576 bytes (inferred from reading the 2.1.310 code, not run)
 SOURCE_TYPES = {"doc", "chat", "issue", "commit", "external"}
@@ -112,6 +132,15 @@ _spec = importlib.util.spec_from_file_location("graph", os.path.join(ROOT, "skil
 graph = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(graph)
 REQ_ID = graph.REQ_RE
+
+_spec = importlib.util.spec_from_file_location(  # Issue #96: the one validator of the configuration file
+    "model_effort_readback", os.path.join(ROOT, "skills", "dev-core", "scripts", "model_effort_readback.py"))
+readback = importlib.util.module_from_spec(_spec)
+_old_bytecode, sys.dont_write_bytecode = sys.dont_write_bytecode, True  # no __pycache__ in the pack
+try:
+    _spec.loader.exec_module(readback)
+finally:
+    sys.dont_write_bytecode = _old_bytecode
 
 
 front_block = graph.frontmatter_lines
@@ -390,6 +419,44 @@ def main() -> int:
             if extra:
                 errors.append(f"{manifest}: {part} keys {extra} are not in the allowlist {sorted(allowed)} (CB-7)")
 
+    agent_defaults: dict[str, dict] = {}  # Issue #96: agent stem -> its agent_default role in the configuration file
+    config_path = os.path.join(ROOT, MODEL_CONFIG)
+    if not os.path.isdir(skills_dir):  # as the skill checks; the root check reports a case-changed skills/ (CB-7)
+        pass
+    elif os.path.islink(config_path) or not os.path.isfile(config_path):
+        errors.append(f"{MODEL_CONFIG}: missing or not a regular file (Issue #96)")
+    else:
+        with open(config_path, "rb") as fh:
+            data = fh.read()
+        try:
+            config = readback.validate_config(data)
+        except readback.Stop:
+            config = None
+            errors.append(f"{MODEL_CONFIG}: the read-back script gives STOP CONFIG for it (validate_config, Issue #96)")
+        if config is not None:
+            tiers = {name: family["tier"] for name, family in config["families"].items()}
+            if set(tiers) != set(PINNED_FAMILY_TIERS):
+                errors.append(f"{MODEL_CONFIG}: the families must be exactly {sorted(PINNED_FAMILY_TIERS)}, found "
+                              f"{sorted(tiers)}; a family is never deleted (PINNED_FAMILY_TIERS, card I96-C12 (a))")
+            for name in sorted(set(tiers) & set(PINNED_FAMILY_TIERS)):
+                if tiers[name] is not None and tiers[name] != PINNED_FAMILY_TIERS[name]:
+                    errors.append(f"{MODEL_CONFIG}: the tier of {name!r} must be {PINNED_FAMILY_TIERS[name]} or "
+                                  f"null, found {tiers[name]!r} (PINNED_FAMILY_TIERS, card I96-C12 (a))")
+            for role in sorted(set(config["roles"]) | set(PINNED_ROLE_VALUES)):
+                if config["roles"].get(role) != PINNED_ROLE_VALUES.get(role):
+                    errors.append(f"{MODEL_CONFIG}: role {role!r} must be {PINNED_ROLE_VALUES.get(role)!r}, found "
+                                  f"{config['roles'].get(role)!r} (PINNED_ROLE_VALUES, Issue #96 PR-1)")
+            for stem in REQUIRED_AGENTS:
+                roles = [r for r in config["roles"].values() if r.get("agent") == stem and r.get("agent_default")]
+                if len(roles) != 1:
+                    errors.append(f"{MODEL_CONFIG}: agent {stem!r} must have exactly one agent_default role, found "
+                                  f"{len(roles)} (Issue #96)")
+                else:
+                    agent_defaults[stem] = roles[0]
+    if EFFORTS != set(readback.EFFORT_ORDER) or len(EFFORTS) != len(readback.EFFORT_ORDER):
+        errors.append(f"scripts/check_pack.py: EFFORTS {sorted(EFFORTS)} must equal EFFORT_ORDER "
+                      f"{list(readback.EFFORT_ORDER)} of the read-back script (Issue #96)")
+
     agent_mds: list[str] = []
     agents_dir = os.path.join(ROOT, "agents")
     agent_names = sorted(os.listdir(agents_dir)) if os.path.isdir(agents_dir) else []
@@ -448,6 +515,12 @@ def main() -> int:
                 if raw.get(key) != pinned:
                     errors.append(f"{rel}: pinned agent must have the line '{key}: {pinned}' for {key}, found "
                                   f"{raw.get(key)!r} (R-DEL-2, Issue #77)")
+        if stem in agent_defaults:  # Issue #96: the agent file holds the values of its agent_default role
+            raw, role = raw_values(agent_md), agent_defaults[stem]
+            for key, want in (("model", role["family"]), ("effort", role["effort"][0])):
+                if raw.get(key) != want:
+                    errors.append(f"{rel}: the line '{key}: {want}' of the agent_default role in {MODEL_CONFIG} is "
+                                  f"needed for {key}, found {raw.get(key)!r} (Issue #96)")
 
     req_dir = os.path.join(ROOT, "docs", "requirements")
     for req in sorted(p for p in glob.glob(os.path.join(req_dir, "REQ-*.md")) if graph.REQ_FILE_RE.match(os.path.basename(p))):

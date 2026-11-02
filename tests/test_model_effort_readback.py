@@ -1,16 +1,20 @@
-"""Tests for skills/dev-core/scripts/model_effort_readback.py (Issue #89, Issue #79 slice B; REQ-009).
+"""Tests for skills/dev-core/scripts/model_effort_readback.py (Issue #89, Issue #79 slice B, Issue #96; REQ-009).
 
-Synthetic fixtures only: every tree, file and ID is made in a temporary directory at run time. No test reads a real
-transcript or the home directory. Of the environment and process data, the tests read only the user ID and the
-effective user ID (os.getuid, os.geteuid), the list of open file descriptors in /dev/fd, and the TMPDIR, TEMP or TMP
-variable that tempfile reads to find the temporary directory. The script runs as `sys.executable -I -B` with a
-timeout and an empty environment; the cases that a subprocess cannot make (an argument with NUL, a patched
-allowlist, a patched os.getuid, os.read or os.open, a missing open flag, a closed stdout, an exception) call its
-main() in this process. These fixtures prove only the outcomes that they list (R-VER-1).
+Synthetic fixtures only: every tree, file, Git repository and ID is made in a temporary directory at run time. No test
+reads a real transcript or the home directory. Of the environment and process data, the tests read only the user ID
+and the effective user ID (os.getuid, os.geteuid), the list of open file descriptors in /dev/fd, the TMPDIR, TEMP or
+TMP variable that tempfile reads to find the temporary directory, and PATH, which shutil.which reads to find git, sh,
+cat, sleep and yes. The script runs as `sys.executable -I -B` with a timeout, by its path or from stdin, and with an
+empty environment, or with only PATH set to the folder of git when it calls git (Issue #96). The Git repositories of
+the fixtures are made with HOME set to a temporary directory and without the system Git configuration. The cases that
+a subprocess cannot make (an argument with NUL, a patched os.getuid, os.read or os.open, a missing open flag, a closed
+stdout, an exception, a fake git with a short time budget) call its main() in this process. These fixtures prove
+only the outcomes that they list (R-VER-1).
 """
 
 import ast
 import contextlib
+import copy
 import errno
 import importlib.util
 import io
@@ -24,27 +28,42 @@ import stat
 import subprocess
 import sys
 import tempfile
+import time
 import unittest
 import uuid
 from unittest import mock
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SCRIPT = os.path.join(ROOT, "skills", "dev-core", "scripts", "model_effort_readback.py")
+CONFIG = os.path.join(ROOT, "skills", "dev-core", "model-config.json")
+CONFIG_IN_REPO = "skills/dev-core/model-config.json"
 OPUS = "claude-opus-5-5"
+TIERS = {"haiku": 1, "sonnet": 2, "opus": 3, "fable": 4}
 TOKENS = {
-    "BAD_ARGS", "NOT_FOUND", "AMBIGUOUS", "SYMLINK", "NOT_REGULAR", "OWNER", "LINK_COUNT", "PERMISSION", "TOO_LARGE",
-    "MALFORMED", "BINDING_MISMATCH", "MISSING_FIELD", "INCONSISTENT", "NO_RECORD", "MODEL_NOT_ALLOWED",
-    "EFFORT_NOT_ALLOWED", "INTERNAL"}
-ALIAS = "(haiku|sonnet|opus)"
+    "BAD_ARGS", "CONFIG", "NOT_FOUND", "AMBIGUOUS", "SYMLINK", "NOT_REGULAR", "OWNER", "LINK_COUNT", "PERMISSION",
+    "TOO_LARGE", "MALFORMED", "BINDING_MISMATCH", "MISSING_FIELD", "INCONSISTENT", "NO_RECORD",
+    "MODEL_NOT_RECOGNIZED", "EFFORT_NOT_ALLOWED", "INTERNAL"}
+FAMILY = "(haiku|sonnet|opus|fable)"
 LEVEL = "(low|medium|high|xhigh|max)"
+TIER = "[1-9][0-9]*"
 GRAMMAR = [  # (line pattern, exit code)
-    (re.compile(f"OK model={ALIAS} effort={LEVEL} records=[1-9][0-9]*"), 0),
-    (re.compile(f"PASS model={ALIAS} effort={LEVEL} expected={ALIAS}/{LEVEL}"), 0),
-    (re.compile(f"BELOW model={ALIAS} effort={LEVEL} expected={ALIAS}/{LEVEL}"), 3),
+    (re.compile(f"PASS model={FAMILY} tier={TIER} effort={LEVEL} expected={FAMILY}/{LEVEL} expected_tier={TIER}"), 0),
+    (re.compile(f"WARN model={FAMILY} tier={TIER} effort={LEVEL} expected={FAMILY}/{LEVEL} expected_tier={TIER}"), 4),
+    (re.compile(f"BELOW model=({FAMILY}|unrecognized) tier=({TIER}|null|none) effort={LEVEL} "
+                f"expected={FAMILY}/{LEVEL} expected_tier={TIER}"), 3),
     (re.compile("STOP (" + "|".join(sorted(TOKENS)) + ")"), 2),
+    (re.compile(f"CHECK model=({FAMILY}|unrecognized) match=(listed|version|name|none) tier=({TIER}|null|none) "
+                f"effort={LEVEL} records=[1-9][0-9]*"), 5),
 ]
+DEFAULT_EXPECT = ("opus", "low")
 DROP = object()  # a record field to leave out
 IS_ROOT = hasattr(os, "geteuid") and os.geteuid() == 0
+GIT = shutil.which("git")
+with open(CONFIG, "rb") as _fh:
+    SHIPPED_BYTES = _fh.read()
+SHIPPED = json.loads(SHIPPED_BYTES)
+with open(SCRIPT, "rb") as _fh:
+    SOURCE = _fh.read()
 
 
 def load_script():
@@ -64,6 +83,29 @@ MOD = load_script()
 
 def open_fds():
     return len(os.listdir("/dev/fd"))
+
+
+def result(word, model, tier, effort, expect=DEFAULT_EXPECT):
+    """A PASS, WARN or BELOW line."""
+    return (f"{word} model={model} tier={tier} effort={effort} expected={expect[0]}/{expect[1]} "
+            f"expected_tier={TIERS[expect[0]]}")
+
+
+def config_bytes(change=None) -> bytes:
+    """The shipped configuration, changed in place by `change(config)` when given, as JSON bytes."""
+    config = copy.deepcopy(SHIPPED)
+    if change is not None:
+        change(config)
+    return json.dumps(config).encode("utf-8")
+
+
+def retire_sonnet(config):
+    """Sonnet retired (tier null) with its ID listed, and its roles moved to opus (card I96-C12 (a))."""
+    config["families"]["sonnet"]["tier"] = None
+    config["families"]["sonnet"]["ids"] = ["claude-sonnet-5-5"]
+    for role in config["roles"].values():
+        if role["family"] == "sonnet":
+            role["family"] = "opus"
 
 
 class Base(unittest.TestCase):
@@ -108,11 +150,35 @@ class Base(unittest.TestCase):
             fh.write(data)
         return path
 
-    def args(self, expect=None, projects=None, agent=None):
-        argv = ["subagent", "--projects-dir", projects or self.projects, "--agent-id", agent or self.agent]
+    def args(self, expect=DEFAULT_EXPECT, projects=None, agent=None, base=None):
+        """subagent arguments; expect=() leaves out both expected values."""
+        argv = ["subagent", "--projects-dir", self.projects if projects is None else projects,
+                "--agent-id", self.agent if agent is None else agent]
         if expect:
             argv += ["--expect-model", expect[0], "--expect-effort", expect[1]]
+        if base is not None:
+            argv += ["--config-base", base]
         return argv
+
+    def check_args(self, candidate, projects=None, agent=None):
+        return ["check", "--projects-dir", projects or self.projects, "--agent-id", agent or self.agent,
+                "--candidate-config", candidate]
+
+    def make_pack(self, config=SHIPPED_BYTES, script="model_effort_readback.py", parent="scripts"):
+        """A copy of the script at <tmp>/pack-*/<parent>/<script> with the configuration bytes next to <parent>."""
+        pack = tempfile.mkdtemp(prefix="pack-", dir=self.tmp)
+        os.mkdir(os.path.join(pack, parent))
+        shutil.copy(SCRIPT, os.path.join(pack, parent, script))
+        if config is not None:
+            with open(os.path.join(pack, "model-config.json"), "wb") as fh:
+                fh.write(config)
+        return os.path.join(pack, parent, script)
+
+    def candidate(self, config=SHIPPED_BYTES, name="candidate.json"):
+        path = os.path.join(self.tmp, name)
+        with open(path, "wb") as fh:
+            fh.write(config)
+        return path
 
     # running
 
@@ -128,9 +194,11 @@ class Base(unittest.TestCase):
             self.assertNotIn(value, out)
         return line
 
-    def run_script(self, argv, hidden=()):
-        p = subprocess.run([sys.executable, "-I", "-B", SCRIPT, *argv], cwd=self.tmp, env={}, capture_output=True,
-                           timeout=10)
+    def run_script(self, argv, hidden=(), script=SCRIPT, cwd=None, env=None, stdin=False):
+        """Run by its path, or from stdin as the rules call the copy at a base."""
+        command = [sys.executable, "-I", "-B", "-" if stdin else script, *argv]
+        p = subprocess.run(command, cwd=cwd or self.tmp, env={} if env is None else env, capture_output=True,
+                           input=SOURCE if stdin else None, timeout=60)
         return self.check(p.returncode, p.stdout.decode("ascii"), p.stderr.decode("ascii"), hidden)
 
     def run_inproc(self, argv, hidden=()):
@@ -139,42 +207,45 @@ class Base(unittest.TestCase):
             code = MOD.main(argv)
         return self.check(code, out.getvalue(), err.getvalue(), hidden)
 
-    def assertStop(self, token, argv=None, inproc=False, hidden=()):
+    def assertStop(self, token, argv=None, inproc=False, hidden=(), **where):
         argv = self.args() if argv is None else argv
-        line = (self.run_inproc if inproc else self.run_script)(argv, hidden)
+        line = self.run_inproc(argv, hidden) if inproc else self.run_script(argv, hidden, **where)
         self.assertEqual(line, "STOP " + token)
 
-    def assertLine(self, want, argv=None, inproc=False):
+    def assertLine(self, want, argv=None, inproc=False, **where):
         argv = self.args() if argv is None else argv
-        self.assertEqual((self.run_inproc if inproc else self.run_script)(argv), want)
+        self.assertEqual(self.run_inproc(argv) if inproc else self.run_script(argv, **where), want)
 
 
 class Normal(Base):
-    def test_ok_takes_the_lowest_effort_over_all_records(self):
+    def test_pass_takes_the_lowest_effort_over_all_records(self):
         self.write([self.rec(effort="xhigh"), self.rec(effort="high"), self.rec(effort="max")])
-        self.assertLine("OK model=opus effort=high records=3")
+        self.assertLine(result("PASS", "opus", 3, "high"))
 
     def test_synthetic_record_is_skipped_without_other_checks(self):
         synthetic = {"type": "assistant", "message": {"model": "<synthetic>"}, "agentId": "x", "effort": 1}
         self.write([self.rec(effort="xhigh"), synthetic])
-        self.assertLine("OK model=opus effort=xhigh records=1")
+        self.assertLine(result("PASS", "opus", 3, "xhigh"))
 
     def test_pass_when_equal_or_above(self):
         self.write([self.rec(effort="xhigh")])
-        self.assertLine("PASS model=opus effort=xhigh expected=opus/xhigh", self.args(("opus", "xhigh")))
-        self.assertLine("PASS model=opus effort=xhigh expected=sonnet/medium", self.args(("sonnet", "medium")))
+        self.assertLine(result("PASS", "opus", 3, "xhigh", ("opus", "xhigh")), self.args(("opus", "xhigh")))
+        self.assertLine(result("PASS", "opus", 3, "xhigh", ("sonnet", "medium")), self.args(("sonnet", "medium")))
+        self.assertLine(result("PASS", "opus", 3, "xhigh", ("haiku", "low")), self.args(("haiku", "low")))
 
     def test_below_effort(self):
         self.write([self.rec(effort="xhigh"), self.rec(effort="medium")])
-        self.assertLine("BELOW model=opus effort=medium expected=opus/high", self.args(("opus", "high")))
+        self.assertLine(result("BELOW", "opus", 3, "medium", ("opus", "high")), self.args(("opus", "high")))
 
-    def test_below_model_with_a_patched_allowlist(self):
-        self.write([self.rec(model="test-model-sonnet", effort="max")])
-        with mock.patch.dict(MOD.MODEL_ALLOWLIST, {"test-model-sonnet": "sonnet"}):
-            self.assertLine("BELOW model=sonnet effort=max expected=opus/high", self.args(("opus", "high")),
-                            inproc=True)
+    def test_below_model_of_a_lower_family(self):
+        self.write([self.rec(model="claude-sonnet-5-5", effort="max")])
+        self.assertLine(result("BELOW", "sonnet", 2, "max", ("opus", "high")), self.args(("opus", "high")))
 
-    def test_unrelated_symlinks_and_sessions_without_subagents_keep_ok(self):
+    def test_expected_fable_is_above_a_listed_opus(self):  # fable has tier 4 in the file, so it is not BAD_ARGS
+        self.write([self.rec(effort="max")])
+        self.assertLine(result("BELOW", "opus", 3, "max", ("fable", "high")), self.args(("fable", "high")))
+
+    def test_unrelated_symlinks_and_sessions_without_subagents_keep_pass(self):
         self.write([self.rec()])
         outside = os.path.join(self.tmp, "outside")
         os.mkdir(outside)
@@ -186,7 +257,7 @@ class Normal(Base):
         with open(os.path.join(self.projects, "file.txt"), "w") as fh:
             fh.write("x")
         os.makedirs(os.path.join(self.projects, "bad name"))
-        self.assertLine("OK model=opus effort=high records=1")
+        self.assertLine(result("PASS", "opus", 3, "high"))
 
     def test_file_descriptors_are_closed(self):
         self.write([self.rec()])
@@ -195,7 +266,7 @@ class Normal(Base):
         self.run_inproc(self.args())  # AMBIGUOUS
         self.write([self.rec()], session=str(uuid.uuid4()), slug="third-slug", agent=self.other_agent())
         os.unlink(self.target(slug="second-slug"))
-        self.run_inproc(self.args())  # OK
+        self.run_inproc(self.args())  # PASS
         self.write(raw=b"{\n")
         self.run_inproc(self.args())  # MALFORMED
         self.assertEqual(open_fds(), before)
@@ -210,18 +281,17 @@ class Decoys(Base):
         api = {"type": "api-request", "params": {"model": "claude-fable-5-1", "effort": "max"}}
         user = {"type": "user", "effort": "max", "message": {"model": "claude-fable-5-1"}}
         self.write([api, user, decoy])
-        self.assertLine("OK model=opus effort=low records=1")
+        self.assertLine(result("PASS", "opus", 3, "low"))
 
     def test_requested_and_advisor_model_do_not_raise_the_model(self):
-        record = self.rec(model="test-model-haiku", requestedModel=OPUS, advisorModel=OPUS)
+        record = self.rec(model="claude-haiku-5-5", requestedModel=OPUS, advisorModel=OPUS)
         self.write([record])
-        with mock.patch.dict(MOD.MODEL_ALLOWLIST, {"test-model-haiku": "haiku"}):
-            self.assertLine("OK model=haiku effort=high records=1", inproc=True)
+        self.assertLine(result("BELOW", "haiku", 1, "high"))
 
     def test_capitalized_or_non_string_type_is_not_an_assistant_record(self):
         self.write([self.rec(type="Assistant", effort="low", agentId="x"), self.rec(type=["assistant"], effort=5),
                     {"effort": "low"}, self.rec(effort="max")])
-        self.assertLine("OK model=opus effort=max records=1")
+        self.assertLine(result("PASS", "opus", 3, "max"))
 
 
 class Appended(Base):
@@ -229,19 +299,19 @@ class Appended(Base):
         path = self.write([self.rec(effort="medium")])
         with open(path, "ab") as fh:
             fh.write(json.dumps(self.rec(effort="max")).encode() + b"\n")
-        self.assertLine("OK model=opus effort=medium records=2")
+        self.assertLine(result("PASS", "opus", 3, "medium"))
 
     def test_an_appended_lower_line_lowers_the_result(self):
         path = self.write([self.rec(effort="high")])
         with open(path, "ab") as fh:
             fh.write(json.dumps(self.rec(effort="low")).encode() + b"\n")
-        self.assertLine("BELOW model=opus effort=low expected=opus/high", self.args(("opus", "high")))
+        self.assertLine(result("BELOW", "opus", 3, "low", ("opus", "high")), self.args(("opus", "high")))
 
     def test_a_rewritten_line_passes(self):
         """A limit, not a protection (R-VER-1): a low line rewritten to a high value gives PASS."""
         self.write([self.rec(effort="low")])
         self.write([self.rec(effort="high")])  # the same file, its low line rewritten
-        self.assertLine("PASS model=opus effort=high expected=opus/high", self.args(("opus", "high")))
+        self.assertLine(result("PASS", "opus", 3, "high", ("opus", "high")), self.args(("opus", "high")))
 
 
 class Types(Base):
@@ -259,7 +329,7 @@ class Types(Base):
 
     def test_per_turn_effort(self):
         self.write([self.rec(perTurnEffort=DROP)])
-        self.assertLine("OK model=opus effort=high records=1")
+        self.assertLine(result("PASS", "opus", 3, "high"))
         self.write([self.rec(perTurnEffort="xhigh")])
         self.assertStop("INCONSISTENT")
         self.write([self.rec(perTurnEffort=["high"])])
@@ -316,13 +386,13 @@ class BadLines(Base):
     def test_number_at_the_length_limit_is_accepted(self):
         record = self.good()[:-1] + b',"n":1' + b"0" * 99 + b"}\n"
         self.write(raw=record)
-        self.assertLine("OK model=opus effort=high records=1")
+        self.assertLine(result("PASS", "opus", 3, "high"))
 
     def test_u2028_is_content_not_a_line_break(self):
         record = self.rec()
         record["message"]["content"][0]["text"] = "a\u2028b\u2029c\x85d"
         self.write(raw=json.dumps(record, ensure_ascii=False).encode("utf-8") + b"\n")
-        self.assertLine("OK model=opus effort=high records=1")
+        self.assertLine(result("PASS", "opus", 3, "high"))
 
     def test_empty_file_has_no_record(self):
         self.write(raw=b"")
@@ -341,7 +411,8 @@ class BadLines(Base):
             calls.append(n)
             return real_read(fd, min(n, size // 2)) if len(calls) == 1 else b""
 
-        with mock.patch.object(MOD.os, "read", short_read):
+        with mock.patch.object(MOD, "read_config_file", return_value=SHIPPED_BYTES), \
+                mock.patch.object(MOD.os, "read", short_read):
             self.assertStop("MALFORMED", inproc=True)
 
 
@@ -351,28 +422,30 @@ class Arguments(Base):
         for agent in (self.agent[:16], self.agent + "0", self.agent.upper(), "../" + self.agent[3:],
                       "g" * 17, self.agent + "\n", "", "-" + self.agent[1:]):
             with self.subTest(agent=agent):
-                self.assertStop("BAD_ARGS", ["subagent", "--projects-dir", self.projects, "--agent-id", agent])
+                self.assertStop("BAD_ARGS", self.args(agent=agent))
 
     def test_nul_in_an_argument(self):
         self.write([self.rec()])
-        self.assertStop("BAD_ARGS", ["subagent", "--projects-dir", self.projects + "\x00x", "--agent-id", self.agent],
-                        inproc=True)
-        self.assertStop("BAD_ARGS", ["subagent", "--projects-dir", self.projects, "--agent-id",
-                                     self.agent[:16] + "\x00"], inproc=True)
+        self.assertStop("BAD_ARGS", self.args(projects=self.projects + "\x00x"), inproc=True)
+        self.assertStop("BAD_ARGS", self.args(agent=self.agent[:16] + "\x00"), inproc=True)
+        self.assertStop("BAD_ARGS", self.check_args(self.candidate() + "\x00"), inproc=True)
 
     def test_bad_option_use(self):
         self.write([self.rec()])
         base = self.args()
+        bare = self.args(expect=())
         cases = {
             "repeated --agent-id": base + ["--agent-id", self.agent],
             "repeated --projects-dir": base + ["--projects-dir", self.projects],
-            "repeated --expect-model": self.args(("opus", "high")) + ["--expect-model", "opus"],
-            "abbreviated --agent": ["subagent", "--projects-dir", self.projects, "--agent", self.agent],
-            "abbreviated --projects": ["subagent", "--projects", self.projects, "--agent-id", self.agent],
-            "only --expect-model": base + ["--expect-model", "opus"],
-            "only --expect-effort": base + ["--expect-effort", "high"],
-            "missing --agent-id": ["subagent", "--projects-dir", self.projects],
-            "missing --projects-dir": ["subagent", "--agent-id", self.agent],
+            "repeated --expect-model": base + ["--expect-model", "opus"],
+            "abbreviated --agent": ["subagent", "--projects-dir", self.projects, "--agent", self.agent] + base[5:],
+            "abbreviated --projects": ["subagent", "--projects", self.projects, "--agent-id", self.agent] + base[5:],
+            "abbreviated --config": base + ["--config", "a" * 40],
+            "no expected values": bare,
+            "only --expect-model": bare + ["--expect-model", "opus"],
+            "only --expect-effort": bare + ["--expect-effort", "high"],
+            "missing --agent-id": ["subagent", "--projects-dir", self.projects] + base[5:],
+            "missing --projects-dir": ["subagent", "--agent-id", self.agent] + base[5:],
             "-h": ["-h"],
             "--help": ["--help"],
             "subagent -h": base + ["-h"],
@@ -383,6 +456,7 @@ class Arguments(Base):
             "abbreviated subcommand": ["subagen"] + base[1:],
             "extra positional": base + ["extra-" + self.marker],
             "unknown option": base + ["--model", "opus"],
+            "--candidate-config in subagent": base + ["--candidate-config", self.candidate()],
         }
         for name, argv in cases.items():
             with self.subTest(name):
@@ -390,10 +464,18 @@ class Arguments(Base):
 
     def test_bad_expected_values(self):
         self.write([self.rec()])
-        for expect in (("fable", "high"), ("Opus", "high"), (OPUS, "high"), ("opus", "ultra"), ("opus", "High"),
-                       ("opus", ""), ("inherit", "high")):
+        for expect in (("Opus", "high"), (OPUS, "high"), ("opus", "ultra"), ("opus", "High"), ("opus", ""),
+                       ("inherit", "high"), ("unrecognized", "high"), ("mythos", "high"), ("", "high"),
+                       ("opus ", "high")):
             with self.subTest(expect=expect):
                 self.assertStop("BAD_ARGS", self.args(expect))
+
+    def test_expected_family_with_a_null_tier(self):  # Issue #96: a retired family is not a valid expected value
+        self.write([self.rec()])
+        script = self.make_pack(config_bytes(retire_sonnet))
+        self.assertStop("BAD_ARGS", self.args(("sonnet", "medium")), script=script)
+        self.assertLine(result("PASS", "opus", 3, "high", ("opus", "high")), self.args(("opus", "high")),
+                        script=script)
 
     def test_bad_projects_dir(self):
         self.write([self.rec()])
@@ -401,7 +483,7 @@ class Arguments(Base):
         for projects in (rel, self.projects + "/", "/", self.projects + "/.", self.projects + "/../projects",
                          self.projects.replace("/projects", "//projects"), ""):
             with self.subTest(projects=projects):
-                self.assertStop("BAD_ARGS", ["subagent", "--projects-dir", projects, "--agent-id", self.agent])
+                self.assertStop("BAD_ARGS", self.args(projects=projects))
 
     def test_projects_dir_is_a_symlink_a_file_or_missing(self):
         self.write([self.rec()])
@@ -491,7 +573,7 @@ class Location(Base):
         os.rename(os.path.join(self.tmp, "pAjBx"), self.projects)
         os.rmdir(wild)
         os.rename(self.projects, wild)
-        self.assertLine("OK model=opus effort=high records=1", self.args(projects=wild))
+        self.assertLine(result("PASS", "opus", 3, "high"), self.args(projects=wild))
 
     def test_two_sessions_with_the_same_agent_file(self):
         self.write([self.rec()])
@@ -563,9 +645,9 @@ class Files(Base):
         self.assertStop("TOO_LARGE")
 
     def test_owner(self):
-        path = self.write([self.rec()])
-        other = os.stat(path).st_uid + 1
-        with mock.patch.object(MOD.os, "getuid", return_value=other):
+        """The transcript of another user; the configuration file is read with the real user ID."""
+        self.write([self.rec()])
+        with other_user():
             self.assertStop("OWNER", inproc=True)
 
     @unittest.skipIf(IS_ROOT, "root reads a file or directory with mode 000")
@@ -608,13 +690,626 @@ class Binding(Base):
 
 
 class Models(Base):
-    def test_models_not_in_the_allowlist(self):
-        for model in ("claude-opus-4-1", "claude-opus-5-5[1m]", "Claude-Opus-5-5", "opus", " claude-opus-5-5",
-                      "arn:aws:bedrock:us-east-1:000000000000:inference-profile/us.anthropic.claude-opus-5-5-v1:0",
-                      "claude-fable-5-1", "claude-sonnet-5-5", "claude-haiku-5-5", ""):
+    """The classification of Issue #96 (card I96-R2-C1 (a)) with the shipped configuration file."""
+
+    def outcome(self, models, expect=("opus", "high"), effort="high", hidden=()):
+        self.write([self.rec(model=model, effort=effort) for model in models])
+        return self.run_script(self.args(expect), hidden=hidden)
+
+    def test_listed_and_version_ids(self):
+        for models, expect, want in (
+                ([OPUS], ("opus", "high"), result("PASS", "opus", 3, "high", ("opus", "high"))),
+                (["claude-opus-6-0"], ("opus", "high"), result("WARN", "opus", 3, "high", ("opus", "high"))),
+                (["claude-opus-4-8"], ("opus", "high"), result("WARN", "opus", 3, "high", ("opus", "high"))),
+                (["claude-opus-6"], ("opus", "high"), result("WARN", "opus", 3, "high", ("opus", "high"))),
+                (["claude-sonnet-5-5"], ("opus", "high"), result("BELOW", "sonnet", 2, "high", ("opus", "high"))),
+                (["claude-sonnet-5-5"], ("sonnet", "medium"),
+                 result("WARN", "sonnet", 2, "high", ("sonnet", "medium"))),
+                (["claude-haiku-5-5"], ("haiku", "low"), result("WARN", "haiku", 1, "high", ("haiku", "low"))),
+                (["claude-fable-5-1"], ("opus", "high"), result("WARN", "fable", 4, "high", ("opus", "high"))),
+                (["claude-fable-5-1"], ("fable", "high"), result("WARN", "fable", 4, "high", ("fable", "high"))),
+                ([OPUS], ("fable", "high"), result("BELOW", "opus", 3, "high", ("fable", "high")))):
+            with self.subTest(models=models, expect=expect):
+                self.assertEqual(self.outcome(models, expect), want)
+
+    def test_lower_family_words(self):
+        """Step 3: a word that names a family below the expected one gives BELOW, whatever the separators."""
+        for model, family in (("anthropic.claude-sonnet-5-5", "sonnet"), ("claude-haiku\u00a05-5", "haiku"),
+                              ("claude\u2011haiku\u20115\u20115", "haiku"), ("claude\u00b7haiku\u00b75\u00b75", "haiku"),
+                              ("CLAUDE-HAIKU-5-5", "haiku"), ("haiku", "haiku"), ("x sonnet4 y", "sonnet"),
+                              ("claude-sonnet-5-5 claude-haiku-5-5", "haiku"), ("claude-sonnet-5-5\n", "sonnet")):
             with self.subTest(model=model):
-                self.write([self.rec(), self.rec(model=model)])
-                self.assertStop("MODEL_NOT_ALLOWED", hidden=(model,) if len(model) > 6 else ())
+                self.assertEqual(self.outcome([model], hidden=(model,) if len(model) > 6 else ()),
+                                 result("BELOW", family, TIERS[family], "high", ("opus", "high")))
+
+    def test_unrecognized_values_stop(self):
+        for model, expect in (
+                ("", ("opus", "high")), ("   ", ("opus", "high")), ("unknown", ("opus", "high")),
+                ("opus", ("opus", "high")), ("claude-opus-6-0\n", ("opus", "high")),
+                ("claude-opus-5-5\x07", ("opus", "high")), ("claude-opus-5-5\x00", ("opus", "high")),
+                ("Claude-Opus-5-5", ("opus", "high")), (" claude-opus-5-5", ("opus", "high")),
+                ("claude-opus-5-5[1m]", ("opus", "high")), ("claude-opus-5-5-v1:0", ("opus", "high")),
+                ("arn:aws:bedrock:us-east-1:000000000000:inference-profile/us.anthropic.claude-opus-5-5-v1:0",
+                 ("opus", "high")),
+                ("anthropic.claude-sonnet-5-5", ("sonnet", "medium")), ("claude-mythos-1-0", ("opus", "high")),
+                ("claude-opus-" + "5" * 100, ("opus", "high")), ("x" * 10000, ("opus", "high")),
+                ("x" * 200 + "-haiku", ("opus", "high"))):
+            with self.subTest(model=model[:40], expect=expect):
+                self.assertEqual(self.outcome([model], expect, hidden=(model,) if len(model) > 6 else ()),
+                                 "STOP MODEL_NOT_RECOGNIZED")
+
+    def test_mixed_records(self):
+        """rev9 section 2: more than one family gives BELOW when a record is below, else STOP; one family aggregates."""
+        for models, efforts, want in (
+                ([OPUS, "claude-opus-6-0"], ("high", "high"), result("WARN", "opus", 3, "high", ("opus", "high"))),
+                ([OPUS, "claude-sonnet-5-5"], ("high", "high"), result("BELOW", "sonnet", 2, "high", ("opus", "high"))),
+                ([OPUS, "claude-fable-5-1"], ("high", "high"), "STOP MODEL_NOT_RECOGNIZED"),
+                ([OPUS, "unknown"], ("high", "high"), "STOP MODEL_NOT_RECOGNIZED"),
+                (["unknown", OPUS], ("high", "high"), "STOP MODEL_NOT_RECOGNIZED"),
+                (["unknown"], ("low",), result("BELOW", "unrecognized", "none", "low", ("opus", "high"))),
+                ([OPUS, "unknown"], ("low", "high"), result("BELOW", "unrecognized", "none", "low", ("opus", "high"))),
+                ([OPUS, "unknown"], ("high", "low"), result("BELOW", "unrecognized", "none", "low", ("opus", "high"))),
+                ([OPUS, OPUS], ("high", "medium"), result("BELOW", "opus", 3, "medium", ("opus", "high"))),
+                (["claude-opus-6-0", "claude-sonnet-5-5", "claude-haiku-5-5"], ("max", "max", "max"),
+                 result("BELOW", "haiku", 1, "max", ("opus", "high")))):
+            with self.subTest(models=models, efforts=efforts):
+                self.write([self.rec(model=m, effort=e) for m, e in zip(models, efforts)])
+                self.assertEqual(self.run_script(self.args(("opus", "high"))), want)
+
+    def test_immediate_stops_come_before_the_aggregate(self):
+        for records, token in (
+                ([self.rec(model="unknown"), self.rec(effort="ultra", perTurnEffort=DROP)], "EFFORT_NOT_ALLOWED"),
+                ([self.rec(model="claude-sonnet-5-5"), self.rec(isSidechain=False)], "BINDING_MISMATCH"),
+                ([self.rec(model="claude-haiku-5-5"), self.rec(perTurnEffort="max")], "INCONSISTENT"),
+                ([self.rec(model="unknown"), self.rec(effort=DROP, perTurnEffort=DROP)], "MISSING_FIELD"),
+                ([self.rec(model="claude-sonnet-5-5", effort="low"), self.rec(model=5)], "MISSING_FIELD")):
+            with self.subTest(token=token):
+                self.write(records)
+                self.assertStop(token, self.args(("opus", "high")))
+
+    def test_retired_family(self):
+        """A family with a null tier never meets an expected value: its listed and version IDs give BELOW."""
+        script = self.make_pack(config_bytes(retire_sonnet))
+        for model in ("claude-sonnet-5-5", "claude-sonnet-6-0", "x.sonnet"):
+            with self.subTest(model=model):
+                self.write([self.rec(model=model, effort="max")])
+                self.assertLine(result("BELOW", "sonnet", "null", "max", ("haiku", "low")), self.args(("haiku", "low")),
+                                script=script)
+
+    def test_lowest_prefers_a_version_record_on_a_tie(self):
+        self.assertEqual(MOD.lowest([("listed", "opus", 3), ("version", "opus", 3)]), 1)
+        self.assertEqual(MOD.lowest([("version", "opus", 3), ("listed", "sonnet", 2)]), 1)
+        self.assertEqual(MOD.lowest([("listed", "opus", 3), ("unrecognized", None, -1), ("lower", "x", 0)]), 1)
+        self.assertEqual(MOD.lowest([("listed", "opus", 3), ("listed", "opus", 3)]), 0)
+
+
+class Validator(unittest.TestCase):
+    """validate_config: each rule of the design (rev7 section 3.1, rev8 section 2.1) with a positive and a negative case."""
+
+    def bad(self, data, name=None):
+        with self.subTest(name or repr(data[:60])):
+            with self.assertRaises(MOD.Stop) as caught:
+                MOD.validate_config(data)
+            self.assertEqual(caught.exception.reason, "CONFIG")
+
+    def good(self, data, name=None):
+        with self.subTest(name or repr(data[:60])):
+            self.assertIsInstance(MOD.validate_config(data), dict)
+
+    def change(self, fn, ok, name):
+        (self.good if ok else self.bad)(config_bytes(fn), name)
+
+    def test_the_shipped_file_passes(self):
+        self.assertEqual(MOD.validate_config(SHIPPED_BYTES), SHIPPED)
+
+    def test_shipped_content(self):  # rev7 section 2: the content of the file, value by value
+        self.assertEqual(SHIPPED["schema"], 1)
+        self.assertEqual({n: (f["tier"], f["ids"]) for n, f in SHIPPED["families"].items()},
+                         {"haiku": (1, []), "sonnet": (2, []), "opus": (3, [OPUS]), "fable": (4, [])})
+        self.assertEqual(list(SHIPPED["roles"]), list(MOD.ROLE_NAMES))
+        for role in SHIPPED["roles"].values():
+            self.assertEqual(role["effort"][0], role["effort"][1])  # rev8 section 1: min equals max in PR-1
+
+    def test_strict_json(self):
+        good = SHIPPED_BYTES
+        self.bad(good.decode().encode("utf-16"), "UTF-16")
+        self.bad(b"\xef\xbb\xbf" + good, "BOM")
+        self.bad(good.replace(b'"schema": 1,', b'"schema": 1, "schema": 1,'), "duplicate key")
+        self.bad(good.replace(b'"schema": 1,', b'"schema": 1, "sch\\u0065ma": 1,'), "escaped duplicate key")
+        self.bad(good.replace(b'"schema": 1', b'"schema": NaN'), "NaN")
+        self.bad(good.replace(b'"schema": 1', b'"schema": Infinity'), "Infinity")
+        self.bad(good.replace(b'"schema": 1', b'"schema": 1' + b"0" * 100), "long number")
+        self.bad(good.replace(b'"schema": 1', b'"schema": 0.' + b"1" * 100), "long float")
+        self.bad(good[:-3], "cut short")
+        self.bad(good + b"x", "trailing text")
+        self.bad(good.replace(b"Opus 5.5", b"Opus \xff"), "invalid UTF-8")
+        self.bad(b"", "empty")
+        self.bad(b"[]", "array")
+        self.bad(good.decode(), "str, not bytes")
+        self.bad(bytearray(good), "bytearray, not bytes")
+        self.bad(b"[" * 30000 + b"]" * 30000, "deep nesting")
+
+    def test_size_limit(self):
+        pad = MOD.MAX_CONFIG_BYTES - len(SHIPPED_BYTES)
+        at_limit = SHIPPED_BYTES.replace(b'"Claude 5.5 (Opus 5.5)"', b'"Claude 5.5 (Opus 5.5)' + b"x" * pad + b'"')
+        self.assertEqual(len(at_limit), MOD.MAX_CONFIG_BYTES)
+        self.good(at_limit, "at the size limit")
+        self.bad(at_limit.replace(b'x"', b'xx"', 1), "one byte over the size limit")
+
+    def test_depth_limit(self):
+        self.assertEqual(MOD.MAX_CONFIG_DEPTH, 8)
+        with mock.patch.object(MOD, "MAX_CONFIG_DEPTH", 4):
+            self.good(SHIPPED_BYTES, "depth 4 is the depth of the shipped file")
+        with mock.patch.object(MOD, "MAX_CONFIG_DEPTH", 3):
+            self.bad(SHIPPED_BYTES, "over the depth limit")
+
+    def test_closed_key_sets(self):
+        cases = [
+            (lambda c: c.update(extra=1), "extra top-level key"),
+            (lambda c: c.pop("responsibility"), "missing top-level key"),
+            (lambda c: c["validated_with"].update(by="x"), "extra validated_with key"),
+            (lambda c: c["validated_with"].pop("note"), "missing validated_with key"),
+            (lambda c: c["families"]["opus"].update(line="x"), "extra family key"),
+            (lambda c: c["families"]["opus"].pop("basis"), "missing family key"),
+            (lambda c: c["roles"]["scan"].update(model="opus"), "extra role key"),
+            (lambda c: c["roles"]["scan"].pop("effort"), "role without effort"),
+            (lambda c: c["roles"]["orchestration"].pop("family"), "role without family"),
+            (lambda c: c.update(validated_with="x"), "validated_with not an object"),
+            (lambda c: c["validated_with"].update(note=["x"]), "validated_with note not a string"),
+            (lambda c: c.update(responsibility=None), "responsibility not a string"),
+            (lambda c: c.update(families=[]), "families not an object"),
+            (lambda c: c.update(families={}), "no family"),
+            (lambda c: c.update(roles=[]), "roles not an object"),
+            (lambda c: c["roles"].update(scan=["opus"]), "role not an object"),
+            (lambda c: c["families"].update(opus=[3]), "family not an object"),
+        ]
+        for fn, name in cases:
+            self.change(fn, False, name)
+        self.change(lambda c: c["roles"]["scan"].pop("agent"), True, "a role without an agent")
+
+    def test_schema(self):
+        for value in (2, 0, "1", 1.0, True, None):
+            self.change(lambda c, v=value: c.update(schema=v), False, f"schema {value!r}")
+
+    def test_family_names(self):
+        def add(name, tier=5):
+            return lambda c: c["families"].update({name: {"tier": tier, "ids": [], "basis": "x"}})
+        for name in ("Mythos", "my-thos", "my_thos", "mythos5", "", "a" * 21, "m\u00fdthos", " mythos"):
+            self.change(add(name), False, f"family name {name!r}")
+        for name in ("unrecognized", "none", "null", "unknown", "inherit", "default", *MOD.EFFORT_ORDER):
+            self.change(add(name), False, f"reserved family name {name!r}")
+        self.change(add("a" * 20), True, "a family name of 20 letters")
+        self.change(add("mythos", None), True, "a new family with a null tier")
+
+    def test_tiers(self):
+        for value in (True, False, 0, 100, -1, 1.0, "3", [3]):
+            self.change(lambda c, v=value: c["families"]["fable"].update(tier=v), False, f"tier {value!r}")
+        self.change(lambda c: c["families"]["fable"].update(tier=99), True, "tier 99")
+        self.change(lambda c: c["families"]["fable"].update(tier=None), True, "tier null")
+        self.change(lambda c: c["families"]["fable"].update(tier=3), False, "two equal tiers")
+        self.change(lambda c: (c["families"]["fable"].update(tier=None), c["families"].update(
+            mythos={"tier": None, "ids": [], "basis": "x"})), True, "two null tiers")
+
+    def test_ids(self):
+        def ids(family, values):
+            return lambda c: c["families"][family].update(ids=values)
+        for values, name in (("claude-opus-5-5", "ids not a list"), ([5], "an ID not a string"), ([None], "null ID"),
+                             (["claude-Opus-5-5"], "an upper-case ID"), (["claude_opus_5_5"], "underscore"),
+                             (["claude-opus-5-5 "], "space"), (["claude-opus-5-5\n"], "newline"),
+                             (["claude-opus/5"], "slash"), (["claude-opus-5:0"], "colon"),
+                             (["claude-opus-\u0665"], "non-ASCII digit"), ([""], "empty ID"),
+                             (["claude-opus-" + "5" * 89], "101 characters"),
+                             ([OPUS, OPUS], "the same ID twice in a family"),
+                             (["claude-5-5"], "no word of its own family"), (["claude-opu-5"], "a shorter word"),
+                             (["claude-opusx-5"], "a longer word"),
+                             (["claude-opus-sonnet-5"], "a word of another family"),
+                             (["claude-opus-haiku4-5"], "a word of another family with digits"),
+                             ([OPUS, "fable.opus.1"], "a second ID with another family word")):
+            self.change(ids("opus", values), False, name)
+        self.change(lambda c: c["families"]["sonnet"].update(ids=[OPUS]), False, "an ID in two families")
+        for values, name in ((["claude-opus-" + "5" * 88], "100 characters"), ([OPUS, "claude-opus4.5"], "opus4"),
+                             (["claude-opus-5-5", "bedrock.opus.v1-0"], "dots"), ([], "no ID")):
+            self.change(ids("opus", values), True, name)
+
+    def test_basis(self):
+        for value in ("", None, 5, ["x"]):
+            self.change(lambda c, v=value: c["families"]["opus"].update(basis=v), False, f"basis {value!r}")
+        self.change(lambda c: c["families"]["opus"].update(basis="x"), True, "a short basis")
+
+    def test_roles(self):
+        self.change(lambda c: c["roles"].pop("scan"), False, "a role missing")
+        self.change(lambda c: c["roles"].update(extra={"family": "opus", "effort": ["high", "high"]}), False,
+                    "an extra role")
+        self.change(lambda c: c["roles"]["scan"].update(family="mythos"), False, "an unknown family")
+        self.change(lambda c: c["roles"]["scan"].update(family=["opus"]), False, "a family that is not a string")
+        self.change(lambda c: c["families"]["sonnet"].update(tier=None), False, "a role on a retired family")
+        self.change(retire_sonnet, True, "retired with the roles moved")
+        for value in ("high", ["high"], ["high", "high", "high"], ["high", 5], ["high", "ultra"], ["High", "high"],
+                      ["xhigh", "high"], ["max", "low"], None):
+            self.change(lambda c, v=value: c["roles"]["scan"].update(effort=v), False, f"effort {value!r}")
+        for value in (["high", "xhigh"], ["low", "max"], ["max", "max"]):
+            self.change(lambda c, v=value: c["roles"]["scan"].update(effort=v), True, f"effort {value!r}")
+
+    def test_agents(self):
+        for value in ("general-purpose", "Dev-Reviewer", "", None, ["dev-reviewer"]):
+            self.change(lambda c, v=value: c["roles"]["scan"].update(agent=v), False, f"agent {value!r}")
+        for value in (False, 1, "true", None):
+            self.change(lambda c, v=value: c["roles"]["review-routine"].update(agent_default=v), False,
+                        f"agent_default {value!r}")
+        self.change(lambda c: c["roles"]["orchestration"].update(agent_default=True), False,
+                    "agent_default without an agent")
+        self.change(lambda c: c["roles"]["review-deep"].update(agent_default=True), False,
+                    "two agent_default roles of one agent")
+        self.change(lambda c: c["roles"]["review-routine"].pop("agent_default"), True,
+                    "an agent without an agent_default role (check_pack requires it, not the validator)")
+        self.change(lambda c: c["roles"]["review-routine"].update(family="haiku", effort=["low", "low"]), True,
+                    "a role under a floor (card I96-C4 (a): not a validator error)")
+
+    def test_pure(self):
+        """No file, process or argument is read while the module loads or validates (rev7 section 3.1)."""
+        with mock.patch.object(subprocess, "Popen", side_effect=AssertionError("Popen")):
+            module = load_script()
+        with mock.patch.object(module.subprocess, "Popen", side_effect=AssertionError("Popen")), \
+                mock.patch.object(module.os, "open", side_effect=AssertionError("open")), \
+                mock.patch.object(module.os, "read", side_effect=AssertionError("read")), \
+                mock.patch.object(module.sys, "argv", ["-", "subagent"]), \
+                mock.patch.object(module, "from_stdin", side_effect=AssertionError("from_stdin")):
+            self.assertEqual(module.validate_config(SHIPPED_BYTES), SHIPPED)
+
+
+class PathForm(Base):
+    """A run by its path reads the model-config.json next to its scripts folder, opened as strictly as the transcript."""
+
+    def setUp(self):
+        super().setUp()
+        self.write([self.rec()])
+
+    def pack_config(self, script):
+        return os.path.join(os.path.dirname(os.path.dirname(script)), "model-config.json")
+
+    def test_a_copy_reads_its_own_file(self):
+        self.assertLine(result("PASS", "opus", 3, "high"), script=self.make_pack())
+        self.assertStop("CONFIG", script=self.make_pack(b"{}"))
+        self.assertStop("CONFIG", script=self.make_pack(None))
+
+    def test_wrong_name_or_parent(self):
+        for script, parent in (("readback.py", "scripts"), ("model_effort_readback.py", "bin"),
+                               ("model_effort_readback.py", "Scripts")):
+            with self.subTest(script=script, parent=parent):
+                self.assertStop("BAD_ARGS", script=self.make_pack(script=script, parent=parent))
+        with mock.patch.object(MOD, "__file__", os.path.join(self.tmp, "x", "model_effort_readback.py")):
+            self.assertStop("BAD_ARGS", inproc=True)
+
+    def test_symlink(self):
+        script = self.make_pack(None)
+        real = self.candidate()
+        os.symlink(real, self.pack_config(script))
+        self.assertStop("CONFIG", script=script)
+
+    def test_hard_link(self):
+        script = self.make_pack()
+        os.link(self.pack_config(script), os.path.join(self.tmp, "second-name"))
+        self.assertStop("CONFIG", script=script)
+
+    def test_other_owner(self):
+        with mock.patch.object(MOD.os, "getuid", return_value=os.getuid() + 1):
+            self.assertStop("CONFIG", inproc=True)
+
+    def test_size(self):
+        pad = MOD.MAX_CONFIG_BYTES - len(SHIPPED_BYTES)
+        at_limit = SHIPPED_BYTES.replace(b'"Claude 5.5 (Opus 5.5)"', b'"Claude 5.5 (Opus 5.5)' + b"x" * pad + b'"')
+        self.assertLine(result("PASS", "opus", 3, "high"), script=self.make_pack(at_limit))
+        self.assertStop("CONFIG", script=self.make_pack(at_limit + b"\n"))
+        script = self.make_pack()
+        with open(self.pack_config(script), "r+b") as fh:
+            fh.truncate(MOD.MAX_FILE_BYTES + 1)
+        self.assertStop("CONFIG", script=script)
+
+    def test_not_a_regular_file(self):
+        script = self.make_pack(None)
+        os.mkfifo(self.pack_config(script))
+        self.assertStop("CONFIG", script=script)  # no block
+        os.unlink(self.pack_config(script))
+        os.mkdir(self.pack_config(script))
+        self.assertStop("CONFIG", script=script)
+
+    def test_config_base_by_path(self):
+        self.assertStop("BAD_ARGS", self.args(base="a" * 40))
+        self.assertStop("BAD_ARGS", self.args(base="a" * 64))
+
+    def test_config_is_read_before_the_transcript(self):
+        shutil.rmtree(self.projects)
+        self.assertStop("CONFIG", script=self.make_pack(b"{}"))
+
+
+class FakeGit(Base):
+    """The git calls of the stdin form, with a fake git in this process (Issue #96, rev8 section 4.1)."""
+
+    BASE = "c" * 40
+
+    def setUp(self):
+        super().setUp()
+        self.write([self.rec()])
+        self.bin = os.path.join(self.tmp, "bin")
+        os.mkdir(self.bin)
+        self.log = os.path.join(self.tmp, "argv.log")
+        self.config = self.candidate()
+
+    def fake(self, rev_parse, cat_file):
+        """A fake git: logs its arguments, then runs the shell text for the subcommand."""
+        path = os.path.join(self.bin, "git")
+        with open(path, "w") as fh:
+            fh.write(f'#!/bin/sh\nfor a in "$@"; do printf "%s\\n" "$a" >> "{self.log}"; done\n'
+                     f'case "$2" in\n  rev-parse) {rev_parse} ;;\n  cat-file) {cat_file} ;;\nesac\nexit 99\n')
+        os.chmod(path, 0o755)
+
+    def run_stdin(self, argv=None, timeout=None):
+        argv = self.args(base=self.BASE) if argv is None else argv
+        patches = [mock.patch.object(MOD, "from_stdin", return_value=True),
+                   mock.patch.dict(os.environ, {"PATH": self.bin})]
+        if timeout is not None:
+            patches.append(mock.patch.object(MOD, "GIT_TIMEOUT", timeout))
+        with contextlib.ExitStack() as stack:
+            for patch in patches:
+                stack.enter_context(patch)
+            start = time.monotonic()
+            line = self.run_inproc(argv, hidden=(self.BASE,))
+        return line, time.monotonic() - start
+
+    def ok_rev_parse(self, code=0):
+        return f'printf "%s\\n" "{self.BASE}"; exit {code}'
+
+    def ok_cat_file(self, code=0):
+        return f'{shutil.which("cat")} "{self.config}"; exit {code}'
+
+    def test_two_calls_with_literal_arguments(self):
+        self.fake(self.ok_rev_parse(), self.ok_cat_file())
+        self.assertEqual(self.run_stdin()[0], result("PASS", "opus", 3, "high"))
+        with open(self.log) as fh:
+            self.assertEqual(fh.read().split("\n")[:-1], [
+                "--no-replace-objects", "rev-parse", "--verify", "--quiet", self.BASE + "^{commit}",
+                "--no-replace-objects", "cat-file", "blob", self.BASE + ":" + CONFIG_IN_REPO])
+
+    def test_an_exit_code_other_than_0_with_output(self):
+        for rev_parse, cat_file in ((self.ok_rev_parse(1), self.ok_cat_file()),
+                                    (self.ok_rev_parse(), self.ok_cat_file(1)),
+                                    (self.ok_rev_parse(), self.ok_cat_file(128))):
+            with self.subTest(rev_parse=rev_parse[-6:], cat_file=cat_file[-8:]):
+                self.fake(rev_parse, cat_file)
+                self.assertEqual(self.run_stdin()[0], "STOP CONFIG")
+
+    def test_rev_parse_output_must_be_the_literal(self):
+        for output in ("d" * 40 + "\\n", self.BASE, self.BASE + "\\n" + self.BASE + "\\n", " " + self.BASE + "\\n",
+                       self.BASE.upper() + "\\n", self.BASE + "\\r\\n", ""):
+            with self.subTest(output=output):
+                self.fake(f"printf '{output}'; exit 0", self.ok_cat_file())
+                self.assertEqual(self.run_stdin()[0], "STOP CONFIG")
+        self.fake(f"printf '{self.BASE}\\n'; exit 0", self.ok_cat_file())  # the same form, with the literal
+        self.assertEqual(self.run_stdin()[0], result("PASS", "opus", 3, "high"))
+
+    def test_git_missing(self):
+        self.assertEqual(self.run_stdin()[0], "STOP CONFIG")  # no git in PATH
+
+    def test_timeout_kills_the_process_group(self):
+        pidfile = os.path.join(self.tmp, "pid")
+        self.fake(f'{shutil.which("sleep")} 30 & echo $! > "{pidfile}"; wait', self.ok_cat_file())
+        line, elapsed = self.run_stdin(timeout=1)
+        self.assertEqual(line, "STOP CONFIG")
+        self.assertLess(elapsed, 10)
+        with open(pidfile) as fh:
+            pid = int(fh.read())
+        deadline = time.monotonic() + 10
+        while time.monotonic() < deadline:
+            try:
+                os.kill(pid, 0)
+            except ProcessLookupError:
+                break
+            time.sleep(0.05)
+        else:
+            self.fail("the child of the fake git still runs")
+
+    def test_the_time_budget_is_shared_by_both_calls(self):
+        self.fake(f'{shutil.which("sleep")} 0.6; ' + self.ok_rev_parse(), f'{shutil.which("sleep")} 0.6; '
+                  + self.ok_cat_file())
+        self.assertEqual(self.run_stdin(timeout=1)[0], "STOP CONFIG")
+        self.assertEqual(self.run_stdin(timeout=5)[0], result("PASS", "opus", 3, "high"))
+
+    def test_overflow_kills_the_call(self):
+        self.fake(self.ok_rev_parse(), f'exec {shutil.which("yes")}')
+        line, elapsed = self.run_stdin()
+        self.assertEqual(line, "STOP CONFIG")
+        self.assertLess(elapsed, 10)
+        big = self.candidate(b" " * MOD.MAX_CONFIG_BYTES + SHIPPED_BYTES, "big.json")
+        self.fake(self.ok_rev_parse(), f'{shutil.which("cat")} "{big}"; exit 0')
+        self.assertEqual(self.run_stdin()[0], "STOP CONFIG")
+
+    def test_an_exception_is_config(self):
+        self.fake(self.ok_rev_parse(), self.ok_cat_file())
+        with mock.patch.object(MOD.select, "select", side_effect=OSError(errno.EINTR, "x")):
+            self.assertEqual(self.run_stdin()[0], "STOP CONFIG")
+        with mock.patch.object(MOD.subprocess, "Popen", side_effect=ValueError("x")):
+            self.assertEqual(self.run_stdin()[0], "STOP CONFIG")
+
+    def test_from_stdin_needs_config_base(self):
+        self.fake(self.ok_rev_parse(), self.ok_cat_file())
+        self.assertEqual(self.run_stdin(self.args())[0], "STOP BAD_ARGS")
+        self.assertFalse(os.path.exists(self.log))  # no git call
+
+
+@unittest.skipIf(GIT is None, "git is not installed")
+class ConfigBase(Base):
+    """The stdin form against real Git repositories (Issue #96, rev7 section 6, rev8 section 4.1)."""
+
+    def setUp(self):
+        super().setUp()
+        self.write([self.rec()])
+        self.home = os.path.join(self.tmp, "home")
+        os.mkdir(self.home)
+        self.env = {"PATH": os.path.dirname(GIT)}
+
+    def git(self, repo, *args, data=None):
+        command = [GIT, "-c", "user.name=t", "-c", "user.email=t@example.invalid", "-c", "commit.gpgsign=false",
+                   "-c", "tag.gpgsign=false", "-c", "init.defaultBranch=main", *args]
+        p = subprocess.run(command, cwd=repo, input=data, capture_output=True, timeout=60,
+                           env={"PATH": os.path.dirname(GIT), "HOME": self.home, "GIT_CONFIG_NOSYSTEM": "1"})
+        self.assertEqual(p.returncode, 0, p.stderr)
+        return p.stdout.decode("ascii").strip()
+
+    def repo(self, config=SHIPPED_BYTES, object_format=None):
+        """A repository with one commit that holds `config` at skills/dev-core/model-config.json; its commit ID."""
+        repo = tempfile.mkdtemp(prefix="repo-", dir=self.tmp)
+        self.git(repo, "init", "-q", *(["--object-format=" + object_format] if object_format else []))
+        os.makedirs(os.path.join(repo, "skills", "dev-core"))
+        with open(os.path.join(repo, CONFIG_IN_REPO), "wb") as fh:
+            fh.write(config)
+        self.git(repo, "add", "-A")
+        self.git(repo, "commit", "-q", "-m", "x")
+        return repo, self.git(repo, "rev-parse", "HEAD")
+
+    def stdin(self, repo, base, argv=None):
+        argv = self.args(base=base) if argv is None else argv
+        return self.run_script(argv, hidden=(base,) if base else (), cwd=repo, env=self.env, stdin=True)
+
+    def test_the_literal_commit_passes(self):
+        repo, base = self.repo()
+        self.assertEqual(self.stdin(repo, base), result("PASS", "opus", 3, "high"))
+        with open(os.path.join(repo, CONFIG_IN_REPO), "wb") as fh:
+            fh.write(b"{}")  # the work tree does not count; the commit does
+        self.assertEqual(self.stdin(repo, base), result("PASS", "opus", 3, "high"))
+
+    def test_other_objects_and_missing_commits(self):
+        repo, base = self.repo()
+        tree = self.git(repo, "rev-parse", "HEAD^{tree}")
+        blob = self.git(repo, "rev-parse", "HEAD:" + CONFIG_IN_REPO)
+        self.git(repo, "tag", "-a", "v1", "-m", "v1")
+        tag = self.git(repo, "rev-parse", "v1")
+        self.assertNotEqual(tag, base)
+        missing = secrets.token_hex(20)
+        for name, literal in (("tree", tree), ("blob", blob), ("annotated tag", tag), ("missing commit", missing)):
+            with self.subTest(name):
+                self.assertEqual(self.stdin(repo, literal), "STOP CONFIG")
+
+    def test_literals_out_of_format(self):
+        repo, base = self.repo()
+        for literal in (base[:7], base[:39], base + "0", base + "-x", base.upper(), "HEAD", "main", "v1",
+                        base + "^{commit}", base[:20] + " " + base[21:], "", "-" + base[1:]):
+            with self.subTest(literal=literal):
+                self.assertEqual(self.stdin(repo, base, self.args(base=literal)), "STOP BAD_ARGS")
+
+    def test_sha256_repository(self):
+        try:
+            repo, base = self.repo(object_format="sha256")
+        except AssertionError:
+            self.skipTest("git cannot make a SHA-256 repository")
+        self.assertEqual(len(base), 64)
+        self.assertEqual(self.stdin(repo, base), result("PASS", "opus", 3, "high"))
+        self.assertEqual(self.stdin(repo, base[:40]), "STOP CONFIG")  # an abbreviation in the 40-digit format
+
+    def test_commit_without_or_with_a_bad_file(self):
+        repo, base = self.repo()
+        os.remove(os.path.join(repo, CONFIG_IN_REPO))
+        self.git(repo, "add", "-A")
+        self.git(repo, "commit", "-q", "-m", "removed")
+        self.assertEqual(self.stdin(repo, self.git(repo, "rev-parse", "HEAD")), "STOP CONFIG")
+        for config in (b"{}", config_bytes(lambda c: c.update(schema=2)), b" " * MOD.MAX_CONFIG_BYTES + SHIPPED_BYTES):
+            with self.subTest(size=len(config)):
+                bad_repo, bad = self.repo(config)
+                self.assertEqual(self.stdin(bad_repo, bad), "STOP CONFIG")
+
+    def test_replace_objects_are_not_used(self):
+        repo, base = self.repo()
+        blob = self.git(repo, "rev-parse", "HEAD:" + CONFIG_IN_REPO)
+        other = self.git(repo, "hash-object", "-w", "--stdin", data=b"{}")
+        self.git(repo, "replace", blob, other)
+        self.assertEqual(self.git(repo, "cat-file", "blob", "HEAD:" + CONFIG_IN_REPO), "{}")
+        self.assertEqual(self.stdin(repo, base), result("PASS", "opus", 3, "high"))
+
+    def test_not_a_repository_or_no_git(self):
+        repo, base = self.repo()
+        outside = tempfile.mkdtemp(prefix="plain-", dir=self.tmp)
+        self.assertEqual(self.run_script(self.args(base=base), hidden=(base,), cwd=outside, env=self.env, stdin=True),
+                         "STOP CONFIG")
+        no_git = tempfile.mkdtemp(prefix="bin-", dir=self.tmp)  # without PATH, the default search path finds git
+        self.assertEqual(self.run_script(self.args(base=base), hidden=(base,), cwd=repo, env={"PATH": no_git},
+                                         stdin=True), "STOP CONFIG")
+
+    def test_from_stdin_without_config_base(self):
+        repo, _ = self.repo()
+        self.assertEqual(self.stdin(repo, "", self.args()), "STOP BAD_ARGS")
+
+    def test_check_mode_refuses_config_base(self):
+        repo, base = self.repo()
+        self.assertEqual(self.stdin(repo, base, self.check_args(self.candidate()) + ["--config-base", base]),
+                         "STOP BAD_ARGS")
+
+
+class CheckMode(Base):
+    """`check` (card I96-C5 (a), rev7 section 5.8, rev8 section 4.3): a CHECK line, exit code 5, never PASS, WARN or BELOW."""
+
+    def outcome(self, models, config=SHIPPED_BYTES, efforts=None, stdin=False):
+        self.write([self.rec(model=m, effort=e) for m, e in zip(models, efforts or ["high"] * len(models))])
+        return self.run_script(self.check_args(self.candidate(config)), stdin=stdin)
+
+    def test_both_forms(self):
+        for stdin in (False, True):
+            with self.subTest(stdin=stdin):
+                self.assertEqual(self.outcome([OPUS], stdin=stdin),
+                                 "CHECK model=opus match=listed tier=3 effort=high records=1")
+
+    def test_classification(self):
+        for models, config, want in (
+                (["claude-opus-6-0"], SHIPPED_BYTES, "model=opus match=version tier=3"),
+                (["claude-sonnet-5-5"], SHIPPED_BYTES, "model=sonnet match=version tier=2"),
+                (["anthropic.claude-sonnet-5-5"], SHIPPED_BYTES, "model=sonnet match=name tier=2"),
+                (["us.anthropic.claude-opus-5-5-v1:0"], SHIPPED_BYTES, "model=opus match=name tier=3"),
+                (["unknown"], SHIPPED_BYTES, "model=unrecognized match=none tier=none"),
+                ([OPUS, "claude-sonnet-5-5"], SHIPPED_BYTES, "model=sonnet match=version tier=2"),
+                (["claude-opus-6-0", "claude-sonnet-5-5"], SHIPPED_BYTES, "model=sonnet match=version tier=2"),
+                ([OPUS, "unknown"], SHIPPED_BYTES, "model=unrecognized match=none tier=none"),
+                (["claude-sonnet-5-5"], config_bytes(retire_sonnet), "model=sonnet match=listed tier=null"),
+                (["claude-sonnet-5-5"], config_bytes(lambda c: c["families"]["sonnet"].update(ids=["claude-sonnet-5-5"])),
+                 "model=sonnet match=listed tier=2")):
+            with self.subTest(models=models):
+                self.assertEqual(self.outcome(models, config), f"CHECK {want} effort=high records={len(models)}")
+
+    def test_never_a_gate_result(self):
+        for models in ([OPUS], ["claude-sonnet-5-5"], ["claude-opus-6-0"], ["unknown"], [OPUS, "claude-haiku-5-5"]):
+            for efforts in (["low"] * len(models), ["max"] * len(models)):
+                with self.subTest(models=models, efforts=efforts):
+                    line = self.outcome(models, efforts=efforts)
+                    self.assertTrue(line.startswith("CHECK "), line)
+                    self.assertNotRegex(line, "PASS|WARN|BELOW")
+
+    def test_candidate_file(self):
+        self.write([self.rec()])
+        self.assertStop("CONFIG", self.check_args(self.candidate(b"{}")))
+        self.assertStop("CONFIG", self.check_args(self.candidate(config_bytes(lambda c: c.update(schema=2)))))
+        self.assertStop("CONFIG", self.check_args(os.path.join(self.tmp, "missing.json")))
+        link = os.path.join(self.tmp, "link.json")
+        os.symlink(self.candidate(), link)
+        self.assertStop("CONFIG", self.check_args(link))
+        hard = os.path.join(self.tmp, "hard.json")
+        os.link(self.candidate(name="other.json"), hard)
+        self.assertStop("CONFIG", self.check_args(hard))
+        self.assertStop("CONFIG", self.check_args(self.candidate(SHIPPED_BYTES + b" " * MOD.MAX_CONFIG_BYTES)))
+
+    def test_bad_arguments(self):
+        self.write([self.rec()])
+        candidate = self.candidate()
+        base = self.check_args(candidate)
+        for name, argv in (("--config-base", base + ["--config-base", "a" * 40]),
+                           ("--expect-model", base + ["--expect-model", "opus"]),
+                           ("--expect-effort", base + ["--expect-effort", "high"]),
+                           ("no candidate", base[:-2]), ("repeated candidate", base + ["--candidate-config", candidate]),
+                           ("abbreviated --candidate", base[:-2] + ["--candidate", candidate])):
+            with self.subTest(name):
+                self.assertStop("BAD_ARGS", argv)
+
+    def test_transcript_stops_still_apply(self):
+        self.write([self.rec(effort="ultra", perTurnEffort=DROP)])
+        self.assertStop("EFFORT_NOT_ALLOWED", self.check_args(self.candidate()))
+        self.write(raw=b"")
+        self.assertStop("NO_RECORD", self.check_args(self.candidate()))
 
 
 class Internal(Base):
@@ -634,7 +1329,7 @@ class Internal(Base):
             with self.subTest(flag), mock.patch.dict(MOD.os.__dict__):
                 del MOD.os.__dict__[flag]
                 self.assertStop("INTERNAL", inproc=True)
-        self.assertLine("OK model=opus effort=high records=1", inproc=True)
+        self.assertLine(result("PASS", "opus", 3, "high"), inproc=True)
 
     def test_a_closed_stdout_gives_no_traceback(self):
         self.write([self.rec()])
@@ -681,15 +1376,17 @@ class TokenCoverage(Base):
         def hardlink():
             os.link(self.write([self.rec()]), os.path.join(self.tmp, "link-" + secrets.token_hex(4)))
 
+        missing = os.path.join(self.tmp, "missing-" + secrets.token_hex(4) + ".json")
         producers = {  # token -> (fixture, argv or None, in process, patch)
             "BAD_ARGS": (lambda: None, ["subagent"], False, None),
+            "CONFIG": (lambda: self.write([self.rec()]), None, True,
+                       mock.patch.object(MOD, "own_config_path", return_value=missing)),
             "NOT_FOUND": (lambda: None, None, False, None),
             "AMBIGUOUS": (lambda: (self.write([self.rec()]), self.write([self.rec()], session=str(uuid.uuid4()))),
                           None, False, None),
             "SYMLINK": (symlink, None, False, None),
             "NOT_REGULAR": (lambda: os.mkfifo(self.target()), None, False, None),
-            "OWNER": (lambda: self.write([self.rec()]), None, True,
-                      mock.patch.object(MOD.os, "getuid", return_value=os.getuid() + 1)),
+            "OWNER": (lambda: self.write([self.rec()]), None, True, other_user()),
             "LINK_COUNT": (hardlink, None, False, None),
             "PERMISSION": (lambda: self.write([self.rec()]), None, True, mock.patch.object(MOD.os, "open", denied)),
             "TOO_LARGE": (big, None, False, None),
@@ -698,7 +1395,7 @@ class TokenCoverage(Base):
             "MISSING_FIELD": (lambda: self.write([self.rec(effort=DROP)]), None, False, None),
             "INCONSISTENT": (lambda: self.write([self.rec(perTurnEffort="low")]), None, False, None),
             "NO_RECORD": (lambda: self.write(raw=b""), None, False, None),
-            "MODEL_NOT_ALLOWED": (lambda: self.write([self.rec(model="claude-sonnet-5-5")]), None, False, None),
+            "MODEL_NOT_RECOGNIZED": (lambda: self.write([self.rec(model="unknown")]), None, False, None),
             "EFFORT_NOT_ALLOWED": (lambda: self.write([self.rec(effort="High", perTurnEffort=DROP)]), None, False,
                                    None),
             "INTERNAL": (lambda: self.write([self.rec()]), None, True,
@@ -713,15 +1410,33 @@ class TokenCoverage(Base):
                     self.assertStop(token, argv, inproc=inproc)
 
 
+@contextlib.contextmanager
+def other_user():
+    """Another user ID for the transcript check; the configuration file is given as read."""
+    with mock.patch.object(MOD, "read_config_file", return_value=SHIPPED_BYTES), \
+            mock.patch.object(MOD.os, "getuid", return_value=os.getuid() + 1):
+        yield
+
+
 class Static(unittest.TestCase):
     """Regression guards on the script text; the same PR can change the script and these tests."""
 
-    IMPORTS = {"argparse", "errno", "json", "os", "re", "stat", "sys"}
-    OS_ATTRS = {"open", "close", "read", "fstat", "stat", "lstat", "scandir", "getuid", "fspath", "path"}
+    IMPORTS = {"argparse", "errno", "json", "os", "re", "select", "signal", "stat", "subprocess", "sys", "time"}
+    MODULE_ATTRS = {  # the only names that the script takes from these modules
+        "os": {"open", "close", "read", "fstat", "stat", "lstat", "scandir", "getuid", "fspath", "path", "killpg"},
+        "subprocess": {"Popen", "DEVNULL", "PIPE"},
+        "signal": {"SIGKILL"},
+        "select": {"select"},
+        "time": {"monotonic"},
+    }
     FORBIDDEN = {"eval", "exec", "compile", "__import__", "getattr", "setattr", "globals", "vars", "importlib",
-                 "open", "environ", "getenv", "expanduser", "subprocess", "socket"}
-    FORBIDDEN_TEXT = ("environ", "getenv", "expanduser", "subprocess", "socket", "O_WRONLY", "O_RDWR", "O_CREAT",
-                      "O_TRUNC", "O_APPEND", "sys.modules")
+                 "open", "environ", "getenv", "expanduser", "socket", "system", "popen", "spawn", "fork"}
+    FORBIDDEN_TEXT = ("environ", "getenv", "expanduser", "socket", "O_WRONLY", "O_RDWR", "O_CREAT", "O_TRUNC",
+                      "O_APPEND", "sys.modules", "shell=", "env=", "executable=", "preexec_fn=")
+    POPEN_KEYWORDS = {"stdin": "subprocess.DEVNULL", "stdout": "subprocess.PIPE", "stderr": "subprocess.DEVNULL",
+                      "start_new_session": "True"}
+    GIT_CALLS = {(("git", "--no-replace-objects", "rev-parse", "--verify", "--quiet"), "^{commit}"),
+                 (("git", "--no-replace-objects", "cat-file", "blob"), ":skills/dev-core/model-config.json")}
 
     @classmethod
     def setUpClass(cls):
@@ -739,12 +1454,20 @@ class Static(unittest.TestCase):
                 self.assertEqual((node.module, node.level, [a.name for a in node.names]),
                                  ("__future__", 0, ["annotations"]))
 
-    def test_os_attributes(self):
-        used = {node.attr for node in ast.walk(self.tree)
-                if isinstance(node, ast.Attribute) and isinstance(node.value, ast.Name) and node.value.id == "os"}
-        self.assertEqual({a for a in used if a not in self.OS_ATTRS and not a.startswith("O_")}, set())
-        self.assertEqual({a for a in used if a.startswith("O_")} - {"O_RDONLY", "O_DIRECTORY", "O_NOFOLLOW",
-                                                                    "O_NONBLOCK", "O_NOCTTY"}, set())
+    def test_module_attributes(self):
+        for module, allowed in self.MODULE_ATTRS.items():
+            with self.subTest(module=module):
+                attrs = [node for node in ast.walk(self.tree) if isinstance(node, ast.Attribute)
+                         and isinstance(node.value, ast.Name) and node.value.id == module]
+                used = {node.attr for node in attrs}
+                if module == "os":
+                    self.assertEqual({a for a in used if a not in allowed and not a.startswith("O_")}, set())
+                    self.assertEqual({a for a in used if a.startswith("O_")} - {
+                        "O_RDONLY", "O_DIRECTORY", "O_NOFOLLOW", "O_NONBLOCK", "O_NOCTTY"}, set())
+                else:
+                    self.assertEqual(used - allowed, set())
+                    bare = [node for node in ast.walk(self.tree) if isinstance(node, ast.Name) and node.id == module]
+                    self.assertEqual(len(bare), len(attrs))  # the module name is used only to take an allowed name
 
     def test_forbidden_names(self):
         names = {node.id for node in ast.walk(self.tree) if isinstance(node, ast.Name)}
@@ -755,6 +1478,42 @@ class Static(unittest.TestCase):
         self.assertEqual(builtin_open, [])
         self.assertEqual([word for word in self.FORBIDDEN_TEXT if word in self.source], [])
 
+    def test_one_subprocess_call_with_two_literal_git_prefixes(self):
+        calls = [node for node in ast.walk(self.tree) if isinstance(node, ast.Call)]
+        popen = [c for c in calls if isinstance(c.func, ast.Attribute) and isinstance(c.func.value, ast.Name)
+                 and c.func.value.id == "subprocess"]
+        self.assertEqual(len(popen), 1)
+        call = popen[0]
+        self.assertEqual(call.func.attr, "Popen")
+        self.assertEqual([(type(a), getattr(a, "id", None)) for a in call.args], [(ast.Name, "argv")])
+        self.assertEqual({k.arg: ast.unparse(k.value) for k in call.keywords}, self.POPEN_KEYWORDS)
+        owner = [f.name for f in ast.walk(self.tree) if isinstance(f, ast.FunctionDef) and call in ast.walk(f)]
+        self.assertEqual(owner, ["run_git"])
+        git_calls = [c for c in calls if isinstance(c.func, ast.Name) and c.func.id == "run_git"]
+        self.assertEqual(len(git_calls), 2)
+        found = set()
+        for c in git_calls:
+            argv = c.args[0]
+            self.assertIsInstance(argv, ast.List)
+            *head, last = argv.elts
+            self.assertTrue(all(isinstance(e, ast.Constant) and isinstance(e.value, str) for e in head))
+            self.assertIsInstance(last, ast.BinOp)
+            self.assertIsInstance(last.op, ast.Add)
+            self.assertEqual((type(last.left), last.left.id), (ast.Name, "base"))
+            self.assertIsInstance(last.right, ast.Constant)
+            found.add((tuple(e.value for e in head), last.right.value))
+        self.assertEqual(found, self.GIT_CALLS)
+        refs = [n for n in ast.walk(self.tree) if isinstance(n, ast.Name) and n.id == "run_git"]
+        self.assertEqual(len(refs), 2)  # run_git is never passed on or renamed
+
+    def test_validator_reads_nothing(self):
+        func = [f for f in ast.walk(self.tree) if isinstance(f, ast.FunctionDef) and f.name == "validate_config"]
+        self.assertEqual(len(func), 1)
+        names = {n.id for n in ast.walk(func[0]) if isinstance(n, ast.Name)}
+        self.assertEqual(names & {"os", "sys", "subprocess", "select", "signal", "time", "__file__", "from_stdin",
+                                  "run_git", "config_from_git", "read_config_file", "own_config_path", "open_at"},
+                         set())
+
     def test_python_39_grammar(self):
         ast.parse(self.source, feature_version=(3, 9))
         annotations = [node.returns for node in ast.walk(self.tree) if isinstance(node, ast.FunctionDef)]
@@ -764,12 +1523,24 @@ class Static(unittest.TestCase):
         self.assertEqual(unions, [])  # no PEP 604 union: Python 3.9 cannot evaluate one
 
     def test_pinned_constants(self):
-        self.assertEqual(MOD.MODEL_ALLOWLIST, {"claude-opus-5-5": "opus"})
-        self.assertEqual(MOD.MODEL_ORDER, ("haiku", "sonnet", "opus"))
+        self.assertFalse(hasattr(MOD, "MODEL_ALLOWLIST"))  # replaced by the configuration file (Issue #96)
+        self.assertFalse(hasattr(MOD, "MODEL_ORDER"))
         self.assertEqual(MOD.EFFORT_ORDER, ("low", "medium", "high", "xhigh", "max"))
+        self.assertEqual(MOD.ROLE_NAMES, ("orchestration", "explore", "explore-synthesis", "implement",
+                                          "implement-reduced", "review-routine", "review-routine-light",
+                                          "review-deep", "review-security", "scan"))
+        self.assertEqual(MOD.AGENT_NAMES, ("dev-explorer", "dev-implementer", "dev-reviewer",
+                                           "dev-security-reviewer"))
+        self.assertEqual(MOD.RESERVED_FAMILY_NAMES, {"unrecognized", "none", "null", "unknown", "inherit", "default",
+                                                     "low", "medium", "high", "xhigh", "max"})
         self.assertEqual(MOD.REASONS, TOKENS)
         self.assertEqual((MOD.MAX_FILE_BYTES, MOD.MAX_LINE_BYTES, MOD.MAX_LINES, MOD.MAX_NUMBER_CHARS),
                          (64 * 1024 * 1024, 1024 * 1024, 200000, 100))
+        self.assertEqual((MOD.MAX_CONFIG_BYTES, MOD.MAX_CONFIG_DEPTH, MOD.MAX_TIER, MOD.MAX_ID_CHARS,
+                          MOD.MAX_SCAN_CHARS, MOD.GIT_TIMEOUT), (64 * 1024, 8, 99, 100, 200, 20))
+        self.assertEqual((MOD.BASE_RE, MOD.FAMILY_RE, MOD.MODEL_ID_RE, MOD.VERSION_RE, MOD.WORD_SPLIT_RE),
+                         (r"(?:[0-9a-f]{40}|[0-9a-f]{64})", r"[a-z]{1,20}", r"[a-z0-9.-]{1,100}",
+                          r"claude-([a-z]+)-[0-9]+(?:-[0-9]+)*", r"[^a-z0-9]+"))
         for token in TOKENS:
             self.assertIn(token, MOD.__doc__)
         MOD.set_flags()

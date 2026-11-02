@@ -1,0 +1,26 @@
+{
+  "schema": 1,
+  "validated_with": {
+    "generation": "Claude 5.5 (Opus 5.5)",
+    "note": "Only listed IDs were observed by this pack's process (Issue #89). Tiers of the other families follow the official model docs (read 2026-11-01); Fable 5.1 was not evaluated by this pack."
+  },
+  "responsibility": "A copy that a user edits is the user's own choice and responsibility; the agent never edits this file to get past a stop.",
+  "families": {
+    "haiku":  {"tier": 1, "ids": [], "basis": "Official: lowest latency and price, for example subagent tasks (models overview, choosing-a-model, read 2026-11-01)."},
+    "sonnet": {"tier": 2, "ids": [], "basis": "Official: speed and capability for everyday coding and agent work (choosing-a-model, read 2026-11-01)."},
+    "opus":   {"tier": 3, "ids": ["claude-opus-5-5"], "basis": "Official: complex agentic coding; most workloads start with Opus 5.5 (choosing-a-model, read 2026-11-01). This project: observed in transcripts (Issue #89)."},
+    "fable":  {"tier": 4, "ids": [], "basis": "Official: highest capability, demanding reasoning and long-horizon agentic work; slower and priced above Opus 5.5; use it when Opus 5.5 at higher effort still falls short (models overview, choosing-a-model, read 2026-11-01). Not evaluated by this pack (Issue #96 supersedes FU-020)."}
+  },
+  "roles": {
+    "orchestration":        {"family": "opus",   "effort": ["high", "high"]},
+    "explore":              {"family": "haiku",  "effort": ["low", "low"],       "agent": "dev-explorer", "agent_default": true},
+    "explore-synthesis":    {"family": "sonnet", "effort": ["medium", "medium"], "agent": "dev-explorer"},
+    "implement":            {"family": "opus",   "effort": ["high", "high"],     "agent": "dev-implementer", "agent_default": true},
+    "implement-reduced":    {"family": "sonnet", "effort": ["medium", "medium"], "agent": "dev-implementer"},
+    "review-routine":       {"family": "opus",   "effort": ["high", "high"],     "agent": "dev-reviewer", "agent_default": true},
+    "review-routine-light": {"family": "sonnet", "effort": ["medium", "medium"], "agent": "dev-reviewer"},
+    "review-deep":          {"family": "opus",   "effort": ["xhigh", "xhigh"],   "agent": "dev-reviewer"},
+    "review-security":      {"family": "opus",   "effort": ["xhigh", "xhigh"],   "agent": "dev-security-reviewer", "agent_default": true},
+    "scan":                 {"family": "opus",   "effort": ["xhigh", "xhigh"],   "agent": "dev-security-reviewer"}
+  }
+}

@@ -421,7 +421,9 @@ def main() -> int:
 
     agent_defaults: dict[str, dict] = {}  # Issue #96: agent stem -> its agent_default role in the configuration file
     config_path = os.path.join(ROOT, MODEL_CONFIG)
-    if os.path.islink(config_path) or not os.path.isfile(config_path):
+    if not os.path.isdir(skills_dir):  # as the skill checks; the root check reports a case-changed skills/ (CB-7)
+        pass
+    elif os.path.islink(config_path) or not os.path.isfile(config_path):
         errors.append(f"{MODEL_CONFIG}: missing or not a regular file (Issue #96)")
     else:
         with open(config_path, "rb") as fh:

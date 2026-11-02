@@ -60,7 +60,7 @@ reviewer's recorded model and effort by R-DEL-2 (`dev-core`); a review or
 scan that does not count by R-DEL-2 is not the required review or scan. A
 `light` routine review at `sonnet`/`medium` is read back by R-DEL-2 and
 skips that gate until Issue #96, which replaces the scope of FU-049 (card
-I79C-C3 (c)); R-DEL-2 says when that exception holds.
+I79C-C3 (c)); R-DEL-2 says when that exception holds. From Issue #96 on, that exception never holds (card I96-C7 (a)): the review counts only as R-DEL-2 says for every review.
 
 For a commit / push scan, the target is exactly what will be published: the
 staged diff plus the author, committer, message and trailers the commit will

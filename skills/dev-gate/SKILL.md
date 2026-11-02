@@ -26,7 +26,7 @@ commit, push, PR, merge or other external write (R-REV-5, R-AUTH-1).
 | Gate | When | Requires |
 | --- | --- | --- |
 | commit / push / PR readiness | before a commit, push or PR the user asked for | current review for the exact diff, all dispositions complete, verification recorded, docs sync done or reasoned, and a passed R-REV-9 scan of exactly the staged diff and the commit identity and message (before a push: of everything the push sends; before a PR: of its title and body) |
-| merge readiness | a PR/MR or explicit base..head range exists | all of the above plus a complete base-to-head Merge Review at the current head (R-EXH-1 to R-EXH-3) and an R-REV-9 scan of every commit in base..head, including identities and messages, and of the merge or squash commit the platform will create (method, author, message, trailers) |
+| merge readiness | a PR/MR or explicit base..head range exists | all of the above plus a complete base-to-head Merge Review at the current head (R-EXH-1 to R-EXH-3) and an R-REV-9 scan of every commit in base..head, including identities and messages, and of the merge or squash commit the platform will create (method, author, message, trailers) — "all of the above" leaves out the R-REV-9 commit, push and PR-text scans of the writing session: the Merge Review of the merging session is the current review, and one merge readiness scan that the merging session dispatches and reads back itself covers each commit's patch in base..head in the R-REV-9 range view with identities, messages and trailers, the full diff, the PR title, body and comments as posted, and the merge or squash commit (card I96-C6 (a)) |
 
 ## Workflow
 
@@ -83,7 +83,7 @@ the floor check of R-DEL-2 applies (`dev-core`).
      content, commit identity and message, or commit range (R-REV-9);
    - a required review or scan that does not count by R-DEL-2 (`unknown` and
      a review or scan of another session included), except a `light` routine
-     review at `sonnet`/`medium` while R-DEL-2 lets it skip the gate;
+     review at `sonnet`/`medium` while R-DEL-2 lets it skip the gate; from Issue #96 on, R-DEL-2 never lets it skip the gate (card I96-C7 (a));
    - an unresolved substantive security risk, with or without a finding ID
      (R-REV-7);
    - a write change without a requirement, or a `SCOPE-CREEP` finding without
@@ -131,7 +131,7 @@ Identity: repo, base, head, merge-base, diff hash, PR
 Findings and dispositions: (table or link)
 Verification evidence: (commands and results)
 Commit / push security scan (R-REV-9): PASSED | FINDINGS | NOT_RUN — scope (staged diff, identity, message, commit range)
-Read-back (R-DEL-2): each required review and scan of this session — call form, requested values, result line and exit code | unknown (case)
+Read-back (R-DEL-2): each required review and scan of this session — call form, requested values, result line and exit code | unknown (case) — a `WARN` line with its warning; the call form without `<DIR>` or `<ID>` (Issue #96)
 Requirement trace: complete | gaps
 Open decisions: one decision card each | none
 Residual risk:

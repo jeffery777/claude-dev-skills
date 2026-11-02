@@ -102,7 +102,7 @@ class FrontMatterGuards(unittest.TestCase):
     .claude-plugin/, skills/ and agents/, a manifest key outside its allowlist or another
     marketplace entry, or a symlink or hardlink under skills/ or vendor/ (CB-7)."""
 
-    def check(self, rel, old, new, same_file=False):
+    def check(self, rel, old, new, same_file=False, count=1):
         def edit(tmp):
             path = os.path.join(tmp, rel)
             with open(path, encoding="utf-8", newline="") as fh:
@@ -110,9 +110,9 @@ class FrontMatterGuards(unittest.TestCase):
             self.assertIn(old, text)
             with open(path, "w", encoding="utf-8", newline="") as fh:
                 fh.write(text.replace(old, new, 1))
-        return self.check_tree(edit, rel if same_file else None)
+        return self.check_tree(edit, rel if same_file else None, count=count)
 
-    def check_tree(self, change, same_file=None, count=1, restore=None):
+    def check_tree(self, change, same_file=None, count=1, restore=None, patch=None):
         mod = load("check_pack")
         tmp = tempfile.mkdtemp()
         try:
@@ -120,6 +120,8 @@ class FrontMatterGuards(unittest.TestCase):
                 shutil.copytree(os.path.join(ROOT, sub), os.path.join(tmp, sub))
             change(tmp)
             mod.ROOT = tmp
+            if patch:  # a change of a constant of check_pack itself
+                patch(mod)
             code, out = run(mod)
             if same_file:  # the edit may be reported by both skill checks, but by nothing else
                 problems = [line for line in out.splitlines() if line.startswith("  - ")]
@@ -132,15 +134,21 @@ class FrontMatterGuards(unittest.TestCase):
                 restore(tmp)
             shutil.rmtree(tmp)
 
-    def test_bad_model_fails(self):
-        code, out = self.check(os.path.join("agents", "dev-explorer.md"), "\nmodel: haiku\n", "\nmodel: claude-haiku-5-5\n")
+    AGENT_DEFAULT = "of the agent_default role in skills/dev-core/model-config.json is needed for"  # Issue #96
+
+    def test_bad_model_fails(self):  # the agent_default check of Issue #96 fires as well
+        code, out = self.check(os.path.join("agents", "dev-explorer.md"), "\nmodel: haiku\n", "\nmodel: claude-haiku-5-5\n",
+                               count=2)
         self.assertEqual(code, 1)
         self.assertIn("agents/dev-explorer.md: model must be an alias", out)
+        self.assertIn(f"agents/dev-explorer.md: the line 'model: haiku' {self.AGENT_DEFAULT} model", out)
 
-    def test_bad_effort_fails(self):
-        code, out = self.check(os.path.join("agents", "dev-explorer.md"), "\neffort: low\n", "\neffort: think-harder\n")
+    def test_bad_effort_fails(self):  # the agent_default check of Issue #96 fires as well
+        code, out = self.check(os.path.join("agents", "dev-explorer.md"), "\neffort: low\n", "\neffort: think-harder\n",
+                               count=2)
         self.assertEqual(code, 1)
         self.assertIn("agents/dev-explorer.md: effort must be one of", out)
+        self.assertIn(f"agents/dev-explorer.md: the line 'effort: low' {self.AGENT_DEFAULT} effort", out)
 
     def test_empty_values_fail_without_crash(self):  # MR4-02: an empty value parsed as a list crashed with TypeError
         for rel, old, new, message in (
@@ -308,18 +316,20 @@ class FrontMatterGuards(unittest.TestCase):
         for stem, effort in pins.items():
             rel = os.path.join("agents", stem + ".md")
             for model in ("sonnet", "haiku", "fable", "inherit"):  # lower, other and inherited models
-                with self.subTest(stem=stem, model=model):
-                    code, out = self.check(rel, "\nmodel: opus\n", f"\nmodel: {model}\n")
+                with self.subTest(stem=stem, model=model):  # the agent_default check of Issue #96 fires as well
+                    code, out = self.check(rel, "\nmodel: opus\n", f"\nmodel: {model}\n", count=2)
                     self.assertEqual(code, 1)
                     self.assertIn(f"  - {rel}: pinned agent must have the line 'model: opus' for model, found "
                                   f"{model!r}", out)
+                    self.assertIn(f"  - {rel}: the line 'model: opus' {self.AGENT_DEFAULT} model", out)
             for level in ("low", "medium", "high", "xhigh", "max"):  # a lower and a higher value both fail
                 if level == effort:
                     continue
                 with self.subTest(stem=stem, effort=level):
-                    code, out = self.check(rel, f"\neffort: {effort}\n", f"\neffort: {level}\n")
+                    code, out = self.check(rel, f"\neffort: {effort}\n", f"\neffort: {level}\n", count=2)
                     self.assertEqual(code, 1)
                     self.assertIn(f"  - {rel}: pinned agent must have the line 'effort: {effort}' for effort", out)
+                    self.assertIn(f"  - {rel}: the line 'effort: {effort}' {self.AGENT_DEFAULT} effort", out)
         implementer = os.path.join("agents", "dev-implementer.md")
         for case, old, new in (
                 ("full model ID", "\nmodel: opus\n", "\nmodel: claude-opus-5-5\n"),
@@ -387,6 +397,124 @@ class FrontMatterGuards(unittest.TestCase):
             os.symlink(os.path.join(outside, "dev-implementer.md"), path)
         code, out = self.check_tree(symlinked, same_file=implementer)
         self.assertEqual(code, 1)
+
+    MODEL_CONFIG = os.path.join("skills", "dev-core", "model-config.json")
+
+    def config_change(self, fn):
+        """A change of the configuration file of the tree: fn(config) edits the parsed JSON in place."""
+        def change(tmp):
+            path = os.path.join(tmp, self.MODEL_CONFIG)
+            with open(path, encoding="utf-8") as fh:
+                config = json.load(fh)
+            fn(config)
+            with open(path, "w", encoding="utf-8") as fh:
+                json.dump(config, fh)
+        return change
+
+    def test_model_config_pins(self):  # Issue #96 (cards I96-C12 (a), I96-R4-C1 (a); rev8 section 2.2)
+        mod = load("check_pack")
+        self.assertEqual(mod.PINNED_FAMILY_TIERS, {"haiku": 1, "sonnet": 2, "opus": 3, "fable": 4})
+        with open(os.path.join(ROOT, self.MODEL_CONFIG), "rb") as fh:
+            config = mod.readback.validate_config(fh.read())  # the shipped file passes the script's validator
+        self.assertEqual(config["roles"], mod.PINNED_ROLE_VALUES)
+        self.assertEqual(list(mod.PINNED_ROLE_VALUES), list(mod.readback.ROLE_NAMES))
+        self.assertEqual({n: f["tier"] for n, f in config["families"].items()}, mod.PINNED_FAMILY_TIERS)
+        self.assertEqual(sorted(mod.EFFORTS), sorted(mod.readback.EFFORT_ORDER))
+        self.assertEqual(mod.MODELS, {"haiku", "sonnet", "opus", "fable", "inherit"})  # unchanged by Issue #96
+        self.assertEqual(mod.readback.__name__, "model_effort_readback")
+        self.assertEqual(os.path.normpath(mod.readback.__file__),
+                         os.path.join(ROOT, "skills", "dev-core", "scripts", "model_effort_readback.py"))
+
+    def test_family_tiers_are_pinned(self):  # Issue #96, card I96-C12 (a): a tier equals its pin or is null
+        config = self.MODEL_CONFIG
+        code, out = self.check_tree(self.config_change(lambda c: c["families"]["opus"].update(tier=5)))
+        self.assertEqual(code, 1)
+        self.assertIn(f"  - {config}: the tier of 'opus' must be 3 or null, found 5", out)
+        def swap(c):
+            c["families"]["haiku"]["tier"], c["families"]["sonnet"]["tier"] = 2, 1
+        code, out = self.check_tree(self.config_change(swap), count=2)
+        self.assertEqual(code, 1)
+        self.assertIn(f"  - {config}: the tier of 'haiku' must be 1 or null, found 2", out)
+        self.assertIn(f"  - {config}: the tier of 'sonnet' must be 2 or null, found 1", out)
+        code, out = self.check_tree(self.config_change(lambda c: c["families"].pop("fable")))
+        self.assertEqual(code, 1)
+        self.assertIn(f"  - {config}: the families must be exactly ['fable', 'haiku', 'opus', 'sonnet'], found", out)
+        code, out = self.check_tree(self.config_change(
+            lambda c: c["families"].update(mythos={"tier": 5, "ids": [], "basis": "x"})))
+        self.assertEqual(code, 1)
+        self.assertIn(f"  - {config}: the families must be exactly", out)
+        code, out = self.check_tree(self.config_change(lambda c: c["families"]["fable"].update(tier=None)), count=0)
+        self.assertEqual(code, 0)  # retired: null is allowed
+
+    def test_role_values_are_pinned(self):  # Issue #96 PR-1: the roles equal today's routing tables
+        config = self.MODEL_CONFIG
+        for case, fn, role in (
+                ("lower effort", lambda c: c["roles"]["review-deep"].update(effort=["high", "high"]), "review-deep"),
+                ("lower family", lambda c: c["roles"]["scan"].update(family="sonnet"), "scan"),
+                ("higher family", lambda c: c["roles"]["explore"].update(family="sonnet"), "explore"),
+                ("wider range", lambda c: c["roles"]["review-routine-light"].update(effort=["medium", "high"]),
+                 "review-routine-light"),
+                ("other agent", lambda c: c["roles"]["explore-synthesis"].update(agent="dev-implementer"),
+                 "explore-synthesis"),
+                ("agent removed", lambda c: c["roles"]["scan"].pop("agent"), "scan")):
+            with self.subTest(case=case):
+                code, out = self.check_tree(self.config_change(fn), count=2 if case == "higher family" else 1)
+                self.assertEqual(code, 1)
+                self.assertIn(f"  - {config}: role {role!r} must be ", out)
+                self.assertIn("(PINNED_ROLE_VALUES, Issue #96 PR-1)", out)
+
+    def test_agent_default_roles(self):  # Issue #96: one agent_default role per agent, equal to the agent file
+        config = self.MODEL_CONFIG
+        code, out = self.check_tree(self.config_change(lambda c: c["roles"]["implement"].pop("agent_default")),
+                                    count=2)
+        self.assertEqual(code, 1)
+        self.assertIn(f"  - {config}: agent 'dev-implementer' must have exactly one agent_default role, found 0", out)
+        self.assertIn(f"  - {config}: role 'implement' must be ", out)
+        explorer = os.path.join("agents", "dev-explorer.md")
+        for old, new, key, want in (("\nmodel: haiku\n", "\nmodel: sonnet\n", "model", "haiku"),
+                                    ("\nmodel: haiku\n", "\nmodel: opus\n", "model", "haiku"),
+                                    ("\neffort: low\n", "\neffort: medium\n", "effort", "low")):
+            with self.subTest(new=new.strip()):  # dev-explorer has no PINNED_AGENT_SETTINGS entry: only this check
+                code, out = self.check(explorer, old, new)
+                self.assertEqual(code, 1)
+                self.assertIn(f"  - {explorer}: the line '{key}: {want}' {self.AGENT_DEFAULT} {key}", out)
+        def move(c):  # the default of dev-explorer moves to its synthesis role
+            c["roles"]["explore"].pop("agent_default")
+            c["roles"]["explore-synthesis"]["agent_default"] = True
+        code, out = self.check_tree(self.config_change(move), count=4)
+        self.assertEqual(code, 1)
+        self.assertIn(f"  - {explorer}: the line 'model: sonnet' {self.AGENT_DEFAULT} model", out)
+        self.assertIn(f"  - {explorer}: the line 'effort: medium' {self.AGENT_DEFAULT} effort", out)
+
+    def test_invalid_or_missing_config(self):  # Issue #96: the shipped file must pass the script's validator
+        config = self.MODEL_CONFIG
+        for case, fn in (("schema 2", lambda c: c.update(schema=2)),
+                         ("retired family still used", lambda c: c["families"]["sonnet"].update(tier=None)),
+                         ("upper-case ID", lambda c: c["families"]["opus"].update(ids=["claude-Opus-5-5"])),
+                         ("two agent_default roles", lambda c: c["roles"]["review-deep"].update(agent_default=True))):
+            with self.subTest(case=case):
+                code, out = self.check_tree(self.config_change(fn))
+                self.assertEqual(code, 1)
+                self.assertIn(f"  - {config}: the read-back script gives STOP CONFIG for it", out)
+        code, out = self.check_tree(lambda tmp: os.remove(os.path.join(tmp, config)))
+        self.assertEqual(code, 1)
+        self.assertIn(f"  - {config}: missing or not a regular file (Issue #96)", out)
+        def duplicate_key(tmp):
+            path = os.path.join(tmp, config)
+            with open(path, encoding="utf-8") as fh:
+                text = fh.read()
+            with open(path, "w", encoding="utf-8") as fh:
+                fh.write(text.replace('"schema": 1,', '"schema": 1, "schema": 1,', 1))
+        code, out = self.check_tree(duplicate_key)
+        self.assertEqual(code, 1)
+        self.assertIn(f"  - {config}: the read-back script gives STOP CONFIG for it", out)
+
+    def test_efforts_equal_effort_order(self):  # Issue #96: check_pack's EFFORTS is the script's EFFORT_ORDER
+        def drop_max(mod):
+            mod.EFFORTS = {"low", "medium", "high", "xhigh"}
+        code, out = self.check_tree(lambda tmp: None, patch=drop_max)
+        self.assertEqual(code, 1)
+        self.assertIn("  - scripts/check_pack.py: EFFORTS ['high', 'low', 'medium', 'xhigh'] must equal EFFORT_ORDER", out)
 
     def test_fu033_cases(self):  # CB-7, FU-033: cases that REQ-028 acceptance names; each gives one clear error
         agent, skill = os.path.join("agents", "dev-reviewer.md"), os.path.join("skills", "dev-core", "SKILL.md")

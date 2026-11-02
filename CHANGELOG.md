@@ -189,6 +189,43 @@ Cowork runtime test). At that release,
 
 ### Changed
 
+- A model configuration file replaces the allowlist of the read-back
+  script, and a model ID of a recognizable newer version counts with a
+  warning (REQ-009, D-029, DL-044, Issue #96 PR-1, `Part of #96`; user
+  answers relayed by the orchestrator:
+  「I96-C1 c，C2 b，C3 a，C4 a，C5 a，C6 a，C7 a，C8 b，C9 a，C10 a」,
+  「C4 a＋條件，C9 a＋Fable 等級 4 ，這是你之前建議的2點嗎？是的話我同意」,
+  「I96-C11 a」,
+  「C8 改為：設定檔是唯一來源，路由表只標角色名、不寫數值；I96-C12 a＋停用規則；不加技能」,
+  「I96-R2-C1 a，R2-C2 a，R2-C3 a，R2-C4 a，R2-C5 a」,
+  「I96-R3-C1 a，R3-C2 a；不支援 Bedrock 等 provider 專屬 ID，列為 non-goal（需要的人自行 fork），ID 字元集不放寬」,
+  「I96-R4-C1 a」 and
+  「I96-R5-C1 a，R5-C2 a（實作審查若在 gate 或附加句找到新問題，照 R-VER-2 停）」).
+  `skills/dev-core/model-config.json` holds the model families with tiers
+  (`haiku` 1, `sonnet` 2, `opus` 3, `fable` 4), only the observed ID
+  `claude-opus-5-5`, and ten roles at today's routing values; the script
+  validates it on every read, and `check_pack` pins the tiers, the roles
+  and the agent files. An unlisted ID of the form `claude-<family>-<digits>`
+  of a family at or above the expected one gives `WARN`, which counts
+  exactly like a `PASS`, with a warning that the main agent shows before
+  the next commit, push or post without waiting for an answer; this
+  loosening covers floor dispatches, required reviews and R-REV-9 scans,
+  not the main session's own floor check. A lower family gives `BELOW`;
+  every other ID, provider IDs included (a non-goal: users who need them
+  keep a fork), gives `STOP MODEL_NOT_RECOGNIZED`; a bad configuration file
+  gives `STOP CONFIG`. The call of the copy at the bound base passes
+  `--config-base` with the same full base ID. A `check` mode reads a test
+  dispatch with a candidate file; the agent never edits the file to get
+  past a stop, and every change of it in this repository is strict. The
+  `light` routine review exception no longer applies. The merge readiness
+  row of `dev-gate` says that the merging session's own merge readiness
+  scan replaces the writing session's commit, push and PR-text scans. The
+  rule and record files only get added sentences, checked by a
+  deterministic gate (SHA-256
+  `8e1bdbd442ca302d9c072711a819d485bf1ba33890a98127df2cdcc084091a9a`);
+  the superseded sentences stay until PR-2 (FU-061). FU-059 to FU-062
+  track the follow-ups.
+
 - Required reviews and R-REV-9 scans pass through the read-back gate too
   (REQ-009, REQ-011, D-028, DL-043, Issue #95, slice C2 of Issue #79; user
   answers relayed by the orchestrator:

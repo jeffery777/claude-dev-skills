@@ -15,7 +15,10 @@ tokens `CONFIG` and `MODEL_NOT_RECOGNIZED`, and no longer gives an `OK`
 line or `MODEL_NOT_ALLOWED`. Each section below that changes has a note
 that starts "From Issue #96 on"; the earlier text of that section describes
 the state before Issue #96, as the Issue #93 sentence above does for its
-own change.
+own change. From Issue #96 PR-2 on, `subagent` needs `--floor`, compares
+the expected values with that floor, and prints `floor=` on its result
+lines; the sections that change for PR-2 have a note that starts "From
+Issue #96 PR-2 on".
 
 The script is `scripts/model_effort_readback.py` in this skill folder:
 one file, Python 3.9 or later, standard library only, no other module of
@@ -67,6 +70,35 @@ where they differ):
   decide on a change of the file. It runs by path or from stdin;
   `--config-base`, `--expect-model` and `--expect-effort` give
   `STOP BAD_ARGS`. It is not a read-back of R-DEL-2.
+
+From Issue #96 PR-2 on (the bullets above describe the state before PR-2
+where they differ):
+
+- `subagent` needs `--floor FLOOR`, where `FLOOR` is exactly one of the
+  values of the table below. A missing or repeated `--floor`, or any other
+  value, gives `STOP BAD_ARGS`. The constant `FLOORS` of the script holds
+  the table; the tests pin it, and `scripts/check_pack.py` checks that it
+  equals this table:
+
+  | `--floor` | Floor tier | Floor effort |
+  | --- | --- | --- |
+  | `work` | 3 | `high` |
+  | `review-scan` | 3 | `xhigh` |
+  | `review-routine` | 3 | `high` |
+  | `review-light` | 2 | `medium` |
+  | `none` | none (no floor check) | none |
+
+  R-DEL-2 says which value each dispatch passes. The script does not check
+  that the value fits the dispatch.
+- `check` does not accept `--floor`: it gives `STOP BAD_ARGS`.
+- The call of the copy at the bound base is then:
+
+  ```
+  git --no-replace-objects cat-file blob BASE:skills/dev-core/scripts/model_effort_readback.py | python3 -I - subagent --config-base BASE --floor FLOOR --projects-dir DIR --agent-id ID --expect-model opus --expect-effort high
+  ```
+
+  A copy of the script from before PR-2 does not accept `--floor` and
+  gives `STOP BAD_ARGS`; R-DEL-2 makes that outcome `unknown`.
 
 ## Location
 
@@ -166,6 +198,28 @@ In `check` mode there is no expected value: step 3 takes the lowest family
 of any family word, and `match=` gives the weakest class of the records
 (`none` below `name` below `version` below `listed`).
 
+From Issue #96 PR-2 on, the outcome of `subagent` follows this order (the
+paragraph above describes the order before PR-2; the classification of
+each record does not change):
+
+1. A `STOP` that the script gives at once: the arguments, the files, the
+   parsing, the binding, the fields, the effort format and the
+   configuration file.
+2. The classification of each record, as above.
+3. Any record below gives `BELOW`: a record is below the expected values.
+4. Otherwise, when `--floor` is not `none` and the tier of the expected
+   family in the configuration file that this call reads is below the
+   floor tier, or the expected effort is below the floor effort, the
+   outcome is `BELOW`: the dispatch asked for less than its floor.
+5. Otherwise, records of more than one family class, or an `unrecognized`
+   record, give `STOP MODEL_NOT_RECOGNIZED`.
+6. Otherwise, a `version` record gives `WARN`.
+7. Otherwise the outcome is `PASS`.
+
+`model=`, `tier=` and `effort=` are taken as above. The floor check of
+step 4 can only turn a `PASS`, a `WARN` or a `STOP MODEL_NOT_RECOGNIZED`
+into `BELOW`; it never lets a lower setting count.
+
 ## Output and exit codes
 
 A result of this script is exactly one line in the grammar below with its
@@ -183,10 +237,13 @@ exit code; any other output is not a result. `OK` is not a comparison;
 
 stderr stays empty; any other error is `STOP INTERNAL`, a missing open
 flag on the platform included. A closed or broken stdout gives no line and
-exit code 2. No line carries a path, an ID or transcript text. The orders
-are `haiku`, `sonnet`, `opus` and `low`, `medium`, `high`, `xhigh`, `max`. From Issue #96 on, the model order comes from the tiers of the
-configuration file, and the effort order stays as above (the constant
-`EFFORT_ORDER`).
+exit code 2. No line carries a path, an ID or transcript text. Before
+Issue #96 the orders were `haiku`, `sonnet`, `opus` and `low`, `medium`,
+`high`, `xhigh`, `max`. From Issue #96 on, the model order comes from the
+tiers of the configuration file that the call reads, and the effort order
+stays as above (the constant `EFFORT_ORDER`). From Issue #96 PR-2 on, the
+rules name no model order either: R-DEL-2 takes the tiers from its own
+read of the configuration file (the configuration read of R-DEL-2).
 
 From Issue #96 on: `model=` is a family name of the configuration file or
 `unrecognized`, never the raw model value. `tier=` is the tier of that
@@ -194,6 +251,17 @@ family, `null` for a family without a tier, or `none` for `unrecognized`;
 `expected_tier=` is the tier of the expected family. `check` never prints
 `PASS`, `WARN` or `BELOW`, and `subagent` never prints `CHECK`. The stderr
 of the `git` calls of `--config-base` is discarded, so stderr stays empty.
+
+From Issue #96 PR-2 on, every `PASS`, `WARN` and `BELOW` line ends with
+` floor=<value>`, the `--floor` value of the call, for example
+`PASS model=opus tier=3 effort=xhigh expected=opus/xhigh expected_tier=3 floor=review-scan`
+(the forms in the table above gain this field). A `BELOW` line has two
+meanings: a record below the expected values (step 3 of the order above),
+or expected values below the floor that the `floor=` value names (step 4).
+When the `expected=` values of a `BELOW` line are below the floor of its
+`floor=` value, the dispatch was wrong: it asked for less than its floor,
+whatever the records show. R-DEL-2 says that the facts given to the user
+say so.
 
 ## Tokens
 
@@ -259,10 +327,25 @@ describes the state before Issue #96. The configuration file
   link, a size limit); the script's own file must be
   `model_effort_readback.py` in a folder named `scripts`, otherwise the
   outcome is `STOP BAD_ARGS`. The candidate file of `check` is validated
-  in the same way.
+  in the same way. From Issue #96 PR-2 on (IR1-S-05), the script first
+  resolves its own path with `os.path.realpath` and then checks the two
+  names on that real path: the real file must be `model_effort_readback.py`
+  in a real folder named `scripts`, and the configuration file is the
+  `model-config.json` next to that real `scripts` folder. So with a
+  symlinked skill folder, or a `scripts` folder that is a symlink to a
+  folder named `scripts`, the script reads the file next to the real
+  folder; a `scripts` symlink to a folder with another name, or a script
+  file that is a symlink to a file with another name, gives
+  `STOP BAD_ARGS`. The last part, `model-config.json`, is not resolved: a
+  symlink there gives `STOP CONFIG`, and the strict open stays as above.
 - In this repository `scripts/check_pack.py` loads the same validator and
   pins the tier of each family (equal to its pin or `null`; no family is
   removed), the ten role values and the agent files against the file.
+  From Issue #96 PR-2 on, the roles `orchestration`, `explore`,
+  `explore-synthesis`, `implement` and `implement-reduced` have the effort
+  range from their row value to `max`, and the review and scan roles keep
+  one value; `check_pack` still pins each role exactly, and it also checks
+  that `FLOORS` of the script equals the table of the Interface section.
 - Retire and restore: a family is retired by setting its tier to `null`
   with its IDs kept; its IDs then give `BELOW`, and a role that still names
   it gives `STOP CONFIG`, so the same change moves that role. A family is
@@ -305,7 +388,14 @@ no file rest on a code review of the current code. The static test of the
 script is a regression aid only: it checks the imports, the direct
 `os.<name>` attributes and a list of names, and it does not cover every
 way of writing a call (for example `os.path` functions, chained attributes
-or `__builtins__`). FU-050 tracks a stricter check.
+or `__builtins__`). FU-050 tracks a stricter check. From Issue #96 PR-2
+on (IR1-S-06), the static test also requires that every
+`subprocess.Popen` attribute node is the function of the one call; it
+lets `os`, `sys` and `os.path` appear only as the value of an attribute,
+allows only the `os.path` attributes `abspath`, `basename`, `dirname`,
+`isabs`, `join`, `normpath` and `realpath`, and refuses names that start
+with `_` (except `_`, `__file__` and `__name__`) and attributes that
+start with `_` (except `__init__`). It is still a regression aid only.
 
 From Issue #96 on, a `subagent` run from stdin starts `git` twice for
 `--config-base`: `git --no-replace-objects rev-parse --verify --quiet
@@ -413,11 +503,39 @@ background, no resume and no headless run was read back.
   reads the configuration file of the change itself.
 - From Issue #96 on, a wrong `--config-base` literal (for example the head
   of the change) makes the script trust the configuration file of that
-  commit. The alias order check of R-DEL-2 keeps a wrong tier there from
-  making a lower alias count, but not a wrong ID list. That the two base
-  literals of the call are the same is checked by the main agent only; the
-  script does not compare its own code with the copy at `--config-base`
-  (FU-062).
+  commit: for the classification and, from PR-2 on, for the floor check.
+  From Issue #96 PR-2 on, the rules hold no fixed model order. The alias
+  order check of R-DEL-2 (`model=` at or above `expected=`) and the
+  comparisons of R-DEL-2 with the floor, the row value and any escalated
+  setting use the tiers of the configuration read of R-DEL-2, which the
+  main agent makes itself with its own base literal. These checks catch a
+  wrong tier in the file that the call reads only when the main agent's
+  own read uses another, right copy, for example a wrong `--config-base`
+  literal in the call while the main agent's own read uses the right base.
+  `--floor` makes the script compare the expected values with the floor of
+  the call, so a dispatch below that floor gives `BELOW`; this check is
+  added to the comparisons of R-DEL-2 and replaces none of them. These
+  checks do not catch: (1) a wrong tier when both reads of the main agent
+  use the installed copy that the main agent and the script both read
+  outside the pack repository, and the user edited that copy (the narrow
+  loosening (i) of DL-045, card I96-P2R2-C4 (a)); the same wrong base
+  literal in both reads is not part of (i): by card I96-IR2-P2-C2 (b) it is
+  an unauthorized residual risk, and FU-063 tracks a deterministic check of
+  the bound base literal, not part of PR-3; a main agent that wrongly
+  judges that the skill path lies outside the repository of the change is
+  not part of (i) either: by card I96-IR-P2-C3 (b) it is an unauthorized
+  residual risk until PR-3 adds a deterministic check (a run by path whose
+  realpath is under a worktree of the same Git repository as the current
+  working directory gives a STOP and asks for the `--config-base` stdin
+  form; the check takes the current working directory as the repository
+  of the change, and it fails closed when the working directory is in no
+  Git repository, when a git query fails, and when variables like
+  `GIT_DIR` are set); (2) a wrong ID list;
+  (3) a wrong `--floor` value, for example `none` for a scan (R-DEL-2 says
+  to pass the higher floor when this session's own reading cannot tell).
+  That the two base literals of the call are the same is checked by the
+  main agent only; the script does not compare its own code with the copy
+  at `--config-base` (FU-062).
 - From Issue #96 on, the strict open by path (owner, one hard link) may
   stop every read-back in a managed or system-wide installation, and a
   plugin update may replace a configuration file that a user edited, or
@@ -425,3 +543,13 @@ background, no resume and no headless run was read back.
 - From Issue #96 on, the internal time limit of the `git` calls is 20
   seconds; an outer time limit that is shorter can leave `git` running
   after the script ends (the outcome is still not a result).
+- From Issue #96 PR-2 on, the script cannot show that the `--floor` value
+  fits the dispatch. Before the merge of PR-2, `--floor` was tested on the
+  synthetic fixtures only, because the reviews of PR-2 read back with the
+  copy at a base without `--floor`.
+- From Issue #96 PR-2 on (realpath): the Read tool of the host may resolve
+  `..` literally, so the copy of the configuration file that the main
+  agent reads by R-DEL-2 can differ from the copy that the script reads; a
+  real file name other than `model_effort_readback.py` gives
+  `STOP BAD_ARGS`; and the path can change between `os.path.realpath` and
+  the open.

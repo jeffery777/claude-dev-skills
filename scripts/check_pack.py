@@ -47,9 +47,10 @@
   file text only; whether the host applies the values rests on the controlled test that REQ-009
   records;
 - skills/dev-core/model-config.json passes validate_config() of the read-back script, its families and tiers
-  follow PINNED_FAMILY_TIERS (each tier equals its pin or is null), its roles equal PINNED_ROLE_VALUES, each agent
-  in REQUIRED_AGENTS has exactly one agent_default role, the raw `model` and `effort` of that agent file equal the
-  family and the lowest effort of that role, and EFFORTS equals EFFORT_ORDER of the script (Issue #96);
+  follow PINNED_FAMILY_TIERS (each tier equals its pin or is null), its roles equal PINNED_ROLE_VALUES exactly
+  (keys included), each agent in REQUIRED_AGENTS has exactly one agent_default role, the raw `model` and `effort`
+  of that agent file equal the family and the lowest effort of that role, EFFORTS equals EFFORT_ORDER of the
+  script, and FLOORS of the script equals PINNED_FLOORS (Issue #96);
 - every ${CLAUDE_SKILL_DIR}/... path named in a skill exists;
 - every REQ file in docs/requirements/ has closed front matter, an id matching its
   name, a valid status, typed relations as REQ-id lists, and sources entries with
@@ -88,12 +89,14 @@ PINNED_AGENT_SETTINGS = {  # R-DEL-2, Issue #77: stem -> the exact raw model and
 REQUIRED_AGENTS = sorted(set(READ_ONLY_AGENTS) | set(PINNED_AGENT_SETTINGS))
 PINNED_FAMILY_TIERS = {"haiku": 1, "sonnet": 2, "opus": 3, "fable": 4}  # Issue #96, card I96-C12 (a): the family set
 # is fixed and each tier equals its pin or is null (retired); a change needs a change of check_pack.py with review
-PINNED_ROLE_VALUES = {  # Issue #96 PR-1: the roles equal today's routing tables; PR-2 turns this pin into floors
-    "orchestration": {"family": "opus", "effort": ["high", "high"]},
-    "explore": {"family": "haiku", "effort": ["low", "low"], "agent": "dev-explorer", "agent_default": True},
-    "explore-synthesis": {"family": "sonnet", "effort": ["medium", "medium"], "agent": "dev-explorer"},
-    "implement": {"family": "opus", "effort": ["high", "high"], "agent": "dev-implementer", "agent_default": True},
-    "implement-reduced": {"family": "sonnet", "effort": ["medium", "medium"], "agent": "dev-implementer"},
+PINNED_ROLE_VALUES = {  # Issue #96 PR-2: exact values, keys included; the lowest effort of each role is its row
+    # value of today's routing tables, and a node that is not a review or a scan may go up to max. PR-3 makes the
+    # routing tables name roles
+    "orchestration": {"family": "opus", "effort": ["high", "max"]},
+    "explore": {"family": "haiku", "effort": ["low", "max"], "agent": "dev-explorer", "agent_default": True},
+    "explore-synthesis": {"family": "sonnet", "effort": ["medium", "max"], "agent": "dev-explorer"},
+    "implement": {"family": "opus", "effort": ["high", "max"], "agent": "dev-implementer", "agent_default": True},
+    "implement-reduced": {"family": "sonnet", "effort": ["medium", "max"], "agent": "dev-implementer"},
     "review-routine": {"family": "opus", "effort": ["high", "high"], "agent": "dev-reviewer", "agent_default": True},
     "review-routine-light": {"family": "sonnet", "effort": ["medium", "medium"], "agent": "dev-reviewer"},
     "review-deep": {"family": "opus", "effort": ["xhigh", "xhigh"], "agent": "dev-reviewer"},
@@ -101,6 +104,9 @@ PINNED_ROLE_VALUES = {  # Issue #96 PR-1: the roles equal today's routing tables
                         "agent_default": True},
     "scan": {"family": "opus", "effort": ["xhigh", "xhigh"], "agent": "dev-security-reviewer"},
 }
+PINNED_FLOORS = {  # Issue #96 PR-2: FLOORS of the read-back script, the --floor values and their floors (tier, effort)
+    "work": (3, "high"), "review-scan": (3, "xhigh"), "review-routine": (3, "high"), "review-light": (2, "medium"),
+    "none": None}
 MODEL_CONFIG = os.path.join("skills", "dev-core", "model-config.json")
 AGENT_MAX_BYTES = 65536  # Issue #69 R69S1-002: this repository's own lower limit for a read-only or pinned agent file (ours
 # are < 10 KB); Claude Code skips an agent file over 1,048,576 bytes (inferred from reading the 2.1.310 code, not run)
@@ -445,7 +451,7 @@ def main() -> int:
             for role in sorted(set(config["roles"]) | set(PINNED_ROLE_VALUES)):
                 if config["roles"].get(role) != PINNED_ROLE_VALUES.get(role):
                     errors.append(f"{MODEL_CONFIG}: role {role!r} must be {PINNED_ROLE_VALUES.get(role)!r}, found "
-                                  f"{config['roles'].get(role)!r} (PINNED_ROLE_VALUES, Issue #96 PR-1)")
+                                  f"{config['roles'].get(role)!r} (PINNED_ROLE_VALUES, Issue #96 PR-2)")
             for stem in REQUIRED_AGENTS:
                 roles = [r for r in config["roles"].values() if r.get("agent") == stem and r.get("agent_default")]
                 if len(roles) != 1:
@@ -456,6 +462,10 @@ def main() -> int:
     if EFFORTS != set(readback.EFFORT_ORDER) or len(EFFORTS) != len(readback.EFFORT_ORDER):
         errors.append(f"scripts/check_pack.py: EFFORTS {sorted(EFFORTS)} must equal EFFORT_ORDER "
                       f"{list(readback.EFFORT_ORDER)} of the read-back script (Issue #96)")
+    floors = getattr(readback, "FLOORS", None)
+    if type(floors) is not dict or floors != PINNED_FLOORS:
+        errors.append(f"skills/dev-core/scripts/model_effort_readback.py: FLOORS must equal PINNED_FLOORS "
+                      f"{PINNED_FLOORS!r} of check_pack.py, found {floors!r} (Issue #96 PR-2)")
 
     agent_mds: list[str] = []
     agents_dir = os.path.join(ROOT, "agents")

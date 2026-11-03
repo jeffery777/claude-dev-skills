@@ -46,11 +46,14 @@ TOKENS = {
 FAMILY = "(haiku|sonnet|opus|fable)"
 LEVEL = "(low|medium|high|xhigh|max)"
 TIER = "[1-9][0-9]*"
+FLOOR = "(work|review-scan|review-routine|review-light|none)"
 GRAMMAR = [  # (line pattern, exit code)
-    (re.compile(f"PASS model={FAMILY} tier={TIER} effort={LEVEL} expected={FAMILY}/{LEVEL} expected_tier={TIER}"), 0),
-    (re.compile(f"WARN model={FAMILY} tier={TIER} effort={LEVEL} expected={FAMILY}/{LEVEL} expected_tier={TIER}"), 4),
+    (re.compile(f"PASS model={FAMILY} tier={TIER} effort={LEVEL} expected={FAMILY}/{LEVEL} expected_tier={TIER} "
+                f"floor={FLOOR}"), 0),
+    (re.compile(f"WARN model={FAMILY} tier={TIER} effort={LEVEL} expected={FAMILY}/{LEVEL} expected_tier={TIER} "
+                f"floor={FLOOR}"), 4),
     (re.compile(f"BELOW model=({FAMILY}|unrecognized) tier=({TIER}|null|none) effort={LEVEL} "
-                f"expected={FAMILY}/{LEVEL} expected_tier={TIER}"), 3),
+                f"expected={FAMILY}/{LEVEL} expected_tier={TIER} floor={FLOOR}"), 3),
     (re.compile("STOP (" + "|".join(sorted(TOKENS)) + ")"), 2),
     (re.compile(f"CHECK model=({FAMILY}|unrecognized) match=(listed|version|name|none) tier=({TIER}|null|none) "
                 f"effort={LEVEL} records=[1-9][0-9]*"), 5),
@@ -85,10 +88,10 @@ def open_fds():
     return len(os.listdir("/dev/fd"))
 
 
-def result(word, model, tier, effort, expect=DEFAULT_EXPECT):
+def result(word, model, tier, effort, expect=DEFAULT_EXPECT, floor="none"):
     """A PASS, WARN or BELOW line."""
     return (f"{word} model={model} tier={tier} effort={effort} expected={expect[0]}/{expect[1]} "
-            f"expected_tier={TIERS[expect[0]]}")
+            f"expected_tier={TIERS[expect[0]]} floor={floor}")
 
 
 def config_bytes(change=None) -> bytes:
@@ -150,14 +153,16 @@ class Base(unittest.TestCase):
             fh.write(data)
         return path
 
-    def args(self, expect=DEFAULT_EXPECT, projects=None, agent=None, base=None):
-        """subagent arguments; expect=() leaves out both expected values."""
+    def args(self, expect=DEFAULT_EXPECT, projects=None, agent=None, base=None, floor="none"):
+        """subagent arguments; expect=() leaves out both expected values, floor=None leaves out --floor."""
         argv = ["subagent", "--projects-dir", self.projects if projects is None else projects,
                 "--agent-id", self.agent if agent is None else agent]
         if expect:
             argv += ["--expect-model", expect[0], "--expect-effort", expect[1]]
         if base is not None:
             argv += ["--config-base", base]
+        if floor is not None:
+            argv += ["--floor", floor]
         return argv
 
     def check_args(self, candidate, projects=None, agent=None):
@@ -457,6 +462,11 @@ class Arguments(Base):
             "extra positional": base + ["extra-" + self.marker],
             "unknown option": base + ["--model", "opus"],
             "--candidate-config in subagent": base + ["--candidate-config", self.candidate()],
+            "missing --floor": self.args(floor=None),
+            "repeated --floor": base + ["--floor", "none"],
+            "repeated --floor, another value": base + ["--floor", "work"],
+            "--floor without a value": self.args(floor=None) + ["--floor"],
+            "abbreviated --flo": self.args(floor=None) + ["--flo", "none"],
         }
         for name, argv in cases.items():
             with self.subTest(name):
@@ -469,6 +479,18 @@ class Arguments(Base):
                        ("opus ", "high")):
             with self.subTest(expect=expect):
                 self.assertStop("BAD_ARGS", self.args(expect))
+
+    def test_bad_floor_values(self):  # Issue #96 PR-2: only the five keys of FLOORS
+        self.write([self.rec()])
+        for floor in ("", "Work", "WORK", "work ", " work", "work\n", "review", "review_scan", "reviewscan",
+                      "review-deep", "review-security", "scan", "light", "routine", "high", "max", "None", "null",
+                      "unknown", "3", "review-light,work"):
+            with self.subTest(floor=floor):
+                self.assertStop("BAD_ARGS", self.args(floor=floor))
+        for floor in ("work", "review-scan", "review-routine", "review-light", "none"):
+            with self.subTest(floor=floor):  # a record below the expected values: BELOW with each floor
+                self.assertLine(result("BELOW", "opus", 3, "high", ("opus", "max"), floor),
+                                self.args(("opus", "max"), floor=floor))
 
     def test_expected_family_with_a_null_tier(self):  # Issue #96: a retired family is not a valid expected value
         self.write([self.rec()])
@@ -783,6 +805,76 @@ class Models(Base):
         self.assertEqual(MOD.lowest([("listed", "opus", 3), ("listed", "opus", 3)]), 0)
 
 
+class Floors(Base):
+    """--floor (Issue #96 PR-2, design d5 section 2): the check order and the floor of each value."""
+
+    def outcome(self, records, expect, floor, script=SCRIPT):
+        self.write([self.rec(model=model, effort=effort) for model, effort in records])
+        return self.run_script(self.args(expect, floor=floor), script=script)
+
+    def test_the_examples_of_the_design(self):
+        fable = "claude-fable-5-1"
+        sonnet = "claude-sonnet-5-5"
+        for records, expect, floor, want in (
+                ([(OPUS, "xhigh")], ("opus", "xhigh"), "review-scan",
+                 result("PASS", "opus", 3, "xhigh", ("opus", "xhigh"), "review-scan")),
+                ([(OPUS, "high")], ("opus", "high"), "review-scan",  # step 4
+                 result("BELOW", "opus", 3, "high", ("opus", "high"), "review-scan")),
+                ([(sonnet, "medium")], ("sonnet", "medium"), "review-light",
+                 result("WARN", "sonnet", 2, "medium", ("sonnet", "medium"), "review-light")),
+                ([(sonnet, "medium")], ("sonnet", "medium"), "review-routine",  # step 4
+                 result("BELOW", "sonnet", 2, "medium", ("sonnet", "medium"), "review-routine")),
+                ([("claude-haiku-5-5", "high")], ("opus", "high"), "work",  # step 3
+                 result("BELOW", "haiku", 1, "high", ("opus", "high"), "work")),
+                ([(OPUS, "xhigh"), (fable, "xhigh")], ("opus", "xhigh"), "review-scan",  # step 5
+                 "STOP MODEL_NOT_RECOGNIZED"),
+                ([(OPUS, "xhigh"), (fable, "xhigh")], ("opus", "high"), "review-scan",  # step 4 comes first
+                 result("BELOW", "opus", 3, "xhigh", ("opus", "high"), "review-scan")),
+                ([("unknown", "high")], ("opus", "high"), "none", "STOP MODEL_NOT_RECOGNIZED")):
+            with self.subTest(records=records, expect=expect, floor=floor):
+                self.assertEqual(self.outcome(records, expect, floor), want)
+
+    def test_the_same_records_without_a_floor(self):  # the BELOW lines of step 4 above come from the floor alone
+        for records, expect, want in (
+                ([(OPUS, "high")], ("opus", "high"), result("PASS", "opus", 3, "high", ("opus", "high"))),
+                ([("claude-sonnet-5-5", "medium")], ("sonnet", "medium"),
+                 result("WARN", "sonnet", 2, "medium", ("sonnet", "medium"))),
+                ([(OPUS, "xhigh"), ("claude-fable-5-1", "xhigh")], ("opus", "high"), "STOP MODEL_NOT_RECOGNIZED")):
+            with self.subTest(records=records, expect=expect):
+                self.assertEqual(self.outcome(records, expect, "none"), want)
+
+    def test_each_floor_at_and_below(self):
+        family_of = {1: "haiku", 2: "sonnet", 3: "opus"}
+        for floor, (tier, effort) in (("work", (3, "high")), ("review-scan", (3, "xhigh")),
+                                      ("review-routine", (3, "high")), ("review-light", (2, "medium"))):
+            lower_effort = MOD.EFFORT_ORDER[MOD.EFFORT_ORDER.index(effort) - 1]
+            for expect, word in (((family_of[tier], effort), "PASS"), ((family_of[tier], "max"), "PASS"),
+                                 (("fable", effort), "BELOW"),  # step 3: the opus record is below fable
+                                 ((family_of[tier - 1], effort), "BELOW"), ((family_of[tier], lower_effort), "BELOW"),
+                                 ((family_of[tier - 1], "max"), "BELOW")):
+                with self.subTest(floor=floor, expect=expect):
+                    self.assertEqual(self.outcome([(OPUS, "max")], expect, floor),
+                                     result(word, "opus", 3, "max", expect, floor))
+        for expect in (("haiku", "low"), ("opus", "max")):
+            with self.subTest(floor="none", expect=expect):
+                self.assertEqual(self.outcome([(OPUS, "max")], expect, "none"),
+                                 result("PASS", "opus", 3, "max", expect, "none"))
+
+    def test_the_floor_uses_the_tiers_of_the_file_of_this_call(self):
+        def swap(config):  # opus tier 2 and sonnet tier 3 in this copy only
+            config["families"]["opus"]["tier"], config["families"]["sonnet"]["tier"] = 2, 3
+        script = self.make_pack(config_bytes(swap))
+        self.assertEqual(self.outcome([(OPUS, "high")], ("opus", "high"), "work", script),
+                         "BELOW model=opus tier=2 effort=high expected=opus/high expected_tier=2 floor=work")
+        self.assertEqual(self.outcome([("claude-sonnet-5-5", "high")], ("sonnet", "high"), "work", script),
+                         "WARN model=sonnet tier=3 effort=high expected=sonnet/high expected_tier=3 floor=work")
+
+    def test_immediate_stops_come_before_the_floor(self):
+        self.write([self.rec(model="claude-haiku-5-5", effort="low"), self.rec(isSidechain=False)])
+        self.assertStop("BINDING_MISMATCH", self.args(("haiku", "low"), floor="review-scan"))
+        self.assertStop("CONFIG", self.args(("haiku", "low"), floor="review-scan"), script=self.make_pack(b"{}"))
+
+
 class Validator(unittest.TestCase):
     """validate_config: each rule of the design (rev7 section 3.1, rev8 section 2.1) with a positive and a negative case."""
 
@@ -807,8 +899,17 @@ class Validator(unittest.TestCase):
         self.assertEqual({n: (f["tier"], f["ids"]) for n, f in SHIPPED["families"].items()},
                          {"haiku": (1, []), "sonnet": (2, []), "opus": (3, [OPUS]), "fable": (4, [])})
         self.assertEqual(list(SHIPPED["roles"]), list(MOD.ROLE_NAMES))
-        for role in SHIPPED["roles"].values():
-            self.assertEqual(role["effort"][0], role["effort"][1])  # rev8 section 1: min equals max in PR-1
+        for name, role in SHIPPED["roles"].items():  # Issue #96 PR-2: a review or a scan uses its row value
+            with self.subTest(role=name):
+                if name.startswith(("review-", "scan")):
+                    self.assertEqual(role["effort"][0], role["effort"][1])
+                else:
+                    self.assertEqual(role["effort"][1], "max")
+        self.assertEqual({name: role["effort"] for name, role in SHIPPED["roles"].items()}, {
+            "orchestration": ["high", "max"], "explore": ["low", "max"], "explore-synthesis": ["medium", "max"],
+            "implement": ["high", "max"], "implement-reduced": ["medium", "max"], "review-routine": ["high", "high"],
+            "review-routine-light": ["medium", "medium"], "review-deep": ["xhigh", "xhigh"],
+            "review-security": ["xhigh", "xhigh"], "scan": ["xhigh", "xhigh"]})
 
     def test_strict_json(self):
         good = SHIPPED_BYTES
@@ -1022,6 +1123,90 @@ class PathForm(Base):
         self.assertStop("CONFIG", script=self.make_pack(b"{}"))
 
 
+class RealPath(Base):
+    """IR1-S-05 (Issue #96 PR-2): a run by its path reads the model-config.json next to the scripts folder of the real
+    path of the script. Each case runs the script in a subprocess with the literal ${skill}/../dev-core/scripts/...
+    form of the rules, `..` included. OTHER gives WARN for the opus record, the shipped file gives PASS, so the two
+    readings differ."""
+
+    OTHER = config_bytes(lambda c: c["families"]["opus"].update(ids=[]))
+    PASS = result("PASS", "opus", 3, "high")
+    WARN = result("WARN", "opus", 3, "high")
+
+    def setUp(self):
+        super().setUp()
+        self.write([self.rec()])
+
+    def skills(self, name, config=SHIPPED_BYTES, script=True, gate=True):
+        """<tmp>/<name>-*/ with dev-gate/ and dev-core/model-config.json (config None: none) and, when script is
+        True, dev-core/scripts/model_effort_readback.py."""
+        root = tempfile.mkdtemp(prefix=name + "-", dir=self.tmp)
+        os.makedirs(os.path.join(root, "dev-core"))
+        if gate:
+            os.mkdir(os.path.join(root, "dev-gate"))
+        if script:
+            os.mkdir(os.path.join(root, "dev-core", "scripts"))
+            shutil.copy(SCRIPT, os.path.join(root, "dev-core", "scripts", "model_effort_readback.py"))
+        if config is not None:
+            with open(os.path.join(root, "dev-core", "model-config.json"), "wb") as fh:
+                fh.write(config)
+        return root
+
+    def literal(self, root):
+        """The path form of the rules: ${CLAUDE_SKILL_DIR}/../dev-core/scripts/model_effort_readback.py."""
+        return os.path.join(root, "dev-gate") + "/../dev-core/scripts/model_effort_readback.py"
+
+    def outcome(self, root):
+        return self.run_script(self.args(), script=self.literal(root))
+
+    def test_the_literal_form_of_real_directories(self):  # the same file name in another scripts folder
+        self.assertEqual(self.outcome(self.skills("plain")), self.PASS)
+        self.assertEqual(self.outcome(self.skills("other", self.OTHER)), self.WARN)
+
+    def test_skill_directory_is_a_symlink(self):
+        real = self.skills("real")
+        shown = self.skills("shown", self.OTHER, gate=False)
+        os.symlink(os.path.join(real, "dev-gate"), os.path.join(shown, "dev-gate"))
+        self.assertEqual(self.outcome(shown), self.PASS)  # the file next to the real location, not the literal one
+        shown_only = self.skills("shown-only", self.OTHER, script=False, gate=False)
+        os.symlink(os.path.join(real, "dev-gate"), os.path.join(shown_only, "dev-gate"))
+        self.assertEqual(self.outcome(shown_only), self.PASS)
+
+    def test_configuration_file_at_the_real_location_is_a_symlink(self):
+        real = self.skills("real", None)
+        os.symlink(self.candidate(), os.path.join(real, "dev-core", "model-config.json"))
+        shown = self.skills("shown", gate=False)
+        os.symlink(os.path.join(real, "dev-gate"), os.path.join(shown, "dev-gate"))
+        self.assertEqual(self.outcome(shown), "STOP CONFIG")
+        self.assertEqual(self.outcome(real), "STOP CONFIG")
+
+    def test_scripts_folder_is_a_symlink(self):
+        for name, want in (("scripts", self.PASS), ("bin", "STOP BAD_ARGS")):
+            with self.subTest(target=name):
+                target = tempfile.mkdtemp(prefix="target-", dir=self.tmp)
+                os.mkdir(os.path.join(target, name))
+                shutil.copy(SCRIPT, os.path.join(target, name, "model_effort_readback.py"))
+                with open(os.path.join(target, "model-config.json"), "wb") as fh:
+                    fh.write(SHIPPED_BYTES)
+                shown = self.skills("shown", self.OTHER, script=False)
+                os.symlink(os.path.join(target, name), os.path.join(shown, "dev-core", "scripts"))
+                self.assertEqual(self.outcome(shown), want)  # PASS: the parent of the target, not dev-core
+
+    def test_script_file_is_a_symlink(self):
+        for name, want in (("readback.py", "STOP BAD_ARGS"), ("model_effort_readback.py", self.PASS)):
+            with self.subTest(target=name):
+                target = tempfile.mkdtemp(prefix="target-", dir=self.tmp)
+                os.mkdir(os.path.join(target, "scripts"))
+                shutil.copy(SCRIPT, os.path.join(target, "scripts", name))
+                with open(os.path.join(target, "model-config.json"), "wb") as fh:
+                    fh.write(SHIPPED_BYTES)
+                shown = self.skills("shown", self.OTHER, script=False)
+                os.mkdir(os.path.join(shown, "dev-core", "scripts"))
+                os.symlink(os.path.join(target, "scripts", name),
+                           os.path.join(shown, "dev-core", "scripts", "model_effort_readback.py"))
+                self.assertEqual(self.outcome(shown), want)  # PASS: the file next to the other scripts folder
+
+
 class FakeGit(Base):
     """The git calls of the stdin form, with a fake git in this process (Issue #96, rev8 section 4.1)."""
 
@@ -1135,6 +1320,12 @@ class FakeGit(Base):
         self.assertEqual(self.run_stdin(self.args())[0], "STOP BAD_ARGS")
         self.assertFalse(os.path.exists(self.log))  # no git call
 
+    def test_from_stdin_needs_floor(self):  # Issue #96 PR-2: the call form without --floor fails closed
+        self.fake(self.ok_rev_parse(), self.ok_cat_file())
+        self.assertEqual(self.run_stdin(self.args(base=self.BASE, floor=None))[0], "STOP BAD_ARGS")
+        self.assertEqual(self.run_stdin(self.args(base=self.BASE, floor="review"))[0], "STOP BAD_ARGS")
+        self.assertFalse(os.path.exists(self.log))  # no git call
+
 
 @unittest.skipIf(GIT is None, "git is not installed")
 class ConfigBase(Base):
@@ -1242,6 +1433,17 @@ class ConfigBase(Base):
         self.assertEqual(self.stdin(repo, base, self.check_args(self.candidate()) + ["--config-base", base]),
                          "STOP BAD_ARGS")
 
+    def test_floor_in_the_stdin_form(self):  # Issue #96 PR-2: the call form of the rules, with --floor
+        repo, base = self.repo()
+        for expect, floor, want in (
+                (("opus", "high"), "work", result("PASS", "opus", 3, "high", ("opus", "high"), "work")),
+                (("opus", "high"), "review-scan", result("BELOW", "opus", 3, "high", ("opus", "high"), "review-scan")),
+                (("sonnet", "medium"), "review-light",
+                 result("PASS", "opus", 3, "high", ("sonnet", "medium"), "review-light"))):
+            with self.subTest(floor=floor):
+                self.assertEqual(self.stdin(repo, base, self.args(expect, base=base, floor=floor)), want)
+        self.assertEqual(self.stdin(repo, base, self.args(base=base, floor=None)), "STOP BAD_ARGS")
+
 
 class CheckMode(Base):
     """`check` (card I96-C5 (a), rev7 section 5.8, rev8 section 4.3): a CHECK line, exit code 5, never PASS, WARN or BELOW."""
@@ -1298,6 +1500,7 @@ class CheckMode(Base):
         candidate = self.candidate()
         base = self.check_args(candidate)
         for name, argv in (("--config-base", base + ["--config-base", "a" * 40]),
+                           ("--floor none", base + ["--floor", "none"]), ("--floor work", base + ["--floor", "work"]),
                            ("--expect-model", base + ["--expect-model", "opus"]),
                            ("--expect-effort", base + ["--expect-effort", "high"]),
                            ("no candidate", base[:-2]), ("repeated candidate", base + ["--candidate-config", candidate]),
@@ -1418,6 +1621,47 @@ def other_user():
         yield
 
 
+def popen_problems(tree) -> list:
+    """The subprocess.Popen Attribute nodes that are not the func of a call, and a count other than one (IR1-S-06)."""
+    funcs = [node.func for node in ast.walk(tree) if isinstance(node, ast.Call)]
+    attrs = [node for node in ast.walk(tree) if isinstance(node, ast.Attribute) and node.attr == "Popen"
+             and isinstance(node.value, ast.Name) and node.value.id == "subprocess"]
+    problems = [ast.unparse(node) for node in attrs if not any(node is func for func in funcs)]
+    return problems + ([f"{len(attrs)} subprocess.Popen nodes"] if len(attrs) != 1 else [])
+
+
+def underscore_attribute_problems(tree) -> list:
+    """The attributes that start with `_`, except __init__ (IR1-S-06)."""
+    return sorted({node.attr for node in ast.walk(tree) if isinstance(node, ast.Attribute)
+                   and node.attr.startswith("_") and node.attr != "__init__"})
+
+
+def underscore_name_problems(tree) -> list:
+    """The names that start with `_`, except _, __file__ and __name__ (IR1-S-06)."""
+    return sorted({node.id for node in ast.walk(tree) if isinstance(node, ast.Name)
+                   and node.id.startswith("_") and node.id not in ("_", "__file__", "__name__")})
+
+
+def bare_module_problems(tree) -> list:
+    """The os and sys names that are not the value of an Attribute (IR1-S-06)."""
+    values = [node.value for node in ast.walk(tree) if isinstance(node, ast.Attribute)]
+    return [f"{node.id} at line {node.lineno}" for node in ast.walk(tree) if isinstance(node, ast.Name)
+            and node.id in ("os", "sys") and not any(node is value for value in values)]
+
+
+OS_PATH_ATTRS = {"abspath", "basename", "dirname", "isabs", "join", "normpath", "realpath"}
+
+
+def os_path_problems(tree) -> list:
+    """The os.path nodes that are not the value of an Attribute in OS_PATH_ATTRS (IR1-S-06)."""
+    paths = [node for node in ast.walk(tree) if isinstance(node, ast.Attribute) and node.attr == "path"
+             and isinstance(node.value, ast.Name) and node.value.id == "os"]
+    outer = [node for node in ast.walk(tree) if isinstance(node, ast.Attribute)
+             and any(node.value is path for path in paths)]
+    unused = [f"os.path at line {path.lineno}" for path in paths if not any(o.value is path for o in outer)]
+    return unused + sorted({"os.path." + o.attr for o in outer if o.attr not in OS_PATH_ATTRS})
+
+
 class Static(unittest.TestCase):
     """Regression guards on the script text; the same PR can change the script and these tests."""
 
@@ -1506,6 +1750,33 @@ class Static(unittest.TestCase):
         refs = [n for n in ast.walk(self.tree) if isinstance(n, ast.Name) and n.id == "run_git"]
         self.assertEqual(len(refs), 2)  # run_git is never passed on or renamed
 
+    def test_no_alias_of_popen_os_or_sys(self):  # IR1-S-06 (Issue #96 PR-2)
+        for check in (popen_problems, underscore_attribute_problems, underscore_name_problems, bare_module_problems,
+                      os_path_problems):
+            with self.subTest(check=check.__name__):
+                self.assertEqual(check(self.tree), [])
+
+    def test_alias_mutations_fail(self):  # IR1-S-06: each mutation of the source in memory is found; no file
+        cases = {
+            popen_problems: ("P = subprocess.Popen", "run = [subprocess.Popen][0]", "def f(p=subprocess.Popen): pass",
+                             "x = subprocess.Popen.__call__", "x = subprocess.Popen(argv)"),
+            underscore_attribute_problems: ("x = os._exit", "x = sys._getframe", "x = ().__class__",
+                                            "x = re.__dict__", "x = subprocess._args_from_interpreter_flags",
+                                            "x = Stop.__subclasses__"),
+            underscore_name_problems: ("x = __builtins__", "_x = 1", "x = __loader__", "x = __spec__",
+                                       "__import__('os')", "x = __cached__"),
+            bare_module_problems: ("m = os", "m = sys", "f(os)", "os = None", "x = [sys][0]", "x = {'m': os}"),
+            os_path_problems: ("p = os.path", "f(os.path)", "x = os.path.exists('x')", "x = os.path.expanduser",
+                               "x = os.path.islink", "x = [os.path][0].join"),
+        }
+        for check, mutations in cases.items():
+            for mutation in mutations:
+                with self.subTest(check=check.__name__, mutation=mutation):
+                    self.assertNotEqual(check(ast.parse(self.source + "\n" + mutation + "\n")), [])
+
+    def test_type_is_not_banned(self):  # IR1-S-06: the validator checks types with `type(x) is int`
+        self.assertIn("type", {node.id for node in ast.walk(self.tree) if isinstance(node, ast.Name)})
+
     def test_validator_reads_nothing(self):
         func = [f for f in ast.walk(self.tree) if isinstance(f, ast.FunctionDef) and f.name == "validate_config"]
         self.assertEqual(len(func), 1)
@@ -1526,6 +1797,8 @@ class Static(unittest.TestCase):
         self.assertFalse(hasattr(MOD, "MODEL_ALLOWLIST"))  # replaced by the configuration file (Issue #96)
         self.assertFalse(hasattr(MOD, "MODEL_ORDER"))
         self.assertEqual(MOD.EFFORT_ORDER, ("low", "medium", "high", "xhigh", "max"))
+        self.assertEqual(MOD.FLOORS, {"work": (3, "high"), "review-scan": (3, "xhigh"), "review-routine": (3, "high"),
+                                      "review-light": (2, "medium"), "none": None})  # Issue #96 PR-2
         self.assertEqual(MOD.ROLE_NAMES, ("orchestration", "explore", "explore-synthesis", "implement",
                                           "implement-reduced", "review-routine", "review-routine-light",
                                           "review-deep", "review-security", "scan"))

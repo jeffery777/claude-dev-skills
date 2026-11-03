@@ -326,6 +326,11 @@ Each item names its source: U1 to U3 (the user requirements) or a card.
     evidence. The dispatch names `opus`; which version the alias resolves to
     is not verified (FU-021); `fable` is not used before its evaluation
     (D-007 rule 4).
+    Note (Issue #96 PR-2): `dev-retro` no longer has the `fable`
+    sentence; by card I96-C9 (a) with Fable at tier 4, `fable` meets the
+    floors without an evaluation, and a family of a higher tier comes only
+    from an escalation step, a floor or the user's own message in the
+    session that dispatches (D-029, DL-045).
   - Suggestions (U2; D19-C3 (a)): each suggestion has one of the four Core
     judgments (Core `workflow.md:90-97`). Each suggestion that changes a
     rule file, skill text, a REQ or any record (including a narrowed claim,

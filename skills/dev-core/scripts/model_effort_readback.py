@@ -4,22 +4,27 @@ REQ-009; stdlib only, one file, no other module of this repository).
 
 Usage (as `python3 -I`):
   model_effort_readback.py subagent --projects-dir DIR --agent-id ID --expect-model FAMILY --expect-effort LEVEL
+      --floor FLOOR
   git --no-replace-objects cat-file blob BASE:skills/dev-core/scripts/model_effort_readback.py
-      | python3 -I - subagent --config-base BASE --projects-dir DIR --agent-id ID --expect-model FAMILY
-        --expect-effort LEVEL
+      | python3 -I - subagent --config-base BASE --floor FLOOR --projects-dir DIR --agent-id ID
+        --expect-model FAMILY --expect-effort LEVEL
   model_effort_readback.py check --projects-dir DIR --agent-id ID --candidate-config FILE   (also from stdin)
 
 DIR is an absolute, normalized path without a trailing `/`. ID is exactly 17 lowercase hexadecimal digits. FAMILY
 is a family of the configuration file whose tier is not null; LEVEL is low, medium, high, xhigh or max; both are
-required. BASE is a full commit ID, 40 or 64 lowercase hexadecimal digits: `subagent` needs it when the script runs
-from stdin and refuses it when the script runs by its path. `check` takes neither BASE nor expected values. A
-repeated, abbreviated or unknown option, -h, --help, a missing or unknown subcommand and any other bad argument give
-`STOP BAD_ARGS`.
+required. FLOOR is required and is one key of FLOORS: work (tier 3, high), review-scan (tier 3, xhigh),
+review-routine (tier 3, high), review-light (tier 2, medium) or none (no floor check) (Issue #96 PR-2). BASE is a
+full commit ID, 40 or 64 lowercase hexadecimal digits: `subagent` needs it when the script runs from stdin and
+refuses it when the script runs by its path. `check` takes neither BASE, FLOOR nor expected values. A missing
+FLOOR, a repeated, abbreviated or unknown option, -h, --help, a missing or unknown subcommand and any other bad
+argument give `STOP BAD_ARGS`.
 
 The configuration file (Issue #96) is `skills/dev-core/model-config.json`. Run from stdin, the script reads it from
 the commit BASE with two git calls (rev-parse, whose output must be BASE itself, then cat-file); run by its path, it
-reads the `model-config.json` next to its `scripts` folder; `check` reads FILE instead. validate_config() checks the
-file; any failure gives `STOP CONFIG`.
+reads the `model-config.json` next to the `scripts` folder of the real path of this file (os.path.realpath: a
+symlink and `..` on the path to the script are resolved; the configuration file itself is opened without following
+a symlink, as below); `check` reads FILE instead. validate_config() checks the file; any failure gives
+`STOP CONFIG`.
 
 The script finds DIR/<slug>/<session>/subagents/agent-<ID>.jsonl through directory file descriptors. It follows no
 symlink at DIR or under it (the path above DIR resolves as usual) and does not look into a directory whose name is
@@ -31,15 +36,24 @@ value with a word that names a family below the expected one or with a null tier
 
 Output: exactly one line on stdout, ending in a newline; stderr stays empty. No line carries a path, an ID, a model
 value or transcript text. A closed or broken stdout gives no line and exit 2.
-  PASS model=<F> tier=<n> effort=<level> expected=<F>/<level> expected_tier=<n>        exit 0
-  WARN model=<F> tier=<n> effort=<level> expected=<F>/<level> expected_tier=<n>        exit 4: an ID is not listed
-  BELOW model=<F|unrecognized> tier=<n|null|none> effort=<level> expected=<F>/<level> expected_tier=<n>   exit 3
-  STOP <REASON>                                                                        exit 2: no result
+  PASS model=<F> tier=<n> effort=<level> expected=<F>/<level> expected_tier=<n> floor=<FLOOR>      exit 0
+  WARN model=<F> tier=<n> effort=<level> expected=<F>/<level> expected_tier=<n> floor=<FLOOR>      exit 4: an ID
+                                                                                                   is not listed
+  BELOW model=<F|unrecognized> tier=<n|null|none> effort=<level> expected=<F>/<level> expected_tier=<n>
+        floor=<FLOOR>   (one line)                                                                 exit 3
+  STOP <REASON>                                                                                    exit 2: no result
   CHECK model=<F|unrecognized> match=<listed|version|name|none> tier=<n|null|none> effort=<level> records=<n>
                                                                                        exit 5: `check` only
 model= and tier= come from the lowest record (unrecognized < null < 1 < 2 ...; on a tie a "version" record),
-effort= is the lowest effort, and <n> after records= is the number of assistant records that were read. Any other
-output is not a result.
+effort= is the lowest effort, <n> after records= is the number of assistant records that were read, and floor= is
+the FLOOR of the call. Any other output is not a result.
+
+The order of the `subagent` result: (1) the STOP lines that come at once: the arguments, the files, the parse, the
+binding, the fields, the effort format and the configuration file; (2) the classification of each record; (3) BELOW
+when a record is below the expected values; (4) else BELOW when FLOOR is not none and the tier that the
+configuration file of this call gives to the expected family is below the tier of FLOOR, or the expected effort is
+below the effort of FLOOR (a dispatch below its floor); (5) else STOP MODEL_NOT_RECOGNIZED when the records name
+more than one family or a value is unrecognized; (6) else WARN when a record is a "version" ID; (7) else PASS.
 
 REASON tokens (a closed set):
   BAD_ARGS              an argument is missing, repeated, unknown or not in its format
@@ -83,6 +97,9 @@ import sys
 import time
 
 EFFORT_ORDER = ("low", "medium", "high", "xhigh", "max")
+FLOORS = {  # Issue #96 PR-2: --floor value -> (the lowest tier, the lowest effort) of the expected values, or None
+    "work": (3, "high"), "review-scan": (3, "xhigh"), "review-routine": (3, "high"), "review-light": (2, "medium"),
+    "none": None}
 ROLE_NAMES = ("orchestration", "explore", "explore-synthesis", "implement", "implement-reduced", "review-routine",
               "review-routine-light", "review-deep", "review-security", "scan")
 AGENT_NAMES = ("dev-explorer", "dev-implementer", "dev-reviewer", "dev-security-reviewer")
@@ -136,7 +153,7 @@ class Parser(argparse.ArgumentParser):
         raise Stop("BAD_ARGS")
 
 
-SUBAGENT_OPTIONS = ("--projects-dir", "--agent-id", "--expect-model", "--expect-effort", "--config-base")
+SUBAGENT_OPTIONS = ("--projects-dir", "--agent-id", "--expect-model", "--expect-effort", "--config-base", "--floor")
 CHECK_OPTIONS = ("--projects-dir", "--agent-id", "--candidate-config")
 
 
@@ -152,7 +169,8 @@ def parse_args(argv):
     if args.mode not in ("subagent", "check"):
         raise Stop("BAD_ARGS")
     if args.mode == "subagent":
-        lists = (args.projects_dir, args.agent_id, args.expect_model, args.expect_effort, args.config_base)
+        lists = (args.projects_dir, args.agent_id, args.expect_model, args.expect_effort, args.config_base,
+                 args.floor)
     else:
         lists = (args.projects_dir, args.agent_id, args.candidate_config)
     values = {}
@@ -174,6 +192,8 @@ def parse_args(argv):
         return args.mode, values
     if values["--expect-model"] is None or values["--expect-effort"] not in EFFORT_ORDER:
         raise Stop("BAD_ARGS")
+    if values["--floor"] not in FLOORS:  # also a missing --floor (Issue #96 PR-2)
+        raise Stop("BAD_ARGS")
     base = values["--config-base"]
     if base is not None and not re.fullmatch(BASE_RE, base):
         raise Stop("BAD_ARGS")
@@ -186,8 +206,9 @@ def from_stdin() -> bool:
 
 
 def own_config_path() -> str:
-    """The `model-config.json` next to the `scripts` folder of this file, for a run by its path."""
-    here = os.path.normpath(os.path.abspath(__file__))
+    """The `model-config.json` next to the `scripts` folder of the real path of this file, for a run by its path;
+    the realpath resolves a symlink and `..` on the path to this file, never the configuration file (IR1-S-05)."""
+    here = os.path.realpath(__file__)
     scripts = os.path.dirname(here)
     if os.path.basename(here) != "model_effort_readback.py" or os.path.basename(scripts) != "scripts":
         raise Stop("BAD_ARGS")
@@ -684,8 +705,11 @@ def run(argv):
              or (kind in ("listed", "version") and (tiers[family] is None or tiers[family] < expected_tier))
              for (kind, family, _), (_, e) in zip(results, records)]
     families = {family for _, family, _ in results}  # None stands for unrecognized
-    if any(below):
+    floor = FLOORS[values["--floor"]]
+    if any(below):  # step 3: a record is below the expected values
         word, code = "BELOW", 3
+    elif floor is not None and (expected_tier < floor[0] or expected_effort < EFFORT_ORDER.index(floor[1])):
+        word, code = "BELOW", 3  # step 4: the expected values are below the floor (Issue #96 PR-2)
     elif len(families) > 1 or any(kind == "unrecognized" for kind, _, _ in results):
         raise Stop("MODEL_NOT_RECOGNIZED")  # more than one family and none below, or an unrecognized value
     elif any(kind == "version" for kind, _, _ in results):
@@ -693,7 +717,7 @@ def run(argv):
     else:
         word, code = "PASS", 0
     return (f"{word} {shown} expected={values['--expect-model']}/{values['--expect-effort']} "
-            f"expected_tier={expected_tier}"), code
+            f"expected_tier={expected_tier} floor={values['--floor']}"), code
 
 
 def main(argv=None) -> int:

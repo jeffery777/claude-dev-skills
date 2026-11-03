@@ -140,8 +140,8 @@ hyphens" (from the pre-post scan of Issue comment 3, I96-C3-S-01).
 
 | Task | Agent | Paths | Requested | Recorded | Effective |
 | --- | --- | --- | --- | --- | --- |
-| T1: configuration file, validator, classification, `--config-base`, `check`, `check_pack` pins, tests | `dev-implementer` | the T1 rows above | `opus`/`high` | main agent fills in (R-DEL-2) | `unknown` |
-| T2: rule sentences (one scripted run), reference notes, records, this plan | `dev-implementer` | the T2 rows above | `opus`/`high` | main agent fills in (R-DEL-2) | `unknown` |
+| T1: configuration file, validator, classification, `--config-base`, `check`, `check_pack` pins, tests | `dev-implementer` | the T1 rows above | `opus`/`high` | main agent fills in (R-DEL-2); not filled in here: see the PR #98 merge gate record (MR98-M-02) | `unknown` |
+| T2: rule sentences (one scripted run), reference notes, records, this plan | `dev-implementer` | the T2 rows above | `opus`/`high` | main agent fills in (R-DEL-2); not filled in here: see the PR #98 merge gate record (MR98-M-02) | `unknown` |
 
 Why `opus`/`high`: the implement and docs role at the `strict` tier; the
 R-DEL-2 floor applies (security-rule and public-contract text). T1 and T2
@@ -366,6 +366,14 @@ the gate":
 4. Then the PR-2 design (FU-061).
 
 ## Read-back records
+
+Not copied into this plan (MR98-M-02, deferred to Issue #96 PR-2 by the
+PR #98 merge). The PR #98 merge gate record comment,
+https://github.com/jeffery777/claude-dev-skills/pull/98#issuecomment-6570747634,
+gives the read-backs of the merging session (the Merge Review, the
+Security Diff Scan of the head and the R-REV-9 merge readiness scan) with
+their call form, result lines and exit codes; the Recorded column of the
+task graph points here.
 
 ## Non-goals
 

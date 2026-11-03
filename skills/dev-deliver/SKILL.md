@@ -63,10 +63,7 @@ Repeat until the objective is complete or a stop condition holds (R-AUTH-5):
    before it fixes or writes any part of such a node itself (a fix round, a
    re-applied change, a record line in an owned file), it reads its own
    model and effort (R-DEL-2) and compares them with the floor and the row
-   of the node below. When the model is not `opus`, the effort is below
-   `high`, or either is `unknown`, ask the user to switch, or dispatch the
-   node or the fix at `opus`/`high` (`dev-explorer` for explore,
-   `dev-implementer` for implement or docs). When the host cannot set the
+   of the node below. When the check of R-DEL-2 does not pass, ask the user to switch as R-DEL-2 says, or dispatch the node or the fix at least at the floor, the row value and any escalated setting of the node (`dev-explorer` for explore, `dev-implementer` for implement or docs). When the host cannot set the
    model or the effort of that dispatch, do not dispatch the node or the fix
    to an agent whose agent file is below the floor (such as `dev-explorer`),
    to an agent without an agent file, or to `dev-implementer`, although its

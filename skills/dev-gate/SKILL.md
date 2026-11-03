@@ -82,8 +82,7 @@ the floor check of R-DEL-2 applies (`dev-core`).
    - a missing R-REV-9 scan, or one that does not match the current staged
      content, commit identity and message, or commit range (R-REV-9);
    - a required review or scan that does not count by R-DEL-2 (`unknown` and
-     a review or scan of another session included), except a `light` routine
-     review at `sonnet`/`medium` while R-DEL-2 lets it skip the gate; from Issue #96 on, R-DEL-2 never lets it skip the gate (card I96-C7 (a));
+     a review or scan of another session included);
    - an unresolved substantive security risk, with or without a finding ID
      (R-REV-7);
    - a write change without a requirement, or a `SCOPE-CREEP` finding without
@@ -131,7 +130,7 @@ Identity: repo, base, head, merge-base, diff hash, PR
 Findings and dispositions: (table or link)
 Verification evidence: (commands and results)
 Commit / push security scan (R-REV-9): PASSED | FINDINGS | NOT_RUN — scope (staged diff, identity, message, commit range)
-Read-back (R-DEL-2): each required review and scan of this session — call form, requested values, result line and exit code | unknown (case) — a `WARN` line with its warning; the call form without `<DIR>` or `<ID>` (Issue #96)
+Read-back (R-DEL-2): each required review and scan of this session — call form, requested values, result line and exit code | unknown (case) — a `WARN` line with its warning; the call form without `<DIR>` or `<ID>` (Issue #96); the `--floor` value of the call and the `floor=` value of the line
 Requirement trace: complete | gaps
 Open decisions: one decision card each | none
 Residual risk:

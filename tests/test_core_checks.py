@@ -420,6 +420,15 @@ class FrontMatterGuards(unittest.TestCase):
         self.assertEqual(list(mod.PINNED_ROLE_VALUES), list(mod.readback.ROLE_NAMES))
         self.assertEqual({n: f["tier"] for n, f in config["families"].items()}, mod.PINNED_FAMILY_TIERS)
         self.assertEqual(sorted(mod.EFFORTS), sorted(mod.readback.EFFORT_ORDER))
+        self.assertEqual(mod.PINNED_FLOORS, {"work": (3, "high"), "review-scan": (3, "xhigh"),  # Issue #96 PR-2
+                                             "review-routine": (3, "high"), "review-light": (2, "medium"),
+                                             "none": None})
+        self.assertEqual(mod.readback.FLOORS, mod.PINNED_FLOORS)
+        self.assertEqual({role: value["effort"] for role, value in mod.PINNED_ROLE_VALUES.items()}, {
+            "orchestration": ["high", "max"], "explore": ["low", "max"], "explore-synthesis": ["medium", "max"],
+            "implement": ["high", "max"], "implement-reduced": ["medium", "max"], "review-routine": ["high", "high"],
+            "review-routine-light": ["medium", "medium"], "review-deep": ["xhigh", "xhigh"],
+            "review-security": ["xhigh", "xhigh"], "scan": ["xhigh", "xhigh"]})
         self.assertEqual(mod.MODELS, {"haiku", "sonnet", "opus", "fable", "inherit"})  # unchanged by Issue #96
         self.assertEqual(mod.readback.__name__, "model_effort_readback")
         self.assertEqual(os.path.normpath(mod.readback.__file__),
@@ -446,14 +455,23 @@ class FrontMatterGuards(unittest.TestCase):
         code, out = self.check_tree(self.config_change(lambda c: c["families"]["fable"].update(tier=None)), count=0)
         self.assertEqual(code, 0)  # retired: null is allowed
 
-    def test_role_values_are_pinned(self):  # Issue #96 PR-1: the roles equal today's routing tables
+    def test_role_values_are_pinned(self):  # Issue #96 PR-2: exact values, keys included
         config = self.MODEL_CONFIG
         for case, fn, role in (
                 ("lower effort", lambda c: c["roles"]["review-deep"].update(effort=["high", "high"]), "review-deep"),
                 ("lower family", lambda c: c["roles"]["scan"].update(family="sonnet"), "scan"),
                 ("higher family", lambda c: c["roles"]["explore"].update(family="sonnet"), "explore"),
-                ("wider range", lambda c: c["roles"]["review-routine-light"].update(effort=["medium", "high"]),
-                 "review-routine-light"),
+                ("wider range of a review", lambda c: c["roles"]["review-routine-light"].update(
+                    effort=["medium", "high"]), "review-routine-light"),
+                ("wider range of a scan", lambda c: c["roles"]["scan"].update(effort=["xhigh", "max"]), "scan"),
+                ("the PR-1 value", lambda c: c["roles"]["implement"].update(effort=["high", "high"]), "implement"),
+                ("narrower range", lambda c: c["roles"]["explore-synthesis"].update(effort=["medium", "xhigh"]),
+                 "explore-synthesis"),
+                ("lower minimum", lambda c: c["roles"]["orchestration"].update(effort=["medium", "max"]),
+                 "orchestration"),
+                ("higher minimum", lambda c: c["roles"]["implement-reduced"].update(effort=["high", "max"]),
+                 "implement-reduced"),
+                ("key added", lambda c: c["roles"]["orchestration"].update(agent="dev-implementer"), "orchestration"),
                 ("other agent", lambda c: c["roles"]["explore-synthesis"].update(agent="dev-implementer"),
                  "explore-synthesis"),
                 ("agent removed", lambda c: c["roles"]["scan"].pop("agent"), "scan")):
@@ -461,7 +479,7 @@ class FrontMatterGuards(unittest.TestCase):
                 code, out = self.check_tree(self.config_change(fn), count=2 if case == "higher family" else 1)
                 self.assertEqual(code, 1)
                 self.assertIn(f"  - {config}: role {role!r} must be ", out)
-                self.assertIn("(PINNED_ROLE_VALUES, Issue #96 PR-1)", out)
+                self.assertIn("(PINNED_ROLE_VALUES, Issue #96 PR-2)", out)
 
     def test_agent_default_roles(self):  # Issue #96: one agent_default role per agent, equal to the agent file
         config = self.MODEL_CONFIG
@@ -496,9 +514,17 @@ class FrontMatterGuards(unittest.TestCase):
                 code, out = self.check_tree(self.config_change(fn))
                 self.assertEqual(code, 1)
                 self.assertIn(f"  - {config}: the read-back script gives STOP CONFIG for it", out)
-        code, out = self.check_tree(lambda tmp: os.remove(os.path.join(tmp, config)))
+        ref = "${CLAUDE_SKILL_DIR}/../dev-core/model-config.json"  # Issue #96 PR-2: the rules name this path
+        docs = []
+        for doc in sorted(glob.glob(os.path.join(ROOT, "skills", "**", "*.md"), recursive=True)):
+            with open(doc, encoding="utf-8") as fh:
+                if ref in fh.read():
+                    docs.append(os.path.relpath(doc, ROOT))
+        code, out = self.check_tree(lambda tmp: os.remove(os.path.join(tmp, config)), count=1 + len(docs))
         self.assertEqual(code, 1)
         self.assertIn(f"  - {config}: missing or not a regular file (Issue #96)", out)
+        for doc in docs:  # every other problem is a reference to the removed file
+            self.assertIn(f"  - {doc}: referenced path does not exist: {ref}\n", out)
         def duplicate_key(tmp):
             path = os.path.join(tmp, config)
             with open(path, encoding="utf-8") as fh:
@@ -515,6 +541,31 @@ class FrontMatterGuards(unittest.TestCase):
         code, out = self.check_tree(lambda tmp: None, patch=drop_max)
         self.assertEqual(code, 1)
         self.assertIn("  - scripts/check_pack.py: EFFORTS ['high', 'low', 'medium', 'xhigh'] must equal EFFORT_ORDER", out)
+
+    def test_floors_equal_pinned_floors(self):  # Issue #96 PR-2: FLOORS of the read-back script is pinned
+        script = "skills/dev-core/scripts/model_effort_readback.py"
+        def floors(value):
+            def patch(mod):
+                mod.readback.FLOORS = value
+            return patch
+        def removed(mod):
+            del mod.readback.FLOORS
+        pinned = {"work": (3, "high"), "review-scan": (3, "xhigh"), "review-routine": (3, "high"),
+                  "review-light": (2, "medium"), "none": None}
+        for case, patch in (
+                ("lower effort", floors({**pinned, "review-scan": (3, "high")})),
+                ("lower tier", floors({**pinned, "review-light": (1, "medium")})),
+                ("a floor for none", floors({**pinned, "none": (1, "low")})),
+                ("key missing", floors({k: v for k, v in pinned.items() if k != "review-light"})),
+                ("key added", floors({**pinned, "review-deep": (3, "xhigh")})),
+                ("a list, not a tuple", floors({**pinned, "work": [3, "high"]})),
+                ("not a dict", floors(list(pinned.items()))),
+                ("removed", removed)):
+            with self.subTest(case=case):
+                code, out = self.check_tree(lambda tmp: None, patch=patch)
+                self.assertEqual(code, 1)
+                self.assertIn(f"  - {script}: FLOORS must equal PINNED_FLOORS", out)
+                self.assertIn("(Issue #96 PR-2)", out)
 
     def test_fu033_cases(self):  # CB-7, FU-033: cases that REQ-028 acceptance names; each gives one clear error
         agent, skill = os.path.join("agents", "dev-reviewer.md"), os.path.join("skills", "dev-core", "SKILL.md")

@@ -12,11 +12,11 @@
     "fable":  {"tier": 4, "ids": [], "basis": "Official: highest capability, demanding reasoning and long-horizon agentic work; slower and priced above Opus 5.5; use it when Opus 5.5 at higher effort still falls short (models overview, choosing-a-model, read 2026-11-01). Not evaluated by this pack (Issue #96 supersedes FU-020)."}
   },
   "roles": {
-    "orchestration":        {"family": "opus",   "effort": ["high", "high"]},
-    "explore":              {"family": "haiku",  "effort": ["low", "low"],       "agent": "dev-explorer", "agent_default": true},
-    "explore-synthesis":    {"family": "sonnet", "effort": ["medium", "medium"], "agent": "dev-explorer"},
-    "implement":            {"family": "opus",   "effort": ["high", "high"],     "agent": "dev-implementer", "agent_default": true},
-    "implement-reduced":    {"family": "sonnet", "effort": ["medium", "medium"], "agent": "dev-implementer"},
+    "orchestration":        {"family": "opus",   "effort": ["high", "max"]},
+    "explore":              {"family": "haiku",  "effort": ["low", "max"],       "agent": "dev-explorer", "agent_default": true},
+    "explore-synthesis":    {"family": "sonnet", "effort": ["medium", "max"],    "agent": "dev-explorer"},
+    "implement":            {"family": "opus",   "effort": ["high", "max"],      "agent": "dev-implementer", "agent_default": true},
+    "implement-reduced":    {"family": "sonnet", "effort": ["medium", "max"],    "agent": "dev-implementer"},
     "review-routine":       {"family": "opus",   "effort": ["high", "high"],     "agent": "dev-reviewer", "agent_default": true},
     "review-routine-light": {"family": "sonnet", "effort": ["medium", "medium"], "agent": "dev-reviewer"},
     "review-deep":          {"family": "opus",   "effort": ["xhigh", "xhigh"],   "agent": "dev-reviewer"},

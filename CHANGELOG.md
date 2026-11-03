@@ -189,6 +189,42 @@ Cowork runtime test). At that release,
 
 ### Changed
 
+- The model rules use the tiers of the configuration file, the floors of
+  reviews and scans are in the rules, and the read-back script checks the
+  floor (REQ-009, D-029 PR-2 supplement, DL-045, Issue #96 PR-2,
+  `Part of #96`; user answers relayed by the orchestrator:
+  「I96-P2-C1 a，P2-C2 a，P2-C3 a」,
+  「I96-P2R1-C1 a，P2R1-C2 a（較高等級的家族只經由升級階梯或使用者要求使用）」,
+  「I96-P2R2-C1 a，P2R2-C2 a，P2R2-C3 a，P2R2-C4 a」,
+  「為什麼是依值找角色？而是不是依任務找角色？如果值是依任務複雜度給定的，那依值找角色等同於依任務找角色」,
+  「I96-P2R3-C1 b」, 「I96-IR-P2-C1 a，C2 a，C3 b，C4 a」 and
+  「I96-IR2-P2-C1 a，C2 b，C3 a」). R-DEL-2 reads the tiers and IDs from
+  `skills/dev-core/model-config.json` at the base that the main agent finds
+  itself when the copy on the skill path lies inside the repository of the
+  change, otherwise the copy next to the skill
+  (`${CLAUDE_SKILL_DIR}/../dev-core/model-config.json`). The work floor is tier 3 with effort `high`; every R-REV-9 scan,
+  deep review and security review has the floor tier 3 with `xhigh`; a
+  `light` routine review without an escalation trigger, a trigger of an
+  earlier round of the node included, has tier 2 with `medium`; every
+  other routine review has tier 3 with `high`. A node's
+  role comes from its task type. A family of a higher tier comes only from
+  an escalation step, a floor or the user's own message in the session
+  that dispatches. From tier 3 up, the ladder reaches the next tier only
+  at `max`. `fable` (tier 4) meets the floors and is on the ladder, a
+  loosening that the user decided, with a narrow loosening (i) of the
+  order guard (DL-045). The main session's own floor check needs a listed
+  model ID of tier 3 or higher and never uses `WARN`. Every read-back call
+  passes `--floor`, the script gives `BELOW` for expected values below
+  that floor, and every result line carries `floor=`. The `light`
+  exception sentences, the PR-1 allowlist dead-end sentences and the
+  `fable` exclusions are removed; records of more than one family, none
+  of them below, are the mixed-record dead end. The non-review roles get
+  the effort range up to `max`; `check_pack` pins the roles exactly and
+  checks the floor table. The script resolves its own path with
+  `os.path.realpath`, and its static test is stricter. FU-049 is fixed and
+  FU-020 is superseded; PR-3 (`Closes #96`) makes the routing tables name
+  roles only.
+
 - A model configuration file replaces the allowlist of the read-back
   script, and a model ID of a recognizable newer version counts with a
   warning (REQ-009, D-029, DL-044, Issue #96 PR-1, `Part of #96`; user

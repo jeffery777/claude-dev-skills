@@ -80,7 +80,7 @@ Phase 1 之後新增的技能（不屬於 D-008 的 Phase 1 範圍）：
 | 深入 review、高風險設計、commit／push 掃描、merge readiness 掃描 | opus | xhigh |
 | 安全 review | opus | xhigh；使用者要求時才用 max |
 
-（Issue #96 PR-2：這張表的值仍是今天的值，和設定檔的角色一致，`check_pack` 完全釘住；PR-3 把路由表改成只標角色名。下限、審查與掃描的地板、升級與順序改用設定檔的等級，見下面兩段的註記與 D-029 PR-2 補充。）
+（Issue #96 PR-2：這張表的值仍是今天的值，和設定檔的角色一致，`check_pack` 完全釘住；PR-3 把路由表改成只標角色名。下限、審查與掃描的地板、升級與順序改用設定檔的等級，見下面兩段的註記與 D-029 PR-2 補充。）（Issue #96 PR-3：`dev-deliver` 與 `dev-review` 的路由表已改成只標角色名，每列的值是該角色在設定檔裡的家族與最低 effort；這張表是摘要，值仍等於設定檔的角色（D-029 PR-3 補充）。）
 
 `dev-deliver` 的 Dispatch 預設在本 session 執行節點；只有符合列出的條件時才委派給一個 subagent：可以和其他唯讀工作平行的唯讀工作，或只需要結論的大範圍查讀；本 session 放不下的 context；每一個必要的 review 或掃描；本 session 不符合節點的下限且使用者沒有切換；使用者要求委派（D-022）。主 session 自己實作時，plan 記錄它 transcript 上的 model 與 effort，讀不到時寫 `unknown` 和原因。主代理不改自己的 model 與 effort（它啟動的 session 與 subagent 見下一段）。屬於下限範圍的工作，主 session 的 model 不是 opus、effort 低於 high，或其中之一是 `unknown` 時，主代理在 Dispatch 步驟、本 session 執行任何屬於下限範圍的節點（探索、實作或文件）之前，以及主 session 自己修正或寫入這類節點的任何部分（修正輪、重新套用的變更、所屬檔案裡的一行紀錄）之前（不在之後），請使用者切換到 opus/high，或用 opus/high 把實作或修正派給 `dev-implementer`（探索節點派給 `dev-explorer`）；其他工作低於上表時，plan 要寫明。（Issue #91：紀錄不豁免；每次修正或寫入之前都再檢查一次，同一回合裡也一樣；檢查沒過時，主代理把值與選擇放進給使用者的回覆（D-026）。）一輪 review 與修正沒有解決問題時，先分類失敗原因。spec、驗收條件或設計造成的失敗不算 quality：它走 R-VER-2 的停止規則和重新評估，不升級。只有 quality 類失敗才升級，而且只升修正的一方（implementer 或主 session），reviewer 照上表：先升 effort（low → medium → high），到 high 以上改升 model（haiku → sonnet → opus），到 opus 再升 effort（xhigh，然後 max）。升級後的設定在該節點剩下的工作中不降回。任何設定都不低於下限。升級不重設 review 輪數，也不清除 findings。證據互相矛盾時（例如兩份 review 對同一變更的結論相反），也重新評估 model 和 effort；重新評估本身不會升級。Fable 評估前不列入升級順序（D-007 規則 4；FU-018 卡 2 選 c，評估延後，由 FU-020 追蹤）。（Issue #96 PR-2：下限改用設定檔給的等級：等級 3 以上、effort `high` 以上；主 session 的檢查要設定檔在等級 3 以上的家族列出的 model ID、effort `high` 以上，讀回的 `WARN` 不適用；不通過時請使用者切換，或至少依下限、該列的值與升級後的設定派工。升級：effort 先升到 `high`；等級低於 3 時換到下一個等級的家族、effort 不變；等級 3 以上先把 effort 升到 `xhigh`、`max`，到 `max` 才換到下一個等級的家族。`fable`（等級 4）在升級順序裡，也滿足下限；上一句「Fable 評估前不列入升級順序」從 PR-2 起不再適用（D-029 PR-2 補充）。）
 
@@ -800,14 +800,14 @@ D-009 到 D-016 是同一天的決定。D-015 由 PR #5（Issue #4）記錄；D-
 - 給使用者的更正：卡 I96-R2-C1 (a) 寫「Bedrock 等的使用者要在自己的設定檔列出 ID」，這句不成立：設定檔的 ID 字元集 `[a-z0-9.-]{1,100}` 放不進 provider ID 常用的 `:` 與 `@`，而第 3 輪的回答不放寬字元集。
 - PR-1 與 PR-2 的切法（卡 I96-R2-C5 (a)、I96-R4-C1 (a)）：
   1. PR-1（`Part of #96`）：設定檔、讀回 script（`WARN`、`STOP CONFIG`、`STOP MODEL_NOT_RECOGNIZED`、`--config-base`、`check`）、`check_pack`、測試、規則的附加句與紀錄。
-  2. PR-2（`Closes #96`）：等級數字的規則（卡 I96-C9 (a)：地板、順序、升級到 `fable`/`max`、卡 I96-C11 (a) 的審查與掃描地板，以及「`fable` 滿足地板」的放寬，由 PR-2 記錄）；只標角色名的路由表（修改後的卡 I96-C8）；刪掉 PR-1 宣告不再適用的舊句子（FU-061）。PR-2 有自己的設計審查。 補充（Issue #96 PR-2，卡 I96-P2-C3 (a)）：PR-2 再拆成兩個 PR。PR-2 寫 `Part of #96`：等級數字的規則、刪掉舊句子、讀回 script 的 `--floor`、設定檔的角色範圍、`check_pack` 與紀錄。PR-3 寫 `Closes #96`：只標角色名的路由表與只改名的規則句、表格的角色名檢查、家族名 lint，以及把 tested-host 紀錄搬到 REQ-009。依卡 I96-IR-P2-C3 (b)，PR-3 還加一個 script 的確定性檢查：script 用路徑執行、而且它自己檔案的 realpath 在目前工作目錄所屬 Git repository 的某個 worktree 底下時，給 STOP，要求改用 `--config-base` 的 stdin 形式。PR-3 的設計有兩個前提：檢查把目前的工作目錄當成變更所在的 repository；工作目錄不在任何 Git repository 裡、git 查詢失敗，或設了 `GIT_DIR` 這類環境變數時，一律 fail closed。
+  2. PR-2（`Closes #96`）：等級數字的規則（卡 I96-C9 (a)：地板、順序、升級到 `fable`/`max`、卡 I96-C11 (a) 的審查與掃描地板，以及「`fable` 滿足地板」的放寬，由 PR-2 記錄）；只標角色名的路由表（修改後的卡 I96-C8）；刪掉 PR-1 宣告不再適用的舊句子（FU-061）。PR-2 有自己的設計審查。 補充（Issue #96 PR-2，卡 I96-P2-C3 (a)）：PR-2 再拆成兩個 PR。PR-2 寫 `Part of #96`：等級數字的規則、刪掉舊句子、讀回 script 的 `--floor`、設定檔的角色範圍、`check_pack` 與紀錄。PR-3 寫 `Closes #96`：只標角色名的路由表與只改名的規則句、表格的角色名檢查、家族名 lint，以及把 tested-host 紀錄搬到 REQ-009。依卡 I96-IR-P2-C3 (b)，PR-3 還加一個 script 的確定性檢查：script 用路徑執行、而且它自己檔案的 realpath 在目前工作目錄所屬 Git repository 的某個 worktree 底下時，給 STOP，要求改用 `--config-base` 的 stdin 形式。PR-3 的設計有兩個前提：檢查把目前的工作目錄當成變更所在的 repository；工作目錄不在任何 Git repository 裡、git 查詢失敗，或設了 `GIT_DIR` 這類環境變數時，一律 fail closed。 更正（Issue #96 PR-3）：前提 2 由卡 I96-P3-C1 (b) 與 I96-P3-C2 (a) 縮小（使用者原話「C1 b，C2 a」）：工作目錄不在 repository、而 script 副本在 repository 裡時才停下；不偵測 `GIT_DIR` 這類變數，靠 git 的結果與 `os.stat` 那一步 fail closed。PR-3 實際做的見 D-029 PR-3 補充。
 - 只加不刪的做法與 gate（卡 I96-R5-C1 (a)）：PR-1 範圍內、在 base 已存在的規則檔與紀錄檔，一個字都不刪；不再適用的舊句子保留，後面加一句說明從 Issue #96 起不再適用。gate 是一支不在分支裡、也不在 pack 裡的腳本，SHA-256 是 `8e1bdbd442ca302d9c072711a819d485bf1ba33890a98127df2cdcc084091a9a`：改動的檔案清單必須等於 plan 列出的清單；每一行 base 依序對到 head 的一行，開頭的空白相同，而且 base 那一行的 token（標點分開切）是 head 那一行 token 的子序列；head 的 token 要比 base 多。程式碼、測試、`check_pack`、設定檔與 plan 不檢查內容，由測試與審查負責。乾跑的結果：純插入通過；刪掉一個保留的字、把一行切開，都失敗。乾跑時發現 git 的 word diff 在長行中間的純插入也會報出被刪的段，所以 gate 不用它。gate 不證明新句子沒有放寬，也不證明它們放在對的地方；這兩點靠審查。
 - 殘餘風險與限制：
   1. `version` 類別以警告算數，包括舊世代（例如 `opus` 對到 `claude-opus-4-8`），以及和真正型號不同的 Claude 樣式名稱。這是從 ID 推斷家族；官方文件建議讀 `line` 而不要從 ID 推斷，但 transcript 沒有 `line`。
   2. provider ID 是 non-goal：在 provider 的主機上，每個 review、掃描與下限範圍的派工都會停下，agent 不能 commit、push 或 merge；只能 fork。
   3. 不符合 `version` 形式的第一方新 ID 也會停下，回到死路的句子。
-  4. 使用者能改自己副本的等級；本 repo 由 `check_pack` 釘住。代稱順序與同一家族的檢查，讓改錯的等級也不能讓較低的代稱算數；前提是跑的是 bound base 的 script。 更正（Issue #96 PR-2）：從 PR-2 起，規則不再有固定的代稱順序。代稱順序檢查與規則跟地板的比較，用的是主代理自己依 R-DEL-2 讀到的設定檔等級；只有主代理自己的讀取用的是另一份正確的副本時，才擋得住呼叫讀到的檔裡改錯的等級。主代理的兩次讀取都用 pack repo 以外、使用者改過的安裝副本時擋不住（窄的放寬 (i)，DL-045）。兩處都填錯同一個 base 字面值時也擋不住；依卡 I96-IR2-P2-C2 (b)，這一項不在 (i) 裡，是未授權的殘餘風險（D-029 PR-2 補充的殘餘風險第 24 項，FU-063）。主代理誤判 skill path 不在 repository 裡時也擋不住；這一項也不在 (i) 裡：依卡 I96-IR-P2-C3 (b)，它是未授權的殘餘風險，到 PR-3 加上確定性的檢查為止（D-029 PR-2 補充的第 (i) 項）。`--floor` 讓 script 把期望值和呼叫的地板比較，派工低於地板就是 `BELOW`；它擋不住傳錯的 `--floor` 值。
-  5. 有 Bash 的 agent 或使用者的其他程序，可以改 base 以外的東西（D-027）。兩個 base 字面值相同，只由主代理檢查（script 比對自己的程式碼：FU-062）；誤填 head 時，信任的是 head 的設定檔（擋得住改錯的等級，擋不住改錯的 ID 清單）；用路徑執行、而且位在變更所在的 repository 裡時，讀到的是變更自己的設定檔。 更正（Issue #96 PR-2）：「擋得住改錯的等級」只在主代理自己讀設定檔用的是正確的 base 時成立（見第 4 項的更正）；誤填 head 時，script 的分類與地板檢查都用 head 的設定檔。FU-062 是「一個呼叫裡的兩個 base 字面值不同」。兩處都誤填同一個 head 是 PR-2 補充的殘餘風險第 24 項（未授權，FU-063），不在第 (i) 項裡；第 (i) 項只是兩次讀取都用 pack repo 以外、使用者改過的安裝副本的情況，第 23 項也不在其中。
+  4. 使用者能改自己副本的等級；本 repo 由 `check_pack` 釘住。代稱順序與同一家族的檢查，讓改錯的等級也不能讓較低的代稱算數；前提是跑的是 bound base 的 script。 更正（Issue #96 PR-2）：從 PR-2 起，規則不再有固定的代稱順序。代稱順序檢查與規則跟地板的比較，用的是主代理自己依 R-DEL-2 讀到的設定檔等級；只有主代理自己的讀取用的是另一份正確的副本時，才擋得住呼叫讀到的檔裡改錯的等級。主代理的兩次讀取都用 pack repo 以外、使用者改過的安裝副本時擋不住（窄的放寬 (i)，DL-045）。兩處都填錯同一個 base 字面值時也擋不住；依卡 I96-IR2-P2-C2 (b)，這一項不在 (i) 裡，是未授權的殘餘風險（D-029 PR-2 補充的殘餘風險第 24 項，FU-063）。主代理誤判 skill path 不在 repository 裡時也擋不住；這一項也不在 (i) 裡：依卡 I96-IR-P2-C3 (b)，它是未授權的殘餘風險，到 PR-3 加上確定性的檢查為止（D-029 PR-2 補充的殘餘風險第 23 項）。`--floor` 讓 script 把期望值和呼叫的地板比較，派工低於地板就是 `BELOW`；它擋不住傳錯的 `--floor` 值。 更正（Issue #96 PR-3，MR99-S-04）：前面那個括號裡的指標原本指第 (i) 項，現在改指殘餘風險第 23 項。PR-3 加了這個檢查；殘餘風險 23 縮小後仍是未授權的殘餘風險，merge 時由使用者決定（D-029 PR-3 補充）。
+  5. 有 Bash 的 agent 或使用者的其他程序，可以改 base 以外的東西（D-027）。兩個 base 字面值相同，只由主代理檢查（script 比對自己的程式碼：FU-062）；誤填 head 時，信任的是 head 的設定檔（擋得住改錯的等級，擋不住改錯的 ID 清單）；用路徑執行、而且位在變更所在的 repository 裡時，讀到的是變更自己的設定檔。 更正（Issue #96 PR-2）：「擋得住改錯的等級」只在主代理自己讀設定檔用的是正確的 base 時成立（見第 4 項的更正）；誤填 head 時，script 的分類與地板檢查都用 head 的設定檔。FU-062 是「一個呼叫裡的兩個 base 字面值不同」。兩處都誤填同一個 head 是 PR-2 補充的殘餘風險第 24 項（未授權，FU-063），不在第 (i) 項裡；第 (i) 項只是兩次讀取都用 pack repo 以外、使用者改過的安裝副本的情況，第 23 項也不在其中。 更正（Issue #96 PR-3）：從 PR-3 起，用路徑執行時 script 先做 repo 檢查：依 git 的回答，只有工作目錄在同一個 Git repository 的 worktree 裡、而且兩邊都有 `.git` 項目時，才給 `STOP IN_REPO`；呼叫者的環境裡有絕對路徑的 `GIT_DIR` 或 `GIT_COMMON_DIR` 時，兩個不同的 repository 也可能得到 `STOP IN_REPO`（fail closed）。上面「讀到的是變更自己的設定檔」只在檢查看不到的情形成立：`cd` 到別的 repository、沒有 `.git` 項目的 worktree、相對路徑的 `GIT_DIR` 或 `GIT_COMMON_DIR`（D-029 PR-2 補充的殘餘風險第 23 項，範圍由 PR-3 補充縮小）。前提 2 依卡 I96-P3-C1 (b) 與 I96-P3-C2 (a) 縮小（使用者原話「C1 b，C2 a」）。R-DEL-2 的 D-027 句也加上了設定檔的副本（MR99-S-02）。
   6. Sonnet、Haiku 與 Fable 的 ID 沒有觀察過（FU-060），所以 `light` 審查與探索都帶警告；Sonnet 實際記錄的 ID 不符合 `version` 形式時，`light` 審查會停下，只能改用 `opus`/`high` 的 routine review。
   7. script 會啟動 `git`：PATH、環境、Git 設定與 lazy fetch，和外層命令是同一個信任面。
   8. 用路徑執行時，owner 與 link count 的檢查在受管理的安裝裡，可能讓每次讀回都停下（未驗證）。
@@ -897,11 +897,72 @@ D-009 到 D-016 是同一天的決定。D-015 由 PR #5（Issue #4）記錄；D-
     19. 設定檔的讀取和 script 的讀取是兩次分開的讀取，rebase 之後可能用到不同的 base。
     20. `--floor` 在 merge 之前只由合成的測試 fixture 驗證過，因為 PR-2 自己的審查跑的是 base 的 script。
     21. `work` 與 `review-routine` 的地板相同，所以「取較高的那個」會打平；這只影響事後的稽核。
-    22. `dev-retro` 第 5 步的審查傳 `review-scan`。理由：第 5 步沒有點名 `dev-review` 的 mode，所以 `review-scan` 來自 R10 的「本 session 自己的查讀分辨不出時，傳地板較高的那個」；不是因為這一步用 opus／`xhigh`，那是 R2 禁止的依值找角色。剩下的風險：把它讀成「其他派工」的 session 會傳 `none`，script 就不做地板檢查；期望值仍來自派工。
-    23. 主代理誤判 skill path 不在變更所在的 repository 裡時，兩次讀取都用 skill path 上的副本，擋不住改錯的等級。這一項不在窄的放寬 (i) 裡：依卡 I96-IR-P2-C3 (b)，它是未授權的殘餘風險，到 PR-3 加上確定性的檢查為止。orchestrator 說明，本 repo 的讀回一律用 stdin 形式；PR-3 之前沒有任何機制檢查這一點。
+    22. `dev-retro` 第 5 步的審查傳 `review-scan`。理由：第 5 步沒有點名 `dev-review` 的 mode，所以 `review-scan` 來自 R10 的「本 session 自己的查讀分辨不出時，傳地板較高的那個」；不是因為這一步用 opus／`xhigh`，那是 R2 禁止的依值找角色。剩下的風險：把它讀成「其他派工」的 session 會傳 `none`，script 就不做地板檢查；期望值仍來自派工。 註記（Issue #96 PR-3）：第 5 步現在點名 `dev-review` 的 deep 模式與角色 `review-deep`，`review-scan` 由模式決定；「讀成其他派工」這一個歧義因此消失。傳錯 `--floor` 的一般風險仍在（第 4、16 項）。
+    23. 主代理誤判 skill path 不在變更所在的 repository 裡時，兩次讀取都用 skill path 上的副本，擋不住改錯的等級。這一項不在窄的放寬 (i) 裡：依卡 I96-IR-P2-C3 (b)，它是未授權的殘餘風險，到 PR-3 加上確定性的檢查為止。orchestrator 說明，本 repo 的讀回一律用 stdin 形式；PR-3 之前沒有任何機制檢查這一點。 註記（Issue #96 PR-3）：PR-3 加了這個確定性的檢查；縮小後擋不住的範圍與分類見 PR-3 補充。殘餘風險 23 縮小後仍是未授權的殘餘風險，merge 時由使用者決定。
     24. 主代理在設定檔的讀取與讀回呼叫裡填了同一個錯的 base 字面值（例如變更的 head）時，兩次讀取都用那個 commit 的設定檔，擋不住改錯的等級：一個同時改了等級與 `check_pack` 釘值的變更，可能讓它自己的審查以較低的家族算數。PR-3 的路徑形式檢查也擋不住，因為這時用的是 stdin 形式。這一項不在窄的放寬 (i) 裡：依卡 I96-IR2-P2-C2 (b)，它是 agent 的錯，是未授權的殘餘風險。FU-063 追蹤一個對 bound base 字面值的確定性檢查，它必須能處理沒有 remote 或 origin 過時的 repository，才不會重新造出 allowlist 的死路；這不在 PR-3 裡。
   - 送出的內容（PR-2）：讀回 script 與它的 reference；設定檔的角色範圍；`scripts/check_pack.py` 與測試；`dev-core` 的 R-DEL-2、`dev-deliver` 與 `task-brief.md`、`dev-gate`、`dev-review` 與 `review-report.md`、`dev-retro` 的規則句；`deltas.md` 的 DL-045，以及 DL-005、DL-034、DL-038、DL-042 到 DL-044 的註記；本補充（兩種語言），以及第 4 節、D-007 與 D-029 殘餘風險 4、5 的註記；REQ-009、REQ-026 與 log；CHANGELOG；`.dev/followups.md` 的 FU-020、FU-021、FU-049、FU-061 與 FU-062，以及新的 FU-063；`.dev/issue-96-model-config/plan.md` 的 MR98-M-02；`.dev/issue-96-pr2/plan.md`。
   - 與 Core 的差異：收緊（DL-045）。相對於 DL-005、DL-034、DL-038 與 DL-042 到 DL-044，`fable` 滿足地板與第 (i) 項是使用者決定的放寬（見上面「放寬與收緊」）。
+- PR-3 補充（Issue #96 PR-3，`Closes #96`；已決定，2026-11-03）：
+  - 來源：Issue #96 留言 4 的 PR-3 一節（PR-3 的範圍）。需求見 REQ-009。使用者的話（Claude Code session，orchestrator 轉述）：
+    1. 開始：「開始 PR-3」。
+    2. PR-3 決策卡 I96-P3-C1 與 I96-P3-C2：「C1 b，C2 a」。
+    3. 設計審查第 2 輪停止卡 I96-P3-R2-C1 與 I96-P3-R2-C2：「R2-C1 a，R2-C2 a」。
+    4. 仍然有效、綁定 PR-3 的較早回答：「C8 改為：設定檔是唯一來源，路由表只標角色名、不寫數值；I96-C12 a＋停用規則；不加技能」、「I96-IR-P2-C1 a，C2 a，C3 b，C4 a」、「I96-IR2-P2-C1 a，C2 b，C3 a」、「MR99-M1 a，確認 (1)、(i)、23、24，S-02 歸 D-027」與「照更正後的做法，只加進 D-027 風險清單」。
+    5. orchestrator 轉述使用者的意思（大意，不是原話）：「agent 不能改安裝的設定檔」這種禁令不實際，因為分不出是誰改的，而且使用者可能要求 agent 去改。PR-3 不加這類禁令。
+    6. 實作審查第 1 輪停止卡 I96-P3-IR1-C1 與 I96-P3-IR1-C2，以及 T2（P3-T2，PR-3 寫規則句與紀錄的實作節點）加在統一取代句旁的兩句（2026-11-04）：「C1 a，C2 a，接受」。這兩句是下面「取代」一項的第二句（PR-2 紀錄裡寫 PR-3 會加或會寫什麼的句子，記的是 PR-2 當時的計畫）與第三句（PR-3 之前把 tested-host 紀錄放在 R-DEL-2 的紀錄，寫的是當時的規則）。
+    7. 實作審查第 2 輪停止卡 I96-P3-IR2-C1（2026-11-04）：「IR2-C1 a」，一輪只改紀錄的修正，之後做範圍限定的審查（deep 審查與 Security Diff Scan）。
+  - 使用者決定的內容：
+    1. I96-P3-C1 (b)：用路徑執行時，script 副本的資料夾在某個 Git repository 裡、而工作目錄不在任何 repository 裡，就 `STOP REPO_CHECK`；script 副本不在 repository 裡時不停下。
+    2. I96-P3-C2 (a)：repo 檢查不讀環境變數，也不給 git 另一份環境；git 沿用呼叫者的環境。Issue #89 的靜態加固（`FORBIDDEN`、`FORBIDDEN_TEXT`）與 reference 的「It reads no environment variable」不改。
+    3. I96-P3-R2-C1 (a)：出設計 d5 修完，不做第 3 輪設計審查；實作審查（deep 審查與 Security Diff Scan）對著實際的 diff 核對 d5 的修正，也核對 PR-3 plan「Record sweep」表的每一處命中。
+    4. I96-P3-R2-C2 (a)：維持 C2 (a)；相對路徑的 `GIT_COMMON_DIR` 記成「卡 C2 推論的例外」，是殘餘風險 23 的子項（見下面第 6 項）；加一個用真的 git 的測試，期望 `REPO_CHECK`；殘餘風險 23 仍是未授權的殘餘風險，merge 時由使用者決定。
+    5. MR99-S-02：R-DEL-2 的 D-027 殘餘風險句加上設定檔的副本；只記錄風險，不是新的禁令。
+    6. I96-P3-IR1-C1 (a)：相對路徑的 `GIT_DIR` 和相對路徑的 `GIT_COMMON_DIR` 一起記成「卡 C2 推論的例外」，是殘餘風險 23 的子項（下面第 6 項）；仍然是未授權的殘餘風險，merge 時由使用者決定。
+    7. I96-P3-IR1-C2 (a)：一輪修正，之後做範圍限定的實作審查。
+    8. 「接受」：使用者明確接受 T2 加在統一取代句旁的兩句（下面「取代」一項的第二句與第三句）。
+  - 前提 2 的改變：卡 I96-IR2-P2-C3 (a) 記下的 PR-3 前提 2 是「工作目錄不在任何 Git repository 裡、git 查詢失敗，或設了 `GIT_DIR` 這類環境變數時，一律 fail closed」。依「C1 b，C2 a」：「工作目錄不在 repository」縮小成「工作目錄不在 repository、而 script 副本在 repository 裡」（C1 (b)）；「設了 `GIT_DIR` 這類變數」改成不偵測，靠 git 的結果與 `os.stat` 那一步 fail closed（C2 (a)）。前提 1（檢查把目前的工作目錄當成變更所在的 repository）不變。
+  - 規則（PR-3；只寫在 `dev-core`、`dev-deliver` 與 `task-brief.md`、`dev-review` 與 `review-report.md`、`dev-retro`；這裡是摘要，PR-3 plan 的 P3-R1 到 P3-R18 是完整的清單）：
+    1. 路由表只寫角色名（修改後的卡 I96-C8）：`dev-deliver` 的表把第 3 欄改成 `Role`，`dev-review` 的模式表第 3 欄也只寫角色名。每列的值是該列為任務點名的角色在設定檔裡的家族與最低 effort，用 R-DEL-2 的設定檔讀取讀；節點的角色仍是它任務類型的那一列。只改名的規則句（`light` 一般 review 與它的升級重跑、`task-brief.md`、`review-report.md`）改成角色名，意思不變。
+    2. `dev-retro` 第 5 步用角色 `review-deep` 派 `dev-skills:dev-reviewer`；這個審查涵蓋本 pack 的規則，所以是 `dev-review` 模式表的 deep 審查（R-REV-6）。這是依任務類型，不是依值。
+    3. tested-host 紀錄逐字搬到 REQ-009；R-DEL-2 與 `task-brief.md` 改指「the tested-host record (REQ-009)」。R-DEL-2 只說：在送出的 pack 裡，每個 agent 檔的值是它 `agent_default` 角色的家族與最低 effort，`check_pack` 完全釘住。
+    4. 路徑形式的 repo 檢查（卡 I96-IR-P2-C3 (b)、I96-P3-C1 (b)、I96-P3-C2 (a) 與 I96-P3-R2-C2 (a)）：用路徑執行的 `subagent` 先看自己的副本在哪裡。資料夾本身或它上層有名為 `.git` 的項目，就在某個 Git repository 裡；兩邊（script 資料夾的 realpath 與目前的工作目錄）都要找，找的時候出錯就 `STOP REPO_CHECK`。script 資料夾不在 repository 裡時不停下；在、而工作目錄不在時 `STOP REPO_CHECK`；兩邊都在時，script 在兩邊各問 git 一次 common Git directory，是同一個目錄就 `STOP IN_REPO`，查詢失敗或輸出不是一個存在的路徑就 `STOP REPO_CHECK`。檢查不讀環境變數；git 沿用呼叫者的環境。檢查把目前的工作目錄當成變更所在的 repository，所以變更在 Git repository 裡時，主代理每次讀回都在變更的某個 worktree 裡執行。
+    5. `IN_REPO` 和 `BAD_ARGS` 一樣是呼叫錯誤：主代理只修正一次呼叫的形式（`IN_REPO` 之後，改成 bound base 副本、帶 `--config-base` 的呼叫），保留 ID、`<DIR>`、期望值與 `--floor` 值，再跑一次；第二次呼叫錯誤和其他 `STOP` 一樣。`IN_REPO` 之後，主代理也在 bound base 重讀設定檔，重做它自己對派工值的比較，因為它先前讀的是 skill path 上的副本。`BELOW` 與 `STOP` 的分類句把 `IN_REPO` 和 `BAD_ARGS` 一起除外。
+    6. R-DEL-2 路徑形式的範本加上 `--floor <floor>`（MR99-S-03）；D-027 的句子寫成「改 script 的副本或設定檔的副本」（MR99-S-02）。
+  - script 與 `check_pack`（reference 與 REQ-009 有細節）：
+    1. 新 token `IN_REPO` 與 `REPO_CHECK`。repo 檢查在 `--config-base` 與自己檔名的 `BAD_ARGS` 檢查之後、讀旁邊的設定檔之前；`check` 模式與 stdin 形式不做。git 的 argv 是 `git --no-replace-objects rev-parse --git-common-dir`（不帶 `--path-format`），`cwd=` 是該資料夾，兩次共用 20 秒；相對的值接到該資料夾，再取 `os.path.realpath` 與 `os.stat`；realpath 相等或 `(st_dev, st_ino)` 相等就是 `IN_REPO`。
+    2. `os.stat` 與 inode 的比較不能刪：macOS 上，大小寫不同的路徑與 `/System/Volumes/Data` firmlink 路徑，realpath 字串不同、inode 相同；相對的 `GIT_COMMON_DIR` 在子資料夾會被 git 接錯（結束碼 0，卻印出不存在的路徑），`os.stat` 讓它停下（第 2 輪 security 審查 S-01、S-02，`git` 2.54.0、macOS 實測）。
+    3. `check_pack`：家族名 lint（`skills/` 下所有 `.md` 與 `agents/*.md`；例外是 `deltas.md`、讀回 script 的 reference 與 agent 檔 front matter 的 `model:` 行）；兩張路由表的角色名檢查；釘值不變。
+  - 放寬與收緊（依 `deltas.md` 的 no-regression 定義記錄，DL-046）：
+    1. 和已 merge 的規則比，是收緊：已 merge 的規則沒有路徑形式的檢查；表格寫的角色值等於今天的值（`check_pack` 釘住）；`dev-retro` 第 5 步點名 deep 模式，讓 R-DEL-2 對必要審查的句子明確適用到這個審查。
+    2. 和 PR-2 記下的前提 2 比，C1 (b) 與 C2 (a) 是使用者決定的縮小。來源：卡 I96-P3-C1 與 I96-P3-C2。原話：「C1 b，C2 a」。權限：使用者（orchestrator 轉述）。理由：照字面做，不在 Git repository 裡的專案，每一次路徑形式的讀回都會停下（IR3-P2-S-01）；讀 `GIT_*` 變數要放寬 Issue #89「script 不讀環境變數」的靜態加固。範圍：只有上面「前提 2 的改變」那兩點。
+    3. MR99-S-02 只記錄風險，沒有新的禁令（使用者的決定）。
+  - 殘餘風險 23 縮小後的範圍。狀態：未授權的殘餘風險，merge 時由使用者決定。檢查擋不住、會放行的情形與分類：
+    1. 工作目錄不在變更的 worktree：主代理 `cd` 到另一個 repository（兩邊的 common dir 不同）；pack 以 submodule 放在專案裡（推論：兩邊的 common dir 不同）。這是殘餘風險 23 本身（卡 I96-IR-P2-C3 (b)）。
+    2. 不在任何 repository 裡的副本，不論內容都放行：使用者自己裝、自己改的屬於窄的放寬 (i)；agent 裝的或改的屬於 D-027。
+    3. worktree 本身沒有 `.git` 項目（用 `GIT_DIR` 加 `GIT_WORK_TREE` 指過去的 worktree、外部 gitdir 的 `core.worktree`、`.git` 被刪掉的 worktree），而 script 副本在裡面：卡 C2 (a) 的子項（「C1 b，C2 a」）。
+    4. bare repository 的結構夾在 script 與 `.git` 之間：D-027。
+    5. 假的或包裝過的 `git`，或 `PATH` 的相對項目在 script 資料夾解析：D-027。
+    6. 相對路徑的 `GIT_DIR` 或 `GIT_COMMON_DIR`（卡 I96-P3-R2-C2 (a) 與 I96-P3-IR1-C1 (a)）：卡 C2 推論的例外，屬於卡 C2 (a) 的機制，不是 D-027。放行條件：兩邊的 git 都成功，而且兩個接出來的路徑是兩個不同、都存在的路徑（兩邊可以是同一個 repository）。不論有沒有設 `GIT_WORK_TREE`，相對路徑的 `GIT_DIR` 都從每次呼叫的資料夾解析（實測：唯讀的 `git rev-parse --git-common-dir`，`git` 2.54.0、macOS，六種情形，實作審查第 2 輪 IR2-P3-S-01）；`GIT_DIR` 的完整放行（兩個不同、都存在的 git 目錄）沒有實測。`GIT_COMMON_DIR` 的例子：家目錄是 dotfiles repository，而 checkout 在家目錄下第三層。常見的接錯路徑不存在，`os.stat` 那一步讓它 fail closed，所以這一步不能刪。`GIT_COMMON_DIR` 的測試用的 argv 是不帶 `--path-format` 的那一組（`git` 2.54.0、macOS）。
+    - 卡 C2 推論的範圍：絕對路徑的值，兩邊的 git 回同一個答案；相對路徑的值見第 6 項。這是用 `git` 2.54.0 在 macOS 上測的（第 1 輪 security 審查測了 30 種環境或 Git 設定，同一個 repository 沒有一種得到 `PASS`）。
+  - 其他殘餘風險的註記：
+    1. 殘餘風險 4 的更正（MR99-S-04）：中英文都改指「D-029 PR-2 補充的殘餘風險第 23 項」，不是第 (i) 項。
+    2. 殘餘風險 5：R-DEL-2 的 D-027 句加上了設定檔的副本（MR99-S-02）；「用路徑執行、在變更所在的 repository 裡時，讀到的是變更自己的設定檔」從 PR-3 起只在 repo 檢查看不到的情形成立（上面殘餘風險 23 的範圍）。
+    3. PR-2 補充的殘餘風險第 22 項：`dev-retro` 第 5 步現在點名 deep 模式，`review-scan` 由模式決定；「讀成其他派工而傳 `none`」這一個歧義因此消失。傳錯 `--floor` 的一般風險仍在（PR-2 補充的殘餘風險第 4、16 項）。
+    4. PR-2 補充的殘餘風險第 24 項：FU-063 的觸發條件「下一次 strict 改讀回 script 之前」在 PR-3 成立；依卡 I96-IR2-P2-C2 (b) 不做。新的觸發條件：Issue #96 之後下一次 strict 改讀回 script 之前，或使用者要求時。FU-062 的觸發條件同樣在 PR-3 成立，再延後。
+  - 取代：PR-2 的紀錄裡寫前提 2，或寫「到 PR-3 為止」的句子，由本補充取代；殘餘風險 23 縮小後仍然是未授權的殘餘風險，merge 時由使用者決定。PR-2 的紀錄裡寫 PR-3 會加或會寫什麼的句子，記的是 PR-2 當時的計畫；PR-3 實際做的以本補充為準。PR-3 之前的紀錄把 tested-host 紀錄放在 R-DEL-2，寫的是當時的規則；從 PR-3 起它在 REQ-009（DL-040 的註記）。
+  - 殘餘風險與限制（PR-3）：
+    1. 殘餘風險 23 縮小後的範圍（上面）；未授權，merge 時由使用者決定。
+    2. PR-2 補充的殘餘風險第 24 項：FU-063，不在 PR-3。
+    3. 卡 C1 (b) 的代價：不在 Git repository 裡的專案、而 pack 是從 Git clone 載入（例如從 repo 資料夾或 `--plugin-dir` 載入）時，每一次路徑形式的讀回都 `STOP REPO_CHECK`。從 GitHub 來源的第三方 marketplace 安裝的副本是否在 Git clone 裡，不知道（本機的 official marketplace 與 cache 副本都不在 clone 裡）。
+    4. 其他會停下的情形（fail closed）：家目錄本身是 dotfiles repository、副本在家目錄底下，而工作目錄不在它自己的 repository 裡時（這些資料夾裡的讀回都無法算數）；dubious ownership；跨檔案系統；sandbox 拒絕 `lstat` 上層的 `.git`（未測）；git 2.13 之前在子資料夾印錯的相對值（通常是 `REPO_CHECK`，未測）。解法：用不在任何 Git repository 裡的安裝副本，或在 Git 專案裡工作。
+    5. pack 以一般子資料夾放在專案的 repository 裡：得到 `IN_REPO`；改用 stdin 形式後讀的是 repository 根目錄的檔案，結果可能是 `unknown`。
+    6. P3-R12 的重讀只重做那一次派工的比較；同一個 session 稍早用錯的副本做的其他讀取不重查。
+    7. 家族名 lint 只看明列的範圍；README、`docs/`、`.dev/`、`deltas.md` 與讀回 script 的 reference 不受 lint 管制。另外兩個限制（IR-P3-S-04；`scripts/check_pack.py` 的 `family_name_problems`）：`model:` 行的例外適用於每一個 `agents/*.md` 檔的 front matter，不只 `check_pack` 釘住的那些 agent；glob 不讀名字以點開頭的檔案或資料夾。
+    8. FU-063 的處理是設計 d1 告知的「加觸發註記」；使用者回答「C1 b，C2 a」時沒有另外回應這一項；ready 卡會再列出。
+    9. PR-3 merge 之後、session 重新載入 pack 之前，session 用的是舊的規則文字與舊的 script；補救和 PR-2 補充的殘餘風險第 15 項一樣（推論）。
+  - README：新增「模型設定檔」段落（中英文）：檔案、家族與等級、角色、`check_pack` 釘住；低於地板的角色值不生效；改自己副本的等級會改變什麼算是達到地板，這是使用者的選擇與責任；會停下的情形與解法。Subagents 那一行不再寫家族名，改指向設定檔的 `agent_default` 角色。
+  - 送出的內容（PR-3）：讀回 script 與它的 reference；`scripts/check_pack.py` 與測試；`dev-core` 的 R-DEL-2、`dev-deliver` 與 `task-brief.md`、`dev-review` 與 `review-report.md`、`dev-retro` 的規則句（P3-R1 到 P3-R18）；`deltas.md` 的 DL-046，以及 DL-040、DL-042、DL-044 與 DL-045 的註記；本補充（兩種語言），以及第 4 節、D-029 殘餘風險 4 與 5、PR-2 補充殘餘風險 22 與 23 的註記；REQ-009、REQ-026 與 log；CHANGELOG；README；`.dev/followups.md` 的 FU-061（Fixed），以及 FU-045、FU-046、FU-060、FU-062 與 FU-063 的註記；`.dev/issue-96-pr2/plan.md` 的 MR99-D-01、MR99-M-01 與註記；`.dev/issue-96-pr3/plan.md`。
+  - 與 Core 的差異：收緊（DL-046）。相對於 PR-2 記下的前提 2，C1 (b) 與 C2 (a) 是使用者決定的縮小（見上面「放寬與收緊」）。
 
 ---
 
@@ -1033,6 +1094,10 @@ exactly; PR-3 makes the routing tables name roles only. The floors, the
 review and scan floors, the escalation and the orders now use the tiers of
 the configuration file; see the notes in the next two paragraphs and the
 PR-2 supplement of D-029.)
+(Issue #96 PR-3: the routing tables of `dev-deliver` and `dev-review` now
+name roles only, and the value of a row is the family and the lowest effort
+of its role in the configuration file; this table is a summary, and its
+values still equal the roles of the file (D-029, PR-3 supplement).)
 
 The `dev-deliver` Dispatch step runs a node in this session by default. It
 delegates to one subagent only when a listed condition applies: read-only
@@ -3578,6 +3643,12 @@ records D-009 to D-012.
      repository of the change; and it fails closed when the working
      directory is in no Git repository, when a git query fails, and when
      variables like `GIT_DIR` are set.
+     Correction (Issue #96 PR-3): cards I96-P3-C1 (b) and I96-P3-C2 (a)
+     narrow premise 2 (the user's words: 「C1 b，C2 a」): when the working
+     directory lies in no repository, the check stops only if the copy of
+     the script lies in one, and it does not detect variables such as
+     `GIT_DIR`; the outcome of `git` and the `os.stat` step fail closed
+     instead. What PR-3 does is in the D-029 PR-3 supplement.
 - Additive-only method and gate (card I96-R5-C1 (a)): no word is removed
   from any rule or record file in the scope of PR-1 that exists at the
   base; a superseded sentence stays, followed by a sentence that says it no
@@ -3624,10 +3695,15 @@ records D-009 to D-012.
      catch it either when a main agent wrongly judges that the skill path
      lies outside the repository; this case is not part of (i) either: by
      card I96-IR-P2-C3 (b) it is an unauthorized residual risk until PR-3
-     adds a deterministic check (item (i) of the PR-2 supplement).
+     adds a deterministic check (residual risk 23 of the D-029 PR-2
+     supplement).
      `--floor` makes the script compare the expected values with the floor
      of the call, so a dispatch below its floor gives `BELOW`; it does not
      catch a wrong `--floor` value.
+     Correction (Issue #96 PR-3, MR99-S-04): the pointer in parentheses
+     above pointed to item (i); it now points to residual risk 23. PR-3 adds
+     the check; residual risk 23, narrowed, stays an unauthorized residual
+     risk that the user decides at merge (D-029, PR-3 supplement).
   5. An agent with Bash or another process of the user can change what
      lies outside the base (D-027). That the two base literals are the same
      is checked by the main agent only (a self-check of the script: FU-062);
@@ -3645,6 +3721,21 @@ records D-009 to D-012.
      (i) is only the case in which both reads use the installed copy
      outside the pack repository that the user edited, and item 23 is not
      part of it either.
+     Correction (Issue #96 PR-3): from PR-3 on, a run by path first makes
+     the repository check, and, by the answer of `git`, it gives
+     `STOP IN_REPO` only when the current working directory lies in a
+     worktree of the same Git repository and both sides have a `.git`
+     entry; an absolute `GIT_DIR` or `GIT_COMMON_DIR` in the environment of
+     the caller can give `STOP IN_REPO` for two different repositories
+     (fail closed). "Run by path inside the repository of the change, the
+     script reads the change's own file" above holds only for the cases
+     that the check does not see: a `cd` into another repository, a
+     worktree without a `.git` entry, a relative `GIT_DIR` or
+     `GIT_COMMON_DIR` (residual risk 23 of the D-029 PR-2 supplement,
+     narrowed by the PR-3 supplement). Premise 2 is narrowed by cards
+     I96-P3-C1 (b) and I96-P3-C2 (a) (the user's words: 「C1 b，C2 a」). The
+     D-027 sentence of R-DEL-2 names a copy of the configuration file too
+     (MR99-S-02).
   6. The Sonnet, Haiku and Fable IDs are not observed (FU-060), so `light`
      reviews and explores carry a warning; when the recorded Sonnet ID does
      not have the `version` form, a `light` review stops, and only a routine
@@ -4092,6 +4183,11 @@ records D-009 to D-012.
         which R2 forbids. The remaining risk: a session that reads the step
         as "every other dispatch" passes `none`, and the script then makes
         no floor check; the expected values still come from the dispatch.
+        Note (Issue #96 PR-3): step 5 now names the deep mode of
+        `dev-review` and the role `review-deep`, so `review-scan` comes from
+        the mode, and the one ambiguity "read as every other dispatch" is
+        gone. The general risk of a wrong `--floor` value stays (items 4 and
+        16).
     23. When a main agent wrongly judges that the skill path lies outside
         the repository of the change, both reads use the copy on the skill
         path, and nothing stops a wrong tier. This case is not part of the
@@ -4099,6 +4195,10 @@ records D-009 to D-012.
         unauthorized residual risk until PR-3 adds a deterministic check.
         The orchestrator states that the read-backs in this repository
         always use the stdin form; no mechanism checks this before PR-3.
+        Note (Issue #96 PR-3): PR-3 adds this deterministic check; the PR-3
+        supplement gives the narrowed scope of what it does not see and the
+        classes. Residual risk 23, narrowed, stays an unauthorized residual
+        risk that the user decides at merge.
     24. When the main agent writes the same wrong base literal in its
         configuration read and in the read-back call (for example the head
         of the change), both reads use the configuration file of that
@@ -4125,5 +4225,290 @@ records D-009 to D-012.
   - Difference from Core: a tightening (DL-045). Relative to DL-005, DL-034,
     DL-038 and DL-042 to DL-044, "`fable` meets the floor" and item (i) are
     loosenings that the user decided (see "Loosening and tightening" above).
+- PR-3 supplement (Issue #96 PR-3, `Closes #96`; decided, 2026-11-03):
+  - Origin: the PR-3 section of Issue #96 comment 4 (the scope of PR-3).
+    Requirements: REQ-009. The user's words (Claude Code session, relayed by
+    the orchestrator):
+    1. Start: 「開始 PR-3」.
+    2. PR-3 decision cards I96-P3-C1 and I96-P3-C2: 「C1 b，C2 a」.
+    3. Design review round 2 stop cards I96-P3-R2-C1 and I96-P3-R2-C2:
+       「R2-C1 a，R2-C2 a」.
+    4. Earlier answers that still bind PR-3:
+       「C8 改為：設定檔是唯一來源，路由表只標角色名、不寫數值；I96-C12 a＋停用規則；不加技能」,
+       「I96-IR-P2-C1 a，C2 a，C3 b，C4 a」, 「I96-IR2-P2-C1 a，C2 b，C3 a」,
+       「MR99-M1 a，確認 (1)、(i)、23、24，S-02 歸 D-027」 and
+       「照更正後的做法，只加進 D-027 風險清單」.
+    5. The user's meaning, relayed by the orchestrator (a summary, not the
+       user's words): a ban such as "an agent never edits the installed
+       configuration file" is not practical, because nobody can tell who
+       made an edit, and the user may ask an agent to make one. PR-3 adds no
+       such ban.
+    6. Implementation review round 1 stop cards I96-P3-IR1-C1 and
+       I96-P3-IR1-C2, and the two sentences that T2 (P3-T2, the PR-3
+       implementer node for the rule sentences and the records) added next
+       to the unified superseding sentence (2026-11-04):
+       「C1 a，C2 a，接受」. The two sentences are the second (sentences of
+       the PR-2 records that say what PR-3 adds or writes give the plan of
+       PR-2) and the third (records before PR-3 that place the tested-host
+       record in R-DEL-2 describe the rule of their time) sentence of the
+       "Superseding" item below.
+    7. Implementation review round 2 stop card I96-P3-IR2-C1 (2026-11-04):
+       「IR2-C1 a」, one fix round of the records only, then a scoped review
+       (a deep review and a Security Diff Scan).
+  - What the user decided:
+    1. I96-P3-C1 (b): run by its path, the script gives `STOP REPO_CHECK`
+       when the folder of its copy lies in a Git repository and the working
+       directory lies in none; when the copy lies in no repository, it does
+       not stop.
+    2. I96-P3-C2 (a): the repository check reads no environment variable and
+       gives `git` no other environment; `git` gets the environment of the
+       caller. The static guards of Issue #89 (`FORBIDDEN`,
+       `FORBIDDEN_TEXT`) and the sentence "It reads no environment variable"
+       of the reference do not change.
+    3. I96-P3-R2-C1 (a): design d5 makes the fixes, with no third design
+       review round; the implementation review (a deep review and a Security
+       Diff Scan) checks the fixes of d5 against the real diff, and every
+       hit of the "Record sweep" table of the PR-3 plan.
+    4. I96-P3-R2-C2 (a): C2 (a) stays; a relative `GIT_COMMON_DIR` is
+       recorded as "an exception to the inference of card C2", a sub-item of
+       residual risk 23 (item 6 below); a test with a real `git` expects
+       `REPO_CHECK`; residual risk 23 stays an unauthorized residual risk
+       that the user decides at merge.
+    5. MR99-S-02: the D-027 residual risk sentence of R-DEL-2 names a copy
+       of the configuration file too; this records a risk and is not a new
+       ban.
+    6. I96-P3-IR1-C1 (a): a relative `GIT_DIR` and a relative
+       `GIT_COMMON_DIR` together are "the exception to the inference of card
+       C2", a sub-item of residual risk 23 (item 6 below); still an
+       unauthorized residual risk that the user decides at merge.
+    7. I96-P3-IR1-C2 (a): one fix round, then a scoped implementation
+       review.
+    8. 「接受」: the user explicitly accepts the two sentences that T2 added
+       next to the unified superseding sentence (the second and the third
+       sentence of the "Superseding" item below).
+  - Change of premise 2: the PR-3 premise 2 that card I96-IR2-P2-C3 (a)
+    recorded is "it fails closed when the working directory is in no Git
+    repository, when a git query fails, and when variables like `GIT_DIR`
+    are set". By 「C1 b，C2 a」, "the working directory is in no repository"
+    narrows to "the working directory is in no repository and the copy of
+    the script is in one" (C1 (b)), and "variables like `GIT_DIR` are set"
+    is not detected; the outcome of `git` and the `os.stat` step fail closed
+    instead (C2 (a)). Premise 1 (the check takes the current working
+    directory as the repository of the change) does not change.
+  - Rules (PR-3; only in `dev-core`, `dev-deliver` and `task-brief.md`,
+    `dev-review` and `review-report.md`, and `dev-retro`; this is a summary,
+    and P3-R1 to P3-R18 of the PR-3 plan are the full list):
+    1. The routing tables name roles only (card I96-C8 as changed): the
+       third column of the `dev-deliver` table is `Role`, and the third
+       column of the `dev-review` mode table names roles too. The value of a
+       row is the family and the lowest effort of the role that the row
+       names for the task, read by the configuration read of R-DEL-2; the
+       role of a node is still the row of its task type. The rule sentences
+       that only rename (the `light` routine review and its escalation
+       re-run, `task-brief.md`, `review-report.md`) name roles, with the
+       same meaning.
+    2. `dev-retro` step 5 dispatches `dev-skills:dev-reviewer` with the role
+       `review-deep`; the review covers rules of this pack, so it is a deep
+       review of the `dev-review` mode table (R-REV-6). The role comes from
+       the task type, not from values.
+    3. The tested-host record moved to REQ-009 word for word; R-DEL-2 and
+       `task-brief.md` point to "the tested-host record (REQ-009)". R-DEL-2
+       says only that, in the shipped pack, the values of each agent file
+       are the family and the lowest effort of its `agent_default` role, and
+       that `check_pack` pins them exactly.
+    4. The repository check of the path form (cards I96-IR-P2-C3 (b),
+       I96-P3-C1 (b), I96-P3-C2 (a) and I96-P3-R2-C2 (a)): `subagent` run by
+       its path first checks where its copy lies. A folder lies in a Git
+       repository when it or a folder above it has an entry named `.git`;
+       the check looks for it above both the real path of the folder of the
+       script and the current working directory, and a failed lookup gives
+       `STOP REPO_CHECK`. When the folder of the script lies in no
+       repository, the check does not stop; when it lies in one and the
+       working directory lies in none, `STOP REPO_CHECK`; when both lie in
+       one, the script asks `git` for the common Git directory of each and
+       gives `STOP IN_REPO` when the two are the same directory, and `STOP
+       REPO_CHECK` when a query fails or its output is not one existing
+       path. The check reads no environment variable; `git` gets the
+       environment of the caller. The check takes the current working
+       directory as the repository of the change, so when the change is in a
+       Git repository, the main agent runs every read-back from a worktree
+       of the change.
+    5. `IN_REPO` is a wrong call, like `BAD_ARGS`: the main agent corrects
+       only the form of the call, once (after `IN_REPO`, to the call of the
+       copy at the bound base with `--config-base`), keeps the ID, `<DIR>`,
+       the expected values and the `--floor` value, and runs the script once
+       more; a second wrong call is like any other `STOP`. After `IN_REPO`
+       the main agent also reads the configuration file again at the bound
+       base and repeats its own comparisons of the dispatch values, because
+       its earlier reading used the copy on the skill path. The sentence
+       that classifies `BELOW` and the `STOP` tokens leaves out `IN_REPO`
+       together with `BAD_ARGS`.
+    6. The path-form template of R-DEL-2 passes `--floor <floor>`
+       (MR99-S-03); the D-027 sentence says "change a copy of the script or
+       of the configuration file" (MR99-S-02).
+  - Script and `check_pack` (the reference and REQ-009 give the details):
+    1. New tokens `IN_REPO` and `REPO_CHECK`. The repository check runs
+       after the `BAD_ARGS` checks of `--config-base` and of the script's
+       own file name, and before the configuration file next to the script
+       is read; the `check` mode and the stdin form do not run it. The `git`
+       argv is `git --no-replace-objects rev-parse --git-common-dir`
+       (without `--path-format`), `cwd=` is the folder, and the two calls
+       share 20 seconds; a relative value is joined to its folder, then
+       resolved with `os.path.realpath` and `os.stat`; equal real paths or
+       an equal `(st_dev, st_ino)` give `IN_REPO`.
+    2. The `os.stat` step and the inode comparison must stay: on macOS, a
+       path in another letter case and a `/System/Volumes/Data` firmlink
+       path have another real path string and the same inode; `git` joins a
+       relative `GIT_COMMON_DIR` wrongly in a subfolder (exit code 0 and a
+       path that does not exist), and the `os.stat` stops it (design review
+       round 2, security findings S-01 and S-02, measured with `git` 2.54.0
+       on macOS).
+    3. `check_pack`: a family-name lint (every `.md` file under `skills/`
+       and `agents/*.md`; except `deltas.md`, the reference of the read-back
+       script and the `model:` line of the agent front matter); a check of
+       the role names of the two routing tables; the pinned values do not
+       change.
+  - Loosening and tightening (recorded as the no-regression definition of
+    `deltas.md` requires; DL-046):
+    1. Relative to the merged rules, a tightening: the merged rules have no
+       check of the path form; the tables name roles whose values equal the
+       values of today (`check_pack` pins them); naming the deep mode in
+       `dev-retro` step 5 makes the sentences of R-DEL-2 on required reviews
+       apply to that review without a doubt.
+    2. Relative to premise 2 that PR-2 recorded, C1 (b) and C2 (a) are a
+       narrowing that the user decided. Source: cards I96-P3-C1 and
+       I96-P3-C2. Quote: 「C1 b，C2 a」. Authority: the user, relayed by the
+       orchestrator. Reason: read literally, the premise stops every
+       read-back by path in a project that is not in a Git repository
+       (IR3-P2-S-01), and reading the `GIT_*` variables would loosen the
+       static guard of Issue #89 that the script reads no environment
+       variable. Scope: only the two points of "Change of premise 2" above.
+    3. MR99-S-02 records a risk only and adds no ban (the user's decision).
+  - The narrowed scope of residual risk 23. Status: an unauthorized residual
+    risk that the user decides at merge. The cases that the check does not
+    see, which pass, with their classes:
+    1. A working directory that is not in a worktree of the change: a main
+       agent that runs `cd` into another repository (the two common
+       directories differ); a pack that is a submodule of the project
+       (inference: the two common directories differ). This is residual risk
+       23 itself (card I96-IR-P2-C3 (b)).
+    2. A copy that lies in no repository passes, whatever its content: a
+       copy that the user installed and edited is the narrow loosening (i);
+       a copy that an agent installed or edited is D-027.
+    3. A worktree that has no `.git` entry (one that `GIT_DIR` and
+       `GIT_WORK_TREE` point to, a `core.worktree` of an external gitdir, a
+       worktree whose `.git` was removed), with the copy of the script in
+       it: a sub-item of card C2 (a) (「C1 b，C2 a」).
+    4. A bare repository layout between the script and the `.git`: D-027.
+    5. A fake or wrapped `git`, or a relative entry of `PATH` that resolves
+       in the folder of the script: D-027.
+    6. A relative `GIT_DIR` or `GIT_COMMON_DIR` (cards I96-P3-R2-C2 (a)
+       and I96-P3-IR1-C1 (a)): an exception to the inference of card C2,
+       part of the mechanism of card C2 (a), not D-027. It passes when the
+       `git` of both sides succeeds and the two joined paths are two
+       different paths that both exist (both sides can be the same
+       repository). A relative `GIT_DIR` resolves from the folder of each
+       call, whether or not `GIT_WORK_TREE` is set (tested: read-only
+       `git rev-parse --git-common-dir`, `git` 2.54.0, macOS, six cases,
+       implementation review round 2, IR2-P3-S-01); the full pass of a
+       relative `GIT_DIR` (two different existing git directories) is not
+       tested. An example for `GIT_COMMON_DIR`: a home folder that is a
+       dotfiles repository with the checkout three levels below it. A
+       wrongly joined path usually does not exist, and the `os.stat` step
+       makes that case fail closed, so the step must stay. The test of
+       `GIT_COMMON_DIR` uses the argv without `--path-format` (`git` 2.54.0,
+       macOS).
+    - The scope of the inference of card C2: for an absolute value, the
+      `git` of both sides gives the same answer; for a relative value, see
+      item 6. This is measured with `git` 2.54.0 on macOS (the round 1
+      security review tested 30 settings of the environment or the Git
+      configuration, and none of them gave `PASS` for the same repository).
+  - Notes on other residual risks:
+    1. The correction of residual risk 4 (MR99-S-04): in both languages it
+       now points to "residual risk 23 of the D-029 PR-2 supplement", not to
+       item (i).
+    2. Residual risk 5: the D-027 sentence of R-DEL-2 names a copy of the
+       configuration file too (MR99-S-02); from PR-3 on, "run by path inside
+       the repository of the change, the script reads the change's own file"
+       holds only for the cases that the repository check does not see (the
+       scope of residual risk 23 above).
+    3. Residual risk 22 of the PR-2 supplement: `dev-retro` step 5 now names
+       the deep mode, so `review-scan` comes from the mode, and the one
+       ambiguity "read as every other dispatch, passing `none`" is gone. The
+       general risk of a wrong `--floor` value stays (residual risks 4 and
+       16 of the PR-2 supplement).
+    4. Residual risk 24 of the PR-2 supplement: the FU-063 trigger "before
+       the next strict change of the read-back script" is reached by PR-3;
+       by card I96-IR2-P2-C2 (b) it is not done. The new trigger: before the
+       next strict change of the read-back script after Issue #96, or when
+       the user asks. The FU-062 trigger is reached by PR-3 as well, and
+       FU-062 is deferred again.
+  - Superseding: Sentences of the PR-2 records that state premise 2 or say
+    "until PR-3" are superseded by this supplement; residual risk 23,
+    narrowed, stays an unauthorized residual risk that the user decides at
+    merge. Sentences of the PR-2 records that say what PR-3 adds or writes
+    give the plan of PR-2; what PR-3 does is in this supplement. Records
+    before PR-3 that place the tested-host record in R-DEL-2 describe the
+    rule of their time; from PR-3 on the record is in REQ-009 (the DL-040
+    note).
+  - Residual risks and limits (PR-3):
+    1. The narrowed scope of residual risk 23 (above); unauthorized, the
+       user decides at merge.
+    2. Residual risk 24 of the PR-2 supplement: FU-063, not in PR-3.
+    3. The cost of card C1 (b): in a project that is not in a Git
+       repository, while the pack loads from a Git clone (for example from
+       the repository folder or with `--plugin-dir`), every read-back by
+       path gives `STOP REPO_CHECK`. Whether a copy installed from a
+       third-party marketplace on GitHub lies in a Git clone is not known
+       (the official marketplace and the cache copy on the test machine lie
+       in no clone).
+    4. Other cases that stop (fail closed): a home folder that is itself a
+       dotfiles repository with the copy under it, when the working
+       directory is not in a repository of its own (no read-back in those
+       folders can count); dubious ownership; a file system boundary; a
+       sandbox that refuses the `lstat` of a `.git` above (not tested); a
+       wrong relative value of `git` before 2.13 in a subfolder (usually
+       `REPO_CHECK`, not tested). The remedy: use an installed copy that
+       lies in no Git repository, or work in a Git project.
+    5. A pack in a plain subfolder of the project repository gives
+       `IN_REPO`; the stdin form then reads the file at the root of the
+       repository, and the outcome can be `unknown`.
+    6. The new read of P3-R12 repeats only the comparisons of that one
+       dispatch; other reads that the same session made earlier with the
+       wrong copy are not checked again.
+    7. The family-name lint covers the listed scope only; the README,
+       `docs/`, `.dev/`, `deltas.md` and the reference of the read-back
+       script are outside it. Two more limits (IR-P3-S-04;
+       `family_name_problems` of `scripts/check_pack.py`): the exception of
+       the `model:` line applies to the front matter of every `agents/*.md`
+       file, not only to the agents that `check_pack` pins, and the glob
+       does not read a file or folder whose name starts with a dot.
+    8. FU-063 gets the trigger note that design d1 announced; the user's
+       answer 「C1 b，C2 a」 did not address it separately, and the ready card
+       lists it again.
+    9. After PR-3 is merged and before a session reloads the pack, the
+       session uses the old rule text and the old script; the remedy is that
+       of residual risk 15 of the PR-2 supplement (inference).
+  - The README gets a section on the model configuration file (both
+    languages): the file, the families and tiers, the roles and the
+    `check_pack` pins; a role value below a floor has no effect; editing the
+    tiers of one's own copy changes what meets a floor, which is the user's
+    choice and responsibility; the cases that stop and the remedy. The
+    Subagents line names no family and points to the `agent_default` roles
+    of the file.
+  - What ships (PR-3): the read-back script and its reference;
+    `scripts/check_pack.py` and the tests; the rule sentences P3-R1 to
+    P3-R18 of R-DEL-2 in `dev-core`, of `dev-deliver` and `task-brief.md`,
+    of `dev-review` and `review-report.md`, and of `dev-retro`; DL-046 and
+    the notes on DL-040, DL-042, DL-044 and DL-045 in `deltas.md`; this
+    supplement (both languages) and the notes on section 4, D-029 residual
+    risks 4 and 5, and residual risks 22 and 23 of the PR-2 supplement;
+    REQ-009, REQ-026 and the log; the CHANGELOG; the README; FU-061 (fixed)
+    and the notes on FU-045, FU-046, FU-060, FU-062 and FU-063 in
+    `.dev/followups.md`; MR99-D-01, MR99-M-01 and the notes in
+    `.dev/issue-96-pr2/plan.md`; `.dev/issue-96-pr3/plan.md`.
+  - Difference from Core: a tightening (DL-046). Relative to premise 2 that
+    PR-2 recorded, C1 (b) and C2 (a) are a narrowing that the user decided
+    (see "Loosening and tightening" above).
 
 </details>

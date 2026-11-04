@@ -18,7 +18,11 @@ the state before Issue #96, as the Issue #93 sentence above does for its
 own change. From Issue #96 PR-2 on, `subagent` needs `--floor`, compares
 the expected values with that floor, and prints `floor=` on its result
 lines; the sections that change for PR-2 have a note that starts "From
-Issue #96 PR-2 on".
+Issue #96 PR-2 on". From Issue #96 PR-3 on, `subagent` run by its path
+first checks where its copy lies (the repository check) and can give the
+new tokens `IN_REPO` and `REPO_CHECK`; the sections that change for PR-3
+have a note that starts "From Issue #96 PR-3 on", and the earlier text of
+those sections describes the state before PR-3.
 
 The script is `scripts/model_effort_readback.py` in this skill folder:
 one file, Python 3.9 or later, standard library only, no other module of
@@ -32,6 +36,14 @@ Example:
 
 ```
 python3 -I ${CLAUDE_SKILL_DIR}/../dev-core/scripts/model_effort_readback.py subagent --projects-dir DIR --agent-id ID --expect-model opus --expect-effort high
+```
+
+From Issue #96 PR-3 on, the call by path that R-DEL-2 names also passes
+`--floor` (from PR-2 on), and the script runs the repository check of the
+Threat model section before it reads the configuration file:
+
+```
+python3 -I ${CLAUDE_SKILL_DIR}/../dev-core/scripts/model_effort_readback.py subagent --floor FLOOR --projects-dir DIR --agent-id ID --expect-model opus --expect-effort high
 ```
 
 - `subagent` is the only mode. A session mode is slice D of Issue #79.
@@ -284,6 +296,8 @@ say so.
 | `MODEL_NOT_ALLOWED` | A model ID is not in the allowlist. No longer produced (Issue #96); kept so that older records stay readable. |
 | `MODEL_NOT_RECOGNIZED` | From Issue #96 on: a model value is `unrecognized` and no record is below, or the records belong to more than one family class and none is below. |
 | `CONFIG` | From Issue #96 on: the configuration file cannot be opened or read as the strict open requires, or it fails the validator; or a `git` call of `--config-base` fails, ends with a nonzero exit code, runs out of time, gives too much output, or names a commit other than the literal. |
+| `IN_REPO` | From Issue #96 PR-3 on: run by its path, the copy of the script lies in a worktree of the same Git repository as the current working directory (the repository check below). |
+| `REPO_CHECK` | From Issue #96 PR-3 on: run by its path, the working directory cannot be read, a `.git` lookup or a `git` query of the repository check fails, or its output is not one existing path; or the folder of the script lies in a Git repository and the working directory lies in none. |
 | `EFFORT_NOT_ALLOWED` | An effort is not one of the levels. |
 | `INTERNAL` | Any other error. |
 
@@ -383,6 +397,12 @@ environment variable. The standard library still does: `argparse` reads
 `COLUMNS`, and `gettext` reads `LANGUAGE`, `LC_*` and `LANG`; `python3`
 comes from `PATH`.
 
+From Issue #96 PR-3 on, the code of the script also reads the current
+working directory (`os.getcwd`, once, in the repository check of a run by
+path). It still reads no environment variable; the `git` that the
+repository check starts gets the environment of the caller (card
+I96-P3-C2 (a)).
+
 The statements that the script reads no environment variable and writes
 no file rest on a code review of the current code. The static test of the
 script is a regression aid only: it checks the imports, the direct
@@ -414,6 +434,69 @@ environment variables cover the code of the script, not `git`. The
 configuration file of the call is the copy at the bound base, so a change
 cannot approve its own reviews through its own file; a run by path inside
 the repository of the change reads the file of the change (see below).
+
+From Issue #96 PR-3 on, a `subagent` run by its path runs the repository
+check (cards I96-IR-P2-C3 (b), I96-P3-C1 (b), I96-P3-C2 (a) and
+I96-P3-R2-C2 (a)) after the checks of its arguments and of its own file
+name, and before it reads the configuration file next to it. A folder lies
+in a Git repository when it or a folder above it has an entry named `.git`
+(`os.lstat`: a directory, a file or a symlink, dangling or not). The script
+looks for this entry above both the real path of its own folder and the
+real path of the current working directory; `ENOENT` and `ENOTDIR` go on to
+the folder above, and any other error gives `STOP REPO_CHECK`. When the
+folder of the script lies in no Git repository, the check gives nothing.
+When it lies in one and the working directory lies in none, the check gives
+`STOP REPO_CHECK`. Only when both lie in one does the check start `git`:
+`git --no-replace-objects rev-parse --git-common-dir` once in each of the
+two folders (`cwd=` is that folder), with the list argv, closed stdin,
+discarded stderr, new process group and output limit of the calls above,
+and one time limit of 20 seconds for the two calls. That `git` gets the
+environment and `PATH` of the caller and the Git configuration that applies
+in that folder: `safe.directory` comes only from protected configuration,
+which is the system and global scopes, whose files the caller can choose
+with `GIT_CONFIG_GLOBAL` and `GIT_CONFIG_SYSTEM` (or turn off with
+`GIT_CONFIG_NOSYSTEM`), and the command scope: `git -c` and the caller's
+`GIT_CONFIG_COUNT`, `GIT_CONFIG_KEY_<n>` and `GIT_CONFIG_VALUE_<n>`
+(source: `man git-config` of `git` 2.54.0, SCOPES and ENVIRONMENT); the
+command scope also takes `GIT_CONFIG_PARAMETERS`, the internal variable by
+which an outer `git -c` passes its values to a child `git` (the script
+itself passes no `-c`), and `HOME` and `XDG_CONFIG_HOME` choose the files of
+the global scope (source: a read-only test with `git config --show-scope`
+in the Security Diff Scan of implementation review round 3 of Issue #96
+PR-3, `git` 2.54.0 on macOS, and the FILES section of `man git-config`);
+`git` also reads the configuration of each repository. A failure, a timeout,
+too much output, an output that is not one line in UTF-8 without NUL that
+ends in a newline, or a path that does not exist gives `STOP REPO_CHECK`,
+with no fallback. A
+relative value is joined to its folder, and both values are resolved with
+`os.path.realpath` and `os.stat`. Two equal real paths, or an equal
+`(st_dev, st_ino)`, give `STOP IN_REPO`; otherwise the run goes on as
+before. The `os.stat` step and the inode comparison must stay: on macOS a
+path in another letter case and a `/System/Volumes/Data` firmlink path
+have another real path string but the same inode, and `git` joins a
+relative `GIT_COMMON_DIR` wrongly in a subfolder (exit code 0 and a path
+that does not exist), which the `os.stat` stops (security finding S-01 and
+S-02 of PR-3 design review round 2, measured with `git` 2.54.0 on macOS).
+So, by the answer of `git`, `STOP IN_REPO` comes only when the
+current working directory lies in a worktree of the same Git
+repository as the copy of the script and both have a `.git` entry;
+an absolute `GIT_DIR` or `GIT_COMMON_DIR` in the environment of the
+caller can give `STOP IN_REPO` for two different repositories (fail
+closed). The sentence above, that a run by path inside the
+repository of the change reads the file of the change, still holds
+for the cases that the check does not see: residual risk 23 of the
+D-029 PR-2 supplement, narrowed by the D-029 PR-3 supplement (a
+working directory in another repository, for example after a `cd`;
+a worktree that has no `.git` entry; a relative `GIT_DIR` or
+`GIT_COMMON_DIR` that makes `git` print two different existing
+paths: the exception to the inference of card C2, cards
+I96-P3-R2-C2 (a) and I96-P3-IR1-C1 (a); a relative `GIT_DIR`
+resolves from the folder of each call, whether or not
+`GIT_WORK_TREE` is set (tested: read-only
+`git rev-parse --git-common-dir`, `git` 2.54.0, macOS, six cases,
+implementation review round 2, IR2-P3-S-01); the full pass of a
+relative `GIT_DIR` (two different existing git directories) is not
+tested).
 
 ## Calls from the rules (read-backs, 2026-10-31)
 
@@ -500,7 +583,11 @@ background, no resume and no headless run was read back.
   this pack (FU-060): their read-back gives `WARN` at best, and an ID of
   theirs that does not have the `version` form stops.
 - From Issue #96 on, a run by path inside the repository of the change
-  reads the configuration file of the change itself.
+  reads the configuration file of the change itself. From Issue #96 PR-3
+  on, such a run gives `STOP IN_REPO` when the current working directory
+  lies in a worktree of the same Git repository and both have a `.git`
+  entry; the cases that the repository check does not see are in the
+  Threat model section.
 - From Issue #96 on, a wrong `--config-base` literal (for example the head
   of the change) makes the script trust the configuration file of that
   commit: for the classification and, from PR-2 on, for the floor check.
@@ -535,7 +622,16 @@ background, no resume and no headless run was read back.
   to pass the higher floor when this session's own reading cannot tell).
   That the two base literals of the call are the same is checked by the
   main agent only; the script does not compare its own code with the copy
-  at `--config-base` (FU-062).
+  at `--config-base` (FU-062). From Issue #96 PR-3 on, the deterministic
+  check exists, and cards I96-P3-C1 (b) and I96-P3-C2 (a) (the user's words
+  in the orchestrator session, relayed: 「C1 b，C2 a」) narrow its premise 2:
+  it gives `STOP REPO_CHECK` when the folder of the script lies in a Git
+  repository and the working directory lies in none, not whenever the
+  working directory lies in none; and it reads no variable such as
+  `GIT_DIR`, so it rests on the outcome of `git` and of the `os.stat` step
+  instead. The cases that it does not see stay residual risk 23 of the
+  D-029 PR-2 supplement, an unauthorized residual risk that the user
+  decides at merge (D-029 PR-3 supplement).
 - From Issue #96 on, the strict open by path (owner, one hard link) may
   stop every read-back in a managed or system-wide installation, and a
   plugin update may replace a configuration file that a user edited, or
@@ -553,3 +649,19 @@ background, no resume and no headless run was read back.
   real file name other than `model_effort_readback.py` gives
   `STOP BAD_ARGS`; and the path can change between `os.path.realpath` and
   the open.
+- From Issue #96 PR-3 on, the repository check stops in these cases, each
+  fail closed: a project that lies in no Git repository while the pack
+  loads from a Git clone (`STOP REPO_CHECK`); a home folder that is itself
+  a Git worktree (dotfiles) with the installed copy under it, when the
+  working directory is not in a repository of its own (`STOP IN_REPO`, or
+  `STOP REPO_CHECK` when `git` fails there); a repository that
+  `git` refuses (dubious ownership) or does not find across a file system
+  boundary (`STOP REPO_CHECK`); a sandbox that refuses the `lstat` of a
+  `.git` above (`STOP REPO_CHECK`, not tested); a pack in a plain subfolder
+  of the project repository (`STOP IN_REPO`; the stdin form then reads the
+  file at the root of that repository and usually gives `unknown`). The
+  remedy: use an installed copy that lies in no Git repository, or work in
+  a Git project. Before `git` 2.13 a relative value in a subfolder may be
+  wrong; it usually gives `STOP REPO_CHECK` (not tested). Whether a copy
+  installed from a third-party marketplace on GitHub lies in a Git clone is
+  not known.

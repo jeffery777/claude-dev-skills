@@ -85,14 +85,19 @@ Repeat until the objective is complete or a stop condition holds (R-AUTH-5):
    pass both the model and the effort, and write the reason in the brief
    (R-DEL-2):
 
-   | Node | Agent | Model / effort |
+   | Node | Agent | Role |
    | --- | --- | --- |
-   | explore | `dev-explorer` | haiku/low; sonnet/medium for synthesis; opus/high when the objective is security, data, migration or public-contract work (R-DEL-2 floor; pass the model and the effort: the agent file is haiku/low) |
-   | implement, docs | `dev-implementer` | `light`: sonnet/medium, or opus/high for a cross-module or unclear slice; `standard`: opus/high, or sonnet/medium for a mechanical, clearly bounded slice in one module; `strict`: opus/high; opus/high whenever the R-DEL-2 floor applies |
-   | review (routine) | `dev-reviewer` | opus/high; `light`: sonnet/medium unless an escalation trigger in `dev-review` applies |
-   | review (deep) | `dev-reviewer` | opus/xhigh |
-   | review (security) | `dev-security-reviewer` | opus/xhigh; max only when the user asks |
-   | commit / push scan, and the merge readiness scan (R-REV-9) | `dev-security-reviewer` | opus/xhigh |
+   | explore | `dev-explorer` | role `explore`; role `explore-synthesis` for synthesis; at least the work floor when the objective is security, data, migration or public-contract work (R-DEL-2; pass the model and the effort: the agent file is below the work floor) |
+   | implement, docs | `dev-implementer` | `light`: role `implement-reduced`, or role `implement` for a cross-module or unclear slice; `standard`: role `implement`, or role `implement-reduced` for a mechanical, clearly bounded slice in one module; `strict`: role `implement`; role `implement` whenever the R-DEL-2 floor applies |
+   | review (routine) | `dev-reviewer` | role `review-routine`; `light`: role `review-routine-light` unless an escalation trigger in `dev-review` applies |
+   | review (deep) | `dev-reviewer` | role `review-deep` |
+   | review (security) | `dev-security-reviewer` | role `review-security`; a higher effort only when the user asks |
+   | commit / push scan, and the merge readiness scan (R-REV-9) | `dev-security-reviewer` | role `scan` |
+
+   The table names a role of `skills/dev-core/model-config.json` for each
+   node and no model or effort value. The row value of the dispatch is the
+   family and the lowest effort of that role, read as the configuration read
+   of R-DEL-2 says (card I96-C8 as changed).
 
    When the main session implements a node itself, the implement row is the
    level that the plan compares with the session's recorded effort; for work

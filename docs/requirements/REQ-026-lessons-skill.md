@@ -331,6 +331,13 @@ Each item names its source: U1 to U3 (the user requirements) or a card.
     floors without an evaluation, and a family of a higher tier comes only
     from an escalation step, a floor or the user's own message in the
     session that dispatches (D-029, DL-045).
+    Note (Issue #96 PR-3): `dev-retro` step 5 now dispatches
+    `dev-skills:dev-reviewer` with the role `review-deep` of the
+    configuration file; the review covers rules of this pack, so it is a
+    deep review of the `dev-review` mode table (R-REV-6). The model and
+    effort follow the `review-deep` role (card I96-C8 as changed), today
+    `opus`/`xhigh` as card D19-C3 (a) says, and the read-back passes
+    `review-scan` by that mode (D-029 PR-3 supplement, DL-046).
   - Suggestions (U2; D19-C3 (a)): each suggestion has one of the four Core
     judgments (Core `workflow.md:90-97`). Each suggestion that changes a
     rule file, skill text, a REQ or any record (including a narrowed claim,

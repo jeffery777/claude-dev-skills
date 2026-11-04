@@ -189,6 +189,29 @@ Cowork runtime test). At that release,
 
 ### Changed
 
+- The routing tables and the rule sentences name roles of the
+  configuration file only, and the read-back script run by its path
+  checks where its copy lies (REQ-009, D-029 PR-3 supplement, DL-046,
+  Issue #96 PR-3, `Closes #96`; user answers relayed by the orchestrator:
+  「開始 PR-3」, 「C1 b，C2 a」, 「R2-C1 a，R2-C2 a」, 「C1 a，C2 a，接受」 and
+  「IR2-C1 a」). The `dev-deliver` and `dev-review` tables and the
+  sentences that named a family or a value name roles of
+  `skills/dev-core/model-config.json`; the value of a row is
+  the family and the lowest effort of its role. `dev-retro` step 5 uses
+  the role `review-deep` as a deep review (R-REV-6). The tested-host
+  record moved from R-DEL-2 to REQ-009 word for word. `check_pack` adds a
+  family-name lint and a check of the role names of the tables. Run by its
+  path, `subagent` gives `STOP IN_REPO` when its copy lies in a worktree of
+  the same Git repository as the current working directory, and
+  `STOP REPO_CHECK` when a `.git` lookup or a `git` query fails or when the
+  copy lies in a Git repository and the working directory lies in none; it
+  reads no environment variable. `IN_REPO` is a wrong call like
+  `BAD_ARGS`, with one correction to the `--config-base` stdin form and a
+  new configuration read. The README has a section on the configuration
+  file. The cases that the check does not see stay residual risk 23, an
+  unauthorized residual risk that the user decides at merge; FU-061 is
+  fixed, and FU-063 is not part of PR-3.
+
 - The model rules use the tiers of the configuration file, the floors of
   reviews and scans are in the rules, and the read-back script checks the
   floor (REQ-009, D-029 PR-2 supplement, DL-045, Issue #96 PR-2,

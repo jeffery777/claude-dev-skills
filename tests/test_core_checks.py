@@ -6,6 +6,7 @@ import importlib.util
 import io
 import json
 import os
+import re
 import shutil
 import tempfile
 import unittest
@@ -476,10 +477,14 @@ class FrontMatterGuards(unittest.TestCase):
                  "explore-synthesis"),
                 ("agent removed", lambda c: c["roles"]["scan"].pop("agent"), "scan")):
             with self.subTest(case=case):
-                code, out = self.check_tree(self.config_change(fn), count=2 if case == "higher family" else 1)
+                table = {"other agent": 1, "agent removed": 2}.get(case, 0)  # rows of the routing table check (PR-3)
+                code, out = self.check_tree(self.config_change(fn),
+                                            count=(2 if case == "higher family" else 1) + table)
                 self.assertEqual(code, 1)
                 self.assertIn(f"  - {config}: role {role!r} must be ", out)
                 self.assertIn("(PINNED_ROLE_VALUES, Issue #96 PR-2)", out)
+                if table:
+                    self.assertIn(f"names the role {role!r}, whose agent in {config} is ", out)
 
     def test_agent_default_roles(self):  # Issue #96: one agent_default role per agent, equal to the agent file
         config = self.MODEL_CONFIG
@@ -945,6 +950,247 @@ class FrontMatterGuards(unittest.TestCase):
         code, out = self.check_tree(change)
         self.assertEqual(code, 1)
         self.assertIn(".claude-plugin/plugin.json: not valid JSON in UTF-8 without a BOM", out)
+
+
+class RoutingNamesRoles(unittest.TestCase):
+    """The family-name lint and the routing table check of check_pack (Issue #96 PR-3, design d1 section 3): one
+    counterexample for each rule and each exception, on small trees in a temporary directory. Each tree passes before
+    its one change, so that the change alone gives the problem."""
+
+    DELIVER = os.path.join("skills", "dev-deliver", "SKILL.md")
+    REVIEW = os.path.join("skills", "dev-review", "SKILL.md")
+    DELIVER_TABLE = (
+        "   | Node | Agent | Role |\n"
+        "   | --- | --- | --- |\n"
+        "   | explore | `dev-explorer` | role `explore`; role `explore-synthesis` for synthesis |\n"
+        "   | implement, docs | `dev-implementer` | `light`: role `implement-reduced`; `strict`: role `implement` |\n"
+        "   | review (routine) | `dev-reviewer` | role `review-routine`; `light`: role `review-routine-light` |\n"
+        "   | review (deep) | `dev-reviewer` | role `review-deep` |\n"
+        "   | review (security) | `dev-security-reviewer` | role `review-security`; a higher effort only when the user"
+        " asks |\n"
+        "   | commit / push scan | `dev-security-reviewer` | role `scan` |\n")
+    REVIEW_TABLE = (
+        "| Mode | When | Reviewer |\n"
+        "| --- | --- | --- |\n"
+        "| routine | low or medium risk | `dev-reviewer`, role `review-routine`; at the `light` tier, role "
+        "`review-routine-light` |\n"
+        "| security | trust boundaries (R-REV-7) | `dev-security-reviewer`, role `review-security` |\n")
+
+    def setUp(self):
+        self.mod = load("check_pack")
+        self.tmp = tempfile.mkdtemp()
+        self.addCleanup(shutil.rmtree, self.tmp)
+        self.mod.ROOT = self.tmp
+        self.roles = self.mod.PINNED_ROLE_VALUES
+        self.reset()
+        self.write(os.path.join("agents", "dev-x.md"), "---\nname: dev-x\nmodel: opus\neffort: high\n---\nBody.\n")
+        self.assertEqual(self.mod.family_name_problems(), [])
+        self.assertEqual(self.mod.routing_table_problems(self.roles), [])
+
+    def reset(self):
+        """The two passing tables."""
+        self.write(self.DELIVER, "# dev-deliver\n\n" + self.DELIVER_TABLE + "\nText after the table.\n")
+        self.write(self.REVIEW, "# dev-review\n\n" + self.REVIEW_TABLE + "\nText after the table.\n")
+
+    def write(self, rel, text):
+        path = os.path.join(self.tmp, rel)
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        with open(path, "w", encoding="utf-8", newline="") as fh:
+            fh.write(text)
+
+    def edit(self, rel, old, new):
+        with open(os.path.join(self.tmp, rel), encoding="utf-8", newline="") as fh:
+            text = fh.read()
+        self.assertEqual(text.count(old), 1, old)
+        self.write(rel, text.replace(old, new))
+
+    def lint(self):
+        return self.mod.family_name_problems()
+
+    def tables(self):
+        return self.mod.routing_table_problems(self.roles)
+
+    # the family-name lint
+
+    def test_each_family_in_any_case_and_as_part_of_an_id(self):
+        for line in ("model opus", "`sonnet`/`medium`", "Haiku", "FABLE 5.1", "claude-opus-5-5", "x.opus.y",
+                     "(opus)", "opus/high"):
+            with self.subTest(line=line):
+                self.write(os.path.join("skills", "dev-x", "SKILL.md"), f"# x\n\n{line}\n")
+                problems = self.lint()
+                self.assertEqual(len(problems), 1, problems)
+                self.assertTrue(problems[0].startswith("skills/dev-x/SKILL.md:3: names the model family "), problems)
+                self.assertIn("(family-name lint, Issue #96 PR-3)", problems[0])
+
+    def test_a_longer_word_is_not_a_family(self):  # a whole word: no ASCII letter or digit before or after it
+        self.write(os.path.join("skills", "dev-x", "SKILL.md"), "opus4 opuses magnumopus sonnets haikus 5fable\n")
+        self.assertEqual(self.lint(), [])
+
+    def test_scope(self):
+        for rel in (os.path.join("skills", "dev-x", "references", "deep", "notes.md"),
+                    os.path.join("skills", "dev-core", "references", "other.md"), os.path.join("agents", "dev-y.md")):
+            with self.subTest(rel=rel):
+                self.write(rel, "uses opus\n")
+                self.assertEqual([p.split(":")[0] for p in self.lint()], [rel])
+                os.remove(os.path.join(self.tmp, rel))
+        for rel in ("README.md", os.path.join("docs", "notes.md"), os.path.join(".dev", "plan.md"),
+                    os.path.join("skills", "dev-x", "notes.txt"), os.path.join("agents", "sub", "dev-z.md")):
+            with self.subTest(rel=rel):  # outside the scope of the lint
+                self.write(rel, "uses opus\n")
+                self.assertEqual(self.lint(), [])
+
+    def test_the_two_exempt_files(self):
+        for rel in self.mod.FAMILY_LINT_EXCEPTIONS:
+            self.write(rel, "opus/high, sonnet/medium\n")
+        self.assertEqual(self.lint(), [])
+        self.assertEqual(self.mod.FAMILY_LINT_EXCEPTIONS, (os.path.join("skills", "dev-core", "deltas.md"), os.path.join(
+            "skills", "dev-core", "references", "model-effort-readback.md")))
+        for rel in (os.path.join("skills", "dev-review", "deltas.md"),  # the same name in another place counts
+                    os.path.join("skills", "dev-core", "model-effort-readback.md")):
+            with self.subTest(rel=rel):
+                self.write(rel, "opus/high\n")
+                self.assertEqual([p.split(":")[0] for p in self.lint()], [rel])
+                os.remove(os.path.join(self.tmp, rel))
+
+    def test_only_the_model_line_of_an_agent_front_matter(self):
+        agent = os.path.join("agents", "dev-x.md")
+        for old, new, line in (("Body.\n", "Body.\nmodel: opus\n", 7),  # after the front matter
+                               ("name: dev-x\n", "name: dev-x\ndescription: an opus agent\n", 3),
+                               ("effort: high\n", "effort: high\nmodels: opus\n", 5)):
+            with self.subTest(new=new):
+                self.edit(agent, old, new)
+                self.assertEqual([p.split(": names")[0] for p in self.lint()], [f"{agent}:{line}"])
+                self.edit(agent, new, old)
+        skill = os.path.join("skills", "dev-x", "SKILL.md")  # a skill front matter has no exempt model: line
+        self.write(skill, "---\nname: dev-x\nmodel: opus\n---\n")
+        self.assertEqual([p.split(": names")[0] for p in self.lint()], [f"{skill}:3"])
+
+    def test_the_shipped_agent_files_name_families_only_on_the_model_line(self):
+        self.mod.ROOT = ROOT
+        self.assertEqual([p for p in self.lint() if p.startswith("agents/")], [])
+
+    # the routing table check
+
+    def test_each_table_exactly_once(self):
+        for rel, table in ((self.DELIVER, self.DELIVER_TABLE), (self.REVIEW, self.REVIEW_TABLE)):
+            header = table.split("\n")[0]
+            with self.subTest(rel=rel, case="missing"):
+                self.edit(rel, header, header.replace("| Role |", "| Model / effort |").replace(
+                    "| Reviewer |", "| Model |"))
+                self.assertIn(f"{rel}: the table {header.strip()!r} must appear exactly once, found 0 (Issue #96 PR-3)",
+                              self.tables())
+                self.write(rel, "# x\n\n" + table)
+            with self.subTest(rel=rel, case="twice"):
+                self.write(rel, "# x\n\n" + table + "\n" + table)
+                self.assertIn(f"{rel}: the table {header.strip()!r} must appear exactly once, found 2 (Issue #96 PR-3)",
+                              self.tables())
+                self.write(rel, "# x\n\n" + table)
+            with self.subTest(rel=rel, case="no file"):
+                os.remove(os.path.join(self.tmp, rel))
+                self.assertIn(f"{rel}: the table {header.strip()!r} is needed, but the file is missing or not readable "
+                              f"(Issue #96 PR-3)", self.tables())
+                self.write(rel, "# x\n\n" + table)
+        self.assertEqual(self.tables(), [])
+
+    def test_a_row_without_a_role(self):
+        self.edit(self.DELIVER, "| role `review-deep` |", "| the deep reviewer |")
+        self.assertEqual([p.split(": ", 1)[1] for p in self.tables()], [
+            "a row of the table '| Node | Agent | Role |' names no role in its third column (Issue #96 PR-3)",
+            "the role 'review-deep' of skills/dev-core/model-config.json is named in no row of the table "
+            "'| Node | Agent | Role |' (Issue #96 PR-3)"])
+
+    def test_a_name_that_is_not_a_role(self):
+        for rel, old in ((self.DELIVER, "role `review-deep` |"), (self.REVIEW, "role `review-security` |")):
+            with self.subTest(rel=rel):
+                self.edit(rel, old, old[:-2] + ", role `review-extra` |")
+                self.assertEqual([p.split(": ", 1)[1] for p in self.tables()], [
+                    f"a row of the table {self.header(rel)!r} names 'review-extra', which is not a role of "
+                    "skills/dev-core/model-config.json (Issue #96 PR-3)"])
+                self.edit(rel, old[:-2] + ", role `review-extra` |", old)
+
+    def header(self, rel):
+        return "| Node | Agent | Role |" if rel == self.DELIVER else "| Mode | When | Reviewer |"
+
+    def test_an_effort_value_in_the_role_column(self):
+        for effort in ("low", "medium", "high", "xhigh", "max", "High"):
+            for rel, old in ((self.DELIVER, "role `review-deep` |"), (self.REVIEW, "role `review-security` |")):
+                with self.subTest(effort=effort, rel=rel):
+                    new = old[:-2] + f" at {effort} |"
+                    self.edit(rel, old, new)
+                    self.assertEqual([p.split(": ", 1)[1] for p in self.tables()], [
+                        f"a row of the table {self.header(rel)!r} names the effort {effort} in its third column; the "
+                        "table names roles, not values (Issue #96 PR-3)"])
+                    self.edit(rel, new, old)
+        self.edit(self.REVIEW, "| routine | low or medium risk |", "| routine | low, medium or high risk |")
+        self.assertEqual(self.tables(), [])  # only the third column is checked
+
+    def test_the_agent_of_a_role_is_the_agent_of_the_row(self):
+        for rel, old, new, agent in (
+                (self.DELIVER, "| role `review-deep` |", "| role `scan` |", "dev-reviewer"),
+                (self.DELIVER, "| `dev-reviewer` | role `review-deep` |", "| `dev-implementer` | role `review-deep` |",
+                 "dev-implementer"),
+                (self.REVIEW, "`dev-security-reviewer`, role `review-security`", "`dev-reviewer`, role `review-security`",
+                 "dev-reviewer")):
+            with self.subTest(rel=rel, new=new):
+                self.edit(rel, old, new)
+                role = re.findall(r"role `([^`]*)`", new)[0]
+                problems = [p.split(": ", 1)[1] for p in self.tables()]
+                self.assertIn(f"a row of the table {self.header(rel)!r} names the role {role!r}, whose agent in "
+                              f"skills/dev-core/model-config.json is {self.roles[role]['agent']!r}, not the agent "
+                              f"{agent!r} of the row (Issue #96 PR-3)", problems)
+                self.reset()
+        self.edit(self.DELIVER, "| explore | `dev-explorer` | role `explore`;",
+                  "| explore | `dev-explorer` | role `explore`; role `orchestration`;")
+        self.assertEqual([p.split(": ", 1)[1] for p in self.tables()], [
+            "a row of the table '| Node | Agent | Role |' names the role 'orchestration', whose agent in "
+            "skills/dev-core/model-config.json is None, not the agent 'dev-explorer' of the row (Issue #96 PR-3)"])
+
+    def test_every_role_but_orchestration_is_in_the_first_table(self):
+        self.assertNotIn("`orchestration`", self.DELIVER_TABLE)  # the passing tree of setUp has no orchestration row
+        for role in sorted(set(self.roles) - {"orchestration"}):
+            with self.subTest(role=role):  # the name in the row becomes a name of the text, not a role
+                self.write(self.DELIVER, "# x\n\n" + self.DELIVER_TABLE.replace(f"role `{role}`", f"the {role} node"))
+                missing = [p for p in self.tables() if "is named in no row" in p]
+                self.assertEqual(missing, [
+                    f"skills/dev-deliver/SKILL.md: the role {role!r} of skills/dev-core/model-config.json is named in "
+                    "no row of the table '| Node | Agent | Role |' (Issue #96 PR-3)"])
+        self.reset()
+        self.edit(self.REVIEW, "role `review-security` |", "role `review-security`, role `scan` |")
+        self.edit(self.DELIVER, "   | commit / push scan | `dev-security-reviewer` | role `scan` |\n", "")
+        self.assertEqual([p.split(": ", 1)[1] for p in self.tables()], [  # the second table does not count
+            "the role 'scan' of skills/dev-core/model-config.json is named in no row of the table "
+            "'| Node | Agent | Role |' (Issue #96 PR-3)"])
+
+    def test_the_form_of_the_table(self):
+        self.edit(self.DELIVER, "   | --- | --- | --- |\n", "")
+        self.assertIn("skills/dev-deliver/SKILL.md: the table '| Node | Agent | Role |' needs the line "
+                      "'| --- | --- | --- |' right after its header (Issue #96 PR-3)", self.tables())
+        self.write(self.DELIVER, "# x\n\n" + self.DELIVER_TABLE)
+        self.edit(self.REVIEW, "| security | trust boundaries (R-REV-7) |", "| security | trust | boundaries |")
+        self.assertEqual([p.split(": ", 1)[1] for p in self.tables()], [
+            "a row of the table '| Mode | When | Reviewer |' must have 3 columns, found 4 (Issue #96 PR-3)"])
+        self.write(self.REVIEW, "# x\n\n" + self.REVIEW_TABLE.split("| routine")[0] + "\ntext\n")
+        self.assertEqual(self.tables(), [
+            "skills/dev-review/SKILL.md: the table '| Mode | When | Reviewer |' has no row (Issue #96 PR-3)"])
+
+    def test_main_runs_both_checks(self):  # the shipped tree with one more problem of each check
+        tmp = tempfile.mkdtemp()
+        self.addCleanup(shutil.rmtree, tmp)
+        for sub in ("skills", "agents", "vendor", os.path.join("docs", "requirements"), ".claude-plugin"):
+            shutil.copytree(os.path.join(ROOT, sub), os.path.join(tmp, sub))
+        with open(os.path.join(tmp, "skills", "dev-docs", "SKILL.md"), "a", encoding="utf-8") as fh:
+            fh.write("\nAn added line that names sonnet.\n")
+        review = os.path.join(tmp, self.REVIEW)
+        with open(review, encoding="utf-8") as fh:
+            text = fh.read()
+        with open(review, "w", encoding="utf-8") as fh:
+            fh.write(text.replace("| Mode | When | Reviewer |", "| Mode | When | Model |"))
+        self.mod.ROOT = tmp
+        code, out = run(self.mod)
+        self.assertEqual(code, 1)
+        self.assertRegex(out, r"\n  - skills/dev-docs/SKILL.md:[0-9]+: names the model family sonnet; ")
+        self.assertIn("\n  - skills/dev-review/SKILL.md: the table '| Mode | When | Reviewer |' must appear exactly "
+                      "once, found 0 (Issue #96 PR-3)", out)
 
 
 class SourcesParser(unittest.TestCase):

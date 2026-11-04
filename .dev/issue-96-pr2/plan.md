@@ -167,16 +167,23 @@ commit scan, the commit, the push scan with the PR text, the push, the PR
    with a row R1 to R23. A change of a rule sentence outside the table is a
    finding.
 
-The helper script lists the removed, replaced and added sentences between
-base and head; it never gives PASS or FAIL and is not a gate. It refuses a
-file that is not a regular file (lstat or `O_NOFOLLOW`); it takes a rev
-only as a full ID of 40 or 64 hexadecimal digits; its `--worktree` mode
-takes only relative paths inside the repository without `..`; it reports a
-file missing at the base or at the head separately; on its own error it
-prints one fixed line and, at the end, the count of errors (not a PASS or
-FAIL of the content); it marks control and format characters (Cc, Cf); it
-opens files with `newline=""`. Records name it only by `<notes>` or its
-SHA-256; it is not committed.
+The helper script that the reviews used (corrected by Issue #96 PR-3,
+finding MR99-D-01 of the PR #99 merge gate record; the earlier text of this
+paragraph described a helper with checks that the used script does not
+have) is `issue96-pr2-sentences.py`, SHA-256
+`93f730183f5512c37a927de445496df574a8fae546f0876f1346a38ee618c2e5`; it is
+not committed. It splits each line into sentences and lists the removed,
+replaced and added sentences between base and head with `difflib`; it never
+gives PASS or FAIL and is not a gate. In its default mode it reads the base
+and the head with `git --no-replace-objects cat-file blob`, and a file that
+it cannot read there counts as empty text, with no separate report. In its
+`--worktree` mode it reads the head with `open(path, encoding="utf-8")`,
+which follows a symlink and unifies the line ends. It has no lstat or
+`O_NOFOLLOW` check, no check of the ID format and no marking of control
+characters. Any exception (for example no `git`, a missing file, a
+`--worktree` path that is a folder or cannot be read, text that is not
+UTF-8, too few arguments, or a closed stdout) prints a traceback and gives
+an exit code other than 0; otherwise the exit code is 0.
 
 Commit and merge: as for PR-1, the commit's tree and the merged tree equal
 the reviewed tree, checked with the hardened commands, and the parent
@@ -217,6 +224,9 @@ Round 1 (2026-11-03), on the staged change with the index tree
     confirm, while the reference and the corrections of D-029 residual
     risk 4 wrote it as authorized): card I96-IR-P2-C3 (b); not part of
     (i), an unauthorized residual risk until PR-3 (residual risk 23).
+    Note (Issue #96 PR-3): PR-3 adds the check; residual risk 23, narrowed,
+    stays an unauthorized residual risk that the user decides at merge
+    (D-029 PR-3 supplement).
   - D-01 and S-03 (the reason of residual risk 22): card I96-IR-P2-C4 (a);
     rewritten.
   - D-03, S-04 and S-05 (FU-050, FU-054 and FU-062): card I96-IR-P2-C4
@@ -302,6 +312,18 @@ Round 2 (2026-11-03), on the staged change with the index tree
   of the fix diff of this round only, a deep review and a Security Diff
   Scan, both at `opus`/`xhigh`.
 
+Round 3 (2026-11-03; added by Issue #96 PR-3, finding MR99-M-01 of the
+PR #99 merge gate record):
+
+- A deep review and a Security Diff Scan of the fix diff of round 2, both
+  `opus`/`xhigh`, both read back with `PASS`. Together: 0 MUST-FIX, 0
+  SHOULD-FIX and 2 NITs (IR3-P2-S-01 and IR3-P2-S-02), with no R-VER-2
+  candidate. IR3-P2-S-01 (the premises of the PR-3 check) went to the PR-3
+  design.
+- The read-back result lines of the reviews of this plan are in the PR
+  gate record comment:
+  https://github.com/jeffery777/claude-dev-skills/pull/99#issuecomment-6595769622
+
 ## Merge card items (d5 section 4)
 
 - The scope (a) to (h) of the `fable` loosening (DL-045 item (1)).
@@ -316,6 +338,9 @@ Round 2 (2026-11-03), on the staged change with the index tree
     repository of the change: by card I96-IR-P2-C3 (b), the user's
     decision relayed by the orchestrator, an unauthorized residual risk
     until PR-3 adds a deterministic check (residual risk 23).
+    Note (Issue #96 PR-3): PR-3 adds the check; residual risk 23, narrowed,
+    stays an unauthorized residual risk that the user decides at merge
+    (D-029 PR-3 supplement).
 
 ## Residual risks
 
@@ -379,6 +404,9 @@ D-029 (PR-2 supplement) gives them in both languages:
     (b) an unauthorized residual risk until PR-3 adds a deterministic
     check. The orchestrator states that the read-backs in this repository
     always use the stdin form; no mechanism checks this before PR-3.
+    Note (Issue #96 PR-3): PR-3 adds the check; the D-029 PR-3 supplement
+    gives the narrowed scope of residual risk 23, which stays an
+    unauthorized residual risk that the user decides at merge.
 24. The same wrong base literal in both reads of the main agent (for
     example the head of the change): both reads use the configuration file
     of that commit, and nothing stops a wrong tier; the path-form check of
@@ -405,3 +433,11 @@ working directory is in no Git repository, when a git query fails, and
 when variables like `GIT_DIR` are set), `agents/*.md`, provider-specific
 model IDs, a wider ID character set, and the work of FU-059, FU-060,
 FU-062 and FU-063.
+
+Note (Issue #96 PR-3): premise 2 above is narrowed by cards I96-P3-C1 (b)
+and I96-P3-C2 (a) (the user's words in the orchestrator session, relayed:
+「C1 b，C2 a」): the check stops for a working directory in no Git
+repository only when the copy of the script lies in one, and it does not
+detect variables such as `GIT_DIR`; the outcome of `git` and the `os.stat`
+step fail closed instead. The D-029 PR-3 supplement and
+`.dev/issue-96-pr3/plan.md` give the check as it is.

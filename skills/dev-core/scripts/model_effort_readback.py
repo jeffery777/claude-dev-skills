@@ -23,8 +23,19 @@ The configuration file (Issue #96) is `skills/dev-core/model-config.json`. Run f
 the commit BASE with two git calls (rev-parse, whose output must be BASE itself, then cat-file); run by its path, it
 reads the `model-config.json` next to the `scripts` folder of the real path of this file (os.path.realpath: a
 symlink and `..` on the path to the script are resolved; the configuration file itself is opened without following
-a symlink, as below); `check` reads FILE instead. validate_config() checks the file; any failure gives
-`STOP CONFIG`.
+a symlink, as below), after the repository check below; `check` reads FILE instead. validate_config() checks the
+file; any failure gives `STOP CONFIG`.
+
+The repository check (Issue #96 PR-3, residual risk 23 of the D-029 PR-2 supplement) runs only in `subagent` run by
+its path, after the BASE and file name checks and before the configuration file is read; `check` and the stdin form
+do not run it. A folder lies in a Git repository when it or a folder above it has an entry named `.git` (os.lstat:
+a directory, a file or a symlink). The script looks up both the real path of the current working directory and the
+folder of the real path of this file. When the script folder lies in none, the check ends; when it lies in one and
+the working directory in none, it gives `STOP REPO_CHECK`. When both lie in one, the script runs
+`git --no-replace-objects rev-parse --git-common-dir` once in each of the two folders (one GIT_TIMEOUT for both
+calls); each output must be one line in UTF-8 without NUL, ending in a newline and not empty; a relative value is
+joined to its folder, then resolved with os.path.realpath and os.stat. Two equal real paths, or an equal
+(st_dev, st_ino), give `STOP IN_REPO`. The check reads no variable of the process; git gets those of the caller.
 
 The script finds DIR/<slug>/<session>/subagents/agent-<ID>.jsonl through directory file descriptors. It follows no
 symlink at DIR or under it (the path above DIR resolves as usual) and does not look into a directory whose name is
@@ -48,16 +59,22 @@ model= and tier= come from the lowest record (unrecognized < null < 1 < 2 ...; o
 effort= is the lowest effort, <n> after records= is the number of assistant records that were read, and floor= is
 the FLOOR of the call. Any other output is not a result.
 
-The order of the `subagent` result: (1) the STOP lines that come at once: the arguments, the files, the parse, the
-binding, the fields, the effort format and the configuration file; (2) the classification of each record; (3) BELOW
-when a record is below the expected values; (4) else BELOW when FLOOR is not none and the tier that the
-configuration file of this call gives to the expected family is below the tier of FLOOR, or the expected effort is
-below the effort of FLOOR (a dispatch below its floor); (5) else STOP MODEL_NOT_RECOGNIZED when the records name
-more than one family or a value is unrecognized; (6) else WARN when a record is a "version" ID; (7) else PASS.
+The order of the `subagent` result: (1) the STOP lines that come at once: the arguments, the repository check of a
+run by its path, the files, the parse, the binding, the fields, the effort format and the configuration file; (2)
+the classification of each record; (3) BELOW when a record is below the expected values; (4) else BELOW when FLOOR
+is not none and the tier that the configuration file of this call gives to the expected family is below the tier
+of FLOOR, or the expected effort is below the effort of FLOOR (a dispatch below its floor); (5) else
+STOP MODEL_NOT_RECOGNIZED when the records name more than one family or a value is unrecognized; (6) else WARN
+when a record is a "version" ID; (7) else PASS.
 
 REASON tokens (a closed set):
   BAD_ARGS              an argument is missing, repeated, unknown or not in its format
   CONFIG                the configuration file cannot be read, is not valid, or the commit BASE cannot be shown
+  IN_REPO               run by its path, the copy of the script lies in a worktree of the same Git repository as
+                        the current working directory: a wrong call; the stdin form with --config-base is needed
+  REPO_CHECK            run by its path, the working directory cannot be read, a `.git` lookup or a git query
+                        fails, or its output is not one existing path; or the script folder lies in a Git
+                        repository and the working directory in none
   NOT_FOUND             DIR is not a directory, or no matching transcript file exists
   AMBIGUOUS             more than one session holds a matching transcript file
   SYMLINK               DIR, a subagents directory or the transcript file is a symlink, or one was swapped for a
@@ -111,7 +128,7 @@ ROLE_KEYS = frozenset({"family", "effort", "agent", "agent_default"})
 REASONS = frozenset({
     "BAD_ARGS", "CONFIG", "NOT_FOUND", "AMBIGUOUS", "SYMLINK", "NOT_REGULAR", "OWNER", "LINK_COUNT", "PERMISSION",
     "TOO_LARGE", "MALFORMED", "BINDING_MISMATCH", "MISSING_FIELD", "INCONSISTENT", "NO_RECORD",
-    "MODEL_NOT_RECOGNIZED", "EFFORT_NOT_ALLOWED", "INTERNAL"})
+    "MODEL_NOT_RECOGNIZED", "EFFORT_NOT_ALLOWED", "INTERNAL", "IN_REPO", "REPO_CHECK"})
 MAX_FILE_BYTES = 64 * 1024 * 1024
 MAX_LINE_BYTES = 1024 * 1024
 MAX_LINES = 200000
@@ -121,7 +138,7 @@ MAX_CONFIG_DEPTH = 8
 MAX_TIER = 99
 MAX_ID_CHARS = 100
 MAX_SCAN_CHARS = 200  # the part of an unrecognized model value that is searched for a family word
-GIT_TIMEOUT = 20  # seconds for both git calls together; shorter than the time limit of the caller
+GIT_TIMEOUT = 20  # seconds for both git calls of one run together; shorter than the time limit of the caller
 SLUG_RE = r"[A-Za-z0-9._-]+"
 SESSION_RE = r"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"
 AGENT_ID_RE = r"[0-9a-f]{17}"
@@ -264,13 +281,14 @@ def read_config_file(path: str) -> bytes:
         os.close(fd)
 
 
-def run_git(argv: list, deadline: float) -> bytes:
+def run_git(argv: list, deadline: float, *, cwd=None) -> bytes:
     """The stdout of one git call, at most MAX_CONFIG_BYTES; a timeout, an overflow, an exit code other than 0 and
-    any error are CONFIG, and a call that has not ended is killed with its process group."""
+    any error are CONFIG, and a call that has not ended is killed with its process group. cwd is the folder that
+    git runs in (None: the current working directory); only the repository check passes it."""
     proc, ended = None, False
     try:
         proc = subprocess.Popen(argv, stdin=subprocess.DEVNULL, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
-                                start_new_session=True)
+                                start_new_session=True, cwd=cwd)
         out_fd, data = proc.stdout.fileno(), b""
         while True:
             left = deadline - time.monotonic()
@@ -320,6 +338,65 @@ def config_from_git(base: str) -> bytes:
         raise Stop("CONFIG")
     return run_git(["git", "--no-replace-objects", "cat-file", "blob", base + ":skills/dev-core/model-config.json"],
                    deadline)
+
+
+def has_git_entry(folder: str) -> bool:
+    """Whether `folder` or a folder above it has an entry named `.git`: a directory, a file or a symlink, dangling or
+    not (os.lstat). ENOENT and ENOTDIR go on to the folder above; any other error is REPO_CHECK."""
+    level = folder
+    while True:
+        try:
+            os.lstat(os.path.join(level, ".git"))
+            return True
+        except OSError as exc:
+            if exc.errno not in (errno.ENOENT, errno.ENOTDIR):
+                raise Stop("REPO_CHECK") from None
+        above = os.path.dirname(level)
+        if above == level:
+            return False
+        level = above
+
+
+def repo_check():
+    """The repository check of `subagent` run by its path (Issue #96 PR-3, cards I96-IR-P2-C3 (b), I96-P3-C1 (b),
+    I96-P3-C2 (a) and I96-P3-R2-C2 (a)): STOP IN_REPO when the copy of this script lies in a worktree of the same Git
+    repository as the current working directory; STOP REPO_CHECK when that cannot be decided; else nothing."""
+    try:
+        cwd = os.path.realpath(os.getcwd())  # step 1
+    except OSError:
+        raise Stop("REPO_CHECK") from None
+    here = os.path.dirname(os.path.realpath(__file__))
+    here_in, cwd_in = has_git_entry(here), has_git_entry(cwd)  # step 2: both are looked up
+    if not here_in:  # step 3: the copy lies in no Git repository
+        return
+    if not cwd_in:  # step 4 (card I96-P3-C1 (b))
+        raise Stop("REPO_CHECK")
+    deadline = time.monotonic() + GIT_TIMEOUT  # step 5: one time budget for both calls
+    found = []
+    for folder in (here, cwd):
+        try:
+            out = run_git(["git", "--no-replace-objects", "rev-parse", "--git-common-dir"], deadline, cwd=folder)
+        except Stop:
+            raise Stop("REPO_CHECK") from None
+        if out.count(b"\n") != 1 or not out.endswith(b"\n") or out == b"\n" or b"\x00" in out:  # step 6
+            raise Stop("REPO_CHECK")
+        try:
+            value = out[:-1].decode("utf-8", errors="strict")
+        except ValueError:
+            raise Stop("REPO_CHECK") from None
+        path = os.path.realpath(os.path.join(folder, value))  # a relative value is relative to its folder
+        # Step 7: the os.stat and the (st_dev, st_ino) comparison of step 8 must stay (card I96-P3-R2-C2 (a)). On
+        # macOS, a path in another letter case and a /System/Volumes/Data firmlink path have another real path
+        # string but the same inode, so a comparison of the strings alone lets the same repository pass. And git
+        # joins a relative GIT_COMMON_DIR wrongly in a subfolder: it ends with exit code 0 and prints a path that
+        # does not exist, which this os.stat stops.
+        try:
+            st = os.stat(path)
+        except OSError:
+            raise Stop("REPO_CHECK") from None
+        found.append((path, (st.st_dev, st.st_ino)))
+    if found[0][0] == found[1][0] or found[0][1] == found[1][1]:  # step 8
+        raise Stop("IN_REPO")
 
 
 def unique_pairs(pairs):
@@ -672,7 +749,9 @@ def run(argv):
     else:
         if values["--config-base"] is not None:
             raise Stop("BAD_ARGS")
-        data = read_config_file(own_config_path())
+        config_path = own_config_path()
+        repo_check()  # Issue #96 PR-3: before the configuration file next to this copy is read
+        data = read_config_file(config_path)
     config = validate_config(data)
     tiers = {name: family["tier"] for name, family in config["families"].items()}
     listed = {model_id: name for name, family in config["families"].items() for model_id in family["ids"]}

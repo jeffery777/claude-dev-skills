@@ -50,7 +50,20 @@ Cowork 有三項尚未實測：技能能否執行 `graph.py`（需要 shell）�
 | `dev-deliver` | 外層編排：依 task graph 派工、整合、審查，再跑關卡 |
 | `dev-retro` | 教訓：`/dev-skills:dev-retro capture` 把使用者指定的問題寫成分層級（L1–L4）的教訓草稿與決策卡片；`/dev-skills:dev-retro review` 派唯讀 reviewer 審查有新證據的教訓及其指向的規則。只能由使用者呼叫，不寫檔（skill 規則；`disable-model-invocation` 只擋 Skill tool 呼叫，不是技術保證）；只支援 Claude Code |
 
-Subagents：`dev-explorer`（haiku）、`dev-implementer`（opus）、`dev-reviewer`（opus），以及 `dev-security-reviewer`（opus）。兩個 reviewer 沒有 Edit 和 Write 工具，但保留 Bash 以便跑測試；Bash 的唯讀使用靠指示約束，不是技術隔離。
+Subagents：`dev-explorer`、`dev-implementer`、`dev-reviewer`，以及 `dev-security-reviewer`。每個 agent 檔的 model 與 effort 是設定檔裡它 `agent_default` 角色的家族與最低 effort（見下面「模型設定檔」）。兩個 reviewer 沒有 Edit 和 Write 工具，但保留 Bash 以便跑測試；Bash 的唯讀使用靠指示約束，不是技術隔離。
+
+## 模型設定檔
+
+- 模型與 effort 的值只有一個來源：`skills/dev-core/model-config.json`（Issue #96）。檔裡有家族（`haiku`、`sonnet`、`opus`、`fable`），每個家族有等級（tier）與本 pack 觀察過的 model ID；也有角色（例如 `implement`、`review-deep`、`scan`），每個角色有家族與 effort 範圍。
+- `dev-deliver` 與 `dev-review` 的路由表只寫角色名，不寫數值；派工用該角色的家族與最低 effort。
+- 本 repo 的 `scripts/check_pack.py` 完全釘住家族的等級、角色的值與 agent 檔的值，並檢查規則檔不寫家族名、路由表只寫設定檔裡的角色名。
+- 地板（安全、資料、migration 與對外契約的工作，以及審查與掃描）寫在 R-DEL-2，用等級表示。低於地板的角色值不生效，派工仍用地板。改自己副本的等級，會改變什麼算是達到地板；這是使用者自己的選擇與責任。agent 不會為了通過停下而改這個檔。
+- 讀回 script 用路徑執行時（pack repo 以外的專案），會先檢查自己的副本在哪裡（Issue #96 PR-3）。會停下的情形：
+  - 專案不在 Git repository 裡，而 pack 是從 Git clone 載入：`STOP REPO_CHECK`。
+  - 家目錄本身是 Git repository（dotfiles），安裝的副本在家目錄底下，而工作目錄不在它自己的 repository 裡：`STOP IN_REPO`，或 git 失敗時 `STOP REPO_CHECK`。
+  - git 拒絕這個 repository（dubious ownership），或 git 不跨檔案系統找 repository：`STOP REPO_CHECK`。
+  - pack 以一般子資料夾放在專案的 repository 裡：`STOP IN_REPO`；改用 stdin 形式後，讀的是 repository 根目錄的設定檔，結果通常是 `unknown`。
+  - 解法：用不在任何 Git repository 裡的安裝副本，或在 Git 專案裡工作。
 
 ## 適度嚴謹
 
@@ -168,7 +181,20 @@ Three things are not yet tested in Cowork: whether skills can run `graph.py` (a 
 | `dev-deliver` | Outer loop: dispatch work from the task graph, integrate it, review it, then run the gates |
 | `dev-retro` | Lessons: `/dev-skills:dev-retro capture` turns a problem that the user names into a lesson draft with a level (L1 to L4) and a decision card; `/dev-skills:dev-retro review` dispatches the read-only reviewer to review the lessons with new evidence and the rules that they point to. Only the user invokes it; it writes no file (skill rule; `disable-model-invocation` blocks only the Skill tool call; not a technical guarantee); it supports only Claude Code |
 
-Subagents: `dev-explorer` (haiku), `dev-implementer` (opus), `dev-reviewer` (opus) and `dev-security-reviewer` (opus). Neither reviewer has the Edit or Write tool. They keep Bash to run tests, so read-only Bash use depends on their instructions; it is not technical isolation.
+Subagents: `dev-explorer`, `dev-implementer`, `dev-reviewer` and `dev-security-reviewer`. The model and effort of each agent file are the family and the lowest effort of its `agent_default` role in the configuration file (see "Model configuration file" below). Neither reviewer has the Edit or Write tool. They keep Bash to run tests, so read-only Bash use depends on their instructions; it is not technical isolation.
+
+## Model configuration file
+
+- The model and effort values have one source: `skills/dev-core/model-config.json` (Issue #96). It holds the families (`haiku`, `sonnet`, `opus`, `fable`), each with a tier and the model IDs that this pack observed, and the roles (for example `implement`, `review-deep`, `scan`), each with a family and an effort range.
+- The routing tables of `dev-deliver` and `dev-review` name roles only, never values; a dispatch uses the family and the lowest effort of the role.
+- In this repository, `scripts/check_pack.py` pins the tiers of the families, the values of the roles and the values of the agent files exactly, and checks that the rule files name no family and that the routing tables name only roles of the file.
+- The floors (security, data, migration and public-contract work, and the reviews and scans) are in R-DEL-2, in tiers. A role value below a floor has no effect; the dispatch still uses the floor. Editing the tiers of your own copy changes what meets a floor; that is your own choice and responsibility. An agent never edits this file to get past a stop.
+- When the read-back script runs by its path (in a project outside the pack repository), it first checks where its copy lies (Issue #96 PR-3). The cases that stop:
+  - The project is not in a Git repository, and the pack loads from a Git clone: `STOP REPO_CHECK`.
+  - The home folder is itself a Git repository (dotfiles), the installed copy is under it, and the working directory is not in a repository of its own: `STOP IN_REPO`, or `STOP REPO_CHECK` when `git` fails there.
+  - `git` refuses the repository (dubious ownership), or does not look for a repository across a file system boundary: `STOP REPO_CHECK`.
+  - The pack is a plain subfolder of the project repository: `STOP IN_REPO`; the stdin form then reads the configuration file at the root of the repository, and the outcome is usually `unknown`.
+  - The remedy: use an installed copy that lies in no Git repository, or work in a Git project.
 
 ## Proportionate rigor
 

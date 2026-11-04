@@ -51,6 +51,11 @@
   (keys included), each agent in REQUIRED_AGENTS has exactly one agent_default role, the raw `model` and `effort`
   of that agent file equal the family and the lowest effort of that role, EFFORTS equals EFFORT_ORDER of the
   script, and FLOORS of the script equals PINNED_FLOORS (Issue #96);
+- no line of skills/**/*.md or agents/*.md names a family of PINNED_FAMILY_TIERS as a whole word in any case, except
+  the files in FAMILY_LINT_EXCEPTIONS and the `model:` line in the front matter of an agent file; the dev-deliver
+  and dev-review routing tables in ROUTING_TABLES each appear once, and each row names roles of the configuration
+  file whose agent is the agent of the row and no effort level; each role but orchestration is in the dev-deliver
+  table (Issue #96 PR-3);
 - every ${CLAUDE_SKILL_DIR}/... path named in a skill exists;
 - every REQ file in docs/requirements/ has closed front matter, an id matching its
   name, a valid status, typed relations as REQ-id lists, and sources entries with
@@ -90,8 +95,8 @@ REQUIRED_AGENTS = sorted(set(READ_ONLY_AGENTS) | set(PINNED_AGENT_SETTINGS))
 PINNED_FAMILY_TIERS = {"haiku": 1, "sonnet": 2, "opus": 3, "fable": 4}  # Issue #96, card I96-C12 (a): the family set
 # is fixed and each tier equals its pin or is null (retired); a change needs a change of check_pack.py with review
 PINNED_ROLE_VALUES = {  # Issue #96 PR-2: exact values, keys included; the lowest effort of each role is its row
-    # value of today's routing tables, and a node that is not a review or a scan may go up to max. PR-3 makes the
-    # routing tables name roles
+    # value of today's routing tables, and a node that is not a review or a scan may go up to max. The routing
+    # tables name roles (Issue #96 PR-3)
     "orchestration": {"family": "opus", "effort": ["high", "max"]},
     "explore": {"family": "haiku", "effort": ["low", "max"], "agent": "dev-explorer", "agent_default": True},
     "explore-synthesis": {"family": "sonnet", "effort": ["medium", "max"], "agent": "dev-explorer"},
@@ -108,6 +113,14 @@ PINNED_FLOORS = {  # Issue #96 PR-2: FLOORS of the read-back script, the --floor
     "work": (3, "high"), "review-scan": (3, "xhigh"), "review-routine": (3, "high"), "review-light": (2, "medium"),
     "none": None}
 MODEL_CONFIG = os.path.join("skills", "dev-core", "model-config.json")
+FAMILY_LINT_EXCEPTIONS = (  # Issue #96 PR-3: the files that the family-name lint does not read
+    os.path.join("skills", "dev-core", "deltas.md"),  # a record
+    os.path.join("skills", "dev-core", "references", "model-effort-readback.md"),  # the interface of the script, not a rule
+)
+ROUTING_TABLES = (  # Issue #96 PR-3: (file, header line, column of the agent) of each table that names roles
+    (os.path.join("skills", "dev-deliver", "SKILL.md"), "| Node | Agent | Role |", 1),
+    (os.path.join("skills", "dev-review", "SKILL.md"), "| Mode | When | Reviewer |", 2),
+)
 AGENT_MAX_BYTES = 65536  # Issue #69 R69S1-002: this repository's own lower limit for a read-only or pinned agent file (ours
 # are < 10 KB); Claude Code skips an agent file over 1,048,576 bytes (inferred from reading the 2.1.310 code, not run)
 SOURCE_TYPES = {"doc", "chat", "issue", "commit", "external"}
@@ -310,6 +323,97 @@ def sources(block: list[str]) -> tuple[list[dict[str, str]], list[str]]:
     return entries, problems
 
 
+def whole_words(words) -> re.Pattern:
+    """Any of `words` as a whole word, in any case: no ASCII letter or digit right before or after it."""
+    return re.compile(r"(?<![A-Za-z0-9])(" + "|".join(sorted(words)) + r")(?![A-Za-z0-9])", re.IGNORECASE)
+
+
+def family_name_problems() -> list[str]:
+    """The lines of skills/**/*.md and agents/*.md that name a family of PINNED_FAMILY_TIERS (Issue #96 PR-3, card
+    I96-C8 as changed: the rules name roles of the configuration file, not families). The files in
+    FAMILY_LINT_EXCEPTIONS and the `model:` line in the front matter of an agent file are not read; a symlink or a
+    file that is not UTF-8 is reported by the closed-world checks."""
+    pattern = whole_words(PINNED_FAMILY_TIERS)
+    agents = sorted(glob.glob(os.path.join(ROOT, "agents", "*.md")))
+    problems = []
+    for path in sorted(glob.glob(os.path.join(ROOT, "skills", "**", "*.md"), recursive=True)) + agents:
+        rel = os.path.relpath(path, ROOT)
+        if rel in FAMILY_LINT_EXCEPTIONS or os.path.islink(path) or utf8_problem(path):
+            continue
+        with open(path, encoding="utf-8", newline="") as fh:
+            lines = fh.read().split("\n")
+        end = lines.index("---", 1) if path in agents and lines[0] == "---" and "---" in lines[1:] else 0
+        for i, line in enumerate(lines):
+            if 0 < i < end and line.startswith("model:"):
+                continue  # the host needs the family alias here; PINNED_AGENT_SETTINGS pins it
+            found = sorted({m.group(1) for m in pattern.finditer(line)})
+            if found:
+                problems.append(f"{rel}:{i + 1}: names the model family {', '.join(found)}; the rules name roles of "
+                                f"{MODEL_CONFIG}, not families (family-name lint, Issue #96 PR-3)")
+    return problems
+
+
+def routing_table_problems(roles: dict) -> list[str]:
+    """The problems of the routing tables in ROUTING_TABLES (Issue #96 PR-3, card I96-C8 as changed): each file holds
+    exactly one table with its header; the third column of each row names at least one `role `<name>``, each name is
+    a role of the configuration file whose agent is the agent of the row (the first `dev-...` name in the column of
+    the agent), and the column holds no effort level; each role but `orchestration` is named in the first table."""
+    efforts, problems, named = whole_words(EFFORTS), [], None  # named: the roles of the first table, once it is read
+    for rel, header, agent_column in ROUTING_TABLES:
+        where = f"{rel}: the table {header!r}"
+        path = os.path.join(ROOT, rel)
+        if os.path.islink(path) or utf8_problem(path):
+            problems.append(f"{where} is needed, but the file is missing or not readable (Issue #96 PR-3)")
+            continue
+        with open(path, encoding="utf-8", newline="") as fh:
+            lines = fh.read().split("\n")
+        starts = [i for i, line in enumerate(lines) if line.strip() == header]
+        if len(starts) != 1:
+            problems.append(f"{where} must appear exactly once, found {len(starts)} (Issue #96 PR-3)")
+            continue
+        start = starts[0]
+        if start + 1 >= len(lines) or not re.fullmatch(r"\|(?: *-+ *\|){3}", lines[start + 1].strip()):
+            problems.append(f"{where} needs the line '| --- | --- | --- |' right after its header (Issue #96 PR-3)")
+            continue
+        if rel == ROUTING_TABLES[0][0]:
+            named = set()
+        rows = []
+        for i in range(start + 2, len(lines)):
+            if not lines[i].strip().startswith("|"):
+                break
+            rows.append(i)
+        if not rows:
+            problems.append(f"{where} has no row (Issue #96 PR-3)")
+        for i in rows:
+            at = f"{rel}:{i + 1}: a row of the table {header!r}"
+            cells = [cell.strip() for cell in lines[i].strip()[1:].removesuffix("|").split("|")]
+            if len(cells) != 3:
+                problems.append(f"{at} must have 3 columns, found {len(cells)} (Issue #96 PR-3)")
+                continue
+            agents = re.findall(r"`(dev-[a-z-]+)`", cells[agent_column])
+            agent = agents[0] if agents else None
+            names = re.findall(r"(?<![A-Za-z0-9-])role `([^`]*)`", cells[2])
+            if not names:
+                problems.append(f"{at} names no role in its third column (Issue #96 PR-3)")
+            for name in names:
+                if name not in roles:
+                    problems.append(f"{at} names {name!r}, which is not a role of {MODEL_CONFIG} (Issue #96 PR-3)")
+                    continue
+                if roles[name].get("agent") != agent:
+                    problems.append(f"{at} names the role {name!r}, whose agent in {MODEL_CONFIG} is "
+                                    f"{roles[name].get('agent')!r}, not the agent {agent!r} of the row (Issue #96 PR-3)")
+                if named is not None and rel == ROUTING_TABLES[0][0]:
+                    named.add(name)
+            found = sorted({m.group(1) for m in efforts.finditer(cells[2])})
+            if found:
+                problems.append(f"{at} names the effort {', '.join(found)} in its third column; the table names "
+                                f"roles, not values (Issue #96 PR-3)")
+    for name in sorted(set(roles) - (named if named is not None else set(roles)) - {"orchestration"}):
+        problems.append(f"{ROUTING_TABLES[0][0]}: the role {name!r} of {MODEL_CONFIG} is named in no row of the table "
+                        f"{ROUTING_TABLES[0][1]!r} (Issue #96 PR-3)")
+    return problems
+
+
 def main() -> int:
     errors: list[str] = []
 
@@ -426,6 +530,7 @@ def main() -> int:
                 errors.append(f"{manifest}: {part} keys {extra} are not in the allowlist {sorted(allowed)} (CB-7)")
 
     agent_defaults: dict[str, dict] = {}  # Issue #96: agent stem -> its agent_default role in the configuration file
+    config = None
     config_path = os.path.join(ROOT, MODEL_CONFIG)
     if not os.path.isdir(skills_dir):  # as the skill checks; the root check reports a case-changed skills/ (CB-7)
         pass
@@ -466,6 +571,9 @@ def main() -> int:
     if type(floors) is not dict or floors != PINNED_FLOORS:
         errors.append(f"skills/dev-core/scripts/model_effort_readback.py: FLOORS must equal PINNED_FLOORS "
                       f"{PINNED_FLOORS!r} of check_pack.py, found {floors!r} (Issue #96 PR-2)")
+    errors += family_name_problems()  # Issue #96 PR-3
+    if config is not None:  # Issue #96 PR-3: the roles that the routing tables name; a bad file is reported above
+        errors += routing_table_problems(config["roles"])
 
     agent_mds: list[str] = []
     agents_dir = os.path.join(ROOT, "agents")

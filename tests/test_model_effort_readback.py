@@ -4,12 +4,17 @@ Synthetic fixtures only: every tree, file, Git repository and ID is made in a te
 reads a real transcript or the home directory. Of the environment and process data, the tests read only the user ID
 and the effective user ID (os.getuid, os.geteuid), the list of open file descriptors in /dev/fd, the TMPDIR, TEMP or
 TMP variable that tempfile reads to find the temporary directory, and PATH, which shutil.which reads to find git, sh,
-cat, sleep and yes. The script runs as `sys.executable -I -B` with a timeout, by its path or from stdin, and with an
-empty environment, or with only PATH set to the folder of git when it calls git (Issue #96). The Git repositories of
-the fixtures are made with HOME set to a temporary directory and without the system Git configuration. The cases that
-a subprocess cannot make (an argument with NUL, a patched os.getuid, os.read or os.open, a missing open flag, a closed
-stdout, an exception, a fake git with a short time budget) call its main() in this process. These fixtures prove
-only the outcomes that they list (R-VER-1).
+cat, sleep and yes. The script runs as `sys.executable -I -B` with a timeout, by its path or from stdin. Run by its
+path, it is a copy outside the repository (COPY, with a copy of the configuration file next to its scripts folder),
+so that the repository check of Issue #96 PR-3 does not stop it; the module of the in-process cases is loaded from
+that copy too, and SOURCE (the stdin form) and Static read the file of the repository, which a test compares with the
+copy byte for byte. The environment of the script is empty, or holds only PATH set to the folder of git when it
+calls git (Issue #96); the repository check cases add HOME set to a temporary directory, GIT_CONFIG_NOSYSTEM and the
+GIT_ variables that a case names. The Git repositories of the fixtures are made with HOME set to a temporary
+directory and without the system Git configuration. The cases that a subprocess cannot make (an argument with NUL,
+a patched os.getuid, os.getcwd, os.lstat, os.stat, os.read or os.open, a missing open flag, a closed stdout, an
+exception, a fake git with a short time budget) call its main() in this process. These fixtures prove only the
+outcomes that they list (R-VER-1).
 """
 
 import ast
@@ -42,7 +47,7 @@ TIERS = {"haiku": 1, "sonnet": 2, "opus": 3, "fable": 4}
 TOKENS = {
     "BAD_ARGS", "CONFIG", "NOT_FOUND", "AMBIGUOUS", "SYMLINK", "NOT_REGULAR", "OWNER", "LINK_COUNT", "PERMISSION",
     "TOO_LARGE", "MALFORMED", "BINDING_MISMATCH", "MISSING_FIELD", "INCONSISTENT", "NO_RECORD",
-    "MODEL_NOT_RECOGNIZED", "EFFORT_NOT_ALLOWED", "INTERNAL"}
+    "MODEL_NOT_RECOGNIZED", "EFFORT_NOT_ALLOWED", "INTERNAL", "IN_REPO", "REPO_CHECK"}
 FAMILY = "(haiku|sonnet|opus|fable)"
 LEVEL = "(low|medium|high|xhigh|max)"
 TIER = "[1-9][0-9]*"
@@ -67,11 +72,23 @@ with open(CONFIG, "rb") as _fh:
 SHIPPED = json.loads(SHIPPED_BYTES)
 with open(SCRIPT, "rb") as _fh:
     SOURCE = _fh.read()
+# Issue #96 PR-3: the copy that the path form and the in-process cases run, outside the repository; removed in
+# tearDownModule
+COPY_ROOT = os.path.realpath(tempfile.mkdtemp(prefix="readback-copy-"))
+os.mkdir(os.path.join(COPY_ROOT, "scripts"))
+COPY = os.path.join(COPY_ROOT, "scripts", "model_effort_readback.py")
+shutil.copyfile(SCRIPT, COPY)
+shutil.copyfile(CONFIG, os.path.join(COPY_ROOT, "model-config.json"))
+CASE_INSENSITIVE = os.path.exists(os.path.join(COPY_ROOT, "SCRIPTS"))  # the file system of the temporary directory
 
 
-def load_script():
+def tearDownModule():
+    shutil.rmtree(COPY_ROOT)
+
+
+def load_script(path=COPY):
     """The script as a module, without writing bytecode next to it."""
-    spec = importlib.util.spec_from_file_location("model_effort_readback", SCRIPT)
+    spec = importlib.util.spec_from_file_location("model_effort_readback", path)
     module = importlib.util.module_from_spec(spec)
     old, sys.dont_write_bytecode = sys.dont_write_bytecode, True
     try:
@@ -199,8 +216,9 @@ class Base(unittest.TestCase):
             self.assertNotIn(value, out)
         return line
 
-    def run_script(self, argv, hidden=(), script=SCRIPT, cwd=None, env=None, stdin=False):
-        """Run by its path, or from stdin as the rules call the copy at a base."""
+    def run_script(self, argv, hidden=(), script=COPY, cwd=None, env=None, stdin=False):
+        """Run by its path (by default the copy outside the repository), or from stdin as the rules call the copy at a
+        base."""
         command = [sys.executable, "-I", "-B", "-" if stdin else script, *argv]
         p = subprocess.run(command, cwd=cwd or self.tmp, env={} if env is None else env, capture_output=True,
                            input=SOURCE if stdin else None, timeout=60)
@@ -808,7 +826,7 @@ class Models(Base):
 class Floors(Base):
     """--floor (Issue #96 PR-2, design d5 section 2): the check order and the floor of each value."""
 
-    def outcome(self, records, expect, floor, script=SCRIPT):
+    def outcome(self, records, expect, floor, script=COPY):
         self.write([self.rec(model=model, effort=effort) for model, effort in records])
         return self.run_script(self.args(expect, floor=floor), script=script)
 
@@ -1445,6 +1463,428 @@ class ConfigBase(Base):
         self.assertEqual(self.stdin(repo, base, self.args(base=base, floor=None)), "STOP BAD_ARGS")
 
 
+def lies_in_no_repository(folder):
+    """Whether no folder from `folder` up to / has an entry named `.git` (os.lstat, as the script)."""
+    level = os.path.realpath(folder)
+    while True:
+        if os.path.lexists(os.path.join(level, ".git")):
+            return False
+        if os.path.dirname(level) == level:
+            return True
+        level = os.path.dirname(level)
+
+
+class CopyOutsideTheRepository(unittest.TestCase):
+    """Issue #96 PR-3: the copy that the path form and the in-process cases run is the file of the repository."""
+
+    def test_the_copy_equals_the_repository_file(self):
+        with open(COPY, "rb") as fh:
+            self.assertEqual(fh.read(), SOURCE)
+        with open(os.path.join(COPY_ROOT, "model-config.json"), "rb") as fh:
+            self.assertEqual(fh.read(), SHIPPED_BYTES)
+        self.assertEqual(MOD.__file__, COPY)
+
+    def test_precondition_the_temporary_folders_lie_in_no_repository(self):  # design d5 section 3
+        self.assertTrue(lies_in_no_repository(COPY_ROOT), "the temporary folder lies in a Git repository")
+        self.assertTrue(lies_in_no_repository(tempfile.gettempdir()))
+
+
+@unittest.skipIf(GIT is None, "git is not installed")
+class RepoCheck(Base):
+    """The repository check of a run by its path (Issue #96 PR-3; design d1 section 4, d3 section 3, d4 section 2,
+    d5 section 3) against real Git repositories and worktrees in a temporary folder. The script folder and the working
+    directory lie at different depths. git runs with HOME set to a temporary folder and without the system Git
+    configuration (git 2.54.0 on macOS when the tests were written)."""
+
+    PASS = result("PASS", "opus", 3, "high")
+    STOPS = ("STOP IN_REPO", "STOP REPO_CHECK")
+
+    def setUp(self):
+        super().setUp()
+        self.write([self.rec()])
+        self.root = os.path.realpath(self.tmp)
+        self.assertTrue(lies_in_no_repository(self.root))
+        self.home = os.path.join(self.root, "home")
+        os.mkdir(self.home)
+        self.env = {"PATH": os.path.dirname(GIT), "HOME": self.home, "GIT_CONFIG_NOSYSTEM": "1"}
+
+    def git(self, cwd, *args, env=None):
+        command = [GIT, "-c", "user.name=t", "-c", "user.email=t@example.invalid", "-c", "commit.gpgsign=false",
+                   "-c", "init.defaultBranch=main", *args]
+        return subprocess.run(command, cwd=cwd, capture_output=True, timeout=60, env=env or self.env)
+
+    def ok(self, cwd, *args):
+        p = self.git(cwd, *args)
+        self.assertEqual(p.returncode, 0, p.stderr)
+
+    def repo(self, name="repo"):
+        """A repository with one commit at <root>/<name>-*."""
+        repo = tempfile.mkdtemp(prefix=name + "-", dir=self.root)
+        self.ok(repo, "init", "-q")
+        with open(os.path.join(repo, "file"), "w") as fh:
+            fh.write("x")
+        self.ok(repo, "add", "file")
+        self.ok(repo, "commit", "-q", "-m", "x")
+        return repo
+
+    def linked(self, repo):
+        """A linked worktree of `repo` at <root>/linked-*."""
+        path = os.path.join(self.root, "linked-" + secrets.token_hex(4))
+        self.ok(repo, "worktree", "add", "-q", path)
+        return path
+
+    def folder(self, *parts):
+        path = os.path.join(*parts)
+        os.makedirs(path, exist_ok=True)
+        return path
+
+    def pack_in(self, folder, config=True, name="model_effort_readback.py"):
+        """A copy of the script at <folder>/skills/dev-core/scripts/<name>, with the configuration file next to its
+        scripts folder unless config is False."""
+        scripts = self.folder(folder, "skills", "dev-core", "scripts")
+        shutil.copyfile(SCRIPT, os.path.join(scripts, name))
+        if config:
+            shutil.copyfile(CONFIG, os.path.join(os.path.dirname(scripts), "model-config.json"))
+        return os.path.join(scripts, name)
+
+    def outcome(self, script, cwd, argv=None, **variables):
+        return self.run_script(self.args() if argv is None else argv, script=script, cwd=cwd,
+                               env=dict(self.env, **variables))
+
+    def test_the_same_worktree(self):
+        repo = self.repo()
+        script = self.pack_in(repo)
+        self.assertEqual(self.outcome(script, repo), "STOP IN_REPO")
+        self.assertEqual(self.outcome(script, self.folder(repo, "c")), "STOP IN_REPO")
+        self.assertEqual(self.outcome(script, os.path.dirname(script)), "STOP IN_REPO")
+
+    def test_main_and_linked_worktrees(self):
+        repo = self.repo()
+        first, second = self.linked(repo), self.linked(repo)
+        self.assertEqual(self.outcome(self.pack_in(repo), first), "STOP IN_REPO")
+        self.assertEqual(self.outcome(self.pack_in(first), self.folder(repo, "c")), "STOP IN_REPO")
+        self.assertEqual(self.outcome(self.pack_in(second), first), "STOP IN_REPO")
+
+    def test_two_repositories(self):
+        script = self.pack_in(self.repo("one"))
+        self.assertEqual(self.outcome(script, self.repo("two")), self.PASS)
+        self.assertEqual(self.outcome(script, self.folder(self.repo("three"), "c")), self.PASS)
+
+    def test_one_side_or_no_side_in_a_repository(self):  # card I96-P3-C1 (b)
+        repo, plain = self.repo(), self.folder(self.root, "plain")
+        self.assertEqual(self.outcome(self.pack_in(self.folder(self.root, "outside")), repo), self.PASS)
+        self.assertEqual(self.outcome(self.pack_in(repo), plain), "STOP REPO_CHECK")
+        self.assertEqual(self.outcome(COPY, plain), self.PASS)
+
+    def test_git_dir_or_common_dir_of_the_working_directory(self):  # design d3 section 3, two repositories
+        script, other = self.pack_in(self.repo("one")), self.repo("two")
+        for name in ("GIT_DIR", "GIT_COMMON_DIR"):
+            with self.subTest(name=name):
+                self.assertIn(self.outcome(script, other, **{name: os.path.join(other, ".git")}), self.STOPS)
+
+    def test_relative_or_empty_variables_do_not_pass(self):  # design d4 section 2
+        repo = self.repo()
+        script = self.pack_in(repo)
+        setups = ((script, repo), (script, self.linked(repo)), (self.pack_in(self.repo("one")), self.repo("two")))
+        for name, value in (("GIT_DIR", ".git"), ("GIT_COMMON_DIR", ".git"), ("GIT_DIR", ""),
+                            ("GIT_WORK_TREE", "")):
+            for script, cwd in setups:
+                with self.subTest(name=name, value=value, cwd=os.path.basename(cwd)):
+                    self.assertIn(self.outcome(script, cwd, **{name: value}), self.STOPS)
+
+    def test_ceiling_directories_stop_either_side(self):
+        repo = self.repo()
+        linked = self.linked(repo)
+        script = self.pack_in(repo)
+        self.assertEqual(self.outcome(script, linked, GIT_CEILING_DIRECTORIES=repo), "STOP REPO_CHECK")
+        self.assertEqual(self.outcome(script, self.folder(linked, "c", "d"), GIT_CEILING_DIRECTORIES=linked),
+                         "STOP REPO_CHECK")
+
+    def test_work_tree_and_discovery_variables_keep_the_same_repository_stopped(self):
+        repo, other = self.repo(), self.repo("other")
+        linked = self.linked(repo)
+        script = self.pack_in(repo)
+        for name, value in (("GIT_WORK_TREE", other), ("GIT_WORK_TREE", self.root),
+                            ("GIT_DISCOVERY_ACROSS_FILESYSTEM", "1"), ("GIT_DISCOVERY_ACROSS_FILESYSTEM", "0")):
+            with self.subTest(name=name, value=os.path.basename(value)):
+                self.assertIn(self.outcome(script, linked, **{name: value}), self.STOPS)
+
+    def test_residual_risk_23_a_worktree_without_a_git_entry_passes(self):
+        """A limit, not a protection (residual risk 23, card I96-P3-C2 (a)): GIT_DIR and GIT_WORK_TREE point to a
+        worktree that has no `.git` entry, the copy lies in it, and the check does not see it."""
+        repo = self.repo()
+        gitdir = os.path.join(self.root, "gitdir")
+        os.rename(os.path.join(repo, ".git"), gitdir)
+        self.assertTrue(lies_in_no_repository(repo))
+        self.assertEqual(self.outcome(self.pack_in(repo), repo, GIT_DIR=gitdir, GIT_WORK_TREE=repo), self.PASS)
+
+    def test_relative_git_common_dir_is_the_exception_of_card_c2(self):
+        """The exception to the reasoning of card I96-P3-C2 (a) (card I96-P3-R2-C2 (a), residual risk 23): a relative
+        GIT_COMMON_DIR that is valid in the script folder. git joins it wrongly there, ends with exit code 0 and
+        prints a path that does not exist; the expected STOP comes from the os.stat of step 7. The argv is that of
+        design d4 and d5 (no --path-format)."""
+        repo = self.repo()
+        linked = self.linked(repo)
+        script = self.pack_in(repo)
+        here = os.path.dirname(script)
+        relative = os.path.relpath(os.path.join(repo, ".git"), here)
+        p = self.git(here, "--no-replace-objects", "rev-parse", "--git-common-dir",
+                     env=dict(self.env, GIT_COMMON_DIR=relative))
+        self.assertEqual(p.returncode, 0, p.stderr)
+        self.assertFalse(os.path.exists(os.path.join(here, p.stdout.decode().rstrip("\n"))))
+        self.assertEqual(self.outcome(script, linked, GIT_COMMON_DIR=relative), "STOP REPO_CHECK")
+
+    def test_a_git_file_that_is_not_valid(self):
+        broken = self.folder(self.root, "broken")
+        with open(os.path.join(broken, ".git"), "w") as fh:
+            fh.write("not a gitdir line\n")
+        self.assertEqual(self.outcome(self.pack_in(broken), self.repo()), "STOP REPO_CHECK")
+
+    def test_a_dangling_git_symlink(self):  # found by os.lstat; os.stat would not see it and give PASS
+        dangling = self.folder(self.root, "dangling")
+        os.symlink(os.path.join(self.root, "missing-" + secrets.token_hex(4)), os.path.join(dangling, ".git"))
+        self.assertEqual(self.outcome(self.pack_in(dangling), self.repo()), "STOP REPO_CHECK")
+
+    def test_a_skill_folder_that_is_a_symlink_into_the_repository(self):
+        repo = self.repo()
+        linked = self.linked(repo)
+        real = os.path.dirname(os.path.dirname(self.pack_in(repo)))  # <repo>/skills/dev-core
+        shown = self.folder(self.root, "shown", "skills")
+        os.symlink(real, os.path.join(shown, "dev-core"))
+        self.assertTrue(lies_in_no_repository(shown))
+        self.assertEqual(self.outcome(os.path.join(shown, "dev-core", "scripts", "model_effort_readback.py"), linked),
+                         "STOP IN_REPO")
+
+    @unittest.skipUnless(sys.platform == "darwin" and CASE_INSENSITIVE, "needs a file system that ignores case")
+    def test_a_script_path_in_another_letter_case(self):  # design d5 section 2: the inode comparison is needed
+        repo = self.repo()
+        linked = self.linked(repo)
+        script = self.pack_in(repo)
+        shown = os.path.join(os.path.dirname(repo), os.path.basename(repo).upper()) + script[len(repo):]
+        self.assertNotEqual(os.path.realpath(shown), script)  # the strings differ, the files are the same
+        self.assertTrue(os.path.samefile(shown, script))
+        self.assertEqual(self.outcome(shown, linked), "STOP IN_REPO")
+
+    def test_the_order_of_the_checks(self):  # design d5 section 2: after BAD_ARGS, before the configuration file
+        repo, plain = self.repo(), self.folder(self.root, "plain")
+        script = self.pack_in(repo)
+        self.assertEqual(self.outcome(script, plain, self.args(base="a" * 40)), "STOP BAD_ARGS")
+        self.assertEqual(self.outcome(self.pack_in(self.folder(repo, "x"), name="readback.py"), plain),
+                         "STOP BAD_ARGS")
+        no_config = self.pack_in(self.folder(repo, "y"), config=False)
+        self.assertEqual(self.outcome(no_config, plain), "STOP REPO_CHECK")
+        self.assertEqual(self.outcome(no_config, repo), "STOP IN_REPO")
+        self.assertEqual(self.outcome(self.pack_in(self.folder(self.root, "z"), config=False), repo), "STOP CONFIG")
+
+    def test_check_mode_does_not_run_it(self):
+        script = self.pack_in(self.repo())
+        self.assertEqual(self.outcome(script, self.folder(self.root, "plain"), self.check_args(self.candidate())),
+                         "CHECK model=opus match=listed tier=3 effort=high records=1")
+
+
+class RepoCheckInProcess(Base):
+    """The repository check with a fake git and patched os functions in this process (Issue #96 PR-3; design d4
+    section 2, d5 section 3). Both folders have a `.git` directory; the fake git prints by its working directory."""
+
+    PASS = result("PASS", "opus", 3, "high")
+
+    def setUp(self):
+        super().setUp()
+        self.write([self.rec()])
+        root = os.path.realpath(self.tmp)
+        self.folder_s = os.path.join(root, "s")  # the script copy at s/x/skills/dev-core/scripts
+        os.makedirs(os.path.join(self.folder_s, ".git"))
+        scripts = os.path.join(self.folder_s, "x", "skills", "dev-core", "scripts")
+        os.makedirs(scripts)
+        shutil.copyfile(CONFIG, os.path.join(os.path.dirname(scripts), "model-config.json"))
+        self.script, self.here = os.path.join(scripts, "model_effort_readback.py"), scripts
+        os.makedirs(os.path.join(root, "c", ".git"))
+        self.cwd = os.path.join(root, "c", "z")  # the working directory at c/z
+        os.mkdir(self.cwd)
+        self.common, self.other = os.path.join(root, "common"), os.path.join(root, "other")
+        os.mkdir(self.common)
+        os.mkdir(self.other)
+        self.bin = os.path.join(root, "bin")
+        os.mkdir(self.bin)
+        self.log = os.path.join(root, "argv.log")
+
+    def fake(self, here, cwd):
+        """A fake git that logs its folder and arguments, then runs `here` in the script folder, else `cwd`."""
+        path = os.path.join(self.bin, "git")
+        with open(path, "w") as fh:
+            fh.write(f'#!/bin/sh\nprintf "%s %s\\n" "$(pwd -P)" "$*" >> "{self.log}"\n'
+                     f'case "$(pwd -P)" in\n  "{self.here}") {here} ;;\n  *) {cwd} ;;\nesac\n')
+        os.chmod(path, 0o755)
+
+    def prints(self, path):
+        return f'printf "%s\\n" "{path}"; exit 0'
+
+    def patches(self, timeout=None):
+        stack = contextlib.ExitStack()
+        stack.enter_context(mock.patch.dict(os.environ, {"PATH": self.bin}))
+        stack.enter_context(mock.patch.object(MOD, "__file__", self.script))
+        stack.enter_context(mock.patch.object(MOD.os, "getcwd", return_value=self.cwd))
+        if timeout is not None:
+            stack.enter_context(mock.patch.object(MOD, "GIT_TIMEOUT", timeout))
+        return stack
+
+    def outcome(self, timeout=None):
+        with self.patches(timeout):
+            return self.run_inproc(self.args())
+
+    def test_two_calls_in_the_two_folders(self):
+        self.fake(self.prints(self.common), self.prints(self.other))
+        self.assertEqual(self.outcome(), self.PASS)
+        with open(self.log) as fh:
+            self.assertEqual(fh.read().splitlines(), [
+                self.here + " --no-replace-objects rev-parse --git-common-dir",
+                self.cwd + " --no-replace-objects rev-parse --git-common-dir"])
+
+    def test_the_same_directory(self):
+        relative = os.path.relpath(self.common, self.here)
+        for here, cwd in ((self.common, self.common), (relative, self.common), (self.common + "/.", self.common),
+                          (os.path.join(self.other, "..", "common"), self.common)):
+            with self.subTest(here=here):
+                self.fake(self.prints(here), self.prints(cwd))
+                self.assertEqual(self.outcome(), "STOP IN_REPO")
+
+    def test_output_rules(self):
+        ok = self.prints(self.common)
+        two = os.path.join(self.common, "two\nlines")  # a folder whose name holds a newline: two lines that exist
+        os.mkdir(two)
+        inner = os.path.join(self.common, "inner\nnewline")  # one newline, not at the end: only endswith stops it
+        os.mkdir(inner)
+        for name, here in (("two lines", f'printf "%s\\n%s\\n" "{self.common}" "{self.common}"'),
+                           ("two lines that name a folder", self.prints(two)),
+                           ("an empty line", 'printf "\\n"'), ("no output", "exit 0"),
+                           ("NUL", f'printf "{self.common}\\000\\n"'),
+                           ("no final newline", f'printf "%s" "{self.common}"'),
+                           ("one newline, not the final byte", f'printf "%s" "{inner}x"'),  # IR-P3-S-06
+                           ("not UTF-8", f'printf "{self.common}\\377\\n"'),
+                           ("a path that does not exist", self.prints(os.path.join(self.missing(), ".git"))),
+                           ("a relative path that does not exist", self.prints("../missing/.git")),
+                           ("exit code 1", f'printf "%s\\n" "{self.common}"; exit 1'),
+                           ("exit code 128", "exit 128")):
+            with self.subTest(name):
+                self.fake(here, ok)
+                self.assertEqual(self.outcome(), "STOP REPO_CHECK")
+                self.fake(ok, here)  # the same output in the working directory
+                self.assertEqual(self.outcome(), "STOP REPO_CHECK")
+
+    def missing(self):
+        return os.path.join(os.path.realpath(self.tmp), "missing-" + secrets.token_hex(4))
+
+    def test_git_missing(self):
+        self.assertEqual(self.outcome(), "STOP REPO_CHECK")  # no git in PATH
+
+    def test_timeout(self):
+        self.fake(f'{shutil.which("sleep")} 30', self.prints(self.common))
+        start = time.monotonic()
+        self.assertEqual(self.outcome(timeout=1), "STOP REPO_CHECK")
+        self.assertLess(time.monotonic() - start, 10)
+
+    def test_the_time_budget_is_shared_by_both_calls(self):
+        sleep = f'{shutil.which("sleep")} 0.6; '
+        self.fake(sleep + self.prints(self.common), sleep + self.prints(self.other))
+        self.assertEqual(self.outcome(timeout=1), "STOP REPO_CHECK")
+        self.assertEqual(self.outcome(timeout=5), self.PASS)
+
+    def test_one_deadline_for_both_calls(self):  # a mocked time.monotonic: one GIT_TIMEOUT for the two calls
+        calls = []
+
+        def record(argv, deadline, *, cwd=None):
+            calls.append((argv, deadline, cwd))
+            return os.fsencode(self.common if cwd == self.here else self.other) + b"\n"
+
+        with self.patches(), mock.patch.object(MOD, "run_git", side_effect=record), \
+                mock.patch.object(MOD.time, "monotonic", return_value=1000.0):
+            self.assertIsNone(MOD.repo_check())
+        argv = ["git", "--no-replace-objects", "rev-parse", "--git-common-dir"]
+        self.assertEqual(calls, [(argv, 1000.0 + MOD.GIT_TIMEOUT, self.here),
+                                 (argv, 1000.0 + MOD.GIT_TIMEOUT, self.cwd)])
+
+    def test_the_same_inode_with_other_strings(self):  # design d5 section 3: portable, with a mocked os.stat
+        self.fake(self.prints(self.common), self.prints(self.other))
+        real_stat = os.stat
+
+        def same(path, *args, **kwargs):
+            return real_stat(self.common) if path in (self.common, self.other) else real_stat(path, *args, **kwargs)
+
+        with mock.patch.object(MOD.os, "stat", same):
+            self.assertEqual(self.outcome(), "STOP IN_REPO")
+
+    def test_stat_errors(self):
+        self.fake(self.prints(self.common), self.prints(self.other))
+        real_stat = os.stat
+        for target in ("common", "other"):
+            def failing(path, *args, _target=os.path.join(os.path.realpath(self.tmp), target), **kwargs):
+                if path == _target:
+                    raise PermissionError(errno.EACCES, "mocked")
+                return real_stat(path, *args, **kwargs)
+
+            with self.subTest(target=target), mock.patch.object(MOD.os, "stat", failing):
+                self.assertEqual(self.outcome(), "STOP REPO_CHECK")
+
+    def test_lookup_errors(self):
+        self.fake(self.prints(self.common), self.prints(self.other))
+        real_lstat = os.lstat
+        for side in (self.folder_s, os.path.dirname(self.cwd)):
+            for err in (errno.EACCES, errno.EPERM, errno.ENAMETOOLONG, errno.ELOOP, errno.EIO):
+                def failing(path, *args, _path=os.path.join(side, ".git"), _err=err, **kwargs):
+                    if path == _path:
+                        raise OSError(_err, "mocked")
+                    return real_lstat(path, *args, **kwargs)
+
+                with self.subTest(side=os.path.basename(side), err=errno.errorcode[err]), \
+                        mock.patch.object(MOD.os, "lstat", failing):
+                    self.assertEqual(self.outcome(), "STOP REPO_CHECK")
+
+    def test_enotdir_and_enoent_go_on_upwards(self):
+        self.fake(self.prints(self.common), self.prints(self.common))
+        real_lstat = os.lstat
+        for err in (errno.ENOENT, errno.ENOTDIR):
+            def absent(path, *args, _path=os.path.join(self.folder_s, ".git"), _err=err, **kwargs):
+                if path == _path:
+                    raise OSError(_err, "mocked")
+                return real_lstat(path, *args, **kwargs)
+
+            with self.subTest(err=errno.errorcode[err]), mock.patch.object(MOD.os, "lstat", absent):
+                self.assertEqual(self.outcome(), self.PASS)  # the copy lies in no repository: no git call
+        self.assertFalse(os.path.exists(self.log))
+
+    def test_both_sides_are_looked_up_first(self):  # design d5 section 2, step 2: before the copy ends the check
+        real_lstat = os.lstat
+
+        def failing(path, *args, **kwargs):
+            if path == os.path.join(self.folder_s, ".git"):
+                raise OSError(errno.ENOENT, "mocked")  # the copy lies in no repository
+            if path == os.path.join(os.path.dirname(self.cwd), ".git"):
+                raise OSError(errno.EACCES, "mocked")
+            return real_lstat(path, *args, **kwargs)
+
+        with mock.patch.object(MOD.os, "lstat", failing):
+            self.assertEqual(self.outcome(), "STOP REPO_CHECK")
+
+    def test_the_working_directory_cannot_be_read(self):
+        self.fake(self.prints(self.common), self.prints(self.common))
+        for exc in (FileNotFoundError(errno.ENOENT, "x"), PermissionError(errno.EACCES, "x"), OSError(errno.EIO, "x")):
+            with self.subTest(exc=type(exc).__name__), self.patches(), \
+                    mock.patch.object(MOD.os, "getcwd", side_effect=exc):
+                self.assertEqual(self.run_inproc(self.args()), "STOP REPO_CHECK")
+
+    def test_check_mode_and_the_stdin_form_do_not_run_it(self):
+        self.fake(self.prints(self.common), self.prints(self.common))
+        with self.patches(), mock.patch.object(MOD, "repo_check", side_effect=AssertionError("repo_check")):
+            self.assertEqual(self.run_inproc(self.check_args(self.candidate())),
+                             "CHECK model=opus match=listed tier=3 effort=high records=1")
+            with mock.patch.object(MOD, "from_stdin", return_value=True), \
+                    mock.patch.object(MOD, "config_from_git", return_value=SHIPPED_BYTES):
+                self.assertEqual(self.run_inproc(self.args(base="c" * 40), hidden=("c" * 40,)), self.PASS)
+        self.assertFalse(os.path.exists(self.log))
+        with self.patches():  # the same patches without the mock give the result of the check
+            self.assertEqual(self.run_inproc(self.args()), "STOP IN_REPO")
+
+
 class CheckMode(Base):
     """`check` (card I96-C5 (a), rev7 section 5.8, rev8 section 4.3): a CHECK line, exit code 5, never PASS, WARN or BELOW."""
 
@@ -1544,10 +1984,11 @@ class Internal(Base):
 
     def test_a_broken_pipe_on_stdout_gives_an_empty_stderr(self):
         self.write([self.rec()])
+        self.assertLine(result("PASS", "opus", 3, "high"))  # the same call reaches the output line (Issue #96 PR-3)
         read_end, write_end = os.pipe()
         os.close(read_end)
         try:
-            p = subprocess.run([sys.executable, "-I", "-B", SCRIPT, *self.args()], cwd=self.tmp, env={},
+            p = subprocess.run([sys.executable, "-I", "-B", COPY, *self.args()], cwd=self.tmp, env={},
                                stdout=write_end, stderr=subprocess.PIPE, timeout=10)
         finally:
             os.close(write_end)
@@ -1603,6 +2044,9 @@ class TokenCoverage(Base):
                                    None),
             "INTERNAL": (lambda: self.write([self.rec()]), None, True,
                          mock.patch.object(MOD, "read_back", side_effect=RuntimeError("x"))),
+            "IN_REPO": (lambda: self.write([self.rec()]), None, True, same_repository(self.tmp)),
+            "REPO_CHECK": (lambda: self.write([self.rec()]), None, True,
+                           mock.patch.object(MOD.os, "getcwd", side_effect=FileNotFoundError(errno.ENOENT, "x"))),
         }
         self.assertEqual(set(producers), TOKENS)
         for token, (fixture, argv, inproc, patch) in producers.items():
@@ -1611,6 +2055,14 @@ class TokenCoverage(Base):
                 fixture()
                 with patch if patch is not None else contextlib.nullcontext():
                     self.assertStop(token, argv, inproc=inproc)
+
+
+@contextlib.contextmanager
+def same_repository(common):
+    """Both folders of the repository check lie in a Git repository whose common Git directory is `common`."""
+    with mock.patch.object(MOD, "has_git_entry", return_value=True), \
+            mock.patch.object(MOD, "run_git", return_value=os.fsencode(common) + b"\n"):
+        yield
 
 
 @contextlib.contextmanager
@@ -1667,7 +2119,8 @@ class Static(unittest.TestCase):
 
     IMPORTS = {"argparse", "errno", "json", "os", "re", "select", "signal", "stat", "subprocess", "sys", "time"}
     MODULE_ATTRS = {  # the only names that the script takes from these modules
-        "os": {"open", "close", "read", "fstat", "stat", "lstat", "scandir", "getuid", "fspath", "path", "killpg"},
+        "os": {"open", "close", "read", "fstat", "stat", "lstat", "scandir", "getuid", "fspath", "path", "killpg",
+               "getcwd"},  # getcwd: the repository check (Issue #96 PR-3)
         "subprocess": {"Popen", "DEVNULL", "PIPE"},
         "signal": {"SIGKILL"},
         "select": {"select"},
@@ -1678,9 +2131,10 @@ class Static(unittest.TestCase):
     FORBIDDEN_TEXT = ("environ", "getenv", "expanduser", "socket", "O_WRONLY", "O_RDWR", "O_CREAT", "O_TRUNC",
                       "O_APPEND", "sys.modules", "shell=", "env=", "executable=", "preexec_fn=")
     POPEN_KEYWORDS = {"stdin": "subprocess.DEVNULL", "stdout": "subprocess.PIPE", "stderr": "subprocess.DEVNULL",
-                      "start_new_session": "True"}
+                      "start_new_session": "True", "cwd": "cwd"}  # cwd: the parameter of run_git (Issue #96 PR-3)
     GIT_CALLS = {(("git", "--no-replace-objects", "rev-parse", "--verify", "--quiet"), "^{commit}"),
                  (("git", "--no-replace-objects", "cat-file", "blob"), ":skills/dev-core/model-config.json")}
+    REPO_GIT_CALL = ["git", "--no-replace-objects", "rev-parse", "--git-common-dir"]  # Issue #96 PR-3, design d4 1.1
 
     @classmethod
     def setUpClass(cls):
@@ -1722,7 +2176,7 @@ class Static(unittest.TestCase):
         self.assertEqual(builtin_open, [])
         self.assertEqual([word for word in self.FORBIDDEN_TEXT if word in self.source], [])
 
-    def test_one_subprocess_call_with_two_literal_git_prefixes(self):
+    def test_one_subprocess_call_and_three_git_calls(self):
         calls = [node for node in ast.walk(self.tree) if isinstance(node, ast.Call)]
         popen = [c for c in calls if isinstance(c.func, ast.Attribute) and isinstance(c.func.value, ast.Name)
                  and c.func.value.id == "subprocess"]
@@ -1733,22 +2187,75 @@ class Static(unittest.TestCase):
         self.assertEqual({k.arg: ast.unparse(k.value) for k in call.keywords}, self.POPEN_KEYWORDS)
         owner = [f.name for f in ast.walk(self.tree) if isinstance(f, ast.FunctionDef) and call in ast.walk(f)]
         self.assertEqual(owner, ["run_git"])
+        run_git = self.function("run_git")  # cwd is a keyword-only parameter with the default None
+        self.assertEqual(([a.arg for a in run_git.args.args], [a.arg for a in run_git.args.kwonlyargs],
+                          [ast.unparse(d) for d in run_git.args.kw_defaults]), (["argv", "deadline"], ["cwd"], ["None"]))
         git_calls = [c for c in calls if isinstance(c.func, ast.Name) and c.func.id == "run_git"]
-        self.assertEqual(len(git_calls), 2)
-        found = set()
+        self.assertEqual(len(git_calls), 3)
+        found, repo_calls = set(), []
         for c in git_calls:
             argv = c.args[0]
             self.assertIsInstance(argv, ast.List)
+            if all(isinstance(e, ast.Constant) and isinstance(e.value, str) for e in argv.elts):
+                repo_calls.append(c)  # the repository check: every element is a string constant
+                continue
             *head, last = argv.elts
             self.assertTrue(all(isinstance(e, ast.Constant) and isinstance(e.value, str) for e in head))
             self.assertIsInstance(last, ast.BinOp)
             self.assertIsInstance(last.op, ast.Add)
             self.assertEqual((type(last.left), last.left.id), (ast.Name, "base"))
             self.assertIsInstance(last.right, ast.Constant)
+            self.assertEqual(c.keywords, [])  # config_from_git passes no cwd
             found.add((tuple(e.value for e in head), last.right.value))
         self.assertEqual(found, self.GIT_CALLS)
+        self.assertEqual(len(repo_calls), 1)
+        self.assertEqual([e.value for e in repo_calls[0].args[0].elts], self.REPO_GIT_CALL)
+        config_from_git = self.function("config_from_git")
+        self.assertEqual(sorted(c.lineno for c in git_calls if c in ast.walk(config_from_git)),
+                         sorted(c.lineno for c in git_calls if c is not repo_calls[0]))
         refs = [n for n in ast.walk(self.tree) if isinstance(n, ast.Name) and n.id == "run_git"]
-        self.assertEqual(len(refs), 2)  # run_git is never passed on or renamed
+        self.assertEqual(len(refs), 3)  # run_git is never passed on or renamed
+
+    def function(self, name):
+        found = [f for f in ast.walk(self.tree) if isinstance(f, ast.FunctionDef) and f.name == name]
+        self.assertEqual(len(found), 1, name)
+        return found[0]
+
+    def test_the_repository_check_runs_git_in_the_folders_of_step_1(self):  # design d5 sections 2 and 3
+        check = self.function("repo_check")
+        calls = [c for c in ast.walk(check) if isinstance(c, ast.Call) and isinstance(c.func, ast.Name)
+                 and c.func.id == "run_git"]
+        self.assertEqual(len(calls), 1)
+        self.assertEqual([(k.arg, ast.unparse(k.value)) for k in calls[0].keywords], [("cwd", "folder")])
+        cwd_keywords = [c for c in ast.walk(self.tree) if isinstance(c, ast.Call) and isinstance(c.func, ast.Name)
+                        and c.func.id == "run_git" and any(k.arg == "cwd" for k in c.keywords)]
+        self.assertEqual(cwd_keywords, calls)  # cwd= only in the call of the repository check
+        loops = [n for n in ast.walk(check) if isinstance(n, ast.For) and calls[0] in ast.walk(n)]
+        self.assertEqual(len(loops), 1)  # folder takes the two variables of step 1, not the variable of the lookup
+        self.assertEqual((ast.unparse(loops[0].target), ast.unparse(loops[0].iter)), ("folder", "(here, cwd)"))
+        assigned = {ast.unparse(t): ast.unparse(n.value) for n in ast.walk(check) if isinstance(n, ast.Assign)
+                    for t in n.targets}
+        self.assertEqual((assigned["cwd"], assigned["here"]),
+                         ("os.path.realpath(os.getcwd())", "os.path.dirname(os.path.realpath(__file__))"))
+        stores = [n.id for n in ast.walk(check) if isinstance(n, ast.Name) and isinstance(n.ctx, ast.Store)]
+        self.assertEqual((stores.count("cwd"), stores.count("here"), stores.count("folder")), (1, 1, 1))
+        joins = [c for c in ast.walk(check) if isinstance(c, ast.Call) and ast.unparse(c.func) == "os.path.join"]
+        self.assertEqual([ast.unparse(c.args[0]) for c in joins], ["folder"])  # a relative value joins to folder
+        getcwd = [n for n in ast.walk(self.tree) if isinstance(n, ast.Attribute) and n.attr == "getcwd"]
+        self.assertEqual(len(getcwd), 1)
+        self.assertIn(getcwd[0], list(ast.walk(check)))
+        lookup = self.function("has_git_entry")  # os.lstat, never os.stat: a dangling `.git` symlink counts
+        self.assertEqual(sorted({ast.unparse(c.func) for c in ast.walk(lookup) if isinstance(c, ast.Call)
+                                 and ast.unparse(c.func).startswith("os.")}),
+                         ["os.lstat", "os.path.dirname", "os.path.join"])
+        called = [c for c in ast.walk(self.tree) if isinstance(c, ast.Call) and isinstance(c.func, ast.Name)
+                  and c.func.id == "repo_check"]
+        self.assertEqual(len(called), 1)
+        self.assertIn(called[0], list(ast.walk(self.function("run"))))
+
+    def test_no_env_keyword(self):  # Issue #96 PR-3, card I96-P3-C2 (a): git gets the variables of the caller
+        self.assertEqual([ast.unparse(c) for c in ast.walk(self.tree) if isinstance(c, ast.Call)
+                          and any(k.arg == "env" for k in c.keywords)], [])
 
     def test_no_alias_of_popen_os_or_sys(self):  # IR1-S-06 (Issue #96 PR-2)
         for check in (popen_problems, underscore_attribute_problems, underscore_name_problems, bare_module_problems,

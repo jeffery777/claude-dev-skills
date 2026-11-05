@@ -1,6 +1,9 @@
 """Pins of the Issue #101 review-loop rule text (REQ-029): the value rule of the completeness checks
 is copied word for word into the files that subagents read, and the dev-plan bullet group holds the
-command forms exactly. The tests only read files."""
+command forms exactly. The evidence rule R-EVD-3 is defined once, its source sentence and the private-data
+sentence are copied word for word into the files that subagents read, the reviewer agent files hold the last
+sentence of the private-data sentence, and R-AUTH-7 holds the clause on native memory and private instruction
+files. The tests only read files."""
 
 import os
 import unittest
@@ -49,6 +52,42 @@ REVIEWER_LIST = (
     "Bash may also run `git rev-parse --show-prefix` and the `git rev-list`, `git grep` and `git diff` "
     "forms of the brief"
 )
+SOURCE_SENTENCE = (
+    "A new sentence that states a fact gives its source or the mark \"inference\" or \"unverified\". A source "
+    "is a test or command with its result, a `path:line`, a commit or tree ID of the repository, a quote, or a "
+    "precise locator of a source outside the repository as REQ `sources` give it (REQ-008). Every source is "
+    "masked as R-REV-8 says, and nothing that R-AUTH-7 forbids goes into a record."
+)
+PRIVATE_CLAUSE_SENTENCE = (
+    "Never write the content of native memory or of the user's private instruction files, in any form."
+)
+PRIVATE_DATA_SENTENCE = (
+    "In what you write, give a secret or private identifier by its kind, location and length or class only; for "
+    "an email, say only whether it is a noreply address and its provider; replace the account or host part of a "
+    "path or hostname with a placeholder. Never paste raw command output that holds such a value. "
+    + PRIVATE_CLAUSE_SENTENCE
+)
+R_AUTH_7_SENTENCE = (
+    "Never commit secrets, credentials, real logs, transcripts or sessions, machine or user identifiers, private "
+    "paths, runtime state, databases or caches, or the content of native memory or of the user's private "
+    "instruction files, in any form."
+)
+R_AUTH_7_REPLACED_WORDS = (
+    "Files of this pack are not private files",
+    "does not track",
+    "treat it as private",
+)
+R_AUTH_7_EXCEPTION = (
+    "The user's own words recorded as the source of a requirement or a decision (REQ-008) and the model and "
+    "effort values that R-DEL-2 records are not such content."
+)
+R_REV_9_PHRASE = "the author has not chosen to publish"  # another rule (R-REV-9), not the replaced R-AUTH-7 words
+SOURCE_SENTENCE_FILES = (
+    "skills/dev-deliver/references/task-brief.md",
+    "agents/dev-implementer.md",
+    "agents/dev-explorer.md",
+)
+REVIEWER_FILES = ("agents/dev-reviewer.md", "agents/dev-security-reviewer.md")
 
 
 def read(rel):
@@ -72,6 +111,12 @@ def review_step_2(text):
     start = text.index("2. Gather the context the reviewer needs")
     end = text.index("3. Dispatch the reviewer subagent")
     return text[start:end]
+
+
+def receipt_fence(text):
+    """The receipt template of task-brief.md: the fenced block under the Receipt heading."""
+    start = text.index("## Receipt\n\n```markdown\n")
+    return text[start:text.index("\n```\n", start)]
 
 
 class ValueRule(unittest.TestCase):
@@ -138,6 +183,55 @@ class CommandForms(unittest.TestCase):
     def test_reviewer_bash_lists(self):
         for rel in ("agents/dev-reviewer.md", "agents/dev-security-reviewer.md"):
             self.assertEqual(flat(read(rel)).count(REVIEWER_LIST), 1)
+
+
+class EvidenceRule(unittest.TestCase):
+    def test_r_evd_3_is_defined_once_in_dev_core(self):
+        self.assertEqual(read("skills/dev-core/SKILL.md").count("**R-EVD-3**"), 1)
+
+    def test_source_sentence_word_for_word(self):
+        for rel in SOURCE_SENTENCE_FILES:
+            with self.subTest(rel=rel):
+                self.assertEqual(flat(read(rel)).count(SOURCE_SENTENCE), 1)
+
+    def test_private_data_sentence_word_for_word(self):
+        for rel in SOURCE_SENTENCE_FILES:
+            with self.subTest(rel=rel):
+                self.assertEqual(flat(read(rel)).count(PRIVATE_DATA_SENTENCE), 1)
+
+    def test_private_clause_sentence_in_the_reviewer_files(self):
+        for rel in REVIEWER_FILES:
+            with self.subTest(rel=rel):
+                self.assertEqual(flat(read(rel)).count(PRIVATE_CLAUSE_SENTENCE), 1)
+
+    def test_both_sentences_are_in_the_receipt_template(self):
+        fence = flat(receipt_fence(read("skills/dev-deliver/references/task-brief.md")))
+        for sentence in (SOURCE_SENTENCE, PRIVATE_DATA_SENTENCE):
+            with self.subTest(sentence=sentence):
+                self.assertEqual(fence.count(sentence), 1)
+
+    def test_r_auth_7_holds_its_clause(self):
+        rules = [line for line in read("skills/dev-core/SKILL.md").splitlines()
+                 if line.startswith("- **R-AUTH-7** ")]
+        self.assertEqual(len(rules), 1)
+        self.assertEqual(rules[0].count(R_AUTH_7_SENTENCE), 1)
+
+    def test_replaced_r_auth_7_wording_is_gone(self):
+        files = ["skills/dev-core/SKILL.md"]
+        files += sorted(f"agents/{name}" for name in os.listdir(os.path.join(ROOT, "agents"))
+                        if name.endswith(".md"))
+        for rel in files:
+            text = flat(read(rel))
+            with self.subTest(rel=rel):
+                self.assertNotIn("chosen to publish", text.replace(R_REV_9_PHRASE, ""))
+                self.assertNotIn(R_AUTH_7_EXCEPTION, text)
+                for words in R_AUTH_7_REPLACED_WORDS:
+                    self.assertNotIn(words, text)
+
+    def test_decision_card_template_has_the_unverified_line(self):
+        lines = [line for line in read("skills/dev-review/references/decision-card.md").splitlines()
+                 if line.startswith("  - Unverified: ")]
+        self.assertEqual(len(lines), 1)
 
 
 if __name__ == "__main__":

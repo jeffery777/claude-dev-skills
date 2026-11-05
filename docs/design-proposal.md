@@ -966,7 +966,7 @@ D-009 到 D-016 是同一天的決定。D-015 由 PR #5（Issue #4）記錄；D-
 
 ### D-030 審查迴圈：確定性的完整性檢查、新事實的來源、R-VER-2 依嚴重度（Issue #101）（已決定，2026-11-04）
 
-- 來源：GitHub Issue #101 本文。需求見 REQ-029。計畫：`.dev/issue-101/plan.md` 設計 d7。使用者的話（2026-11-04，第 5 到 7 項是 2026-11-05；卡片檔的 SHA-256 記在計畫的 Decisions 表）：
+- 來源：GitHub Issue #101 本文。需求見 REQ-029。計畫：`.dev/issue-101/plan.md` 設計 d9。使用者的話（2026-11-04，第 5 到 11 項是 2026-11-05；卡片檔的 SHA-256 記在計畫的 Decisions 表）：
   1. 對 `.dev/issue-101/cards-2.md`（SHA-256 `dffb8a8b…1388`）卡 I101-C1 到 I101-C5 的回答，是使用者在 Issue #101 session 自己的訊息：「C1 a，C2 a，C3 a，C4 a，C5 a」。
   2. 對 `.dev/issue-101/cards-3.md`（SHA-256 `fa0cf1d8…7502`）卡 I101-R2-C1 與 I101-R2-C2 的回答，是使用者在 Issue #101 session 自己的訊息：「R2-C1 a，R2-C2 a」。
   3. 對 `.dev/issue-101/cards-4.md`（SHA-256 `4ef1edde…c265`）卡 I101-R3-C1 的回答，由 orchestrator session 轉述：「同意你建議a」；使用者之後在 Issue #101 session 用自己的訊息確認：「R3-C1 a 確認」（卡 I101-IR1-C2 (a)）。
@@ -974,6 +974,11 @@ D-009 到 D-016 是同一天的決定。D-015 由 PR #5（Issue #4）記錄；D-
   5. 對 `.dev/issue-101/cards-6.md`（SHA-256 `2341b626…92d6`）卡 I101-IR2-C1 與 I101-IR2-C2 的回答，是使用者在 Issue #101 session 自己的訊息：「都選 a」。
   6. 對 `.dev/issue-101/cards-7.md`（SHA-256 `10bb1355…1a5b`）卡 I101-IR3-C1 的回答，是使用者在 Issue #101 session 自己的訊息：「IR3-C1 選 a」。
   7. 對 `.dev/issue-101/cards-8.md`（SHA-256 `b0b75928…c8c3`）卡 I101-NC1-C1 的回答，是使用者在 Issue #101 session 自己的訊息：「NC1-C1 選 a」。
+  8. 對 `.dev/issue-101/cards-9.md`（SHA-256 `a20a6a3e…d37a`）卡 I101-NC2-C1 的回答，是使用者在 Issue #101 session 自己的訊息：「NC2-C1 選 a」。
+  9. 對 `.dev/issue-101/cards-10.md`（SHA-256 `12d474ff…b538`）卡 I101-NC3-C1 的回答，由 orchestrator session 轉述（2026-11-05）：「NC3-C1 a」。
+  10. 對 `.dev/issue-101/cards-11.md`（SHA-256 `aa88afc3…597a`）卡 I101-U2S-C1 的回答，由 orchestrator session 轉述（2026-11-05）：「U2S-C1 a」。
+  11. 對 `.dev/issue-101/cards-12.md`（SHA-256 `36fd37d5…d9da`）卡 I101-U2R2-C1 與 I101-U2R2-C2 的回答，由 orchestrator session 轉述（2026-11-05）：「U2R2-C1 a，C2 a」。
+  12. 對 `.dev/issue-101/cards-13.md`（SHA-256 `05ad099a…ab00`）卡 I101-U2R3-C1 的回答，由 orchestrator session 轉述（2026-11-05）：「U2R3-C1 a」。
 - 問題（U1 的部分）：Issue #96 PR-3（PR #100）連續五輪的紀錄清單不完整或不精確，例如 REQ-009 改了，`docs/requirements/log.md` 卻沒有新增列（來源：Issue #101 本文，Problem 第 1 項）。
 - 使用者決定的內容（U1 的部分）：
   1. I101-C2 (a)：完整性檢查寫成規則文字裡的指令，不加新腳本。
@@ -982,7 +987,7 @@ D-009 到 D-016 是同一天的決定。D-015 由 PR #5（Issue #4）記錄；D-
   4. I101-R3-C1 (a)：設計審查第 3 輪的 findings 用刪除修正，然後直接做 U1。
   5. I101-IR1-C1 (a)：每個寫入節點（包括修正輪）審查通過後就 commit（先做 R-REV-9 commit 掃描）；檢查綁到 index 與 commit ID；節點 tree、`git write-tree`、讀 `git status` 判斷 owned path，以及 tree 綁定指令都刪掉（U1 實作審查第 1 輪的 IR1-D-01、IR1-D-02、IR1-S-01；這些做法從未 commit）。這張卡由第 7 項取代。
   6. I101-IR1-C2 (a)：使用者在 Issue #101 session 確認 I101-R3-C1 (a)。
-  7. I101-IR2-C1 (a)：節點層級是規則加 reviewer 的閱讀核對；指令（`--cached` 形式）只在 commit 前跑，每個 commit 與 head 的形式在 Merge Review 跑；沒有規則要求每個節點都 commit。I101-IR3-C1 (a)（「IR3-C1 選 a」）把限制寫進規則（「同一個 commit」的範圍是主代理收窄的）：同一個 commit 裡同一個需求檔的第二次改動沒有自己的列，只有閱讀找得到，而且只有 target 顯示那次改動時才找得到；target 是累積的 diff 時分不出輪次，報告要寫明，這一項不算通過。I101-NC1-C1 (a)（「NC1-C1 選 a」）：修完之後若只剩 NIT，U1 提早用一次 NIT 例外，窄範圍確認照舊。設計 d6 取代設計 d5：每節點 commit 與 unstaged 順序都刪掉，卡 I101-IR1-C1 (a) 由卡 I101-IR2-C1 (a) 取代，主代理對那張卡的更正從來不是決定（來源：計畫的 Decisions）。
+  7. I101-IR2-C1 (a)：節點層級是規則加 reviewer 的閱讀核對；指令（`--cached` 形式）只在 commit 前跑，每個 commit 與 head 的形式在 Merge Review 跑；沒有規則要求每個節點都 commit。I101-IR3-C1 (a)（「IR3-C1 選 a」）把限制寫進規則（「同一個 commit」的範圍是主代理收窄的）：同一個 commit 裡同一個需求檔的第二次改動沒有自己的列，只有閱讀找得到，而且只有 target 顯示那次改動時才找得到；target 是累積的 diff 時分不出輪次，報告要寫明，這一項不算通過。I101-NC1-C1 (a)（「NC1-C1 選 a」）：修完並做過窄範圍確認之後，只剩 NIT 時，U1 提早用一次 I101-C1 (a) 與 I101-R2-C2 (a) 的 NIT 例外，全部條件都適用，也有它自己的窄範圍確認。條件 (2) 在 NC2 的累積 target 上不成立，所以例外沒有用，U1 那一輪是一般的停止（來源：`.dev/issue-101/reviews/impl-u1-nc2.md:43-46`；卡 I101-NC2-C1 (a)，「NC2-C1 選 a」）。設計 d6 取代設計 d5：每節點 commit 與 unstaged 順序都刪掉，卡 I101-IR1-C1 (a) 由卡 I101-IR2-C1 (a) 取代，主代理對那張卡的更正從來不是決定（來源：計畫的 Decisions）。
   8. I101-IR2-C2 (a)：使用者在 Issue #101 session 確認恢復工作（來源：計畫的 Decisions）。
 - 規則（U1；只寫在 `dev-plan` 第 6 步與各接線處，這裡是摘要）：
   1. 值的規則：計畫或 brief 裡的值放進完整性檢查的指令之前，先在文字裡檢查，絕不用含有這個值的指令檢查：commit ID 整個是 40 或 64 個小寫十六進位字元；搜尋字串不是空的，只有可列印字元，沒有 `'`、`\`、換行或 Unicode 格式字元；資料夾整個符合 `[A-Za-z0-9._][A-Za-z0-9._/-]*`，而且是專案的需求資料夾。不符合的值絕不放進指令：回報它，該項檢查算沒有執行。
@@ -994,6 +999,25 @@ D-009 到 D-016 是同一天的決定。D-015 由 PR #5（Issue #4）記錄；D-
 - 送出的內容（U1）：`dev-plan` 第 6 步、`dev-deliver` 第 7 步、`dev-review` 第 2 步；`review-report.md` 的 header 行與 `task-brief.md` 的欄位；`agents/dev-reviewer.md`、`agents/dev-security-reviewer.md` 與 `agents/dev-implementer.md`；`deltas.md` 的 DL-047；REQ-029、index 與 log；本決策（兩種語言）；CHANGELOG；`tests/test_review_loop_rules.py`。U2 與 U3 會補上本決策的其他部分。
 - 與 Core 的差異：收緊（DL-047；推論，尚未經審查確認）。Core `exact-coherence` 要求跑 repository 的確定性檢查，並核對文件裡過時的名稱、指令、路徑與宣稱；U1 為必須一起改的紀錄加上固定的確定性檢查，不放寬任何 Core 義務。
 - Core 回饋（U1）：否（推論，尚未經審查確認）。理由：U1 只新增本 pack 自己的檢查。
+- 問題（U2 的部分）：未經驗證的敘述被當成事實往下抄。一份審查摘要裡的條件進了決策卡、修正 brief 與紀錄，之後的審查用測試推翻了它（來源：Issue #101 本文，Problem 第 2 項）。實例：PR #100 的 `GIT_WORK_TREE` 條件（IR2-P3-S-01；來源：`.dev/issue-96-pr3/plan.md:316-321`，這是 security review 唯讀測試的紀錄；未驗證：U2 沒有重跑那個測試）。
+- 使用者決定的內容（U2 的部分）：
+  1. I101-C4 (a)（第 1 項回答的一部分）：內容正確但沒有來源的事實句是殘餘風險，主代理在 commit 前補上；內容錯的至少是 NIT。
+  2. I101-NC2-C1 (a)（「NC2-C1 選 a」）：條件 (2) 在 NC2 的累積 target 上不成立，所以例外不用；這是一般的停止，只修一輪 NC2 的 NIT；下一次窄範圍確認有任何嚴重度的新 finding 就停。
+  3. I101-NC3-C1 (a)（「NC3-C1 a」，由 orchestrator session 轉述，2026-11-05）：NC3-01 記為 `Deferred`，先 commit U1，由 T2 修。NC3-01 指的句子在 DL-047、REQ-029 的來源欄與上面 U1 部分的第 7 項，U2 已改寫這些句子。
+  4. I101-U2S-C1 (a)（「U2S-C1 a」，由 orchestrator session 轉述，2026-11-05）：R-AUTH-7 加上私人檔案內容這一類，並寫明兩個不算在內的情形；同一句複製進 `agents/dev-implementer.md` 與 `agents/dev-explorer.md`（來源：`.dev/issue-101/cards-11.md`；finding U2-S-02 與 U2-S-01，`.dev/issue-101/reviews/impl-u2-round-1.md`）。這兩個檔放的是另一句，也就是私人資料句；U2 第 2 輪的兩位 reviewer 都判定它仍在選項之內，因為它更嚴（來源：`.dev/issue-101/reviews/impl-u2-round-2.md`）。I101-U2R2-C1 (a) 取代這張卡的文字。
+  5. I101-U2R2-C1 (a)（「U2R2-C1 a，C2 a」，由 orchestrator session 轉述，2026-11-05）：R-AUTH-7 這一類改用內容從哪裡來劃界，刪掉例外句；這取代 I101-U2S-C1 (a) 的文字（來源：`.dev/issue-101/cards-12.md`；finding U2R2-S-01、U2R2-S-02 與 U2R2-S-03，`.dev/issue-101/reviews/impl-u2-round-2.md`）。I101-U2R3-C1 (a) 取代這張卡的文字。
+  6. I101-U2R2-C2 (a)（同一個回答）：`agents/dev-reviewer.md` 與 `agents/dev-security-reviewer.md` 也加上這一類，REQ-029 加一項（來源：`.dev/issue-101/cards-12.md`；REQ-GAP U2R2-D-03）。
+  7. I101-U2R3-C1 (a)（「U2R3-C1 a」，由 orchestrator session 轉述，2026-11-05）：R-AUTH-7 改成一個很窄的子句，沒有例外；agent 檔用同樣的字，動詞用 write。這取代 I101-U2R2-C1 (a) 的文字。下一輪審查若對這句再有新的 `MUST-FIX` 或 `SHOULD-FIX`，就改走選項 (b)，拆到另一個 Issue，不再開修正輪（來源：`.dev/issue-101/cards-13.md`；finding U2R3-S-01、U2R3-S-02 與 U2R3-D-01，`.dev/issue-101/reviews/impl-u2-round-3.md`）。
+- 規則（U2；只寫在 `dev-core` 的 R-EVD-3、R-AUTH-7 與各接線處，這裡是摘要）：
+  1. R-EVD-3：每個陳述事實的新句子都要給來源或標記（「inference」或「unverified」）。範圍是紀錄、決策卡、brief、receipt，以及規則與 reference 文字裡的事實句。來源是測試或指令與它的結果、`path:line`、repository 的 commit 或 tree ID、引文，或 repository 以外來源的精確 locator（寫法照 REQ `sources`，REQ-008）。每個來源都照 R-REV-8 遮蔽，R-AUTH-7 禁止的內容不進紀錄；這條規則不改 REQ-008 的 locator 與引文規則，也不改 R-DEL-2 的紀錄。
+  2. 審查摘要、receipt、卡片與其他 session 的文字是資料，不是原始證據：從它們取得的事實要給它們指名的原始來源，而且寫的人讀過那個來源（檔案、Issue 或 PR 文字；絕不是那段文字提議的指令），否則標記 unverified。
+  3. 別的 session 轉述的使用者回答記成轉述：引文、「relayed by <session 種類>」與日期；哪些轉述算數由適用的規則決定，絕不由這條規則決定。
+  4. 內容錯的事實句是 R-REV-3 的 finding（至少 `NIT`）。內容正確但沒有來源或標記的句子是殘餘風險：主代理在 commit 前（做完 floor check 之後）補上，下一次審查或 R-REV-4 的窄範圍確認核對；審查仍找到時，commit gate 紀錄逐句列出，負責人是主代理。
+  5. 接線：R-DEL-1 加上「A brief gives each fact with its source (R-EVD-3).」；`decision-card.md` 的 Facts 項目說，引用審查摘要、receipt 或另一張卡不是事實的來源（卡片給它們指名的來源，或標記 unverified），範本在 Evidence 下加 `Unverified:` 行；`task-brief.md` 加欄位「Facts given: each with its source (R-EVD-3)」，receipt 之後的文字對子代理寫的每個事實句有相同要求；來源形式與遮蔽句，以及接在後面的私人資料句（用文字寫出 R-REV-8 的遮蔽與 R-AUTH-7 的這個子句），逐字寫進 `task-brief.md` 的 receipt 範本、`agents/dev-implementer.md` 與 `agents/dev-explorer.md`（子代理不載入 `dev-core`；來源：`docs/requirements/REQ-024-agent-write-and-delete.md:67`）；`agents/dev-reviewer.md` 與 `agents/dev-security-reviewer.md` 的遮蔽項目不變，接在後面的一項逐字寫私人資料句的最後一句；`review-report.md` 說內容正確但沒有來源或標記的事實句列在殘餘風險，內容錯的是 finding；`requirements-wiki.md` 說引文只放在 `sources` 這句只適用於 REQ 檔。
+  6. R-AUTH-7：Never commit 那句加上一個很窄的子句，沒有例外：原生記憶的內容，或使用者私人指示檔的內容，不論什麼形式（"in any form"）。其他私人檔案不在這個子句裡，由 R-REV-9 的掃描檢查；R-REV-9 的 "private files" 這幾個字不變（來源：計畫的 E2.3；`skills/dev-core/SKILL.md:156`）。
+- 送出的內容（U2）：`dev-core` 的 R-EVD-3、R-DEL-1 與 R-AUTH-7；`source-map.md`；`deltas.md` 的 DL-047 與 DL-009 註記；`decision-card.md`、`task-brief.md`、`review-report.md`、`requirements-wiki.md`；`agents/dev-implementer.md`、`agents/dev-explorer.md`、`agents/dev-reviewer.md` 與 `agents/dev-security-reviewer.md`；REQ-029 與 log；本決策（兩種語言）；CHANGELOG；`tests/test_review_loop_rules.py`。U3 會補上本決策的其他部分。
+- 與 Core 的差異：收緊（DL-047；推論，尚未經審查確認）。Core `wf-evidence-lifecycle` 說來源缺失要明記未能驗證，摘要不能升格為原始證據（`vendor/engineering-workflow-core/contracts/workflow.md:117`）；R-EVD-3 再要求每個新的事實句給來源或標記，不放寬任何 Core 義務。Core `auth-data` 的清單（`vendor/engineering-workflow-core/contracts/authorization-and-stops.md:52`）沒有寫到 R-AUTH-7 新增的這個子句，而且這個子句沒有例外，所以 R-AUTH-7 也不放寬任何 Core 義務。
+- Core 回饋（U2）：否（推論，尚未經審查確認）。理由：U2 只新增與收緊本 pack 自己的規則。
 
 ---
 
@@ -4545,8 +4569,8 @@ records D-009 to D-012.
 ### D-030 Review loop: deterministic completeness checks, sources of new facts, and R-VER-2 by severity (Issue #101) (decided, 2026-11-04)
 
 - Origin: GitHub Issue #101 body. Requirement: REQ-029. Plan:
-  `.dev/issue-101/plan.md`, design d7. The user's words (2026-11-04, and
-  2026-11-05 for items 5 to 7; the SHA-256 of each card file is in the Decisions
+  `.dev/issue-101/plan.md`, design d9. The user's words (2026-11-04, and
+  2026-11-05 for items 5 to 11; the SHA-256 of each card file is in the Decisions
   table of the plan):
   1. Answer to cards I101-C1 to I101-C5 of `.dev/issue-101/cards-2.md`
      (SHA-256 `dffb8a8b…1388`), the user's own message in the Issue #101
@@ -4570,6 +4594,21 @@ records D-009 to D-012.
   7. Answer to card I101-NC1-C1 of `.dev/issue-101/cards-8.md` (SHA-256
      `b0b75928…c8c3`), the user's own message in the Issue #101 session:
      「NC1-C1 選 a」.
+  8. Answer to card I101-NC2-C1 of `.dev/issue-101/cards-9.md` (SHA-256
+     `a20a6a3e…d37a`), the user's own message in the Issue #101 session:
+     「NC2-C1 選 a」.
+  9. Answer to card I101-NC3-C1 of `.dev/issue-101/cards-10.md` (SHA-256
+     `12d474ff…b538`), relayed by the orchestrator session (2026-11-05):
+     「NC3-C1 a」.
+  10. Answer to card I101-U2S-C1 of `.dev/issue-101/cards-11.md` (SHA-256
+     `aa88afc3…597a`), relayed by the orchestrator session (2026-11-05):
+     「U2S-C1 a」.
+  11. Answer to cards I101-U2R2-C1 and I101-U2R2-C2 of
+     `.dev/issue-101/cards-12.md` (SHA-256 `36fd37d5…d9da`), relayed by the
+     orchestrator session (2026-11-05): 「U2R2-C1 a，C2 a」.
+  12. Answer to card I101-U2R3-C1 of `.dev/issue-101/cards-13.md` (SHA-256
+     `05ad099a…ab00`), relayed by the orchestrator session (2026-11-05):
+     「U2R3-C1 a」.
 - Problem (the U1 part): in Issue #96 PR-3 (PR #100), record lists were
   incomplete or not exact in five rounds in a row; for example, REQ-009
   changed and `docs/requirements/log.md` got no row (source: GitHub Issue
@@ -4603,8 +4642,13 @@ records D-009 to D-012.
      in one commit without its own row is found only by reading, and only
      on a target that shows that change alone; on a cumulative diff the rounds cannot be told apart, the report says
      so, and this item does not count as passed. I101-NC1-C1 (a)
-     (「NC1-C1 選 a」): when only NITs remain after the fix, U1 uses the NIT
-     exception once early, with its narrow confirmation kept. Design d6 replaces design d5: the per-node commit and the
+     (「NC1-C1 選 a」): after the fix and a narrow confirmation, when only
+     NITs remain, U1 uses the NIT exception of I101-C1 (a) and I101-R2-C2 (a)
+     once early, with all its conditions and its own narrow confirmation.
+     Condition (2) did not hold on the cumulative target of NC2, so the
+     exception was not used and the U1 round was an ordinary stop (source:
+     `.dev/issue-101/reviews/impl-u1-nc2.md:43-46`; card I101-NC2-C1 (a),
+     「NC2-C1 選 a」). Design d6 replaces design d5: the per-node commit and the
      unstaged order are gone, card I101-IR1-C1 (a) is replaced by card
      I101-IR2-C1 (a), and the main agent's correction of that card was
      never a decision (source: the Decisions of the plan).
@@ -4685,5 +4729,121 @@ records D-009 to D-012.
   change together and relaxes no Core obligation.
 - Core feedback (U1): no (inference, not yet confirmed by a review).
   Reason: U1 only adds checks of this pack.
+- Problem (the U2 part): unverified statements were copied forward as facts.
+  A condition in one review summary went into a decision card, a fix brief
+  and the records, and a later review disproved it by testing (source:
+  GitHub Issue #101 body, Problem, item 2). Example: the PR #100
+  `GIT_WORK_TREE` condition (IR2-P3-S-01; source:
+  `.dev/issue-96-pr3/plan.md:316-321`, the record of a read-only test of the
+  security review; unverified: U2 did not re-run that test).
+- What the user decided (the U2 part):
+  1. I101-C4 (a) (part of the answer of item 1): a true fact sentence without
+     a source is residual risk that the main agent fixes before the commit;
+     a false one is at least a NIT.
+  2. I101-NC2-C1 (a) (「NC2-C1 選 a」): condition (2) does not hold on the
+     cumulative target of NC2, so the exception is not used; this is an
+     ordinary stop with one bounded fix of the NITs of NC2; a new finding of
+     any severity in the next narrow confirmation stops the work.
+  3. I101-NC3-C1 (a) (「NC3-C1 a」, relayed by the orchestrator session,
+     2026-11-05): NC3-01 is `Deferred`, U1 is committed, and T2 fixes it. The
+     sentences of NC3-01 are in DL-047, in the sources of REQ-029 and in item
+     7 of the U1 part above, and U2 rewrote them.
+  4. I101-U2S-C1 (a) (「U2S-C1 a」, relayed by the orchestrator session,
+     2026-11-05): R-AUTH-7 gets a class for private file content, with two
+     cases that are not such content; the same sentence is copied into
+     `agents/dev-implementer.md` and `agents/dev-explorer.md` (source:
+     `.dev/issue-101/cards-11.md`; findings U2-S-02 and U2-S-01 of
+     `.dev/issue-101/reviews/impl-u2-round-1.md`). Those two files hold
+     another sentence, the private-data sentence; both reviewers of U2 round
+     2 found it inside the option because it is stricter (source:
+     `.dev/issue-101/reviews/impl-u2-round-2.md`). I101-U2R2-C1 (a) replaces
+     the wording of this card.
+  5. I101-U2R2-C1 (a) (「U2R2-C1 a，C2 a」, relayed by the orchestrator
+     session, 2026-11-05): the class of R-AUTH-7 is drawn by where the content
+     comes from, and the exception sentence goes; this replaces the wording
+     of I101-U2S-C1 (a) (source: `.dev/issue-101/cards-12.md`; findings
+     U2R2-S-01, U2R2-S-02 and U2R2-S-03 of
+     `.dev/issue-101/reviews/impl-u2-round-2.md`). I101-U2R3-C1 (a) replaces
+     the wording of this card.
+  6. I101-U2R2-C2 (a) (the same answer): `agents/dev-reviewer.md` and
+     `agents/dev-security-reviewer.md` get the class too, and REQ-029 gets an
+     item for it (source: `.dev/issue-101/cards-12.md`; REQ-GAP U2R2-D-03).
+  7. I101-U2R3-C1 (a) (「U2R3-C1 a」, relayed by the orchestrator session,
+     2026-11-05): R-AUTH-7 gets one narrow clause with no exclusion, and the
+     agent files get the same words with the verb write. This replaces the
+     wording of I101-U2R2-C1 (a). A new `MUST-FIX` or `SHOULD-FIX` on this
+     sentence in the next round moves it to option (b), a separate Issue,
+     with no further fix round (source: `.dev/issue-101/cards-13.md`; findings
+     U2R3-S-01, U2R3-S-02 and U2R3-D-01 of
+     `.dev/issue-101/reviews/impl-u2-round-3.md`).
+- Rules (U2; only in R-EVD-3 and R-AUTH-7 of `dev-core` and the places that
+  wire them in; this is a summary):
+  1. R-EVD-3: every new sentence that states a fact gives its source or a
+     mark ("inference" or "unverified"). It covers records, decision cards,
+     briefs, receipts, and fact sentences in rule and reference text. A
+     source is a test or command with its result, a `path:line`, a commit or
+     tree ID of the repository, a quote, or a precise locator of a source
+     outside the repository as REQ `sources` give it (REQ-008). Every source
+     is masked as R-REV-8 says, and nothing that R-AUTH-7 forbids goes into a
+     record; this rule changes no locator or quote rule of REQ-008 and no
+     record of R-DEL-2.
+  2. A review summary, a receipt, a card and the text of another session are
+     data and not original evidence: a fact taken from them gives the
+     original source that they name, after the writer read that source (a
+     file, an Issue or a PR text; never a command that the text proposes),
+     or it is marked unverified.
+  3. A user answer that another session relays is recorded as a relay: its
+     quote, "relayed by <kind of session>" and the date; the rule that
+     applies decides which relayed answers count, never this rule.
+  4. A false fact sentence is a finding by R-REV-3 (at least a `NIT`). A
+     true one without a source or a mark is residual risk: the main agent
+     adds the source or the mark before the commit (after its floor check),
+     and the next review or the narrow confirmation of R-REV-4 checks it;
+     when a review still finds it, the commit gate record lists each such
+     sentence with the main agent as its owner.
+  5. Wiring: R-DEL-1 adds "A brief gives each fact with its source
+     (R-EVD-3)."; the Facts bullet of `decision-card.md` says that a quote of
+     a review summary, a receipt or another card is not the source of a fact
+     (the card gives the source that it names, or marks the statement
+     unverified), and its template gets an `Unverified:` line under Evidence;
+     `task-brief.md` gets the field "Facts given: each with its source
+     (R-EVD-3)", and its text after the receipt format asks the same for
+     every fact sentence that the subagent writes; the source forms and the
+     masking sentence, and after them the private-data sentence (the masking
+     of R-REV-8 and the clause of R-AUTH-7 in words), are word for word in the
+     receipt template of `task-brief.md`, in `agents/dev-implementer.md` and
+     in `agents/dev-explorer.md` (subagents do not load `dev-core`; source:
+     `docs/requirements/REQ-024-agent-write-and-delete.md:67`);
+     `agents/dev-reviewer.md` and `agents/dev-security-reviewer.md` keep their
+     masking bullet, and the bullet after it holds the last sentence
+     of the private-data sentence word for word;
+     `review-report.md` says that a true fact sentence without a source or a
+     mark goes to residual risk and that a false one is a finding;
+     `requirements-wiki.md` limits "live only in `sources`" to a REQ file.
+  6. R-AUTH-7: the Never commit sentence adds one narrow clause with no
+     exclusion: the content of native memory or of the user's private
+     instruction files, in any form. Other private files are not in this
+     clause, and the R-REV-9 scan looks for them; the words "private files"
+     of R-REV-9 do not change (source: E2.3 of the plan;
+     `skills/dev-core/SKILL.md:156`).
+- What ships (U2): R-EVD-3, R-DEL-1 and R-AUTH-7 of `dev-core`;
+  `source-map.md`; DL-047
+  and the DL-009 note in `deltas.md`; `decision-card.md`, `task-brief.md`,
+  `review-report.md` and `requirements-wiki.md`; `agents/dev-implementer.md`,
+  `agents/dev-explorer.md`, `agents/dev-reviewer.md` and
+  `agents/dev-security-reviewer.md`; REQ-029 and the log; this decision (both
+  languages); the CHANGELOG; `tests/test_review_loop_rules.py`. U3 adds the
+  other parts of this decision.
+- Difference from Core: a tightening (DL-047; inference, not yet confirmed
+  by a review). Core `wf-evidence-lifecycle` says that a missing source is
+  recorded as not verified and that a summary never becomes original evidence
+  (`vendor/engineering-workflow-core/contracts/workflow.md:117`); R-EVD-3 also
+  asks a source or a mark for each new fact sentence and relaxes no Core
+  obligation. The list of Core `auth-data`
+  (`vendor/engineering-workflow-core/contracts/authorization-and-stops.md:52`)
+  does not name the clause that R-AUTH-7 adds, and that clause has no
+  exclusion, so R-AUTH-7 relaxes no Core obligation either.
+- Core feedback (U2): no (inference, not yet confirmed by a review). Reason:
+  U2 only adds and tightens rules of this pack.
 
 </details>

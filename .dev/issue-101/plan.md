@@ -1,6 +1,7 @@
 # Issue #101 plan: completeness checks, an evidence rule, and R-VER-2 by severity (`Closes #101`)
 
-Design revision: d7 (2026-11-05), after the fifth R-VER-2 stop (card
+Design revision: d9 (2026-11-05), after U2 review round 3: E2.3 is one narrow
+clause with no exclusion (card I101-U2R3-C1 (a)). d7 (card
 I101-IR3-C1 (a)): d6 with the limit of the reading check in the rule. d6
 (card I101-IR2-C1 (a)): at node level a rule and a reading check; commands
 only before a commit and in the Merge Review. No design review round 4 (card
@@ -17,7 +18,7 @@ Review records: `reviews/design-round-1.md`, `reviews/design-round-2.md`,
 ## Decisions
 
 The card files are never edited; the SHA-256 below binds each answer to
-the text that the user read (SR2-05). `cards-2.md` to `cards-10.md` are
+the text that the user read (SR2-05). `cards-2.md` to `cards-13.md` are
 committed as they are. `cards-1.md` is never committed: it paraphrases a
 private instruction file (SR3-02); its SHA-256 here is its only record.
 
@@ -31,8 +32,11 @@ private instruction file (SR3-02); its SHA-256 here is its only record.
 | `cards-6.md` | `2341b62699c4b70267bac6fb8b253b1f1e69e600582cdf12ba65c724b2e292d6` | 「都選 a」 (the user's own message in this session, 2026-11-05), the answer to "I101-IR2-C1 和 IR2-C2 都照建議選 (a) 嗎？". `cards-7.md` corrects three of its sentences |
 | `cards-7.md` | `10bb13554ad11bf4398661dd70f3a1c49df0b8059d087ecbc80f35904a9f1a5b` | 「IR3-C1 選 a」 (the user's own message in this session, 2026-11-05) |
 | `cards-8.md` | `b0b759288fca6736a08b2a4213ba8b6e8b5229de5eec59a18a515c31cf20c8c3` | 「NC1-C1 選 a」 (the user's own message in this session, 2026-11-05) |
-| `cards-9.md` | `a20a6a3e612a07725b48e40b2e330dbf48b51e48d14782013e210bac6912d37a` | 「NC2-C1 選 a」 (the user's own message in this session, 2026-11-05); recorded in this plan only, because plan C-2 triggers for answers recorded in REQ-012 or REQ-029 (the reviewer of NC3 rejected the earlier reason "a process decision": rule 2 has no such exemption) |
+| `cards-9.md` | `a20a6a3e612a07725b48e40b2e330dbf48b51e48d14782013e210bac6912d37a` | 「NC2-C1 選 a」 (the user's own message in this session, 2026-11-05) |
 | `cards-10.md` | `12d474ffd6cd450765c8ea907423b8fe0155a2ea87aa8de17b13d0808b5bb538` | 「NC3-C1 a」, relayed by the orchestrator session, 2026-11-05: I101-NC3-C1 (a). Basis for taking the relay: the practice of Issue #96 for cards that loosen no rule; this card follows R-REV-3 as it stands |
+| `cards-11.md` | `aa88afc3baf18b41d2faf2024366fbde7b3b933dfe04b0d50577ba8df4fb597a` | 「U2S-C1 a」, relayed by the orchestrator session, 2026-11-05: I101-U2S-C1 (a). Basis for taking the relay: the practice of Issue #96 for cards that loosen no rule; this card tightens R-AUTH-7 |
+| `cards-12.md` | `36fd37d53e48ce9d2b26e5f111e8288cf6826635d5685222046a7970e39bd9da` | 「U2R2-C1 a，C2 a」, relayed by the orchestrator session, 2026-11-05: I101-U2R2-C1 (a) and I101-U2R2-C2 (a). Basis for taking the relay: the practice of Issue #96 for cards that loosen no rule; C1 replaces the wording of a tightening, and C2 adds a requirement |
+| `cards-13.md` | `05ad099a3f4481c458661e36cc462eff629f74273c7d1dfd143d3ae0d334ab00` | 「U2R3-C1 a」, relayed by the orchestrator session, 2026-11-05: I101-U2R3-C1 (a). Basis for taking the relay: the practice of Issue #96 for cards that loosen no rule; against `main` this still tightens R-AUTH-7 |
 
 - I101-C1 (a): the bounded NIT-repeat exception of R-VER-2, as changed by
   I101-R2-C2 (a).
@@ -82,13 +86,27 @@ private instruction file (SR3-02); its SHA-256 here is its only record.
   next narrow confirmation stops the work.
 - I101-NC3-C1 (a): NC3-01 is `Deferred` (below); U1 is committed now; T2
   fixes it.
+- I101-U2S-C1 (a): R-AUTH-7 gets a class for private file content (E2.3),
+  copied into the agent files. The Issue's Scope was updated first (R-REV-9
+  scan read back `PASS`; the posted body read back equal to the scanned text,
+  but for a final line break that `gh` adds).
+- I101-U2R2-C1 (a): the class of R-AUTH-7 is drawn by where the content comes
+  from; the exception sentence and "chosen to publish" are deleted. This
+  replaces the wording of I101-U2S-C1 (a).
+- I101-U2R2-C2 (a): the two reviewer agent files get the class too, and REQ-029
+  gets an item for it (REQ-GAP U2R2-D-03).
+- I101-U2R3-C1 (a): R-AUTH-7 gets one narrow clause with no exclusion; this
+  replaces the wording of I101-U2R2-C1 (a). Ceiling of the card: a new
+  `MUST-FIX` or `SHOULD-FIX` on this sentence in the next round moves it to
+  option (b), a separate Issue, with no further fix round.
 - I101-IR2-C2 (a): the user confirmed the resume in this session. The pause
   of 2026-11-04 ended on 「請繼續」, relayed by the orchestrator session,
   2026-11-05.
 
 ## Deferred findings
 
-NC3-01 (NIT; `reviews/impl-u1-nc3.md`), `Deferred` by card I101-NC3-C1 (a):
+NC3-01 (NIT; `reviews/impl-u1-nc3.md`), `Deferred` by card I101-NC3-C1 (a);
+T2 made the fix, and the U2 review checks it:
 
 - Target: T2 (U2). Owner: the main agent.
 - Reason: U2 changes the same records and gets a full implementation
@@ -103,6 +121,17 @@ NC3-01 (NIT; `reviews/impl-u1-nc3.md`), `Deferred` by card I101-NC3-C1 (a):
   records for `I101-NC1-C1`.
 - Trigger that makes it blocking: NC3-01 not resolved in the U2 review stops
   the push.
+
+U2R4-D-01, U2R4-D-02 and U2R4-D-03 (NIT; `reviews/impl-u2-round-4.md`), `Deferred`
+(R-REV-3), the same way as NC3-01:
+
+- Target: T3 (U3). Owner: the main agent.
+- Reason: T3 changes D-030 and this plan anyway, and it gets a full review; no
+  fix round starts for three NITs in record text.
+- Remaining risk: until T3, D-030's date range leaves out item 12, this plan's
+  revision chain skips d8, and the Files table says "sentences".
+- Verification plan: the T3 brief and the U3 review name these three.
+- Trigger that makes them blocking: not resolved in the U3 review stops the push.
 
 ## Objective and scope
 
@@ -145,7 +174,7 @@ Issue words (the user's words are quoted in the Issue's Process line:
 | --- | --- | --- | --- |
 | E1.1 | "a search list (for example `git grep -F` strings) in the plan, where every hit is changed, noted or marked historical, and checked one to one" | `dev-plan` step 6 | kept: fixed strings, the three dispositions, one to one (as a count per string and file on the index; rows with line numbers drift, DR1-05). Dropped: hits in the objective's own record folder get no row, because that folder holds the list and its rows (DR3-07) |
 | E1.2 | "co-change rules: a change to a requirement adds a log row, and a user decision quote goes into the CHANGELOG quote list" | `dev-plan` step 6 | kept; rule 1 at node level by reading, by command before a commit and in the Merge Review (card I101-IR2-C1 (a)); rule 2 by reading (card I101-R2-C1 (a)). No skill asks a project for a CHANGELOG (source: `git grep -n CHANGELOG skills/`, no rule hit), so the pack rule says "every record of the project that lists the decisions of a change", and this plan names `CHANGELOG.md` |
-| E2 | "every new fact sentence in records, cards and briefs gives its test or source, or says it is an inference. Briefs pass facts with their source, not as bare text." | R-EVD-3, R-DEL-1, `decision-card.md`, `task-brief.md`, agent files | kept; added the mark "unverified" (R-VER-5 uses it) and the masking sentence (R-REV-8, R-AUTH-7); the private-source sentence of d2 and d3 was removed (DR3-01, card I101-R3-C1 (a)) |
+| E2 | "every new fact sentence in records, cards and briefs gives its test or source, or says it is an inference. Briefs pass facts with their source, not as bare text." | R-EVD-3, R-DEL-1, `decision-card.md`, `task-brief.md`, agent files | kept; added the mark "unverified" (R-VER-5 uses it) and the masking sentence (R-REV-8) with the R-AUTH-7 clause; the private-source sentence of d2 and d3 was removed (DR3-01, card I101-R3-C1 (a)) |
 | E3 | "when a repeated mechanism has only NIT findings left, the main agent fixes them with a recorded diff, and the Merge Review covers them; MUST-FIX and SHOULD-FIX repeats still stop. This loosens a stop rule, so the user decides it." | R-VER-2 | the user decided (cards I101-C1 (a), I101-R2-C2 (a)). Kept: NIT only, a recorded diff, the Merge Review covers it, MUST-FIX and SHOULD-FIX still stop. Added: the narrow confirmation of R-REV-4 still runs (dropping it would also loosen `dev-gate` and may loosen Core, SR1-04); the bound; "the main agent" widened to "the fixing side" (R-DEL-2 escalation, DR1-13) |
 | E4 | "first choice, fixed in the rule text (no configuration, no extra check)" | E3 rule text | kept |
 | — | "The three defects above have a rule or a deterministic check, each with a test or a recorded example." | Acceptance | kept |
@@ -154,7 +183,7 @@ Issue words (the user's words are quoted in the Issue's Process line:
 
 Card texts to rule sentences (DR2-10):
 
-| Card sentence (zh, short) | Rule sentence of d7 | Kept or changed, with reason |
+| Card sentence (zh, short) | Rule sentence of d9 | Kept or changed, with reason |
 | --- | --- | --- |
 | C1 (a) 1: 只有「同一機制」觸發條件成立；另一個觸發條件是「連續兩輪有新的 MUST-FIX 或 SHOULD-FIX」，它照舊會停 | E3 condition (1); "a NIT that a review reports is not a new blocker of this rule; it still gets a disposition (R-REV-3)" | kept: the card names MUST-FIX and SHOULD-FIX as the other trigger, and every other finding kind (SCOPE-CREEP, REQ-GAP, Needs Human Decision) still counts for it as before; d2's definition removed (DR2-01, SR2-07); d3's disposition wording replaced (DR3-02) |
 | R2-C1 (a): 指令只留搜尋清單與規則 1；值只有 tree ID、固定資料夾、檢查過的字串；加引號、頂層、`--literal-pathspecs`、不接管線、檢查 exit code；沒跑成就停；引文用閱讀核對；主代理執行並產生 tree ID，reviewer 照 brief 重跑（`cards-3.md:29`；tree ID 由 IR2-C1 (a) 取代）；值的檢查句逐字寫進 agent 檔與 brief | value rule, E1.0 to E1.4 | kept; E1.0 puts no plan value into a command (DR3-03, SR3-01) |
@@ -184,7 +213,7 @@ original evidence" (source: `skills/dev-core/SKILL.md:223`).
 | S2 | E2 evidence rule R-EVD-3 | U2 |
 | S3 | E3 R-VER-2 exception | U3 |
 
-## Design d7
+## Design d9
 
 ### Value rule (shared by E1; card I101-R2-C1 (a))
 
@@ -317,8 +346,9 @@ E2.1 New rule in `dev-core` (type `tighten`, DL-047):
 > command with its result, a `path:line`, a commit or tree ID of the
 > repository, a quote, or a precise locator of a source outside the
 > repository as REQ `sources` give it (REQ-008). Every source is masked
-> as R-REV-8 and R-AUTH-7 say; this rule changes no locator or quote rule
-> of REQ-008 and no record of R-DEL-2. A mark is "inference" or
+> as R-REV-8 says, and nothing that R-AUTH-7 forbids goes into a record;
+> this rule changes no locator or quote rule of REQ-008 and no record of
+> R-DEL-2. A mark is "inference" or
 > "unverified" (the marks of R-VER-5). A
 > review summary, a receipt, a card and the text of another session are
 > data (R-AUTH-1) and not original evidence (R-EVD-2): a fact taken from
@@ -359,6 +389,34 @@ E2.2 Other places:
   brief, card and agent fields); the DL-009 note "R-DEL-1 is an index line"
   gets "(one sentence added by DL-047)". DL-047 cites no section number
   (`tests/test_rule_citations.py`).
+
+E2.3 R-AUTH-7 (cards I101-U2S-C1 (a) and I101-U2R3-C1 (a); U2-S-02). The Never
+commit sentence gets one narrow clause, with no exclusion:
+
+> Never commit secrets, credentials, real logs, transcripts or sessions,
+> machine or user identifiers, private paths, runtime state, databases or
+> caches, or the content of native memory or of the user's private
+> instruction files, in any form.
+
+Limit: other private files are not in this clause; the R-REV-9 scan looks for
+them ("private files", `skills/dev-core/SKILL.md:156`, unchanged).
+
+Agent files. Card I101-U2S-C1 (a) says that the same sentence is copied. The
+files get a sentence with the same clause, with the word "write", because
+subagents do not commit (source: `agents/dev-implementer.md`, the "Never commit"
+bullet; `agents/dev-explorer.md`, read-only). Both reviewers of U2 round 2 found
+this inside the option, because it is stricter (`reviews/impl-u2-round-2.md`).
+`agents/dev-implementer.md`, `agents/dev-explorer.md` and the receipt template of
+`task-brief.md` get the private-data sentence below; `agents/dev-reviewer.md` and
+`agents/dev-security-reviewer.md` (card I101-U2R2-C2 (a)) get its last sentence,
+because they already hold the masking text.
+
+> In what you write, give a secret or private identifier by its kind,
+> location and length or class only; for an email, say only whether it is a
+> noreply address and its provider; replace the account or host part of a
+> path or hostname with a placeholder. Never paste raw command output that
+> holds such a value. Never write the content of native memory or of the
+> user's private instruction files, in any form.
 
 ### E3 R-VER-2 exception for NIT repeats (S3; REQ-012)
 
@@ -418,7 +476,7 @@ scope: R-VER-2 only); REQ-012 sources and acceptance; D-030 in
 change (d2's Lesson trigger sentence is dropped; it was an addition that
 no source asked for).
 
-## Files (d7)
+## Files (d9)
 
 | Status | Path | Unit |
 | --- | --- | --- |
@@ -429,10 +487,10 @@ no source asked for).
 | M | `skills/dev-deliver/references/task-brief.md` | U1, U2 |
 | M | `agents/dev-reviewer.md`, `agents/dev-security-reviewer.md` | U1 |
 | M | `agents/dev-implementer.md` | U1, U2 |
-| M | `agents/dev-explorer.md` | U2 |
+| M | `agents/dev-explorer.md`, `agents/dev-reviewer.md`, `agents/dev-security-reviewer.md` | U2 |
 | M | `skills/dev-review/references/decision-card.md` | U2 |
 | M | `skills/dev-plan/references/requirements-wiki.md` (line 59) | U2 |
-| M | `skills/dev-core/SKILL.md` (R-EVD-3, R-DEL-1 in U2; R-VER-2 in U3) | U2, U3 |
+| M | `skills/dev-core/SKILL.md` (R-EVD-3, R-DEL-1, R-AUTH-7 in U2; R-VER-2 in U3) | U2, U3 |
 | M | `skills/dev-core/source-map.md` | U2, U3 |
 | M | `skills/dev-core/deltas.md` (DL-047 in U1 and U2; DL-012 note, DL-048 in U3) | U1, U2, U3 |
 | A | `docs/requirements/REQ-029-review-loop-checks.md` | U1, U2 |
@@ -442,9 +500,9 @@ no source asked for).
 | M | `docs/design-proposal.md` (D-030 zh and EN) | U1, U2, U3 |
 | M | `docs/core-feedback.md` (CF-001 item 4 note) | U3 |
 | M | `CHANGELOG.md` | U1, U2, U3 |
-| A | `tests/test_review_loop_rules.py` (pins the word-for-word copies of the value rule and the source sentence and the command forms) | U1, U2, U3 |
+| A | `tests/test_review_loop_rules.py` (pins the word-for-word copies of the value rule, the source sentence and the private-data sentence, the R-AUTH-7 sentences and the command forms) | U1, U2, U3 |
 | A | `.dev/issue-101/plan.md`, `reviews/*.md` | records, owned by each T node |
-| A | `.dev/issue-101/cards-2.md`, `cards-3.md`, `cards-4.md`, `cards-5.md`, `cards-6.md`, `cards-7.md`, `cards-8.md`, `cards-9.md`, `cards-10.md` | committed as they are in U1; owned by no node; `cards-1.md` is never committed (SR3-02) |
+| A | `.dev/issue-101/cards-2.md`, `cards-3.md`, `cards-4.md`, `cards-5.md`, `cards-6.md`, `cards-7.md`, `cards-8.md`, `cards-9.md`, `cards-10.md`, `cards-11.md`, `cards-12.md`, `cards-13.md` | committed as they are in U1; owned by no node; `cards-1.md` is never committed (SR3-02) |
 
 `README.md`: no change (it names no review-loop rule; source:
 `git grep -n -i -e 'stop rule' -e 'R-VER-2' -e 'R-EVD' README.md`, no hit).
@@ -477,6 +535,13 @@ K20 the diff that it reviews
 K21 commands again
 K22 指令不跑
 K23 回報差異
+K24 Mark everything else
+K25 used once early
+K26 quotes are the originals
+K27 R-AUTH-7
+K28 native memory
+K29 chosen to publish
+K30 private instruction files
 ```
 
 Co-change rules:
@@ -501,7 +566,10 @@ The main agent records the outputs (counts and exit codes) here before each comm
 | T1-fix2 (U1) | `dev-implementer` | U1 rows | role `implement` (`opus`/`high`) | `opus`/`high`, read back `PASS`, `floor=work` | `unknown` |
 | T1-fix3 (U1) | main session, after its floor check | the sentences of card I101-IR3-C1 (a), this plan, the records | the session's `opus`/`high` | transcript fields, see Objective and scope | `unknown` |
 | T1-fix4 (U1) | main session, after its floor check | NC1-01 to NC1-03, this plan, the records | the session's `opus`/`high` | transcript fields, see Objective and scope | `unknown` |
-| T2 (U2) | `dev-implementer` | U2 rows, this plan, `reviews/` | role `implement` (`opus`/`high`) | main agent fills in | `unknown` |
+| T2 (U2) | `dev-implementer` | U2 rows | role `implement` (`opus`/`high`) | `opus`/`high`, read back `PASS`, `floor=work` | `unknown` |
+| T2-fix (U2) | `dev-implementer` | U2 rows | role `implement` (`opus`/`high`) | `opus`/`high`, read back `PASS`, `floor=work` | `unknown` |
+| T2-fix2 (U2) | `dev-implementer` | U2 rows | role `implement` (`opus`/`high`) | `opus`/`high`, read back `PASS`, `floor=work` | `unknown` |
+| T2-fix3 (U2) | `dev-implementer` | U2 rows | role `implement` (`opus`/`high`) | `opus`/`high`, read back `PASS`, `floor=work` | `unknown` |
 | T3 (U3) | `dev-implementer` | U3 rows, this plan, `reviews/` | role `implement` (`opus`/`high`) | main agent fills in | `unknown` |
 
 Why role `implement`: the implement row at the `strict` tier; the R-DEL-2
@@ -531,325 +599,424 @@ That answer covers unit commits only. The next unit starts after that commit. Ve
 
 ## Completeness check outputs
 
-### U1 before its commit (d7)
+### U1 commit
 
-The outputs of the earlier runs are superseded (the review records keep what
-they showed).
+U1 is commit `2c68faedf14a5f7692f3f296a9b7f88322d78ab6` (tree
+`46361e9c60b1a36580da5688f97bd8499c954e89`; source: `git rev-parse`). Its R-REV-9
+commit scan read back `PASS`, `floor=review-scan` (source: the read-back result
+of this session, 2026-11-05; the result line goes into the PR gate record
+comment), with no finding (source: the scan's report). Its outputs are in
+that commit's copy of this file.
+
+### U2 before its commit
 
 - Run by the main agent from the top of the worktree
-  (`git rev-parse --show-prefix` printed an empty line), on the index, after
-  staging the U1 content and the records, 2026-11-05. `cards-1.md` is the
-  only untracked file.
+  (`git rev-parse --show-prefix` printed an empty line), on the index,
+  2026-11-05.
 - Co-change rule 1, `--cached` forms: the name list (exit 0) gave
-  `docs/requirements/REQ-029-review-loop-checks.md`, `index.md` and
-  `log.md`; the `-U0` log command (exit 0) shows five `+|` lines whose REQ
-  column is `REQ-029` (T1 and the four fix rounds) and no `-|` line. Pass.
-- Correction: `cards-6.md` says that both round-2 reviewers ran the `--cached`
-  forms; they ran the forms without `--cached` (source:
-  `reviews/impl-u1-round-2.md`). `cards-7.md` gives this correction to the
-  user. The card file is not edited.
-- Search list: the same arguments as the `--cached` grep form, through Python
-  `subprocess` with an argument list (no shell), once per string; every exit
-  code was 0 or 1. Against HEAD, the U1 diff outside `.dev/issue-101/` shows
-  1 removed line (`git diff --cached -U0`): `skills/dev-deliver/SKILL.md`
-  step 7, where a new sentence splits a line; all its words stay.
+  `docs/requirements/REQ-029-review-loop-checks.md` and `log.md`; the `-U0` log
+  command (exit 0) shows four `+|` lines whose REQ column is `REQ-029` (T2 and
+  its three fix rounds) and no `-|` line. Pass.
+- Search list: the same arguments as the `--cached` grep form with `-n` in place of `-c`, through Python `subprocess` with
+  an argument list (no shell), once per string, on the index and on HEAD (the
+  U1 commit); the rows count matching lines; every exit code was 0 or 1. A row
+  is `changed` when the set of its matching lines differs from HEAD. The reasons
+  of the `noted` rows are the main agent's reading.
 
-| ID | String | Exit (HEAD / index) | Files with hits (outside `.dev/issue-101/`) | `changed` | `noted` |
+| ID | String | Exit (HEAD / index) | Files with hits (outside `.dev/issue-101/`) | `changed` | `noted` or `historical` |
 | --- | --- | --- | --- | --- | --- |
-| K1 | `R-VER-2` | 0 / 0 | 56 | 2 | 54 |
-| K2 | `R-EVD-2` | 0 / 0 | 15 | 0 | 15 |
-| K3 | `R-EVD-3` | 1 / 0 | 2 | 2 | 0 |
-| K4 | `R-DEL-1` | 0 / 0 | 18 | 0 | 18 |
+| K1 | `R-VER-2` | 0 / 0 | 56 | 0 | 56 |
+| K2 | `R-EVD-2` | 0 / 0 | 16 | 3 | 13 |
+| K3 | `R-EVD-3` | 0 / 0 | 11 | 11 | 0 |
+| K4 | `R-DEL-1` | 0 / 0 | 22 | 6 | 16 |
 | K5 | `DL-012` | 0 / 0 | 7 | 0 | 7 |
 | K6 | `D-013` | 0 / 0 | 27 | 0 | 27 |
 | K7 | `DL-035` | 0 / 0 | 8 | 0 | 8 |
-| K8 | `DL-009` | 0 / 0 | 18 | 0 | 18 |
+| K8 | `DL-009` | 0 / 0 | 20 | 3 | 17 |
 | K9 | `CF-001` | 0 / 0 | 6 | 0 | 6 |
 | K10 | `stop rule` | 0 / 0 | 44 | 0 | 44 |
 | K11 | `停止規則` | 0 / 0 | 4 | 0 | 4 |
 | K12 | `same mechanism` | 0 / 0 | 19 | 0 | 19 |
 | K13 | `同一個機制` | 0 / 0 | 2 | 0 | 2 |
 | K14 | `停止修正` | 0 / 0 | 2 | 0 | 2 |
-| K15 | `decision-card.md` | 0 / 0 | 19 | 0 | 19 |
-| K16 | `live only in` | 0 / 0 | 2 | 0 | 2 |
-| K17 | `R-VER-5` | 0 / 0 | 12 | 0 | 12 |
-| K18 | `no command runs` | 1 / 0 | 0 | 0 | 0 |
-| K19 | `reports differences` | 1 / 0 | 0 | 0 | 0 |
-| K20 | `the diff that it reviews` | 1 / 0 | 1 | 1 | 0 |
-| K21 | `commands again` | 1 / 0 | 0 | 0 | 0 |
-| K22 | `指令不跑` | 1 / 0 | 0 | 0 | 0 |
-| K23 | `回報差異` | 1 / 0 | 0 | 0 | 0 |
+| K15 | `decision-card.md` | 0 / 0 | 23 | 6 | 17 |
+| K16 | `live only in` | 0 / 0 | 6 | 5 | 1 |
+| K17 | `R-VER-5` | 0 / 0 | 13 | 2 | 11 |
+| K18 | `no command runs` | 0 / 0 | 0 | 0 | 0 |
+| K19 | `reports differences` | 0 / 0 | 0 | 0 | 0 |
+| K20 | `the diff that it reviews` | 0 / 0 | 1 | 0 | 1 |
+| K21 | `commands again` | 0 / 0 | 0 | 0 | 0 |
+| K22 | `指令不跑` | 0 / 0 | 0 | 0 | 0 |
+| K23 | `回報差異` | 0 / 0 | 0 | 0 | 0 |
+| K24 | `Mark everything else` | 0 / 0 | 1 | 1 | 0 |
+| K25 | `used once early` | 0 / 0 | 2 | 2 | 0 |
+| K26 | `quotes are the originals` | 0 / 0 | 2 | 2 | 0 |
+| K27 | `R-AUTH-7` | 0 / 0 | 32 | 10 | 22 |
+| K28 | `native memory` | 0 / 0 | 16 | 11 | 5 |
+| K29 | `chosen to publish` | 0 / 0 | 4 | 1 | 3 |
+| K30 | `private instruction files` | 1 / 0 | 8 | 8 | 0 |
 
 | ID | Path | Count | Disposition | Reason |
 | --- | --- | --- | --- | --- |
-| K1 | `.dev/followups.md` | 14 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K1 | `.dev/issue-1-phase1/reviews/round-1.md` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K1 | `.dev/issue-1-phase1/reviews/round-2.md` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K1 | `.dev/issue-12-minimal-ci/reviews/round-2.md` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K1 | `.dev/issue-14-platform-profile/reviews/round-1.md` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K1 | `.dev/issue-16-single-source-rules/graph.json` | 2 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K1 | `.dev/issue-16-single-source-rules/inventory.md` | 4 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K1 | `.dev/issue-16-single-source-rules/reviews/round-2.md` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K1 | `.dev/issue-16-single-source-rules/reviews/round-3.md` | 2 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K1 | `.dev/issue-16-single-source-rules/reviews/round-4.md` | 2 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K1 | `.dev/issue-16-single-source-rules/reviews/round-5.md` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K1 | `.dev/issue-16-single-source-rules/reviews/round-6.md` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K1 | `.dev/issue-18-core-audit/audit.md` | 2 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K1 | `.dev/issue-18-core-audit/reviews/round-1.md` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K1 | `.dev/issue-18-core-audit/reviews/round-2.md` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K1 | `.dev/issue-18-core-audit/reviews/round-3.md` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K1 | `.dev/issue-22-fu005-records/fu005-checklist.md` | 3 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K1 | `.dev/issue-22-fu005-records/fu005-spec.md` | 4 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K1 | `.dev/issue-24-fu014/reviews/round-1.md` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K1 | `.dev/issue-31-fu005-pr3/reviews/round-1-deep.md` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K1 | `.dev/issue-31-fu005-pr3/reviews/round-2-narrow-and-scan.md` | 2 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K1 | `.dev/issue-6-review-convergence/reviews/round-1.md` | 2 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K1 | `.dev/issue-64-fu025-skill-paths/plan.md` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K1 | `.dev/issue-66-user-level-install/plan.md` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K1 | `.dev/issue-69-readonly-tools-check/plan.md` | 2 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K1 | `.dev/issue-73-model-routing/plan.md` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K1 | `.dev/issue-73-model-routing/reviews/round-2.md` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K1 | `.dev/issue-73-model-routing/reviews/round-3.md` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K1 | `.dev/issue-77-effort-readback/plan.md` | 2 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K1 | `.dev/issue-78-relay-edges/plan.md` | 3 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K1 | `.dev/issue-85-retest-values/plan.md` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K1 | `.dev/issue-89-readback-script/plan.md` | 3 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K1 | `.dev/issue-91-floor-check-writes/plan.md` | 2 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K1 | `.dev/issue-93-readback-gate-dispatch/plan.md` | 2 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K1 | `.dev/issue-95-readback-gate-reviews/plan.md` | 3 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K1 | `.dev/issue-96-model-config/plan.md` | 3 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K1 | `.dev/issue-96-pr2/plan.md` | 8 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K1 | `.dev/issue-96-pr3/plan.md` | 6 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K1 | `CHANGELOG.md` | 4 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K1 | `docs/core-feedback.md` | 7 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K1 | `docs/design-proposal.md` | 36 | `changed` | U1 adds lines with this string here |
-| K1 | `docs/requirements/REQ-009-subagent-model-effort.md` | 8 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K1 | `docs/requirements/REQ-011-security-review-before-commit-push.md` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K1 | `docs/requirements/REQ-022-single-source-rules.md` | 2 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K1 | `docs/requirements/REQ-023-core-audit.md` | 4 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K1 | `docs/requirements/REQ-026-lessons-skill.md` | 5 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K1 | `docs/requirements/REQ-027-plan-trace-and-slicing-cost.md` | 2 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K1 | `docs/requirements/REQ-028-user-level-read-grant.md` | 2 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K1 | `docs/requirements/REQ-029-review-loop-checks.md` | 1 | `changed` | U1 adds lines with this string here |
-| K1 | `docs/requirements/log.md` | 7 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K1 | `skills/dev-core/SKILL.md` | 4 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K1 | `skills/dev-core/deltas.md` | 5 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K1 | `skills/dev-core/source-map.md` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K1 | `skills/dev-deliver/SKILL.md` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K1 | `skills/dev-plan/references/graph-schema.md` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K1 | `skills/dev-review/SKILL.md` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K2 | `.dev/followups.md` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K2 | `.dev/handoff/pr-2-checkpoint.md` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K2 | `.dev/issue-18-core-audit/audit.md` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K2 | `.dev/issue-18-core-audit/reviews/round-2.md` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K2 | `.dev/issue-18-core-audit/reviews/round-3.md` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K2 | `.dev/issue-22-fu005-records/fu005-checklist.md` | 3 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K2 | `.dev/issue-22-fu005-records/fu005-spec.md` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K2 | `.dev/issue-22-fu005-records/reviews/round-1.md` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K2 | `docs/requirements/REQ-026-lessons-skill.md` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K2 | `skills/dev-continue/SKILL.md` | 2 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K2 | `skills/dev-core/SKILL.md` | 2 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K2 | `skills/dev-core/deltas.md` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K2 | `skills/dev-core/source-map.md` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K2 | `skills/dev-plan/references/requirements-wiki.md` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K2 | `skills/dev-plan/templates/index.md` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K3 | `docs/requirements/REQ-029-review-loop-checks.md` | 1 | `changed` | U1 adds lines with this string here |
-| K3 | `docs/requirements/log.md` | 1 | `changed` | U1 adds lines with this string here |
-| K4 | `.dev/followups.md` | 2 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K4 | `.dev/issue-16-single-source-rules/inventory.md` | 2 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K4 | `.dev/issue-16-single-source-rules/reviews/round-5.md` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K4 | `.dev/issue-18-core-audit/audit.md` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K4 | `.dev/issue-22-fu005-records/fu005-checklist.md` | 3 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K4 | `.dev/issue-22-fu005-records/fu005-spec.md` | 2 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K4 | `.dev/issue-35-fu005-pr4/table-d-f.md` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K4 | `.dev/issue-95-readback-gate-reviews/plan.md` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K4 | `.dev/issue-96-pr3/plan.md` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K4 | `docs/requirements/REQ-025-on-demand-core-loading.md` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K4 | `skills/dev-core/SKILL.md` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K4 | `skills/dev-core/deltas.md` | 3 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K4 | `skills/dev-core/source-map.md` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K4 | `skills/dev-deliver/SKILL.md` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K4 | `skills/dev-deliver/references/task-brief.md` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K4 | `skills/dev-retro/SKILL.md` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K4 | `skills/dev-review/SKILL.md` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K4 | `tests/test_rule_citations.py` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K5 | `.dev/issue-22-fu005-records/fu005-checklist.md` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K5 | `.dev/issue-6-review-convergence/reviews/round-1.md` | 2 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K5 | `.dev/issue-8-decisions-changelog-core-feedback/reviews/round-1.md` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K5 | `docs/core-feedback.md` | 2 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K5 | `docs/design-proposal.md` | 2 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K5 | `skills/dev-core/deltas.md` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K5 | `skills/dev-core/source-map.md` | 2 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K6 | `.dev/followups.md` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K6 | `.dev/issue-10-cleanups/reviews/round-1.md` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K6 | `.dev/issue-18-core-audit/audit.md` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K6 | `.dev/issue-22-fu005-records/fu005-checklist.md` | 8 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K6 | `.dev/issue-22-fu005-records/fu005-spec.md` | 2 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K6 | `.dev/issue-27-fu004-baseline/report.md` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K6 | `.dev/issue-31-fu005-pr3/reviews/round-1-deep.md` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K6 | `.dev/issue-4-commit-security/reviews/round-2.md` | 2 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K6 | `.dev/issue-6-review-convergence/events.jsonl` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K6 | `.dev/issue-6-review-convergence/graph.json` | 2 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K6 | `.dev/issue-6-review-convergence/reviews/round-1.md` | 5 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K6 | `.dev/issue-8-decisions-changelog-core-feedback/reviews/round-1.md` | 5 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K6 | `CHANGELOG.md` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K6 | `docs/core-feedback.md` | 4 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K6 | `docs/design-proposal.md` | 10 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K6 | `docs/requirements/REQ-011-security-review-before-commit-push.md` | 2 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K6 | `docs/requirements/REQ-012-review-convergence.md` | 10 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K6 | `docs/requirements/REQ-013-decision-card.md` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K6 | `docs/requirements/REQ-014-requirement-relation.md` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K6 | `docs/requirements/REQ-015-no-agent-memory.md` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K6 | `docs/requirements/REQ-016-deploy-and-measure.md` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K6 | `docs/requirements/REQ-017-automatic-handoff.md` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K6 | `docs/requirements/REQ-018-changelog.md` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K6 | `docs/requirements/REQ-019-core-feedback.md` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K6 | `docs/requirements/REQ-025-on-demand-core-loading.md` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K6 | `docs/requirements/log.md` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K6 | `skills/dev-core/deltas.md` | 3 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K7 | `.dev/issue-57-d019-pr3/graph.json` | 2 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K7 | `CHANGELOG.md` | 3 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K7 | `docs/design-proposal.md` | 4 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K7 | `docs/requirements/REQ-026-lessons-skill.md` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K7 | `docs/requirements/log.md` | 2 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K7 | `skills/dev-core/SKILL.md` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K7 | `skills/dev-core/deltas.md` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K7 | `skills/dev-core/source-map.md` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K8 | `.dev/issue-1-phase1/reviews/round-1.md` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K8 | `.dev/issue-16-single-source-rules/inventory.md` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K8 | `.dev/issue-16-single-source-rules/reviews/round-1.md` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K8 | `.dev/issue-18-core-audit/audit.md` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K8 | `.dev/issue-22-fu005-records/README.md` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K8 | `.dev/issue-22-fu005-records/fu005-checklist.md` | 2 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K8 | `.dev/issue-22-fu005-records/fu005-spec.md` | 4 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K8 | `.dev/issue-35-fu005-pr4/graph.json` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K8 | `.dev/issue-69-readonly-tools-check/plan.md` | 2 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K8 | `.dev/issue-8-decisions-changelog-core-feedback/reviews/round-1.md` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K8 | `CHANGELOG.md` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K8 | `docs/core-feedback.md` | 2 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K8 | `docs/requirements/REQ-025-on-demand-core-loading.md` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K8 | `docs/requirements/log.md` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K8 | `scripts/check_pack.py` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K8 | `skills/dev-core/SKILL.md` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K8 | `skills/dev-core/deltas.md` | 3 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K8 | `tests/test_rule_citations.py` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K9 | `.dev/followups.md` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K9 | `.dev/issue-22-fu005-records/fu005-spec.md` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K9 | `.dev/issue-8-decisions-changelog-core-feedback/reviews/round-1.md` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K9 | `CHANGELOG.md` | 2 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K9 | `docs/core-feedback.md` | 8 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K9 | `docs/requirements/REQ-025-on-demand-core-loading.md` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K10 | `.dev/followups.md` | 8 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K10 | `.dev/issue-12-minimal-ci/reviews/round-2.md` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K10 | `.dev/issue-14-platform-profile/reviews/round-1.md` | 2 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K10 | `.dev/issue-16-single-source-rules/inventory.md` | 2 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K10 | `.dev/issue-16-single-source-rules/reviews/round-2.md` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K10 | `.dev/issue-16-single-source-rules/reviews/round-3.md` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K10 | `.dev/issue-16-single-source-rules/reviews/round-4.md` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K10 | `.dev/issue-16-single-source-rules/reviews/round-5.md` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K10 | `.dev/issue-16-single-source-rules/reviews/round-6.md` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K10 | `.dev/issue-18-core-audit/audit.md` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K10 | `.dev/issue-18-core-audit/reviews/round-2.md` | 2 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K10 | `.dev/issue-24-fu014/reviews/round-1.md` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K10 | `.dev/issue-31-fu005-pr3/reviews/round-1-deep.md` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K10 | `.dev/issue-31-fu005-pr3/reviews/round-2-narrow-and-scan.md` | 3 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K10 | `.dev/issue-4-commit-security/reviews/round-2.md` | 2 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K10 | `.dev/issue-6-review-convergence/graph.json` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K10 | `.dev/issue-64-fu025-skill-paths/plan.md` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K10 | `.dev/issue-66-user-level-install/plan.md` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K10 | `.dev/issue-69-readonly-tools-check/plan.md` | 2 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K10 | `.dev/issue-73-model-routing/plan.md` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K10 | `.dev/issue-73-model-routing/reviews/round-2.md` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K10 | `.dev/issue-73-model-routing/reviews/round-3.md` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K10 | `.dev/issue-77-effort-readback/plan.md` | 2 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K10 | `.dev/issue-78-relay-edges/plan.md` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K10 | `CHANGELOG.md` | 2 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K10 | `docs/core-feedback.md` | 13 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K10 | `docs/design-proposal.md` | 17 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K10 | `docs/requirements/REQ-009-subagent-model-effort.md` | 2 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K10 | `docs/requirements/REQ-012-review-convergence.md` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K10 | `docs/requirements/REQ-020-minimal-ci.md` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K10 | `docs/requirements/REQ-021-platform-profile.md` | 3 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K10 | `docs/requirements/REQ-022-single-source-rules.md` | 2 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K10 | `docs/requirements/REQ-023-core-audit.md` | 6 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K10 | `docs/requirements/REQ-025-on-demand-core-loading.md` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K10 | `docs/requirements/REQ-026-lessons-skill.md` | 5 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K10 | `docs/requirements/REQ-027-plan-trace-and-slicing-cost.md` | 2 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K10 | `docs/requirements/REQ-028-user-level-read-grant.md` | 2 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K10 | `docs/requirements/log.md` | 8 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K10 | `skills/dev-core/SKILL.md` | 3 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K10 | `skills/dev-core/deltas.md` | 4 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K10 | `skills/dev-core/source-map.md` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K10 | `skills/dev-deliver/SKILL.md` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K10 | `skills/dev-review/SKILL.md` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K10 | `skills/dev-review/references/review-report.md` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K11 | `.dev/issue-22-fu005-records/fu005-checklist.md` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K11 | `.dev/issue-22-fu005-records/fu005-spec.md` | 2 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K11 | `docs/core-feedback.md` | 10 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K11 | `docs/design-proposal.md` | 15 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K12 | `.dev/followups.md` | 3 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K12 | `.dev/issue-12-minimal-ci/reviews/round-2.md` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K12 | `.dev/issue-16-single-source-rules/reviews/round-2.md` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K12 | `.dev/issue-16-single-source-rules/reviews/round-3.md` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K12 | `.dev/issue-18-core-audit/reviews/round-2.md` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K12 | `.dev/issue-18-core-audit/reviews/round-3.md` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K12 | `.dev/issue-31-fu005-pr3/reviews/round-2-narrow-and-scan.md` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K12 | `.dev/issue-6-review-convergence/reviews/round-1.md` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K12 | `.dev/issue-66-user-level-install/plan.md` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K12 | `.dev/issue-89-readback-script/plan.md` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K12 | `.dev/issue-93-readback-gate-dispatch/plan.md` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K12 | `.dev/issue-95-readback-gate-reviews/plan.md` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K12 | `.dev/issue-96-pr2/plan.md` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K12 | `docs/core-feedback.md` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K12 | `docs/design-proposal.md` | 2 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K12 | `docs/requirements/REQ-012-review-convergence.md` | 2 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K12 | `skills/dev-core/SKILL.md` | 2 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K12 | `skills/dev-core/deltas.md` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K12 | `skills/dev-review/references/review-report.md` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K13 | `docs/core-feedback.md` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K13 | `docs/design-proposal.md` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K14 | `docs/core-feedback.md` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K14 | `docs/design-proposal.md` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K15 | `.dev/followups.md` | 2 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K15 | `.dev/issue-10-cleanups/reviews/round-1.md` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K15 | `.dev/issue-16-single-source-rules/reviews/round-4.md` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K15 | `.dev/issue-18-core-audit/audit.md` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K15 | `.dev/issue-18-core-audit/reviews/round-3.md` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K15 | `.dev/issue-22-fu005-records/fu005-checklist.md` | 3 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K15 | `.dev/issue-22-fu005-records/fu005-spec.md` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K15 | `.dev/issue-6-review-convergence/reviews/round-1.md` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K15 | `.dev/issue-64-fu025-skill-paths/plan.md` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K15 | `.dev/issue-73-model-routing/plan.md` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K15 | `docs/design-proposal.md` | 2 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K15 | `docs/requirements/REQ-026-lessons-skill.md` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K15 | `skills/dev-core/SKILL.md` | 2 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K15 | `skills/dev-core/deltas.md` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K15 | `skills/dev-deliver/SKILL.md` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K15 | `skills/dev-gate/SKILL.md` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K15 | `skills/dev-retro/SKILL.md` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K15 | `skills/dev-review/SKILL.md` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K15 | `skills/dev-review/references/review-report.md` | 2 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K16 | `skills/dev-plan/references/requirements-wiki.md` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K16 | `tests/test_platform_profile.py` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K17 | `.dev/issue-57-d019-pr2/graph.json` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K17 | `.dev/issue-57-d019-pr3/graph.json` | 3 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K17 | `CHANGELOG.md` | 5 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K17 | `docs/design-proposal.md` | 5 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K17 | `docs/requirements/REQ-026-lessons-skill.md` | 9 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K17 | `docs/requirements/log.md` | 2 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K17 | `skills/dev-core/SKILL.md` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K17 | `skills/dev-core/deltas.md` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K17 | `skills/dev-core/source-map.md` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K17 | `skills/dev-deliver/SKILL.md` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K17 | `skills/dev-retro/SKILL.md` | 1 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K17 | `skills/dev-review/references/review-report.md` | 3 | `noted` | same count as at HEAD; U1 only adds text, so no existing statement here becomes false |
-| K20 | `docs/requirements/REQ-029-review-loop-checks.md` | 1 | `changed` | U1 adds lines with this string here |
+| K1 | `.dev/followups.md` | 14 | `noted` | U2 does not change R-VER-2; this place states it or an earlier use of it |
+| K1 | `.dev/issue-1-phase1/reviews/round-1.md` | 1 | `noted` | U2 does not change R-VER-2; this place states it or an earlier use of it |
+| K1 | `.dev/issue-1-phase1/reviews/round-2.md` | 1 | `noted` | U2 does not change R-VER-2; this place states it or an earlier use of it |
+| K1 | `.dev/issue-12-minimal-ci/reviews/round-2.md` | 1 | `noted` | U2 does not change R-VER-2; this place states it or an earlier use of it |
+| K1 | `.dev/issue-14-platform-profile/reviews/round-1.md` | 1 | `noted` | U2 does not change R-VER-2; this place states it or an earlier use of it |
+| K1 | `.dev/issue-16-single-source-rules/graph.json` | 2 | `noted` | U2 does not change R-VER-2; this place states it or an earlier use of it |
+| K1 | `.dev/issue-16-single-source-rules/inventory.md` | 4 | `noted` | U2 does not change R-VER-2; this place states it or an earlier use of it |
+| K1 | `.dev/issue-16-single-source-rules/reviews/round-2.md` | 1 | `noted` | U2 does not change R-VER-2; this place states it or an earlier use of it |
+| K1 | `.dev/issue-16-single-source-rules/reviews/round-3.md` | 2 | `noted` | U2 does not change R-VER-2; this place states it or an earlier use of it |
+| K1 | `.dev/issue-16-single-source-rules/reviews/round-4.md` | 2 | `noted` | U2 does not change R-VER-2; this place states it or an earlier use of it |
+| K1 | `.dev/issue-16-single-source-rules/reviews/round-5.md` | 1 | `noted` | U2 does not change R-VER-2; this place states it or an earlier use of it |
+| K1 | `.dev/issue-16-single-source-rules/reviews/round-6.md` | 1 | `noted` | U2 does not change R-VER-2; this place states it or an earlier use of it |
+| K1 | `.dev/issue-18-core-audit/audit.md` | 2 | `noted` | U2 does not change R-VER-2; this place states it or an earlier use of it |
+| K1 | `.dev/issue-18-core-audit/reviews/round-1.md` | 1 | `noted` | U2 does not change R-VER-2; this place states it or an earlier use of it |
+| K1 | `.dev/issue-18-core-audit/reviews/round-2.md` | 1 | `noted` | U2 does not change R-VER-2; this place states it or an earlier use of it |
+| K1 | `.dev/issue-18-core-audit/reviews/round-3.md` | 1 | `noted` | U2 does not change R-VER-2; this place states it or an earlier use of it |
+| K1 | `.dev/issue-22-fu005-records/fu005-checklist.md` | 3 | `noted` | U2 does not change R-VER-2; this place states it or an earlier use of it |
+| K1 | `.dev/issue-22-fu005-records/fu005-spec.md` | 4 | `noted` | U2 does not change R-VER-2; this place states it or an earlier use of it |
+| K1 | `.dev/issue-24-fu014/reviews/round-1.md` | 1 | `noted` | U2 does not change R-VER-2; this place states it or an earlier use of it |
+| K1 | `.dev/issue-31-fu005-pr3/reviews/round-1-deep.md` | 1 | `noted` | U2 does not change R-VER-2; this place states it or an earlier use of it |
+| K1 | `.dev/issue-31-fu005-pr3/reviews/round-2-narrow-and-scan.md` | 2 | `noted` | U2 does not change R-VER-2; this place states it or an earlier use of it |
+| K1 | `.dev/issue-6-review-convergence/reviews/round-1.md` | 2 | `noted` | U2 does not change R-VER-2; this place states it or an earlier use of it |
+| K1 | `.dev/issue-64-fu025-skill-paths/plan.md` | 1 | `noted` | U2 does not change R-VER-2; this place states it or an earlier use of it |
+| K1 | `.dev/issue-66-user-level-install/plan.md` | 1 | `noted` | U2 does not change R-VER-2; this place states it or an earlier use of it |
+| K1 | `.dev/issue-69-readonly-tools-check/plan.md` | 2 | `noted` | U2 does not change R-VER-2; this place states it or an earlier use of it |
+| K1 | `.dev/issue-73-model-routing/plan.md` | 1 | `noted` | U2 does not change R-VER-2; this place states it or an earlier use of it |
+| K1 | `.dev/issue-73-model-routing/reviews/round-2.md` | 1 | `noted` | U2 does not change R-VER-2; this place states it or an earlier use of it |
+| K1 | `.dev/issue-73-model-routing/reviews/round-3.md` | 1 | `noted` | U2 does not change R-VER-2; this place states it or an earlier use of it |
+| K1 | `.dev/issue-77-effort-readback/plan.md` | 2 | `noted` | U2 does not change R-VER-2; this place states it or an earlier use of it |
+| K1 | `.dev/issue-78-relay-edges/plan.md` | 3 | `noted` | U2 does not change R-VER-2; this place states it or an earlier use of it |
+| K1 | `.dev/issue-85-retest-values/plan.md` | 1 | `noted` | U2 does not change R-VER-2; this place states it or an earlier use of it |
+| K1 | `.dev/issue-89-readback-script/plan.md` | 3 | `noted` | U2 does not change R-VER-2; this place states it or an earlier use of it |
+| K1 | `.dev/issue-91-floor-check-writes/plan.md` | 2 | `noted` | U2 does not change R-VER-2; this place states it or an earlier use of it |
+| K1 | `.dev/issue-93-readback-gate-dispatch/plan.md` | 2 | `noted` | U2 does not change R-VER-2; this place states it or an earlier use of it |
+| K1 | `.dev/issue-95-readback-gate-reviews/plan.md` | 3 | `noted` | U2 does not change R-VER-2; this place states it or an earlier use of it |
+| K1 | `.dev/issue-96-model-config/plan.md` | 3 | `noted` | U2 does not change R-VER-2; this place states it or an earlier use of it |
+| K1 | `.dev/issue-96-pr2/plan.md` | 8 | `noted` | U2 does not change R-VER-2; this place states it or an earlier use of it |
+| K1 | `.dev/issue-96-pr3/plan.md` | 6 | `noted` | U2 does not change R-VER-2; this place states it or an earlier use of it |
+| K1 | `CHANGELOG.md` | 4 | `noted` | U2 does not change R-VER-2; this place states it or an earlier use of it |
+| K1 | `docs/core-feedback.md` | 7 | `noted` | U2 does not change R-VER-2; this place states it or an earlier use of it |
+| K1 | `docs/design-proposal.md` | 36 | `noted` | U2 does not change R-VER-2; this place states it or an earlier use of it |
+| K1 | `docs/requirements/REQ-009-subagent-model-effort.md` | 8 | `noted` | U2 does not change R-VER-2; this place states it or an earlier use of it |
+| K1 | `docs/requirements/REQ-011-security-review-before-commit-push.md` | 1 | `noted` | U2 does not change R-VER-2; this place states it or an earlier use of it |
+| K1 | `docs/requirements/REQ-022-single-source-rules.md` | 2 | `noted` | U2 does not change R-VER-2; this place states it or an earlier use of it |
+| K1 | `docs/requirements/REQ-023-core-audit.md` | 4 | `noted` | U2 does not change R-VER-2; this place states it or an earlier use of it |
+| K1 | `docs/requirements/REQ-026-lessons-skill.md` | 5 | `noted` | U2 does not change R-VER-2; this place states it or an earlier use of it |
+| K1 | `docs/requirements/REQ-027-plan-trace-and-slicing-cost.md` | 2 | `noted` | U2 does not change R-VER-2; this place states it or an earlier use of it |
+| K1 | `docs/requirements/REQ-028-user-level-read-grant.md` | 2 | `noted` | U2 does not change R-VER-2; this place states it or an earlier use of it |
+| K1 | `docs/requirements/REQ-029-review-loop-checks.md` | 1 | `noted` | U2 does not change R-VER-2; this place states it or an earlier use of it |
+| K1 | `docs/requirements/log.md` | 7 | `noted` | U2 does not change R-VER-2; this place states it or an earlier use of it |
+| K1 | `skills/dev-core/SKILL.md` | 4 | `noted` | U2 does not change R-VER-2; this place states it or an earlier use of it |
+| K1 | `skills/dev-core/deltas.md` | 5 | `noted` | U2 does not change R-VER-2; this place states it or an earlier use of it |
+| K1 | `skills/dev-core/source-map.md` | 1 | `noted` | U2 does not change R-VER-2; this place states it or an earlier use of it |
+| K1 | `skills/dev-deliver/SKILL.md` | 1 | `noted` | U2 does not change R-VER-2; this place states it or an earlier use of it |
+| K1 | `skills/dev-plan/references/graph-schema.md` | 1 | `noted` | U2 does not change R-VER-2; this place states it or an earlier use of it |
+| K1 | `skills/dev-review/SKILL.md` | 1 | `noted` | U2 does not change R-VER-2; this place states it or an earlier use of it |
+| K2 | `.dev/followups.md` | 1 | `noted` | R-EVD-2 does not change; R-EVD-3 stands beside it |
+| K2 | `.dev/handoff/pr-2-checkpoint.md` | 1 | `noted` | R-EVD-2 does not change; R-EVD-3 stands beside it |
+| K2 | `.dev/issue-18-core-audit/audit.md` | 1 | `noted` | R-EVD-2 does not change; R-EVD-3 stands beside it |
+| K2 | `.dev/issue-18-core-audit/reviews/round-2.md` | 1 | `noted` | R-EVD-2 does not change; R-EVD-3 stands beside it |
+| K2 | `.dev/issue-18-core-audit/reviews/round-3.md` | 1 | `noted` | R-EVD-2 does not change; R-EVD-3 stands beside it |
+| K2 | `.dev/issue-22-fu005-records/fu005-checklist.md` | 3 | `noted` | R-EVD-2 does not change; R-EVD-3 stands beside it |
+| K2 | `.dev/issue-22-fu005-records/fu005-spec.md` | 1 | `noted` | R-EVD-2 does not change; R-EVD-3 stands beside it |
+| K2 | `.dev/issue-22-fu005-records/reviews/round-1.md` | 1 | `noted` | R-EVD-2 does not change; R-EVD-3 stands beside it |
+| K2 | `docs/requirements/REQ-026-lessons-skill.md` | 1 | `noted` | R-EVD-2 does not change; R-EVD-3 stands beside it |
+| K2 | `docs/requirements/REQ-029-review-loop-checks.md` | 1 | `changed` | U2 edits lines with this string here |
+| K2 | `skills/dev-continue/SKILL.md` | 2 | `noted` | R-EVD-2 does not change; R-EVD-3 stands beside it |
+| K2 | `skills/dev-core/SKILL.md` | 3 | `changed` | U2 edits lines with this string here |
+| K2 | `skills/dev-core/deltas.md` | 1 | `noted` | R-EVD-2 does not change; R-EVD-3 stands beside it |
+| K2 | `skills/dev-core/source-map.md` | 1 | `changed` | U2 edits lines with this string here |
+| K2 | `skills/dev-plan/references/requirements-wiki.md` | 1 | `noted` | R-EVD-2 does not change; R-EVD-3 stands beside it |
+| K2 | `skills/dev-plan/templates/index.md` | 1 | `noted` | R-EVD-2 does not change; R-EVD-3 stands beside it |
+| K3 | `CHANGELOG.md` | 2 | `changed` | U2 edits lines with this string here |
+| K3 | `docs/design-proposal.md` | 11 | `changed` | U2 edits lines with this string here |
+| K3 | `docs/requirements/REQ-029-review-loop-checks.md` | 5 | `changed` | U2 edits lines with this string here |
+| K3 | `docs/requirements/log.md` | 2 | `changed` | U2 edits lines with this string here |
+| K3 | `skills/dev-core/SKILL.md` | 2 | `changed` | U2 edits lines with this string here |
+| K3 | `skills/dev-core/deltas.md` | 1 | `changed` | U2 edits lines with this string here |
+| K3 | `skills/dev-core/source-map.md` | 1 | `changed` | U2 edits lines with this string here |
+| K3 | `skills/dev-deliver/references/task-brief.md` | 2 | `changed` | U2 edits lines with this string here |
+| K3 | `skills/dev-review/references/decision-card.md` | 1 | `changed` | U2 edits lines with this string here |
+| K3 | `skills/dev-review/references/review-report.md` | 1 | `changed` | U2 edits lines with this string here |
+| K3 | `tests/test_review_loop_rules.py` | 2 | `changed` | U2 edits lines with this string here |
+| K4 | `.dev/followups.md` | 2 | `noted` | this place names R-DEL-1 and does not say what its line holds, so the added sentence makes nothing here false |
+| K4 | `.dev/issue-16-single-source-rules/inventory.md` | 2 | `noted` | this place names R-DEL-1 and does not say what its line holds, so the added sentence makes nothing here false |
+| K4 | `.dev/issue-16-single-source-rules/reviews/round-5.md` | 1 | `noted` | this place names R-DEL-1 and does not say what its line holds, so the added sentence makes nothing here false |
+| K4 | `.dev/issue-18-core-audit/audit.md` | 1 | `noted` | this place names R-DEL-1 and does not say what its line holds, so the added sentence makes nothing here false |
+| K4 | `.dev/issue-22-fu005-records/fu005-checklist.md` | 3 | `historical` | it records what R-DEL-1 held then; DL-047 and the DL-009 note supersede it |
+| K4 | `.dev/issue-22-fu005-records/fu005-spec.md` | 2 | `historical` | it records what R-DEL-1 held then; DL-047 and the DL-009 note supersede it |
+| K4 | `.dev/issue-35-fu005-pr4/table-d-f.md` | 1 | `historical` | it records what R-DEL-1 held then; DL-047 and the DL-009 note supersede it |
+| K4 | `.dev/issue-95-readback-gate-reviews/plan.md` | 1 | `noted` | this place names R-DEL-1 and does not say what its line holds, so the added sentence makes nothing here false |
+| K4 | `.dev/issue-96-pr3/plan.md` | 1 | `noted` | this place names R-DEL-1 and does not say what its line holds, so the added sentence makes nothing here false |
+| K4 | `CHANGELOG.md` | 1 | `changed` | U2 edits lines with this string here |
+| K4 | `docs/design-proposal.md` | 4 | `changed` | U2 edits lines with this string here |
+| K4 | `docs/requirements/REQ-025-on-demand-core-loading.md` | 1 | `historical` | it records the index-line form of FU-005 PR-4; DL-047 and the DL-009 note supersede it |
+| K4 | `docs/requirements/REQ-029-review-loop-checks.md` | 1 | `changed` | U2 edits lines with this string here |
+| K4 | `docs/requirements/log.md` | 1 | `changed` | U2 edits lines with this string here |
+| K4 | `skills/dev-core/SKILL.md` | 1 | `changed` | U2 edits lines with this string here |
+| K4 | `skills/dev-core/deltas.md` | 4 | `changed` | U2 edits lines with this string here |
+| K4 | `skills/dev-core/source-map.md` | 1 | `noted` | this place names R-DEL-1 and does not say what its line holds, so the added sentence makes nothing here false |
+| K4 | `skills/dev-deliver/SKILL.md` | 1 | `noted` | this place names R-DEL-1 and does not say what its line holds, so the added sentence makes nothing here false |
+| K4 | `skills/dev-deliver/references/task-brief.md` | 1 | `noted` | this place names R-DEL-1 and does not say what its line holds, so the added sentence makes nothing here false |
+| K4 | `skills/dev-retro/SKILL.md` | 1 | `noted` | this place names R-DEL-1 and does not say what its line holds, so the added sentence makes nothing here false |
+| K4 | `skills/dev-review/SKILL.md` | 1 | `noted` | this place names R-DEL-1 and does not say what its line holds, so the added sentence makes nothing here false |
+| K4 | `tests/test_rule_citations.py` | 1 | `noted` | this place names R-DEL-1 and does not say what its line holds, so the added sentence makes nothing here false |
+| K5 | `.dev/issue-22-fu005-records/fu005-checklist.md` | 1 | `noted` | U2 does not change DL-012 |
+| K5 | `.dev/issue-6-review-convergence/reviews/round-1.md` | 2 | `noted` | U2 does not change DL-012 |
+| K5 | `.dev/issue-8-decisions-changelog-core-feedback/reviews/round-1.md` | 1 | `noted` | U2 does not change DL-012 |
+| K5 | `docs/core-feedback.md` | 2 | `noted` | U2 does not change DL-012 |
+| K5 | `docs/design-proposal.md` | 2 | `noted` | U2 does not change DL-012 |
+| K5 | `skills/dev-core/deltas.md` | 1 | `noted` | U2 does not change DL-012 |
+| K5 | `skills/dev-core/source-map.md` | 2 | `noted` | U2 does not change DL-012 |
+| K6 | `.dev/followups.md` | 1 | `noted` | U2 does not change D-013 |
+| K6 | `.dev/issue-10-cleanups/reviews/round-1.md` | 1 | `noted` | U2 does not change D-013 |
+| K6 | `.dev/issue-18-core-audit/audit.md` | 1 | `noted` | U2 does not change D-013 |
+| K6 | `.dev/issue-22-fu005-records/fu005-checklist.md` | 8 | `noted` | U2 does not change D-013 |
+| K6 | `.dev/issue-22-fu005-records/fu005-spec.md` | 2 | `noted` | U2 does not change D-013 |
+| K6 | `.dev/issue-27-fu004-baseline/report.md` | 1 | `noted` | U2 does not change D-013 |
+| K6 | `.dev/issue-31-fu005-pr3/reviews/round-1-deep.md` | 1 | `noted` | U2 does not change D-013 |
+| K6 | `.dev/issue-4-commit-security/reviews/round-2.md` | 2 | `noted` | U2 does not change D-013 |
+| K6 | `.dev/issue-6-review-convergence/events.jsonl` | 1 | `noted` | U2 does not change D-013 |
+| K6 | `.dev/issue-6-review-convergence/graph.json` | 2 | `noted` | U2 does not change D-013 |
+| K6 | `.dev/issue-6-review-convergence/reviews/round-1.md` | 5 | `noted` | U2 does not change D-013 |
+| K6 | `.dev/issue-8-decisions-changelog-core-feedback/reviews/round-1.md` | 5 | `noted` | U2 does not change D-013 |
+| K6 | `CHANGELOG.md` | 1 | `noted` | U2 does not change D-013 |
+| K6 | `docs/core-feedback.md` | 4 | `noted` | U2 does not change D-013 |
+| K6 | `docs/design-proposal.md` | 10 | `noted` | U2 does not change D-013 |
+| K6 | `docs/requirements/REQ-011-security-review-before-commit-push.md` | 2 | `noted` | U2 does not change D-013 |
+| K6 | `docs/requirements/REQ-012-review-convergence.md` | 10 | `noted` | U2 does not change D-013 |
+| K6 | `docs/requirements/REQ-013-decision-card.md` | 1 | `noted` | U2 does not change D-013 |
+| K6 | `docs/requirements/REQ-014-requirement-relation.md` | 1 | `noted` | U2 does not change D-013 |
+| K6 | `docs/requirements/REQ-015-no-agent-memory.md` | 1 | `noted` | U2 does not change D-013 |
+| K6 | `docs/requirements/REQ-016-deploy-and-measure.md` | 1 | `noted` | U2 does not change D-013 |
+| K6 | `docs/requirements/REQ-017-automatic-handoff.md` | 1 | `noted` | U2 does not change D-013 |
+| K6 | `docs/requirements/REQ-018-changelog.md` | 1 | `noted` | U2 does not change D-013 |
+| K6 | `docs/requirements/REQ-019-core-feedback.md` | 1 | `noted` | U2 does not change D-013 |
+| K6 | `docs/requirements/REQ-025-on-demand-core-loading.md` | 1 | `noted` | U2 does not change D-013 |
+| K6 | `docs/requirements/log.md` | 1 | `noted` | U2 does not change D-013 |
+| K6 | `skills/dev-core/deltas.md` | 3 | `noted` | U2 does not change D-013 |
+| K7 | `.dev/issue-57-d019-pr3/graph.json` | 2 | `noted` | U2 does not change DL-035 or R-VER-5 |
+| K7 | `CHANGELOG.md` | 3 | `noted` | U2 does not change DL-035 or R-VER-5 |
+| K7 | `docs/design-proposal.md` | 4 | `noted` | U2 does not change DL-035 or R-VER-5 |
+| K7 | `docs/requirements/REQ-026-lessons-skill.md` | 1 | `noted` | U2 does not change DL-035 or R-VER-5 |
+| K7 | `docs/requirements/log.md` | 2 | `noted` | U2 does not change DL-035 or R-VER-5 |
+| K7 | `skills/dev-core/SKILL.md` | 1 | `noted` | U2 does not change DL-035 or R-VER-5 |
+| K7 | `skills/dev-core/deltas.md` | 1 | `noted` | U2 does not change DL-035 or R-VER-5 |
+| K7 | `skills/dev-core/source-map.md` | 1 | `noted` | U2 does not change DL-035 or R-VER-5 |
+| K8 | `.dev/issue-1-phase1/reviews/round-1.md` | 1 | `noted` | this place cites DL-009 for its own content, which U2 does not change |
+| K8 | `.dev/issue-16-single-source-rules/inventory.md` | 1 | `noted` | this place cites DL-009 for its own content, which U2 does not change |
+| K8 | `.dev/issue-16-single-source-rules/reviews/round-1.md` | 1 | `noted` | this place cites DL-009 for its own content, which U2 does not change |
+| K8 | `.dev/issue-18-core-audit/audit.md` | 1 | `noted` | this place cites DL-009 for its own content, which U2 does not change |
+| K8 | `.dev/issue-22-fu005-records/README.md` | 1 | `noted` | this place cites DL-009 for its own content, which U2 does not change |
+| K8 | `.dev/issue-22-fu005-records/fu005-checklist.md` | 2 | `noted` | this place cites DL-009 for its own content, which U2 does not change |
+| K8 | `.dev/issue-22-fu005-records/fu005-spec.md` | 4 | `noted` | this place cites DL-009 for its own content, which U2 does not change |
+| K8 | `.dev/issue-35-fu005-pr4/graph.json` | 1 | `noted` | this place cites DL-009 for its own content, which U2 does not change |
+| K8 | `.dev/issue-69-readonly-tools-check/plan.md` | 2 | `noted` | this place cites DL-009 for its own content, which U2 does not change |
+| K8 | `.dev/issue-8-decisions-changelog-core-feedback/reviews/round-1.md` | 1 | `noted` | this place cites DL-009 for its own content, which U2 does not change |
+| K8 | `CHANGELOG.md` | 1 | `noted` | this place cites DL-009 for its own content, which U2 does not change |
+| K8 | `docs/core-feedback.md` | 2 | `noted` | this place cites DL-009 for its own content, which U2 does not change |
+| K8 | `docs/design-proposal.md` | 2 | `changed` | U2 edits lines with this string here |
+| K8 | `docs/requirements/REQ-025-on-demand-core-loading.md` | 1 | `noted` | this place cites DL-009 for its own content, which U2 does not change |
+| K8 | `docs/requirements/REQ-029-review-loop-checks.md` | 1 | `changed` | U2 edits lines with this string here |
+| K8 | `docs/requirements/log.md` | 1 | `noted` | this place cites DL-009 for its own content, which U2 does not change |
+| K8 | `scripts/check_pack.py` | 1 | `noted` | this place cites DL-009 for its own content, which U2 does not change |
+| K8 | `skills/dev-core/SKILL.md` | 1 | `noted` | this place cites DL-009 for its own content, which U2 does not change |
+| K8 | `skills/dev-core/deltas.md` | 3 | `changed` | U2 edits lines with this string here |
+| K8 | `tests/test_rule_citations.py` | 1 | `noted` | this place cites DL-009 for its own content, which U2 does not change |
+| K9 | `.dev/followups.md` | 1 | `noted` | U2 does not change CF-001 |
+| K9 | `.dev/issue-22-fu005-records/fu005-spec.md` | 1 | `noted` | U2 does not change CF-001 |
+| K9 | `.dev/issue-8-decisions-changelog-core-feedback/reviews/round-1.md` | 1 | `noted` | U2 does not change CF-001 |
+| K9 | `CHANGELOG.md` | 2 | `noted` | U2 does not change CF-001 |
+| K9 | `docs/core-feedback.md` | 8 | `noted` | U2 does not change CF-001 |
+| K9 | `docs/requirements/REQ-025-on-demand-core-loading.md` | 1 | `noted` | U2 does not change CF-001 |
+| K10 | `.dev/followups.md` | 8 | `noted` | U2 does not change the stop rule |
+| K10 | `.dev/issue-12-minimal-ci/reviews/round-2.md` | 1 | `noted` | U2 does not change the stop rule |
+| K10 | `.dev/issue-14-platform-profile/reviews/round-1.md` | 2 | `noted` | U2 does not change the stop rule |
+| K10 | `.dev/issue-16-single-source-rules/inventory.md` | 2 | `noted` | U2 does not change the stop rule |
+| K10 | `.dev/issue-16-single-source-rules/reviews/round-2.md` | 1 | `noted` | U2 does not change the stop rule |
+| K10 | `.dev/issue-16-single-source-rules/reviews/round-3.md` | 1 | `noted` | U2 does not change the stop rule |
+| K10 | `.dev/issue-16-single-source-rules/reviews/round-4.md` | 1 | `noted` | U2 does not change the stop rule |
+| K10 | `.dev/issue-16-single-source-rules/reviews/round-5.md` | 1 | `noted` | U2 does not change the stop rule |
+| K10 | `.dev/issue-16-single-source-rules/reviews/round-6.md` | 1 | `noted` | U2 does not change the stop rule |
+| K10 | `.dev/issue-18-core-audit/audit.md` | 1 | `noted` | U2 does not change the stop rule |
+| K10 | `.dev/issue-18-core-audit/reviews/round-2.md` | 2 | `noted` | U2 does not change the stop rule |
+| K10 | `.dev/issue-24-fu014/reviews/round-1.md` | 1 | `noted` | U2 does not change the stop rule |
+| K10 | `.dev/issue-31-fu005-pr3/reviews/round-1-deep.md` | 1 | `noted` | U2 does not change the stop rule |
+| K10 | `.dev/issue-31-fu005-pr3/reviews/round-2-narrow-and-scan.md` | 3 | `noted` | U2 does not change the stop rule |
+| K10 | `.dev/issue-4-commit-security/reviews/round-2.md` | 2 | `noted` | U2 does not change the stop rule |
+| K10 | `.dev/issue-6-review-convergence/graph.json` | 1 | `noted` | U2 does not change the stop rule |
+| K10 | `.dev/issue-64-fu025-skill-paths/plan.md` | 1 | `noted` | U2 does not change the stop rule |
+| K10 | `.dev/issue-66-user-level-install/plan.md` | 1 | `noted` | U2 does not change the stop rule |
+| K10 | `.dev/issue-69-readonly-tools-check/plan.md` | 2 | `noted` | U2 does not change the stop rule |
+| K10 | `.dev/issue-73-model-routing/plan.md` | 1 | `noted` | U2 does not change the stop rule |
+| K10 | `.dev/issue-73-model-routing/reviews/round-2.md` | 1 | `noted` | U2 does not change the stop rule |
+| K10 | `.dev/issue-73-model-routing/reviews/round-3.md` | 1 | `noted` | U2 does not change the stop rule |
+| K10 | `.dev/issue-77-effort-readback/plan.md` | 2 | `noted` | U2 does not change the stop rule |
+| K10 | `.dev/issue-78-relay-edges/plan.md` | 1 | `noted` | U2 does not change the stop rule |
+| K10 | `CHANGELOG.md` | 2 | `noted` | U2 does not change the stop rule |
+| K10 | `docs/core-feedback.md` | 13 | `noted` | U2 does not change the stop rule |
+| K10 | `docs/design-proposal.md` | 17 | `noted` | U2 does not change the stop rule |
+| K10 | `docs/requirements/REQ-009-subagent-model-effort.md` | 2 | `noted` | U2 does not change the stop rule |
+| K10 | `docs/requirements/REQ-012-review-convergence.md` | 1 | `noted` | U2 does not change the stop rule |
+| K10 | `docs/requirements/REQ-020-minimal-ci.md` | 1 | `noted` | U2 does not change the stop rule |
+| K10 | `docs/requirements/REQ-021-platform-profile.md` | 3 | `noted` | U2 does not change the stop rule |
+| K10 | `docs/requirements/REQ-022-single-source-rules.md` | 2 | `noted` | U2 does not change the stop rule |
+| K10 | `docs/requirements/REQ-023-core-audit.md` | 6 | `noted` | U2 does not change the stop rule |
+| K10 | `docs/requirements/REQ-025-on-demand-core-loading.md` | 1 | `noted` | U2 does not change the stop rule |
+| K10 | `docs/requirements/REQ-026-lessons-skill.md` | 5 | `noted` | U2 does not change the stop rule |
+| K10 | `docs/requirements/REQ-027-plan-trace-and-slicing-cost.md` | 2 | `noted` | U2 does not change the stop rule |
+| K10 | `docs/requirements/REQ-028-user-level-read-grant.md` | 2 | `noted` | U2 does not change the stop rule |
+| K10 | `docs/requirements/log.md` | 8 | `noted` | U2 does not change the stop rule |
+| K10 | `skills/dev-core/SKILL.md` | 3 | `noted` | U2 does not change the stop rule |
+| K10 | `skills/dev-core/deltas.md` | 4 | `noted` | U2 does not change the stop rule |
+| K10 | `skills/dev-core/source-map.md` | 1 | `noted` | U2 does not change the stop rule |
+| K10 | `skills/dev-deliver/SKILL.md` | 1 | `noted` | U2 does not change the stop rule |
+| K10 | `skills/dev-review/SKILL.md` | 1 | `noted` | U2 does not change the stop rule |
+| K10 | `skills/dev-review/references/review-report.md` | 1 | `noted` | U2 does not change the stop rule |
+| K11 | `.dev/issue-22-fu005-records/fu005-checklist.md` | 1 | `noted` | U2 does not change the stop rule |
+| K11 | `.dev/issue-22-fu005-records/fu005-spec.md` | 2 | `noted` | U2 does not change the stop rule |
+| K11 | `docs/core-feedback.md` | 10 | `noted` | U2 does not change the stop rule |
+| K11 | `docs/design-proposal.md` | 15 | `noted` | U2 does not change the stop rule |
+| K12 | `.dev/followups.md` | 3 | `noted` | U2 does not change the stop rule |
+| K12 | `.dev/issue-12-minimal-ci/reviews/round-2.md` | 1 | `noted` | U2 does not change the stop rule |
+| K12 | `.dev/issue-16-single-source-rules/reviews/round-2.md` | 1 | `noted` | U2 does not change the stop rule |
+| K12 | `.dev/issue-16-single-source-rules/reviews/round-3.md` | 1 | `noted` | U2 does not change the stop rule |
+| K12 | `.dev/issue-18-core-audit/reviews/round-2.md` | 1 | `noted` | U2 does not change the stop rule |
+| K12 | `.dev/issue-18-core-audit/reviews/round-3.md` | 1 | `noted` | U2 does not change the stop rule |
+| K12 | `.dev/issue-31-fu005-pr3/reviews/round-2-narrow-and-scan.md` | 1 | `noted` | U2 does not change the stop rule |
+| K12 | `.dev/issue-6-review-convergence/reviews/round-1.md` | 1 | `noted` | U2 does not change the stop rule |
+| K12 | `.dev/issue-66-user-level-install/plan.md` | 1 | `noted` | U2 does not change the stop rule |
+| K12 | `.dev/issue-89-readback-script/plan.md` | 1 | `noted` | U2 does not change the stop rule |
+| K12 | `.dev/issue-93-readback-gate-dispatch/plan.md` | 1 | `noted` | U2 does not change the stop rule |
+| K12 | `.dev/issue-95-readback-gate-reviews/plan.md` | 1 | `noted` | U2 does not change the stop rule |
+| K12 | `.dev/issue-96-pr2/plan.md` | 1 | `noted` | U2 does not change the stop rule |
+| K12 | `docs/core-feedback.md` | 1 | `noted` | U2 does not change the stop rule |
+| K12 | `docs/design-proposal.md` | 2 | `noted` | U2 does not change the stop rule |
+| K12 | `docs/requirements/REQ-012-review-convergence.md` | 2 | `noted` | U2 does not change the stop rule |
+| K12 | `skills/dev-core/SKILL.md` | 2 | `noted` | U2 does not change the stop rule |
+| K12 | `skills/dev-core/deltas.md` | 1 | `noted` | U2 does not change the stop rule |
+| K12 | `skills/dev-review/references/review-report.md` | 1 | `noted` | U2 does not change the stop rule |
+| K13 | `docs/core-feedback.md` | 1 | `noted` | U2 does not change the stop rule |
+| K13 | `docs/design-proposal.md` | 1 | `noted` | U2 does not change the stop rule |
+| K14 | `docs/core-feedback.md` | 1 | `noted` | U2 does not change the stop rule |
+| K14 | `docs/design-proposal.md` | 1 | `noted` | U2 does not change the stop rule |
+| K15 | `.dev/followups.md` | 2 | `noted` | this place names the file; it does not state the Facts bullet or the template that U2 changes |
+| K15 | `.dev/issue-10-cleanups/reviews/round-1.md` | 1 | `noted` | this place names the file; it does not state the Facts bullet or the template that U2 changes |
+| K15 | `.dev/issue-16-single-source-rules/reviews/round-4.md` | 1 | `noted` | this place names the file; it does not state the Facts bullet or the template that U2 changes |
+| K15 | `.dev/issue-18-core-audit/audit.md` | 1 | `noted` | this place names the file; it does not state the Facts bullet or the template that U2 changes |
+| K15 | `.dev/issue-18-core-audit/reviews/round-3.md` | 1 | `noted` | this place names the file; it does not state the Facts bullet or the template that U2 changes |
+| K15 | `.dev/issue-22-fu005-records/fu005-checklist.md` | 3 | `noted` | this place names the file; it does not state the Facts bullet or the template that U2 changes |
+| K15 | `.dev/issue-22-fu005-records/fu005-spec.md` | 1 | `noted` | this place names the file; it does not state the Facts bullet or the template that U2 changes |
+| K15 | `.dev/issue-6-review-convergence/reviews/round-1.md` | 1 | `noted` | this place names the file; it does not state the Facts bullet or the template that U2 changes |
+| K15 | `.dev/issue-64-fu025-skill-paths/plan.md` | 1 | `noted` | this place names the file; it does not state the Facts bullet or the template that U2 changes |
+| K15 | `.dev/issue-73-model-routing/plan.md` | 1 | `noted` | this place names the file; it does not state the Facts bullet or the template that U2 changes |
+| K15 | `CHANGELOG.md` | 1 | `changed` | U2 edits lines with this string here |
+| K15 | `docs/design-proposal.md` | 6 | `changed` | U2 edits lines with this string here |
+| K15 | `docs/requirements/REQ-026-lessons-skill.md` | 1 | `noted` | this place names the file; it does not state the Facts bullet or the template that U2 changes |
+| K15 | `docs/requirements/REQ-029-review-loop-checks.md` | 2 | `changed` | U2 edits lines with this string here |
+| K15 | `docs/requirements/log.md` | 1 | `changed` | U2 edits lines with this string here |
+| K15 | `skills/dev-core/SKILL.md` | 2 | `noted` | this place names the file; it does not state the Facts bullet or the template that U2 changes |
+| K15 | `skills/dev-core/deltas.md` | 2 | `changed` | U2 edits lines with this string here |
+| K15 | `skills/dev-deliver/SKILL.md` | 1 | `noted` | this place names the file; it does not state the Facts bullet or the template that U2 changes |
+| K15 | `skills/dev-gate/SKILL.md` | 1 | `noted` | this place names the file; it does not state the Facts bullet or the template that U2 changes |
+| K15 | `skills/dev-retro/SKILL.md` | 1 | `noted` | this place names the file; it does not state the Facts bullet or the template that U2 changes |
+| K15 | `skills/dev-review/SKILL.md` | 1 | `noted` | this place names the file; it does not state the Facts bullet or the template that U2 changes |
+| K15 | `skills/dev-review/references/review-report.md` | 2 | `noted` | this place names the file; it does not state the Facts bullet or the template that U2 changes |
+| K15 | `tests/test_review_loop_rules.py` | 1 | `changed` | U2 edits lines with this string here |
+| K16 | `CHANGELOG.md` | 1 | `changed` | U2 edits lines with this string here |
+| K16 | `docs/design-proposal.md` | 1 | `changed` | U2 edits lines with this string here |
+| K16 | `docs/requirements/REQ-029-review-loop-checks.md` | 1 | `changed` | U2 edits lines with this string here |
+| K16 | `skills/dev-core/deltas.md` | 1 | `changed` | U2 edits lines with this string here |
+| K16 | `skills/dev-plan/references/requirements-wiki.md` | 1 | `changed` | U2 edits lines with this string here |
+| K16 | `tests/test_platform_profile.py` | 1 | `noted` | a sentence on another subject, not the quotes of a REQ file |
+| K17 | `.dev/issue-57-d019-pr2/graph.json` | 1 | `noted` | U2 does not change R-VER-5 |
+| K17 | `.dev/issue-57-d019-pr3/graph.json` | 3 | `noted` | U2 does not change R-VER-5 |
+| K17 | `CHANGELOG.md` | 5 | `noted` | U2 does not change R-VER-5 |
+| K17 | `docs/design-proposal.md` | 5 | `noted` | U2 does not change R-VER-5 |
+| K17 | `docs/requirements/REQ-026-lessons-skill.md` | 9 | `noted` | U2 does not change R-VER-5 |
+| K17 | `docs/requirements/REQ-029-review-loop-checks.md` | 1 | `changed` | U2 edits lines with this string here |
+| K17 | `docs/requirements/log.md` | 2 | `noted` | U2 does not change R-VER-5 |
+| K17 | `skills/dev-core/SKILL.md` | 2 | `changed` | U2 edits lines with this string here |
+| K17 | `skills/dev-core/deltas.md` | 1 | `noted` | U2 does not change R-VER-5 |
+| K17 | `skills/dev-core/source-map.md` | 1 | `noted` | U2 does not change R-VER-5 |
+| K17 | `skills/dev-deliver/SKILL.md` | 1 | `noted` | U2 does not change R-VER-5 |
+| K17 | `skills/dev-retro/SKILL.md` | 1 | `noted` | U2 does not change R-VER-5 |
+| K17 | `skills/dev-review/references/review-report.md` | 3 | `noted` | U2 does not change R-VER-5 |
+| K20 | `docs/requirements/REQ-029-review-loop-checks.md` | 1 | `noted` | the sentence keeps the fix-round qualifier that follows it |
+| K24 | `skills/dev-review/references/decision-card.md` | 1 | `changed` | U2 edits lines with this string here |
+| K25 | `docs/requirements/REQ-029-review-loop-checks.md` | 1 | `changed` | U2 edits lines with this string here |
+| K25 | `skills/dev-core/deltas.md` | 1 | `changed` | U2 edits lines with this string here |
+| K26 | `docs/requirements/REQ-029-review-loop-checks.md` | 1 | `changed` | U2 edits lines with this string here |
+| K26 | `skills/dev-plan/references/requirements-wiki.md` | 1 | `changed` | U2 edits lines with this string here |
+| K27 | `.dev/followups.md` | 1 | `noted` | R-AUTH-7 gains a clause and keeps every earlier class, so a place that cites it or names earlier classes stays true (DL-047 says so for DL-018) |
+| K27 | `.dev/issue-1-phase1/reviews/round-1.md` | 1 | `noted` | R-AUTH-7 gains a clause and keeps every earlier class, so a place that cites it or names earlier classes stays true (DL-047 says so for DL-018) |
+| K27 | `.dev/issue-16-single-source-rules/inventory.md` | 1 | `noted` | R-AUTH-7 gains a clause and keeps every earlier class, so a place that cites it or names earlier classes stays true (DL-047 says so for DL-018) |
+| K27 | `.dev/issue-16-single-source-rules/reviews/round-4.md` | 1 | `noted` | R-AUTH-7 gains a clause and keeps every earlier class, so a place that cites it or names earlier classes stays true (DL-047 says so for DL-018) |
+| K27 | `.dev/issue-16-single-source-rules/reviews/round-7.md` | 1 | `noted` | R-AUTH-7 gains a clause and keeps every earlier class, so a place that cites it or names earlier classes stays true (DL-047 says so for DL-018) |
+| K27 | `.dev/issue-18-core-audit/audit.md` | 2 | `noted` | R-AUTH-7 gains a clause and keeps every earlier class, so a place that cites it or names earlier classes stays true (DL-047 says so for DL-018) |
+| K27 | `.dev/issue-18-core-audit/reviews/round-1.md` | 1 | `noted` | R-AUTH-7 gains a clause and keeps every earlier class, so a place that cites it or names earlier classes stays true (DL-047 says so for DL-018) |
+| K27 | `.dev/issue-18-core-audit/reviews/round-2.md` | 1 | `noted` | R-AUTH-7 gains a clause and keeps every earlier class, so a place that cites it or names earlier classes stays true (DL-047 says so for DL-018) |
+| K27 | `.dev/issue-18-core-audit/reviews/round-3.md` | 3 | `noted` | R-AUTH-7 gains a clause and keeps every earlier class, so a place that cites it or names earlier classes stays true (DL-047 says so for DL-018) |
+| K27 | `.dev/issue-18-core-audit/reviews/round-4.md` | 1 | `noted` | R-AUTH-7 gains a clause and keeps every earlier class, so a place that cites it or names earlier classes stays true (DL-047 says so for DL-018) |
+| K27 | `.dev/issue-22-fu005-records/fu005-checklist.md` | 4 | `noted` | R-AUTH-7 gains a clause and keeps every earlier class, so a place that cites it or names earlier classes stays true (DL-047 says so for DL-018) |
+| K27 | `.dev/issue-22-fu005-records/fu005-spec.md` | 2 | `noted` | R-AUTH-7 gains a clause and keeps every earlier class, so a place that cites it or names earlier classes stays true (DL-047 says so for DL-018) |
+| K27 | `.dev/issue-22-fu005-records/reviews/round-1.md` | 1 | `noted` | R-AUTH-7 gains a clause and keeps every earlier class, so a place that cites it or names earlier classes stays true (DL-047 says so for DL-018) |
+| K27 | `.dev/issue-27-fu004-baseline/report.md` | 1 | `noted` | R-AUTH-7 gains a clause and keeps every earlier class, so a place that cites it or names earlier classes stays true (DL-047 says so for DL-018) |
+| K27 | `.dev/issue-38-fu004-after-pr4/report.md` | 1 | `noted` | R-AUTH-7 gains a clause and keeps every earlier class, so a place that cites it or names earlier classes stays true (DL-047 says so for DL-018) |
+| K27 | `.dev/issue-77-effort-readback/plan.md` | 1 | `noted` | R-AUTH-7 gains a clause and keeps every earlier class, so a place that cites it or names earlier classes stays true (DL-047 says so for DL-018) |
+| K27 | `CHANGELOG.md` | 4 | `changed` | U2 edits lines with this string here |
+| K27 | `agents/dev-explorer.md` | 1 | `changed` | U2 edits lines with this string here |
+| K27 | `agents/dev-implementer.md` | 1 | `changed` | U2 edits lines with this string here |
+| K27 | `docs/design-proposal.md` | 21 | `changed` | U2 edits lines with this string here |
+| K27 | `docs/requirements/REQ-015-no-agent-memory.md` | 1 | `noted` | R-AUTH-7 gains a clause and keeps every earlier class, so a place that cites it or names earlier classes stays true (DL-047 says so for DL-018) |
+| K27 | `docs/requirements/REQ-029-review-loop-checks.md` | 13 | `changed` | U2 edits lines with this string here |
+| K27 | `docs/requirements/log.md` | 3 | `changed` | U2 edits lines with this string here |
+| K27 | `skills/dev-core/SKILL.md` | 3 | `changed` | U2 edits lines with this string here |
+| K27 | `skills/dev-core/deltas.md` | 3 | `changed` | U2 edits lines with this string here |
+| K27 | `skills/dev-core/source-map.md` | 1 | `noted` | R-AUTH-7 gains a clause and keeps every earlier class, so a place that cites it or names earlier classes stays true (DL-047 says so for DL-018) |
+| K27 | `skills/dev-deliver/references/task-brief.md` | 1 | `changed` | U2 edits lines with this string here |
+| K27 | `skills/dev-docs/SKILL.md` | 1 | `noted` | R-AUTH-7 gains a clause and keeps every earlier class, so a place that cites it or names earlier classes stays true (DL-047 says so for DL-018) |
+| K27 | `skills/dev-plan/scripts/graph.py` | 1 | `noted` | R-AUTH-7 gains a clause and keeps every earlier class, so a place that cites it or names earlier classes stays true (DL-047 says so for DL-018) |
+| K27 | `skills/dev-retro/SKILL.md` | 1 | `noted` | R-AUTH-7 gains a clause and keeps every earlier class, so a place that cites it or names earlier classes stays true (DL-047 says so for DL-018) |
+| K27 | `tests/test_core_checks.py` | 2 | `noted` | R-AUTH-7 gains a clause and keeps every earlier class, so a place that cites it or names earlier classes stays true (DL-047 says so for DL-018) |
+| K27 | `tests/test_review_loop_rules.py` | 4 | `changed` | U2 edits lines with this string here |
+| K28 | `CHANGELOG.md` | 2 | `changed` | U2 edits lines with this string here |
+| K28 | `agents/dev-explorer.md` | 1 | `changed` | U2 edits lines with this string here |
+| K28 | `agents/dev-implementer.md` | 1 | `changed` | U2 edits lines with this string here |
+| K28 | `agents/dev-reviewer.md` | 1 | `changed` | U2 edits lines with this string here |
+| K28 | `agents/dev-security-reviewer.md` | 1 | `changed` | U2 edits lines with this string here |
+| K28 | `docs/design-proposal.md` | 5 | `changed` | U2 edits lines with this string here |
+| K28 | `docs/requirements/REQ-015-no-agent-memory.md` | 1 | `noted` | REQ-015 says that native memory is advisory, which U2 does not change |
+| K28 | `docs/requirements/REQ-026-lessons-skill.md` | 4 | `noted` | R-VER-5, `dev-retro` and REQ-026 keep their own stricter limit for candidates and drafts, which U2 does not change |
+| K28 | `docs/requirements/REQ-029-review-loop-checks.md` | 2 | `changed` | U2 edits lines with this string here |
+| K28 | `docs/requirements/log.md` | 1 | `noted` | R-VER-5, `dev-retro` and REQ-026 keep their own stricter limit for candidates and drafts, which U2 does not change |
+| K28 | `skills/dev-core/SKILL.md` | 2 | `changed` | U2 edits lines with this string here |
+| K28 | `skills/dev-core/deltas.md` | 2 | `changed` | U2 edits lines with this string here |
+| K28 | `skills/dev-deliver/references/task-brief.md` | 1 | `changed` | U2 edits lines with this string here |
+| K28 | `skills/dev-retro/SKILL.md` | 1 | `noted` | R-VER-5, `dev-retro` and REQ-026 keep their own stricter limit for candidates and drafts, which U2 does not change |
+| K28 | `skills/dev-review/references/review-report.md` | 1 | `noted` | R-VER-5, `dev-retro` and REQ-026 keep their own stricter limit for candidates and drafts, which U2 does not change |
+| K28 | `tests/test_review_loop_rules.py` | 3 | `changed` | U2 edits lines with this string here |
+| K29 | `agents/dev-security-reviewer.md` | 1 | `noted` | the R-REV-9 phrase on real names, which has nothing to do with R-AUTH-7 |
+| K29 | `docs/design-proposal.md` | 1 | `noted` | the R-REV-9 phrase on real names, which has nothing to do with R-AUTH-7 |
+| K29 | `skills/dev-core/SKILL.md` | 1 | `noted` | the R-REV-9 phrase on real names, which has nothing to do with R-AUTH-7 |
+| K29 | `tests/test_review_loop_rules.py` | 2 | `changed` | U2 edits lines with this string here |
+| K30 | `CHANGELOG.md` | 1 | `changed` | U2 edits lines with this string here |
+| K30 | `agents/dev-explorer.md` | 1 | `changed` | U2 edits lines with this string here |
+| K30 | `agents/dev-implementer.md` | 1 | `changed` | U2 edits lines with this string here |
+| K30 | `docs/requirements/REQ-029-review-loop-checks.md` | 1 | `changed` | U2 edits lines with this string here |
+| K30 | `skills/dev-core/SKILL.md` | 1 | `changed` | U2 edits lines with this string here |
+| K30 | `skills/dev-core/deltas.md` | 1 | `changed` | U2 edits lines with this string here |
+| K30 | `skills/dev-deliver/references/task-brief.md` | 1 | `changed` | U2 edits lines with this string here |
+| K30 | `tests/test_review_loop_rules.py` | 1 | `changed` | U2 edits lines with this string here |
 
 ## R-VER-2 exception uses
 
-None so far. (The exception of E3 is in no rule until U3; the base R-VER-2
-applies to this objective, except for the one early use that card
-I101-NC1-C1 (a) allows for U1.)
+None. The early use that card I101-NC1-C1 (a) allowed for U1 did not happen:
+condition (2) did not hold on the cumulative target of NC2, and card
+I101-NC2-C1 (a) made that round an ordinary stop. The exception of E3 is in no
+rule until U3, so the base R-VER-2 applies to this objective.
 
 ## Acceptance
 

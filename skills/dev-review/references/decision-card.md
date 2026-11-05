@@ -18,8 +18,10 @@ every other decision handed to the user (R-AUTH-6, R-REV-3).
 - List every real option. For a `REQ-GAP`, the options are: add a
   requirement, defer, or reject (R-REV-3).
 - Keep facts apart from inferences in the evidence. A fact has a source: a
-  `path:line`, a command and its output, or a quote. Mark everything else as
-  an inference.
+  `path:line`, a command and its output, or a quote. A quote of a review
+  summary, a receipt or another card is not the source of a fact: the card
+  gives the source that it names, or marks the statement unverified
+  (R-EVD-3). Mark everything else as an inference or as unverified.
 - Mask secrets and private identifiers, as in the review report (R-REV-8).
 - The card grants no authority. Only the user's answer decides. When the
   answer adds a requirement, `dev-plan` ingests it, and the REQ sources record
@@ -45,6 +47,7 @@ every other decision handed to the user (R-AUTH-6, R-REV-3).
 - **Evidence:**
   - Facts: <path:line, command and output, quote>
   - Inferences: <marked conclusions>
+  - Unverified: <statements with no source yet>
 ```
 
 ## Positive example

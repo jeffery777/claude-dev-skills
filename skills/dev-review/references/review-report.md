@@ -31,6 +31,9 @@ for `gap`. A Core blocker is `MUST-FIX` for every relation. Items below the
 thresholds go to residual risk, not to this table. An `unrelated` item goes to
 residual risk or a follow-up and does not block.
 
+A true fact sentence without a source or a mark goes to residual risk. A false
+one is a finding (R-EVD-3).
+
 Class (R-REV-4, filled in before any fix): necessary fix, worth improving,
 keep as is, or needs human decision.
 

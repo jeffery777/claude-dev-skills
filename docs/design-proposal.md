@@ -964,6 +964,37 @@ D-009 到 D-016 是同一天的決定。D-015 由 PR #5（Issue #4）記錄；D-
   - 送出的內容（PR-3）：讀回 script 與它的 reference；`scripts/check_pack.py` 與測試；`dev-core` 的 R-DEL-2、`dev-deliver` 與 `task-brief.md`、`dev-review` 與 `review-report.md`、`dev-retro` 的規則句（P3-R1 到 P3-R18）；`deltas.md` 的 DL-046，以及 DL-040、DL-042、DL-044 與 DL-045 的註記；本補充（兩種語言），以及第 4 節、D-029 殘餘風險 4 與 5、PR-2 補充殘餘風險 22 與 23 的註記；REQ-009、REQ-026 與 log；CHANGELOG；README；`.dev/followups.md` 的 FU-061（Fixed），以及 FU-045、FU-046、FU-060、FU-062 與 FU-063 的註記；`.dev/issue-96-pr2/plan.md` 的 MR99-D-01、MR99-M-01 與註記；`.dev/issue-96-pr3/plan.md`。
   - 與 Core 的差異：收緊（DL-046）。相對於 PR-2 記下的前提 2，C1 (b) 與 C2 (a) 是使用者決定的縮小（見上面「放寬與收緊」）。
 
+### D-030 審查迴圈：確定性的完整性檢查、新事實的來源、R-VER-2 依嚴重度（Issue #101）（已決定，2026-11-04）
+
+- 來源：GitHub Issue #101 本文。需求見 REQ-029。計畫：`.dev/issue-101/plan.md` 設計 d7。使用者的話（2026-11-04，第 5 到 7 項是 2026-11-05；卡片檔的 SHA-256 記在計畫的 Decisions 表）：
+  1. 對 `.dev/issue-101/cards-2.md`（SHA-256 `dffb8a8b…1388`）卡 I101-C1 到 I101-C5 的回答，是使用者在 Issue #101 session 自己的訊息：「C1 a，C2 a，C3 a，C4 a，C5 a」。
+  2. 對 `.dev/issue-101/cards-3.md`（SHA-256 `fa0cf1d8…7502`）卡 I101-R2-C1 與 I101-R2-C2 的回答，是使用者在 Issue #101 session 自己的訊息：「R2-C1 a，R2-C2 a」。
+  3. 對 `.dev/issue-101/cards-4.md`（SHA-256 `4ef1edde…c265`）卡 I101-R3-C1 的回答，由 orchestrator session 轉述：「同意你建議a」；使用者之後在 Issue #101 session 用自己的訊息確認：「R3-C1 a 確認」（卡 I101-IR1-C2 (a)）。
+  4. 對 `.dev/issue-101/cards-5.md`（SHA-256 `cc16819d…2966`）卡 I101-IR1-C1 與 I101-IR1-C2 的回答，是使用者在 Issue #101 session 自己的訊息：「IR1-C1 a，IR1-C2 a，R3-C1 a 確認」。
+  5. 對 `.dev/issue-101/cards-6.md`（SHA-256 `2341b626…92d6`）卡 I101-IR2-C1 與 I101-IR2-C2 的回答，是使用者在 Issue #101 session 自己的訊息：「都選 a」。
+  6. 對 `.dev/issue-101/cards-7.md`（SHA-256 `10bb1355…1a5b`）卡 I101-IR3-C1 的回答，是使用者在 Issue #101 session 自己的訊息：「IR3-C1 選 a」。
+  7. 對 `.dev/issue-101/cards-8.md`（SHA-256 `b0b75928…c8c3`）卡 I101-NC1-C1 的回答，是使用者在 Issue #101 session 自己的訊息：「NC1-C1 選 a」。
+- 問題（U1 的部分）：Issue #96 PR-3（PR #100）連續五輪的紀錄清單不完整或不精確，例如 REQ-009 改了，`docs/requirements/log.md` 卻沒有新增列（來源：Issue #101 本文，Problem 第 1 項）。
+- 使用者決定的內容（U1 的部分）：
+  1. I101-C2 (a)：完整性檢查寫成規則文字裡的指令，不加新腳本。
+  2. I101-C3 (a)：三個審查單位在同一個 PR 裡依序做：U1 完整性檢查，U2 證據規則，U3 R-VER-2。
+  3. I101-R2-C1 (a)：只留兩種指令形式（搜尋清單與共同修改規則 1），值只有檢查過的 tree ID、固定路徑與檢查過的字串；引文用閱讀核對；值的檢查句逐字寫進 agent 檔與 brief。其中 tree ID 的部分由第 5 項取代。
+  4. I101-R3-C1 (a)：設計審查第 3 輪的 findings 用刪除修正，然後直接做 U1。
+  5. I101-IR1-C1 (a)：每個寫入節點（包括修正輪）審查通過後就 commit（先做 R-REV-9 commit 掃描）；檢查綁到 index 與 commit ID；節點 tree、`git write-tree`、讀 `git status` 判斷 owned path，以及 tree 綁定指令都刪掉（U1 實作審查第 1 輪的 IR1-D-01、IR1-D-02、IR1-S-01；這些做法從未 commit）。這張卡由第 7 項取代。
+  6. I101-IR1-C2 (a)：使用者在 Issue #101 session 確認 I101-R3-C1 (a)。
+  7. I101-IR2-C1 (a)：節點層級是規則加 reviewer 的閱讀核對；指令（`--cached` 形式）只在 commit 前跑，每個 commit 與 head 的形式在 Merge Review 跑；沒有規則要求每個節點都 commit。I101-IR3-C1 (a)（「IR3-C1 選 a」）把限制寫進規則（「同一個 commit」的範圍是主代理收窄的）：同一個 commit 裡同一個需求檔的第二次改動沒有自己的列，只有閱讀找得到，而且只有 target 顯示那次改動時才找得到；target 是累積的 diff 時分不出輪次，報告要寫明，這一項不算通過。I101-NC1-C1 (a)（「NC1-C1 選 a」）：修完之後若只剩 NIT，U1 提早用一次 NIT 例外，窄範圍確認照舊。設計 d6 取代設計 d5：每節點 commit 與 unstaged 順序都刪掉，卡 I101-IR1-C1 (a) 由卡 I101-IR2-C1 (a) 取代，主代理對那張卡的更正從來不是決定（來源：計畫的 Decisions）。
+  8. I101-IR2-C2 (a)：使用者在 Issue #101 session 確認恢復工作（來源：計畫的 Decisions）。
+- 規則（U1；只寫在 `dev-plan` 第 6 步與各接線處，這裡是摘要）：
+  1. 值的規則：計畫或 brief 裡的值放進完整性檢查的指令之前，先在文字裡檢查，絕不用含有這個值的指令檢查：commit ID 整個是 40 或 64 個小寫十六進位字元；搜尋字串不是空的，只有可列印字元，沒有 `'`、`\`、換行或 Unicode 格式字元；資料夾整個符合 `[A-Za-z0-9._][A-Za-z0-9._/-]*`，而且是專案的需求資料夾。不符合的值絕不放進指令：回報它，該項檢查算沒有執行。
+  2. 指令何時跑：在 `standard` 與 `strict`，主代理在 commit 前跑搜尋清單與共同修改規則 1，時機是 stage 好該 commit 的內容之後、R-REV-9 commit 掃描之前。這條規則不要求 commit：使用者沒有授權 commit 時，主代理不跑指令，共同修改規則與它的閱讀核對仍適用。指令從 worktree 頂層單獨執行，不接管線。
+  3. 搜尋清單（`standard` 與 `strict`；`light` 可以附理由跳過）：計畫列出有 ID 的固定字串，用一種 `git grep --cached -c -F -i` 指令在 index 上搜尋；每個字串、每個有命中的檔案一列：路徑、命中數、處置（`changed`、`noted` 或 `historical`）與理由，不寫行號、不寫命中的文字；目標自己的紀錄資料夾沒有列。限制：只找得到列出的字串。
+  4. 共同修改規則（`standard` 與 `strict`）：規則 1，每個改到需求檔的寫入節點與修正輪，都在同一次改動裡加上自己的 `log.md` 列，REQ 欄寫它的 ID；節點的 reviewer 讀節點的 diff，修正輪的 reviewer 讀修正 diff（主代理能給就給）來核對；閱讀只在 target 顯示那次改動時有效，累積的 diff 分不出輪次，報告要寫明，這一項不算通過；這不是檢查沒有跑，工作不因此停下。commit 前，主代理也用兩種 `git diff --cached` 指令比對 index 與 HEAD，`-|` 開頭的行是 finding。限制：指令看到的是整個 commit 的一列，所以同一個 commit 裡同一個需求檔的第二次改動沒有自己的列，只有閱讀找得到。規則 2，寫入節點記下的每個使用者決定，在同一個節點裡引用進專案裡每一份列出這次變更決定的紀錄；計畫列出這些紀錄；reviewer 用閱讀核對，不用指令。
+  5. 結果與嚴重度：沒有執行的檢查是沒有執行的必要驗證，相依的工作停下（R-AUTH-5）；列錯或漏列、漏了共同修改的列或引文、`-|` 的 log 行都是 finding，至少 `NIT`；讓變更弄錯的地方沒有處置時是 `SHOULD-FIX`（R-REV-3）。
+  6. 誰執行：`dev-deliver` 第 7 步，commit 時在 `standard` 與 `strict`，主代理依 `dev-plan` 第 6 步執行搜尋清單與共同修改規則 1，並把輸出（命中數與 exit code）記進計畫。`dev-review` 第 2 步，實作審查與修正輪審查的 brief 給出搜尋清單與共同修改規則及其指令，指令形式照 `dev-plan` 第 6 步，只有值來自計畫（R-REV-9 掃描不給）；reviewer 依值的規則檢查每個值；審查目標已 stage 時，在 index 上跑指令，計畫裡有輸出就比對；它一律讀顯示那次改動的 diff 來核對共同修改規則 1（修正輪讀修正 diff），累積的 diff 上報告寫明分不出輪次，這一項不算通過。Merge Review 用 `git rev-list` 列出 commit，對每個 commit 用它和第一個 parent 跑規則 1，merge commit 用閱讀核對並寫明，在 head 上跑搜尋清單。
+- 送出的內容（U1）：`dev-plan` 第 6 步、`dev-deliver` 第 7 步、`dev-review` 第 2 步；`review-report.md` 的 header 行與 `task-brief.md` 的欄位；`agents/dev-reviewer.md`、`agents/dev-security-reviewer.md` 與 `agents/dev-implementer.md`；`deltas.md` 的 DL-047；REQ-029、index 與 log；本決策（兩種語言）；CHANGELOG；`tests/test_review_loop_rules.py`。U2 與 U3 會補上本決策的其他部分。
+- 與 Core 的差異：收緊（DL-047；推論，尚未經審查確認）。Core `exact-coherence` 要求跑 repository 的確定性檢查，並核對文件裡過時的名稱、指令、路徑與宣稱；U1 為必須一起改的紀錄加上固定的確定性檢查，不放寬任何 Core 義務。
+- Core 回饋（U1）：否（推論，尚未經審查確認）。理由：U1 只新增本 pack 自己的檢查。
+
 ---
 
 <a id="english"></a>
@@ -4510,5 +4541,149 @@ records D-009 to D-012.
   - Difference from Core: a tightening (DL-046). Relative to premise 2 that
     PR-2 recorded, C1 (b) and C2 (a) are a narrowing that the user decided
     (see "Loosening and tightening" above).
+
+### D-030 Review loop: deterministic completeness checks, sources of new facts, and R-VER-2 by severity (Issue #101) (decided, 2026-11-04)
+
+- Origin: GitHub Issue #101 body. Requirement: REQ-029. Plan:
+  `.dev/issue-101/plan.md`, design d7. The user's words (2026-11-04, and
+  2026-11-05 for items 5 to 7; the SHA-256 of each card file is in the Decisions
+  table of the plan):
+  1. Answer to cards I101-C1 to I101-C5 of `.dev/issue-101/cards-2.md`
+     (SHA-256 `dffb8a8b…1388`), the user's own message in the Issue #101
+     session: 「C1 a，C2 a，C3 a，C4 a，C5 a」.
+  2. Answer to cards I101-R2-C1 and I101-R2-C2 of
+     `.dev/issue-101/cards-3.md` (SHA-256 `fa0cf1d8…7502`), the user's own
+     message in the Issue #101 session: 「R2-C1 a，R2-C2 a」.
+  3. Answer to card I101-R3-C1 of `.dev/issue-101/cards-4.md` (SHA-256
+     `4ef1edde…c265`), relayed by the orchestrator session: 「同意你建議a」;
+     the user then confirmed it by their own message in the Issue #101
+     session: 「R3-C1 a 確認」 (card I101-IR1-C2 (a)).
+  4. Answer to cards I101-IR1-C1 and I101-IR1-C2 of
+     `.dev/issue-101/cards-5.md` (SHA-256 `cc16819d…2966`), the user's own
+     message in the Issue #101 session: 「IR1-C1 a，IR1-C2 a，R3-C1 a 確認」.
+  5. Answer to cards I101-IR2-C1 and I101-IR2-C2 of
+     `.dev/issue-101/cards-6.md` (SHA-256 `2341b626…92d6`), the user's own
+     message in the Issue #101 session: 「都選 a」.
+  6. Answer to card I101-IR3-C1 of `.dev/issue-101/cards-7.md` (SHA-256
+     `10bb1355…1a5b`), the user's own message in the Issue #101 session:
+     「IR3-C1 選 a」.
+  7. Answer to card I101-NC1-C1 of `.dev/issue-101/cards-8.md` (SHA-256
+     `b0b75928…c8c3`), the user's own message in the Issue #101 session:
+     「NC1-C1 選 a」.
+- Problem (the U1 part): in Issue #96 PR-3 (PR #100), record lists were
+  incomplete or not exact in five rounds in a row; for example, REQ-009
+  changed and `docs/requirements/log.md` got no row (source: GitHub Issue
+  #101 body, Problem, item 1).
+- What the user decided (the U1 part):
+  1. I101-C2 (a): the completeness checks are commands in the rule text,
+     with no new script.
+  2. I101-C3 (a): three review units in one PR, one after the other: U1
+     completeness checks, U2 evidence rule, U3 R-VER-2.
+  3. I101-R2-C1 (a): only two command forms stay (the search list and
+     co-change rule 1), whose values are checked tree IDs, fixed paths and
+     checked strings; quotes are checked by reading; the value rule goes
+     word for word into the agent files and the brief. Item 5 replaces the
+     part on tree IDs.
+  4. I101-R3-C1 (a): the findings of design review round 3 are fixed by
+     deletion, then U1 starts.
+  5. I101-IR1-C1 (a): every write node, fix rounds included, is committed
+     after its review passes (with the R-REV-9 commit scan first); the
+     checks bind to the index and to commit IDs; node trees,
+     `git write-tree`, the `git status` owned-path reading and the tree
+     binding command are removed (findings IR1-D-01, IR1-D-02 and IR1-S-01
+     of U1 implementation review round 1; that text was never committed).
+     Item 7 replaces this card.
+  6. I101-IR1-C2 (a): the user confirmed I101-R3-C1 (a) in the Issue #101
+     session.
+  7. I101-IR2-C1 (a): at node level, a rule that a reviewer checks by
+     reading; commands (the `--cached` forms) only before a commit, and the
+     per-commit and head forms in the Merge Review; no rule requires a commit for each node. I101-IR3-C1 (a)
+     (「IR3-C1 選 a」) puts the limit into the rule (the main agent narrowed
+     the wording to one commit): a second change of one requirement file
+     in one commit without its own row is found only by reading, and only
+     on a target that shows that change alone; on a cumulative diff the rounds cannot be told apart, the report says
+     so, and this item does not count as passed. I101-NC1-C1 (a)
+     (「NC1-C1 選 a」): when only NITs remain after the fix, U1 uses the NIT
+     exception once early, with its narrow confirmation kept. Design d6 replaces design d5: the per-node commit and the
+     unstaged order are gone, card I101-IR1-C1 (a) is replaced by card
+     I101-IR2-C1 (a), and the main agent's correction of that card was
+     never a decision (source: the Decisions of the plan).
+  8. I101-IR2-C2 (a): the user confirmed the resume in the Issue #101
+     session (source: the Decisions of the plan).
+- Rules (U1; only in `dev-plan` step 6 and the places that wire it in;
+  this is a summary):
+  1. Value rule: before a value from a plan or a brief goes into a
+     completeness-check command, it is checked in the text, never with a
+     command that contains it: the whole of a commit ID has 40 or 64
+     lowercase hexadecimal digits; a search string is not empty and holds
+     only printable characters, with no `'`, `\`, line break or Unicode
+     format character; the whole of a folder matches
+     `[A-Za-z0-9._][A-Za-z0-9._/-]*`, and it is the requirements folder of
+     the project. A value that fails is never put into a command: it is
+     reported, and that check did not run.
+  2. When the commands run: at `standard` and `strict`, the main agent
+     runs the search list and co-change rule 1 before a commit, after it
+     has staged the content of that commit and before the R-REV-9 commit
+     scan. This rule requires no commit: when the user authorized none, the main agent runs no command, and the
+     co-change rules and their reading check still
+     apply. Commands run alone (no pipeline) from the top of the worktree.
+  3. Search list (`standard` and `strict`; at `light` the plan may skip it
+     with a reason): the plan lists fixed strings with IDs, searched with
+     one `git grep --cached -c -F -i` form on the index; one row per string
+     and file with hits: the path, the count, the disposition (`changed`,
+     `noted` or `historical`) and a reason, with no line numbers and no hit
+     text; the objective's own record folder gets no rows. Limit: the
+     search finds only the listed strings.
+  4. Co-change rules (`standard` and `strict`): rule 1, each write node
+     and each fix round that changes a requirement file adds its own
+     `log.md` row, in that same change, whose REQ column names its ID; the reviewer of a node reads the node's diff, and the reviewer of a fix
+     round reads the fix diff, which the main agent gives when it can;
+     reading shows this only on a target that holds that change alone; on a
+     cumulative diff the report says so, and this item does not count as
+     passed, which does not stop the work. Before a commit, the main agent also runs two
+     `git diff --cached` forms on the index against HEAD; a line that
+     starts with `-|` is a finding. Limit: the commands see one row for the
+     whole commit, so a second change of one requirement file in one commit
+     without its own row is found only by reading. Rule 2, each user
+     decision that a write node records is quoted, in the same node, in every record of the
+     project that lists the decisions of the change; the plan names those
+     records; the reviewer checks it by reading, not by a command.
+  5. Results and severity: a check that did not run is a required
+     verification that did not run, and the dependent work stops
+     (R-AUTH-5); a wrong or missing row, a missing co-change row or quote,
+     or a `-|` log line is a finding, at least a `NIT`, and a `SHOULD-FIX`
+     when it leaves a place that the change made false without a
+     disposition (R-REV-3).
+  6. Who runs them: `dev-deliver` step 7, for a commit at `standard` and
+     `strict`, the main agent runs the search list and co-change rule 1 as
+     `dev-plan` step 6 says and records the outputs (counts and exit codes)
+     in the plan. `dev-review` step 2, the brief of an implementation review
+     and of a fix round review gives the search list and the co-change
+     rules with their commands in the forms of `dev-plan` step 6, and only
+     the values come from the plan (an R-REV-9 scan does not get them); the
+     reviewer checks each value by the value rule; when its target is
+     staged, it runs the commands on the index and compares them with the
+     outputs in the plan, if the plan has any; it always checks co-change
+     rule 1 by reading the diff that shows the change (for a fix round, the
+     fix diff), and on a cumulative diff its report says that it cannot tell
+     the rounds apart and that this item does not count as passed. The
+     Merge Review lists the commits with
+     `git rev-list`, runs rule 1 on each commit against its first parent,
+     reads a merge commit by hand and says so, and runs the search list on
+     the head.
+- What ships (U1): `dev-plan` step 6, `dev-deliver` step 7 and
+  `dev-review` step 2; the header line of `review-report.md` and the field
+  of `task-brief.md`; `agents/dev-reviewer.md`,
+  `agents/dev-security-reviewer.md` and `agents/dev-implementer.md`;
+  DL-047 in `deltas.md`; REQ-029, the index and the log; this decision
+  (both languages); the CHANGELOG; `tests/test_review_loop_rules.py`. U2
+  and U3 add the other parts of this decision.
+- Difference from Core: a tightening (DL-047; inference, not yet confirmed
+  by a review). Core `exact-coherence` asks to run the repository's
+  deterministic checks and to check docs for stale names, commands, paths
+  and claims; U1 adds fixed deterministic checks for records that must
+  change together and relaxes no Core obligation.
+- Core feedback (U1): no (inference, not yet confirmed by a review).
+  Reason: U1 only adds checks of this pack.
 
 </details>

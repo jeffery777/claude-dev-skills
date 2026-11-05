@@ -140,7 +140,11 @@ Repeat until the objective is complete or a stop condition holds (R-AUTH-5):
    the authority (R-REV-5, R-AUTH-1). Before every commit and every push, `dev-security-reviewer`
    scans what will be published (the staged diff and the commit identity and
    message, or everything the push sends), in the order that `dev-implement`
-   gives; PR text is scanned before it is posted (R-REV-9). Before the gate
+   gives; PR text is scanned before it is posted (R-REV-9). For a commit at
+   `standard` and `strict`, the main agent runs the search list and
+   co-change rule 1 of the completeness checks as `dev-plan` step 6 says
+   (Issue #101) and records the outputs (counts and exit codes) in the
+   plan. Before the gate
    uses a review or a scan, the main agent reads it back by R-DEL-2
    (`dev-core`); one that does not count by R-DEL-2 is not evidence for the
    gate.

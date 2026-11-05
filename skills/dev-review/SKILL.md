@@ -78,6 +78,23 @@ secret or private identifier they report (R-REV-8).
    source trace (a spec or REQ from a user decision), the brief tells the
    reviewer to check it: a missing trace, or a condition of the user's
    words dropped without a reason, is a finding.
+   The brief of an implementation review and of a fix round review (not
+   of an R-REV-9 scan) gives the completeness checks of the plan: the
+   search list and the co-change rules with their commands in the forms of
+   `dev-plan` step 6, and only the values come from the plan (Issue #101).
+   The reviewer checks each value by the value rule; when its target is staged, it runs the
+   commands on the index and compares them with the outputs in the plan, if
+   the plan has any; it always checks co-change rule 1 by reading the diff
+   that it reviews (for a fix round, the fix diff), and on a cumulative
+   diff its report says that it cannot tell the rounds apart and that
+   this item does not count as passed.
+   The Merge Review lists the commits with
+   `git --no-replace-objects rev-list --reverse '<base ID>..<head ID>'` and
+   runs co-change rule 1 on each commit, with
+   `'<commit ID>^1' '<commit ID>'` in place of `--cached`; it reads a merge
+   commit by hand, and the report says so. The search list runs on the head
+   with
+   `git --no-replace-objects --literal-pathspecs -c core.quotePath=false grep -c -F -i -e '<string>' '<head ID>' --`.
    When GitNexus is available, add
    `gitnexus detect-changes` to map the hunks to affected symbols and flows,
    and label it advisory (CB-3).

@@ -16,6 +16,18 @@ find out whether it is wrong, incomplete or larger than its requirements.
   `gitnexus detect-changes` or `impact`. Never modify the tree. GitNexus
   (`gitnexus impact`, `gitnexus detect-changes`) is advisory. If its index
   is stale or the tree is dirty, say so (CB-3).
+- When the brief gives completeness checks (a search list and co-change
+  rules; Issue #101), Bash may also run `git rev-parse --show-prefix` and
+  the `git rev-list`, `git grep` and `git diff` forms of the brief, each
+  alone (no pipeline) from the top of the worktree. Before a value from a
+  plan or a brief goes into a completeness-check command, check it in the
+  text, never with a command that contains it: the whole of a commit ID
+  matches `[0-9a-f]{40}` or `[0-9a-f]{64}`; a search string is not empty
+  and holds only printable characters, with no `'`, `\`, line break or
+  Unicode format character; the whole of a folder matches
+  `[A-Za-z0-9._][A-Za-z0-9._/-]*`, and it is the requirements folder of the
+  project. A value that fails is never put into a command: report it, and
+  that check did not run.
 - Write no file anywhere, including the session scratchpad; do not redirect
   output to files. The only exception is a temporary file that a test named
   in the brief creates and removes itself in the system temporary directory

@@ -112,6 +112,80 @@ the floor check of R-DEL-2 applies (`dev-core`).
      the project's own rules (Core `authorization-and-stops.md`
      `auth-scope`). When those rules need separate change requests, the
      slices are separate review units.
+
+   Then plan the completeness checks (Issue #101; cards I101-C2 (a),
+   I101-R2-C1 (a) and I101-IR2-C1 (a)). `dev-deliver` step 7 and
+   `dev-review` step 2 say who runs them.
+   - Value rule. Before a value from a plan or a brief goes into a
+     completeness-check command, check it in the text, never with a
+     command that contains it: the whole of a commit ID matches
+     `[0-9a-f]{40}` or `[0-9a-f]{64}`; a search string is not empty and
+     holds only printable characters, with no `'`, `\`, line break or
+     Unicode format character; the whole of a folder matches
+     `[A-Za-z0-9._][A-Za-z0-9._/-]*`, and it is the requirements folder of
+     the project. A value that fails is never put into a command: report
+     it, and that check did not run.
+   - When the commands run. At `standard` and `strict`, the main agent runs
+     the search list and co-change rule 1 before a commit, after it has
+     staged the content of that commit and before the R-REV-9 commit scan.
+     This rule requires no commit: when the user authorized none, the main agent runs no
+     command, and the co-change rules and their reading check still
+     apply. Commands run alone (no pipeline) from the top of the worktree
+     (`git rev-parse --show-prefix` prints an empty line).
+   - Search list (`standard` and `strict` slices that change, rename,
+     move or remove a rule, a term, a value, a path or a recorded fact that
+     other files state; at `light` the plan may skip it with a reason).
+     The plan lists fixed strings with IDs (`K1`, …): the IDs of the
+     changed rules, deltas, decisions and findings first, then each
+     changed wording and each translation. Command on the index:
+     `git --no-replace-objects --literal-pathspecs -c core.quotePath=false grep --cached -c -F -i -e '<string>' --`.
+     Exit 0: hits; exit 1: no hit; any other exit code: the check did not
+     run. A hit is one matching line. The plan records, for each string,
+     one row per file with hits: the path, the count, the disposition and
+     a reason in the writer's own words; no line numbers and no hit text.
+     Files under the objective's own record folder (`.dev/<objective-id>/`)
+     get no rows: they hold the list itself. Dispositions: `changed` (the
+     change edits that place), `noted` (the old text stays true, and the
+     reason says why, or a note at that place qualifies it), `historical`
+     (it records an earlier decision, and a record of this change has a
+     sentence that supersedes it). Limit: the search finds only the listed
+     strings; a line break inside a phrase, another wording or another
+     translation is found only by reading.
+   - Co-change rules (`standard` and `strict`).
+     1. Each write node and each fix round that changes a requirement file
+        adds its own `log.md` row, in that same change, whose REQ column
+        names its ID; `log.md` is append-only. The reviewer of a node checks
+        this by reading the node's diff, and the reviewer of a fix round by
+        reading the fix diff, which the main agent gives when it can. Reading
+        shows this only on a target that holds that change alone: on a
+        cumulative diff it cannot tell the rounds apart, the report says so,
+        and this item does not count as passed. That is no check that did
+        not run, so it does not stop the work.
+        Before a commit, the main agent also runs these commands, each with
+        exit 0 required (any other exit code: the check did not run):
+        - `git --no-replace-objects --literal-pathspecs -c core.quotePath=false diff --cached --no-relative --no-ext-diff --no-textconv --no-renames --no-color --ignore-submodules=none --name-only -- '<requirements folder>'`
+        - `git --no-replace-objects --literal-pathspecs -c core.quotePath=false diff --cached --no-relative --no-ext-diff --no-textconv --no-renames --no-color --ignore-submodules=none -U0 -- '<requirements folder>/log.md'`
+
+        Each listed name directly in the folder that matches
+        `REQ-<digits>.md` or `REQ-<digits>-<slug>.md` must have its ID in
+        the REQ column (the second cell) of a line of the second output
+        that starts with `+|`. A line that starts with `-|` is a finding.
+        Limit: the commands see one row for the whole commit, so a second
+        change of one requirement file in one commit without its own row
+        is found only by reading.
+     2. Each user decision that a write node records is quoted, in the
+        same node, in every record of the project that lists the decisions
+        of the change. The plan names those records. The reviewer checks
+        this by reading, not by a command. A confidential quote follows
+        `${CLAUDE_SKILL_DIR}/references/requirements-wiki.md`.
+   - Results and severity. A check that did not run (a value that fails
+     the value rule, a wrong working directory, an exit code other than
+     the ones above) is a required verification that did not run: the
+     dependent work stops (R-AUTH-5). A row whose count or
+     file is wrong, a file with hits but no row, a missing co-change row
+     or quote, or a `-|` log line is a finding: at least `NIT` (a false
+     record), and `SHOULD-FIX` when it leaves a place that the change made
+     false without a disposition (R-REV-3).
 7. **Write the task graph** (standard and strict tiers; R-RIG-1). Create
    `.dev/<objective-id>/graph.json` as described in
    `${CLAUDE_SKILL_DIR}/references/graph-schema.md`, then run:

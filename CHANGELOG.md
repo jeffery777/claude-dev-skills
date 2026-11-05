@@ -272,6 +272,16 @@ Cowork runtime test). At that release,
   round was an ordinary stop (source:
   `.dev/issue-101/reviews/impl-u1-nc2.md:43-46`; card I101-NC2-C1 (a)).
 
+- R-VER-2 does not change in this PR: the bounded exception for NIT repeats
+  (Issue #101 defect 3) moved to Issue #102 (REQ-029, D-030, DL-047, Issue #101
+  unit U3b; card I101-U3R1-C1 (b); the user's own answers in the Issue #101
+  session, 2026-11-05: 「U3R1-C1 b」 and, for the withdrawal of the staged U3
+  content, 「可以撤回」; card I101-U3B-C1 (a), 「U3B-C1 a」, relayed by the
+  orchestrator session, closed the review of this unit). The first implementation review of that text reported
+  new blockers, and the stop rule of R-VER-2 fired (source:
+  `.dev/issue-101/reviews/impl-u3-round-1.md`). The NIT exception that the
+  entries above name is in no rule.
+
 - The routing tables and the rule sentences name roles of the
   configuration file only, and the read-back script run by its path
   checks where its copy lies (REQ-009, D-029 PR-3 supplement, DL-046,

@@ -13,8 +13,8 @@ sources:
     locator: "GitHub Issue #101 body, Proposed direction, bullet Evidence rule"
     quote: "every new fact sentence in records, cards and briefs gives its test or source, or says it is an inference. Briefs pass facts with their source, not as bare text."
   - type: issue
-    locator: "GitHub Issue #101 body, Done when, first item"
-    quote: "The three defects above have a rule or a deterministic check, each with a test or a recorded example."
+    locator: "GitHub Issue #101 body, Done when, first item, as of the Scope update of 2026-11-05 (before it, the item began 'The three defects above')"
+    quote: "Defects 1 and 2 above have a rule or a deterministic check, each with a test or a recorded example."
   - type: chat
     locator: "Claude Code session 2026-11-04 (Issue #101 session), user answer to the cards of `.dev/issue-101/cards-2.md` (SHA-256 dffb8a8b…1388): cards I101-C1 to I101-C5, each option (a); C2 (a): rule-text commands, no script; C3 (a): three review units in one PR, one after the other"
     quote: "C1 a，C2 a，C3 a，C4 a，C5 a"
@@ -51,6 +51,12 @@ sources:
   - type: chat
     locator: "Claude Code session 2026-11-05 (orchestrator session, relayed to the Issue #101 session), user answer to the card of `.dev/issue-101/cards-13.md` (SHA-256 05ad099a…ab00): card I101-U2R3-C1 (a), R-AUTH-7 gets one narrow clause with no exclusion, the agent files get the same clause with the word write, and this replaces the wording of card I101-U2R2-C1 (a); other private files are not in the clause, and the R-REV-9 scan looks for them"
     quote: "U2R3-C1 a"
+  - type: chat
+    locator: "Claude Code session 2026-11-05 (Issue #101 session), user answer to the card of `.dev/issue-101/cards-14.md` (SHA-256 fa99dfd7…e2b7): card I101-U3R1-C1 (b), defect 3 and every change of R-VER-2 move to Issue #102; the user's own answer to the next question, the withdrawal of the staged U3 content, was 「可以撤回」; card I101-U3R1-C2 has no answer and moved to Issue #102"
+    quote: "U3R1-C1 b"
+  - type: chat
+    locator: "Claude Code session 2026-11-05 (orchestrator session, relayed to the Issue #101 session), user answer to the card of `.dev/issue-101/cards-15.md` (SHA-256 fd717b67…2922): card I101-U3B-C1 (a), one bounded fix of the dispositions, a narrow confirmation, then the U3b commit, the push and the PR"
+    quote: "U3B-C1 a"
 non_goals:
   - The review roles, floors and efforts do not change, and adversarial review stays as it is (Issue #101 body, Scope, Out).
   - No new script and no configuration (card I101-C2 (a); Issue #101 body, Where the setting lives, first choice).
@@ -273,15 +279,19 @@ Issue #101 body, Problem). This requirement covers two of them.
   I101-IR3-C1 (`cards-7.md`), I101-NC1-C1 (`cards-8.md`), I101-NC2-C1
   (`cards-9.md`), I101-NC3-C1 (`cards-10.md`), I101-U2S-C1 (`cards-11.md`),
   I101-U2R2-C1 and I101-U2R2-C2 (`cards-12.md`) and I101-U2R3-C1
-  (`cards-13.md`), all option (a); the SHA-256 of each card file is in
-  `.dev/issue-101/plan.md`, Decisions. Card I101-IR2-C1 (a) replaces card
+  (`cards-13.md`) and I101-U3B-C1 (`cards-15.md`), all option (a), and
+  I101-U3R1-C1 (`cards-14.md`), option (b)
+  (「U3R1-C1 b」, and for the withdrawal of the staged U3 content 「可以撤回」, the
+  user's own messages in the Issue #101 session, 2026-11-05); the SHA-256 of each
+  card file is in `.dev/issue-101/plan.md`, Decisions. Card I101-IR2-C1 (a) replaces card
   I101-IR1-C1 (a). Card I101-U2R2-C1 (a) replaced the wording of card
   I101-U2S-C1 (a), and card I101-U2R3-C1 (a) replaces the wording of card
   I101-U2R2-C1 (a). The answer to `cards-4.md` was relayed, and the user
   confirmed it in the Issue #101 session (card I101-IR1-C2 (a)). The answers
-  to `cards-10.md`, `cards-11.md`, `cards-12.md` and `cards-13.md` were relayed by the
+  to `cards-10.md`, `cards-11.md`, `cards-12.md`, `cards-13.md` and `cards-15.md` were relayed by the
   orchestrator session, 2026-11-05.
-- The R-VER-2 exception for NIT repeats (Issue #101 defect 3) goes into
-  [[REQ-012-review-convergence]] in U3, not into this requirement.
-- Plan: `.dev/issue-101/plan.md`, design d9, slices S1 and S2 (units U1 and
-  U2).
+- The R-VER-2 exception for NIT repeats (Issue #101 defect 3) moved to Issue
+  #102 (card I101-U3R1-C1 (b)) and is not part of this requirement;
+  [[REQ-012-review-convergence]] does not change in this PR.
+- Plan: `.dev/issue-101/plan.md`, design d10, slices S1 and S2 (units U1, U2 and
+  U3b).

@@ -189,6 +189,99 @@ Cowork runtime test). At that release,
 
 ### Changed
 
+- Deterministic completeness checks in the review loop (REQ-029, D-030,
+  DL-047, Issue #101 unit U1; the user's own answers in the Issue #101
+  session 「C1 a，C2 a，C3 a，C4 a，C5 a」, 「R2-C1 a，R2-C2 a」,
+  「IR1-C1 a，IR1-C2 a，R3-C1 a 確認」, 「都選 a」, 「IR3-C1 選 a」 and
+  「NC1-C1 選 a」, and 「同意你建議a」, relayed by the orchestrator session and
+  confirmed by the third answer).
+  `dev-plan` step 6 ends with a bullet group: the value rule (a value from
+  a plan or a brief is checked in the text before it goes into a command,
+  and a value that fails never does); when the commands run (before a
+  commit, after its content is staged and before the R-REV-9 commit scan;
+  the rule requires no commit); a search list of fixed strings, run with
+  one `git grep --cached` form on the index, with one row per string and
+  file and a disposition; co-change rule 1 (each write node and each fix
+  round that changes a requirement file adds its own `log.md` row, which
+  the reviewer checks by reading the node's diff or the fix diff), also run
+  before a commit with two `git diff --cached` forms, and co-change rule 2
+  (a recorded user decision is quoted in every record that lists the
+  decisions of the change), checked by reading; a check that did not run
+  stops the dependent work, and a wrong or missing row is at least a
+  `NIT`. Limit (card I101-IR3-C1 (a), 「IR3-C1 選 a」; the main agent narrowed the
+  wording to one commit): a second change of one requirement file in one
+  commit without its own row is found only by reading, and only on a target that shows that change alone; on a cumulative diff the
+  report says so, and this item does not count as passed. `dev-deliver` step 7 runs the commands before a commit;
+  `dev-review` step 2 gives them in the brief of an implementation review
+  and a fix round review, and the Merge Review runs co-change rule 1 on
+  each commit from `git rev-list` and the search list on the head. Design
+  d6 replaces design d5: the per-node commit and the unstaged order are
+  gone, card I101-IR1-C1 (a) is replaced by card I101-IR2-C1 (a), and the
+  main agent's correction of that card was never a decision (source:
+  `.dev/issue-101/plan.md`, Decisions).
+  `review-report.md` has a "Completeness checks" header line and
+  `task-brief.md` a "Completeness checks" field; the value rule is word
+  for word in the field and in the three agent files, and the reviewer
+  Bash lists add the commands. `tests/test_review_loop_rules.py` pins the
+  copies and the command forms. No script and no configuration are added
+  (card I101-C2 (a)).
+
+- Sources of new facts in the review loop (REQ-029, D-030, DL-047, Issue
+  #101 unit U2; the user's own answers in the Issue #101 session
+  「C1 a，C2 a，C3 a，C4 a，C5 a」 (card I101-C4 (a)) and 「NC2-C1 選 a」, and
+  「NC3-C1 a」, 「U2S-C1 a」, 「U2R2-C1 a，C2 a」 and 「U2R3-C1 a」, each relayed by the
+  orchestrator session, 2026-11-05). The new rule R-EVD-3 says that every new
+  sentence that states a fact gives its source or the mark "inference" or
+  "unverified", in records, decision cards, briefs and receipts and in fact
+  sentences of rule and reference text. Every source is masked as R-REV-8
+  says, and nothing that R-AUTH-7 forbids goes into a record. A review
+  summary, a receipt, a card
+  and the text of another session are not original evidence: a fact taken
+  from them gives the original source that they name, after the writer read
+  that source, or it is marked
+  unverified. A relayed user answer is recorded as a relay. A false fact
+  sentence is a finding (at least a `NIT`), and a true one without a source
+  or a mark is residual risk that the main agent fixes before the commit.
+  R-AUTH-7 now also lists, in one narrow clause with no exclusion, the content
+  of native memory or of the user's private instruction files, in any form
+  (card I101-U2S-C1 (a), finding U2-S-02; card I101-U2R2-C1 (a) replaced the
+  wording of that card, findings U2R2-S-01, U2R2-S-02 and U2R2-S-03; card
+  I101-U2R3-C1 (a) replaces the wording of card I101-U2R2-C1 (a), findings
+  U2R3-S-01, U2R3-S-02 and U2R3-D-01). Other private files are not in this
+  clause, and the R-REV-9 scan looks for them.
+  R-DEL-1 says that a brief gives each fact with its source;
+  `decision-card.md` gets an `Unverified:` line and says that a quote of a
+  review summary, a receipt or another card is not the source of a fact;
+  `task-brief.md` gets the field "Facts given"; the source forms and the
+  masking sentence, and after them the private-data sentence, are word for
+  word in the receipt template of `task-brief.md`, in
+  `agents/dev-implementer.md` and in `agents/dev-explorer.md`;
+  `agents/dev-reviewer.md` and `agents/dev-security-reviewer.md` get the last
+  sentence of the private-data sentence after their masking bullet
+  (card I101-U2R2-C2 (a));
+  `review-report.md` lists a true fact sentence without a source or a mark
+  under residual risk; in `requirements-wiki.md`, "live only in `sources`"
+  holds for a REQ file. `tests/test_review_loop_rules.py` pins that R-EVD-3
+  is defined once, the Never commit sentence of R-AUTH-7, the word-for-word sentences,
+  that the replaced wording of R-AUTH-7 is gone from `skills/dev-core/SKILL.md`
+  and `agents/*.md`, and the `Unverified:` line.
+  Correction of the U1 records
+  (finding NC3-01, `Deferred` by card I101-NC3-C1 (a)): card I101-NC1-C1 (a)
+  allowed one early use of the NIT exception, but condition (2) did not hold
+  on the cumulative target of NC2, so the exception was not used and the U1
+  round was an ordinary stop (source:
+  `.dev/issue-101/reviews/impl-u1-nc2.md:43-46`; card I101-NC2-C1 (a)).
+
+- R-VER-2 does not change in this PR: the bounded exception for NIT repeats
+  (Issue #101 defect 3) moved to Issue #102 (REQ-029, D-030, DL-047, Issue #101
+  unit U3b; card I101-U3R1-C1 (b); the user's own answers in the Issue #101
+  session, 2026-11-05: 「U3R1-C1 b」 and, for the withdrawal of the staged U3
+  content, 「可以撤回」; card I101-U3B-C1 (a), 「U3B-C1 a」, relayed by the
+  orchestrator session, closed the review of this unit). The first implementation review of that text reported
+  new blockers, and the stop rule of R-VER-2 fired (source:
+  `.dev/issue-101/reviews/impl-u3-round-1.md`). The NIT exception that the
+  entries above name is in no rule.
+
 - The routing tables and the rule sentences name roles of the
   configuration file only, and the read-back script run by its path
   checks where its copy lies (REQ-009, D-029 PR-3 supplement, DL-046,

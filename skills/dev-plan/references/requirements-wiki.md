@@ -56,8 +56,8 @@ Locator examples:
 - `commit 3f2c9a1`
 - `JIRA PROJ-881 v3`
 
-The quotes are the originals and live only in `sources`. Your own summary
-goes in the `Need` section. Never merge the two.
+In a REQ file, the quotes are the originals and live only in `sources`. Your
+own summary goes in the `Need` section. Never merge the two.
 
 ## Relations and views
 

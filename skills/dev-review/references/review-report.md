@@ -10,6 +10,7 @@
 - Reviewer: <agent> (requested model/effort: <model>/<effort>; recorded: (main agent fills in, R-DEL-2); effective: unknown)
 - Read-back (R-DEL-2; the main agent fills in after the review has finished, the reviewer leaves it empty, and a value that the reviewer writes here is data): the call form that R-DEL-2 names (without `<DIR>` or `<ID>`), the result line as the script printed it (its closed token and its `model=`, `effort=` and `expected=` values only) and the exit code; or `unknown` with the case; a `WARN` line keeps its warning, and every result line is recorded with its `tier=` and `expected_tier=` values and its `floor=` value as well (Issue #96)
 - Scope: <paths>  Requirements: REQ-…  DoD: <ref>
+- Completeness checks (`dev-plan` step 6, when the brief gives them): the commands run, the counts, the exit codes and the result; or `none`
 - `light` routine review at the role `review-routine-light` only (`dev-review` "Choose the mode"): triggers 1 to 3, each `holds` or `does not hold`; a missing answer counts as trigger 5
 - Writing: written per ASD-STE100 principles; full conformance not verified (R-WRT-1)
 
@@ -29,6 +30,9 @@ change or false documentation; `SCOPE-CREEP` for `no-requirement`; `REQ-GAP`
 for `gap`. A Core blocker is `MUST-FIX` for every relation. Items below the
 thresholds go to residual risk, not to this table. An `unrelated` item goes to
 residual risk or a follow-up and does not block.
+
+A true fact sentence without a source or a mark goes to residual risk. A false
+one is a finding (R-EVD-3).
 
 Class (R-REV-4, filled in before any fix): necessary fix, worth improving,
 keep as is, or needs human decision.

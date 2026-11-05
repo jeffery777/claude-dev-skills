@@ -21,7 +21,7 @@ cited Core section (see review round 1, DR-001 to DR-008, in
 | `workflow.md#wf-delegation` | R-DEL-1, R-DEL-2 | covered | Model/effort floor tightened (D-007) |
 | `workflow.md#wf-verification` | R-VER-1, R-VER-2, R-VER-3, R-VER-5 | covered | R-VER-2 adds the stop rule for the fix loop (DL-012); R-VER-5 adds the Lesson candidates section of the `dev-deliver` and `dev-review` reports (DL-035) |
 | `workflow.md#wf-assumptions-and-options` | R-RIG-3, R-RIG-4 | covered | R-RIG-3 adds requirement tracing and SCOPE-CREEP (D-003); R-RIG-4 is an index line (FU-005 PR-4) |
-| `workflow.md#wf-evidence-lifecycle` | R-EVD-1, R-EVD-2 | covered | Illustrative scenario table not copied; read Core for cases |
+| `workflow.md#wf-evidence-lifecycle` | R-EVD-1, R-EVD-2, R-EVD-3 | covered | Illustrative scenario table not copied; read Core for cases |
 | `authorization-and-stops.md#auth-scope` | R-AUTH-1, R-AUTH-2 | covered | |
 | `authorization-and-stops.md#auth-destructive` | R-AUTH-3, R-AUTH-4 | covered | |
 | `authorization-and-stops.md#auth-stops` | R-AUTH-5, R-AUTH-6 | covered | R-AUTH-6 uses the decision card (DL-014) |

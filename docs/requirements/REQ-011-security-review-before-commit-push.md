@@ -93,6 +93,9 @@ sources:
   - type: chat
     locator: "Claude Code session 2026-10-28 (orchestrator relay), user answer to the Issue #68 review round 4 REQ-GAP S4-002 (the commit-scan hash command has no --ignore-submodules=none)"
     quote: "commit 掃描也加，這個 PR 修"
+  - type: issue
+    locator: "GitHub Issue #104 body, Decisions Q3 (a) and Scope (the signature on a merge commit), relayed by the orchestrator session; confirmed by the user's own message in the Issue #104 session, card I104-C2 (`.dev/issue-104/cards-1.md`)"
+    quote: "「C1 a，C2 a」"
 non_goals:
   - Installing gitleaks or Git hooks without the user's approval
   - Review convergence, decision cards and REQ-GAP (PR-B, D-013, D-014, D-016)
@@ -357,6 +360,14 @@ and effort of every R-REV-9 scan, and only a `PASS` at or above the table
 value lets the scan count; no commit, push, post or merge proceeds on a scan
 that does not count, also when push step 5 counts it as passed. REQ-009 has
 the requirement.
+
+Note (Issue #104, D-031, DL-048, DL-049): the push steps and the "Not covered"
+list are in `skills/dev-core/references/push-scan.md`. Only the merge readiness
+scan is read back; the note on Issue #95 above stays for it alone. A text scan has
+a deterministic check first, then looks for private data only, not fact
+precision; the agent and the role do not change. A signature on a merge or squash
+commit that the hosting platform created is recorded only; a signature on the
+user's own commits before a push still goes to the user.
 
 Origin: PR #2 SEC-01 (a hostname-derived author email was pushed). Design
 records: D-015 and, since Issue #68, D-021 in `docs/design-proposal.md`. Related: [[REQ-003]], [[REQ-007]].

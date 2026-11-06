@@ -44,7 +44,7 @@ private instruction file (SR3-02); its SHA-256 here is its only record.
 | `cards-12.md` | `36fd37d53e48ce9d2b26e5f111e8288cf6826635d5685222046a7970e39bd9da` | 「U2R2-C1 a，C2 a」, relayed by the orchestrator session, 2026-11-05: I101-U2R2-C1 (a) and I101-U2R2-C2 (a). Basis for taking the relay: the practice of Issue #96 for cards that loosen no rule; C1 replaces the wording of a tightening, and C2 adds a requirement |
 | `cards-13.md` | `05ad099a3f4481c458661e36cc462eff629f74273c7d1dfd143d3ae0d334ab00` | 「U2R3-C1 a」, relayed by the orchestrator session, 2026-11-05: I101-U2R3-C1 (a). Basis for taking the relay: the practice of Issue #96 for cards that loosen no rule; against `main` this still tightens R-AUTH-7 |
 | `cards-14.md` | `fa99dfd7d05bd521a3e6476cedfd12b02669107d4c69643e5862f0a67458e2b7` | 「U3R1-C1 b」 (the user's own message in this session, 2026-11-05): I101-U3R1-C1 (b). 「可以撤回」 (the user's own message in this session, 2026-11-05), the answer to the next question, the withdrawal of the staged U3 content. I101-U3R1-C2: no answer |
-| `cards-15.md` | `fd717b67e65535052a5e8774c78ddc47aef36fbb6d1c88b864059c5df0dc2922` | 「U3B-C1 a」, relayed by the orchestrator session, 2026-11-05: I101-U3B-C1 (a). Basis for taking the relay: the practice of Issue #96 for cards that loosen no rule; against `main` this still tightens R-AUTH-7 |
+| `cards-15.md` | `fd717b67e65535052a5e8774c78ddc47aef36fbb6d1c88b864059c5df0dc2922` | 「U3B-C1 a」, relayed by the orchestrator session, 2026-11-05: I101-U3B-C1 (a). Basis for taking the relay: the practice of Issue #96 for cards that loosen no rule |
 
 - I101-C1 (a): the bounded NIT-repeat exception of R-VER-2, as changed by
   I101-R2-C2 (a).
@@ -244,7 +244,7 @@ I101-U3B-C1 (a) (only NITs: dispositions, no fix round):
   record that the commit needs, not a fix round. Verification: the commands of
   that section; re-review: the R-REV-9 commit scan reads it, and the Merge Review
   runs the checks again.
-- U3B-NC-04 (NIT; class: keep as is): `Fixed`: the class is back in the PS4 item
+- U3B-NC-04 (NIT; class: worth improving): `Fixed`: the class is back in the PS4 item
   above, with the disposition. Same verification.
 
 ## Objective and scope

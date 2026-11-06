@@ -47,13 +47,12 @@ When the user asked for it, use this order (R-REV-9):
 1. Stage only the intended files and check the staged list.
 2. `dev-security-reviewer` scans the staged diff and the author, committer
    (`git var GIT_AUTHOR_IDENT`, `git var GIT_COMMITTER_IDENT`), message and
-   trailers the commit will carry. Before the main agent uses the scan, it
-   reads back the scanner's model and effort by R-DEL-2 (`dev-core`); a
-   scan that does not count by R-DEL-2 is not the R-REV-9 scan, and the
-   commit does not proceed.
+   trailers the commit will carry.
 3. Pass the `dev-gate` commit gate, then commit without overriding the
    identity. Read back `git --no-replace-objects cat-file commit HEAD`.
-4. Before the push, confirm that the recorded identity and message match what
+4. Before the push, read
+   `${CLAUDE_SKILL_DIR}/../dev-core/references/push-scan.md` in full (R-REV-9).
+   Confirm that the recorded identity and message match what
    was scanned. Check the remote names and that the fetch and push URLs of
    `<remote>` are one and the same; stop when the configuration of
    `<remote>` sets a push mirror or a `+` or `:<dst>` push refspec
@@ -71,9 +70,8 @@ When the user asked for it, use this order (R-REV-9):
    in the worktree of the dry-run; any result other than exit 0 stops the
    push, and exit 0 replaces no scan (R-REV-9 step 4a). Have `dev-security-reviewer` scan
    everything it lists: every commit the remote does not have yet and any
-   annotated tag; a signed commit or tag stops the push for the user's
-   decision (R-REV-9). The read-back of R-DEL-2 applies to this scan as to
-   the scan of step 2.
+   annotated tag; a signature that R-REV-9 step 8 reports as blocking stops
+   the push for the user's decision.
 5. Pass the `dev-gate` push gate, then push with exactly those arguments
    (including `--no-recurse-submodules`). Change no ref, configuration or
    remote between the remote-name check and the push; after any change,
@@ -83,7 +81,7 @@ Any change after a scan needs a new scan. Scan and gate records go into a
 later commit or into a PR comment that the user has authorized, never into
 the commit they cover (R-REV-9). Once a PR exists, they never go into a commit on the
 PR branch (R-EXH-3). Without `dev-security-reviewer`, stop before the commit
-or push (CB-4). A scan that does not count by R-DEL-2 counts as no scan.
+or push (CB-4).
 
 ## Output
 

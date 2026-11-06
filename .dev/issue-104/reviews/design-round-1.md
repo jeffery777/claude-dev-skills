@@ -13,7 +13,7 @@ The IDs are the reviewers' IDs with a prefix (DR-D deep, DR-S security).
 
 | ID | Severity | Finding | Class | Disposition |
 | --- | --- | --- | --- | --- |
-| DR-D-01 | MUST-FIX (unclear Core blocker) | After Q2 most dispatches are not checked; Core `workflow.md:56` says each interface checks the effective model and effort | needs human decision | `Needs Human Decision`: card I104-C1 |
+| DR-D-01 | MUST-FIX (unclear Core blocker) | After Q2 most dispatches are not checked; Core `workflow.md:56` says each interface checks the effective model and effort | needs human decision | `Fixed` by the user's answer to card I104-C1 (a): the reading is recorded in DL-049 and D-031, marked as an inference |
 | DR-D-02, DR-S-02 | SHOULD-FIX | Redefining "a review" narrows rules that are not read-back (session binding, handoff, native pass) | necessary fix | `Fixed` in the design: these sentences stay in `SKILL.md`; no redefinition |
 | DR-D-03 | SHOULD-FIX | The delete list leaves sentences that name other dispatches | necessary fix | `Fixed` in the design: sentence by sentence |
 | DR-D-04 | SHOULD-FIX | No search list; co-changes missed (REQ-026, DL-035, DL-045, CF-001 items 2 and 5) | necessary fix | `Fixed` in the design |

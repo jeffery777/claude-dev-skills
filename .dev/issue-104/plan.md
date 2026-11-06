@@ -31,8 +31,9 @@ Q3 (a) and Q4 (a). Q1 to Q3 narrow project tightenings, so only the user decides
 them (`deltas.md`). This session read them in the Issue; it did not see the
 user's own message. The Scope of the Issue also holds three items that are not
 under that word: the R-REV-4 order, "accepted residual risk is not raised again",
-and the merge-signature record. Cards I104-C1 and I104-C2 (`cards-1.md`) ask the
-user to confirm in this session (DR-D-01, DR-D-06). Q4 is an order, so it has no
+and the merge-signature record. Cards I104-C1 and I104-C2 (`cards-1.md`) asked the
+user to confirm in this session (DR-D-01, DR-D-06). The user's own message in this
+session: 「C1 a，C2 a」 (2026-11-06). Q4 is an order, so it has no
 rule; D-031 records it.
 
 ## Finding triage in this work
@@ -233,3 +234,30 @@ true; `noted`, one row per string to keep the list short):
 | `push step` | `CHANGELOG.md` 2, `docs/core-feedback.md` 1, `docs/design-proposal.md` 8, REQ-009 1, REQ-011 4, `SKILL.md` 1, `deltas.md` 1, `references/readback-gate.md` 1, `push_precheck.py` 1 | `noted`: the numbers are the same |
 
 U1 changes no requirement file, so co-change rule 1 does not apply.
+
+## U2 record
+
+Search list (command of `dev-plan` step 6 on the index). One row per string and
+group, not per file: `.dev/` of other objectives and dated records hold hundreds
+of hits for K4 and K7, and rows per file would add no check (class: keep as is).
+Counts are in the run of 2026-11-06 before the U2 commit.
+
+| String | Place | Disposition |
+| --- | --- | --- |
+| K1 `stop rule`, K2 `stop the fix loop`, K3 `停止規則` | `.dev/` of other objectives; dated rows of `log.md`; REQ-009 source locator; REQ-020 to REQ-028 sources and notes; D-0xx entries; DL-015, DL-017, DL-035, DL-045 | `historical`: they record what ran then; D-031 and DL-049 supersede them |
+| K1 to K3 | `skills/dev-core/SKILL.md`, `dev-deliver`, `dev-review`, `review-report.md`, `source-map.md`, REQ-009 Acceptance, REQ-012, REQ-026 line of the trigger, CF-001 items 2, 4, 5 | `changed` |
+| K4 `R-VER-2` | `SKILL.md`, `readback-gate.md` (failure class), `graph-schema.md`, `dev-deliver`, `dev-review`, `review-report.md` | `noted`: the rule keeps its ID; the re-evaluation stays |
+| K5 `does not count by R-DEL-2` | `SKILL.md` (merge readiness scan), `dev-deliver` step 7 and `dev-gate` step 2 (merge) | `noted`: all three speak of the dispatches that are read back |
+| K5 | `deltas.md`, REQ-009, `log.md` | `historical`: DL-049 supersedes |
+| K6 `reads back`, K7 `read back` | `SKILL.md`, `readback-gate.md`, `dev-deliver`, `dev-gate`, `dev-review`, `task-brief.md`, `review-report.md` | `changed` or `noted`: narrowed to the three dispatches |
+| K6, K7 | `dev-implement` (`cat-file commit HEAD`), `dev-retro`, `platform_profile.py`, script, REQ-020, REQ-021 and REQ-026 | `noted`: another read-back |
+| K6, K7 | `docs/design-proposal.md`, REQ-009, REQ-011, `deltas.md` DL-040 to DL-046, `log.md`, CHANGELOG | `historical`: D-031 and DL-049 supersede, with notes at D-027, D-028, REQ-009, REQ-011 |
+| K8 `DL-012` | `deltas.md`, `source-map.md`, `core-feedback.md`, `design-proposal.md` | `noted`: DL-012 keeps R-REV-4 and has a note |
+
+Co-change rule 1: REQ-009, REQ-011, REQ-012 and REQ-026 change, and `log.md` has
+one new row for each. The records quote the user's own answer to cards I104-C1 and I104-C2 in this
+session: 「C1 a，C2 a」 (2026-11-06).
+
+Issue #102 items: U3B-NC-01 (D-030, both languages), U3B-NC-02 and MR103-D-01
+(`.dev/issue-101/plan.md`) are `Fixed` in this unit; U3B-D-02 is answered by the
+comment on Issue #102.

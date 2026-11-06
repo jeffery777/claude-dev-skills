@@ -2,6 +2,8 @@
 
 請在本 session 直接打字回答，例如「C1 a，C2 a」。轉述的答案不算，因為這兩題涉及放寬。
 
+回答（使用者在本 session 的訊息，2026-11-06）：「C1 a，C2 a」。
+
 ## I104-C1：Q2 之後，還算符合 Core 的「核對 effort」嗎？
 
 - 問題：Core `workflow.md:56` 寫「由各接口核對實際生效的 model/effort」。Q2 之後，只有 Merge Review、merge 前的 security review 和 merge readiness scan 會做 read-back，其他 dispatch 都不做。

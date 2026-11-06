@@ -57,9 +57,8 @@ Decide the mode from the actual impact, not the file type (R-REV-7). When unsure
 the stronger mode. A required security review or scan always uses
 `dev-security-reviewer`, never `dev-reviewer` (R-REV-1).
 
-Before the main agent uses a review or a scan, it reads back the
-reviewer's recorded model and effort by R-DEL-2 (`dev-core`); a review or
-scan that does not count by R-DEL-2 is not the required review or scan.
+The Merge Review, a security review of the head at the merge and the merge
+readiness scan are read back by R-DEL-2 (`dev-core`); no other review or scan is.
 
 For a commit / push scan, the target is exactly what will be published: the
 staged diff plus the author, committer, message and trailers the commit will
@@ -99,8 +98,7 @@ secret or private identifier they report (R-REV-8).
    `gitnexus detect-changes` to map the hunks to affected symbols and flows,
    and label it advisory (CB-3).
 3. Dispatch the reviewer subagent with a brief (R-DEL-1). Pass the model
-   and the effort of the mode table in the dispatch call; the values of
-   that call are the expected values of the read-back (R-DEL-2). Give the target, the
+   and the effort of the mode table in the dispatch call (R-DEL-2). Give the target, the
    context paths, the mode, and the output format in
    `${CLAUDE_SKILL_DIR}/references/review-report.md`. Never review your own
    change as the required reviewer (R-REV-1). The brief tells the reviewer to look for
@@ -113,15 +111,14 @@ secret or private identifier they report (R-REV-8).
      is not the independent review. Map its findings into the report format
      below, run the requirement-trace and SCOPE-CREEP pass through
      `dev-reviewer` (never yourself as the author), and record which tool ran
-     and in which context. A native pass in a subagent is read back by
-     R-DEL-2 and is the primary pass only when it counts; a native pass that
+     and in which context. A native pass that
      does not run in a subagent of this session never counts (`dev-core`). A native pass that runs in a context with write
      tools is an extra pass only; the required review still needs
      `dev-reviewer` (`dev-security-reviewer` for a security review or scan), and without them the work
      stops at the gate (R-REV-1, CB-4).
-4. Read the report back. After the review has finished, read back the
-   reviewer's model and effort by R-DEL-2 (`dev-core`) and fill in
-   `recorded` and the Read-back line from its result. Check that each finding has a file and line and
+4. Read the report back. For a review that R-DEL-2 reads back, read back the
+   reviewer's model and effort after the review has finished (`dev-core`) and
+   fill in `recorded` and the Read-back line from its result. Check that each finding has a file and line and
    evidence (R-REV-2). Mark claims you could not reproduce as unverified.
 5. Assign IDs (`F-001`, …). Before any fix, classify each finding and
    propose a disposition (R-REV-3, R-REV-4). Raise each `REQ-GAP` and each
@@ -138,7 +135,7 @@ secret or private identifier they report (R-REV-8).
    under the R-DEL-2 floor itself, the floor check of `dev-deliver` step 2
    runs first. Before a push, an independent
    reviewer confirms the fixes in a narrow review. Apply the re-assessment
-   and the stop rule of R-VER-2.
+   and the re-evaluation of R-VER-2.
 
 ## Output
 

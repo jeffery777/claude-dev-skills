@@ -48,10 +48,10 @@
   - FU-023（未解）：PR 建立之前 commit 的 round 紀錄，也會成為 base 到 head diff 的一部分；Merge Review 找到只和紀錄有關的阻擋項（PR #30 的 MR30-002；PR #34 的 MR34-001、MR34-RC-001）。所以第 3 點的問題不只在 PR 建立之後。
 - 提議的 Core 修改：
   1. 在 `review-and-security.md#review-findings` 加上嚴重度門檻。
-  2. 在 `workflow.md#wf-verification` 加上停止規則。
+  2. 在 `workflow.md#wf-verification` 加上停止規則。註記（2026-11-06，Issue #104）：本專案已取消自己的停止規則，回到 Core 的重新評估，所以不再提議這一點。上游留言由 Core 更新的工作處理。
   3. 在 `exact-head-and-evidence.md#exact-transition` 規定 PR 建立後的紀錄不 commit 到 PR 分支。
-  4. 停止之後的做法（候選，2026-10-30）：Core `workflow.md:72` 只要求兩輪未完成的 review/fix 觸發重新評估，「並非自動停工」；停止規則是第 2 點的提議。本專案的 R-VER-2 規定停止修正、重新評估，並用決策卡片交使用者決定，但沒有說停止之後可以怎麼做。本專案的停止至少有七次用了同一個做法（依 `docs/design-proposal.md` 與 `.dev/` 的搜尋結果，可能還有更多）：把反覆出問題的機制移到 follow-up、另一個 Issue 或殘餘風險，其餘部分照常交付。早期的三次：D-017（Issue #12；profile 設定移到 FU-009）、Issue #18（`--prune` 規則移到 FU-014，卡片 8a）、FU-015 PR-2（Issue #48；卡片 PR2-R2-C1 (a)，`+`／`-` 檢查移到 FU-019）。近期的四個 Issue 中，有兩個（#68、#73）是使用者先同意再做一輪限定範圍的修正，並事先約定：同一個機制再出現新的阻擋項就移出。近期的實例：Issue #68（卡片 I68-R2-C1 事先約定；第 3 輪的 R3-001 之後改走回退 (c)，綁定機制移到 Issue #71）；Issue #73（卡片 I73-R2-C1 (a) 事先約定；第 3 輪的下限檢查時機 finding 移到 FU-035）；Issue #77（停止卡 I77-R2-C1 (a)、I77-R3-C1 (a)；讀回 gate 直接移到 Issue #79）；Issue #78（第 3 輪第一次停止，卡片 I78-R3-C1 (c)；D-025 第 3、8、9 項構成的從嚴機制移到 FU-044）。範圍的改變每次都是使用者的決定。Core `workflow.md:62` 是在缺能力時要求不降低 DoD；本專案的判斷是：使用者決定的範圍改變不是那種情形。建議：在 `workflow.md#wf-verification` 的停止規則加上這個做法，作為交給人決定的選項之一。本專案的 `dev-core` R-VER-2 還沒有這一句（推論：先在本專案寫成規則再提出，證據會更完整）。
-  5. 規格或設計造成的失敗不是品質失敗（候選，2026-10-30）：Core `workflow.md:72` 把服務、認證、環境、資料、權限及 context 的失敗和品質返工分開，並說提高 effort 不能解決環境或權限缺失。它沒有說規格、驗收條件或設計造成的失敗屬於哪一類。本專案的 `dev-core` R-DEL-2 寫明：這種失敗不是品質失敗，要走停止規則與重新評估，不升級 model 或 effort（FU-018，REQ-009 卡片 C2a）。證據：FU-018 的評估（PR #2 到 #49 的彙總）中，116 個阻擋項有 52 個是品質問題，64 個是規格或機制問題（`.dev/followups.md` FU-018 列）。建議 Core 在同一段寫明這一類。
+  4. 停止之後的做法（候選，2026-10-30；Issue #104 之後只是歷史紀錄，R-VER-2 已不停止修補）：Core `workflow.md:72` 只要求兩輪未完成的 review/fix 觸發重新評估，「並非自動停工」；停止規則是第 2 點的提議。本專案的 R-VER-2 規定停止修正、重新評估，並用決策卡片交使用者決定，但沒有說停止之後可以怎麼做。本專案的停止至少有七次用了同一個做法（依 `docs/design-proposal.md` 與 `.dev/` 的搜尋結果，可能還有更多）：把反覆出問題的機制移到 follow-up、另一個 Issue 或殘餘風險，其餘部分照常交付。早期的三次：D-017（Issue #12；profile 設定移到 FU-009）、Issue #18（`--prune` 規則移到 FU-014，卡片 8a）、FU-015 PR-2（Issue #48；卡片 PR2-R2-C1 (a)，`+`／`-` 檢查移到 FU-019）。近期的四個 Issue 中，有兩個（#68、#73）是使用者先同意再做一輪限定範圍的修正，並事先約定：同一個機制再出現新的阻擋項就移出。近期的實例：Issue #68（卡片 I68-R2-C1 事先約定；第 3 輪的 R3-001 之後改走回退 (c)，綁定機制移到 Issue #71）；Issue #73（卡片 I73-R2-C1 (a) 事先約定；第 3 輪的下限檢查時機 finding 移到 FU-035）；Issue #77（停止卡 I77-R2-C1 (a)、I77-R3-C1 (a)；讀回 gate 直接移到 Issue #79）；Issue #78（第 3 輪第一次停止，卡片 I78-R3-C1 (c)；D-025 第 3、8、9 項構成的從嚴機制移到 FU-044）。範圍的改變每次都是使用者的決定。Core `workflow.md:62` 是在缺能力時要求不降低 DoD；本專案的判斷是：使用者決定的範圍改變不是那種情形。建議：在 `workflow.md#wf-verification` 的停止規則加上這個做法，作為交給人決定的選項之一。本專案的 `dev-core` R-VER-2 還沒有這一句（推論：先在本專案寫成規則再提出，證據會更完整）。
+  5. 規格或設計造成的失敗不是品質失敗（候選，2026-10-30）：Core `workflow.md:72` 把服務、認證、環境、資料、權限及 context 的失敗和品質返工分開，並說提高 effort 不能解決環境或權限缺失。它沒有說規格、驗收條件或設計造成的失敗屬於哪一類。本專案的 `dev-core` R-DEL-2 寫明：這種失敗不是品質失敗，要走重新評估，不升級 model 或 effort（FU-018，REQ-009 卡片 C2a）。證據：FU-018 的評估（PR #2 到 #49 的彙總）中，116 個阻擋項有 52 個是品質問題，64 個是規格或機制問題（`.dev/followups.md` FU-018 列）。建議 Core 在同一段寫明這一類。
 - 類型：第 1 到 3 點是修改型（停止規則與紀錄位置會改變義務），可以先用增量型伴讀文件試行。第 4 點是增量型（交給人決定的一個選項）。第 5 點是修改型（新增一個失敗分類）。
 - 對其他專案的影響：codex-dev-skills 與 grok-build-dev-skills 採用後，review 輪數可能減少；兩者都要檢查自己的 gate 與紀錄流程。在它們重新 pin 之前沒有影響。
 - 狀態：第 1 到 3 點已提出（`engineering-workflow-core#21`，2026-10-22）。第 4、5 點與新增的證據，已起草為 `engineering-workflow-core#21` 的留言，還沒有張貼；張貼需要使用者核准。
@@ -320,10 +320,10 @@ adopt it and the other two projects can re-pin it themselves (REQ-019).
     PR exists.
 - Proposed Core change:
   1. Severity thresholds in `review-and-security.md#review-findings`.
-  2. The stop rule in `workflow.md#wf-verification`.
+  2. The stop rule in `workflow.md#wf-verification`. Note (2026-11-06, Issue #104): this project dropped its own stop rule and went back to the Core re-evaluation, so it no longer proposes this point. The Core update work handles the upstream comment.
   3. In `exact-head-and-evidence.md#exact-transition`, records are never
      committed to the PR branch once a PR exists.
-  4. What to do after a stop (candidate, 2026-10-30): Core
+  4. What to do after a stop (candidate, 2026-10-30; since Issue #104 a history record only, because R-VER-2 no longer stops the fixes): Core
      `workflow.md:72` only says that two unfinished review and fix rounds
      trigger a re-assessment, "not an automatic stop"; the stop rule is
      the proposal of point 2. R-VER-2 of this project stops the fixes,
@@ -361,7 +361,7 @@ adopt it and the other two projects can re-pin it themselves (REQ-019).
      or permission. It does not say which class a failure belongs to when
      the spec, the acceptance criteria or the design caused it. R-DEL-2 in
      `dev-core` of this project says that such a failure is not a quality
-     failure: it goes to the stop rule and re-evaluation and does not
+     failure: it goes to the re-evaluation and does not
      escalate the model or the effort (FU-018, REQ-009 card C2a).
      Evidence: in the FU-018 evaluation (aggregate of PR #2 to #49), 52 of
      116 blocking findings were quality problems and 64 were spec or

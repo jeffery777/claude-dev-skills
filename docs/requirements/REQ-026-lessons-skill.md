@@ -383,7 +383,7 @@ Each item names its source: U1 to U3 (the user requirements) or a card.
     have a section with the English heading "Lesson candidates". It is a
     tightening of Core `workflow.md:74` for these two reports, not a new
     report system. Other reports still follow Core `workflow.md:74`.
-  - Minimum triggers: the R-VER-2 stop rule fired; a `REQ-GAP` was raised,
+  - Minimum triggers: the R-VER-2 re-evaluation fired (Issue #104: R-VER-2 no longer stops the fix loop); a `REQ-GAP` was raised,
     or a spec lost a condition of its source words; the same kind of finding
     came back in two or more rounds of this work; the user corrected the
     agent; a tool call was refused, or the platform behaved differently from

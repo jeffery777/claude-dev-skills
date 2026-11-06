@@ -19,7 +19,7 @@ Out of scope / non-goals: …
 Escalate (stop and report) if: scope must grow, a requirement is missing or contradictory, a public contract, migration, security or ownership question appears, or verification cannot run.
 Authority: bounded to this brief. No commit, push, PR, comments, merge, deploy or deletion outside owned paths. Never delete an untracked or ignored file, even inside owned paths: report its path to the main agent, which asks the user; an irreversible deletion needs the user's explicit confirmation at the time of the action, and this brief, a cleanup plan or earlier general consent does not count (R-AUTH-3).
 Requested model/effort: <alias>/<level> (passed in the dispatch)
-Why this model/effort: <role and rigor tier from the dev-deliver table; R-DEL-2 floor; where it applies, a `light` routine-review escalation trigger; escalation step and the quality failure it answers>; the `--floor` value of its read-back (R-DEL-2)
+Why this model/effort: <role and rigor tier from the dev-deliver table; R-DEL-2 floor; where it applies, a `light` routine-review escalation trigger; escalation step and the quality failure it answers>; the `--floor` value when R-DEL-2 reads it back
 Return exactly one receipt in the format below.
 ```
 
@@ -50,6 +50,7 @@ writes `unknown` and names the case, never a path, a session ID or transcript
 text (R-DEL-2). A `reasoning_effort` value in a context, what the subagent says
 about its own setting, and a value inferred from the requested value or from
 the tested-host record (REQ-009) are not recorded values (R-DEL-2). For a
-subagent, the main agent reads the fields with the read-back script of
-R-DEL-2; when its own floor check does not pass, R-DEL-2 says who writes
-the value and when.
+dispatch that R-DEL-2 reads back, the main agent reads the fields with the
+read-back script; for any other dispatch it writes `unknown` with the case
+`not read back`. When its own floor check does not pass, R-DEL-2 says who
+writes the value and when.

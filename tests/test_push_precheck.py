@@ -226,9 +226,12 @@ class VerifyStop(Base):
 
 
 def rule_command(pattern):
-    """A backtick command of R-REV-9 in skills/dev-core/SKILL.md."""
-    with open(os.path.join(ROOT, "skills", "dev-core", "SKILL.md"), encoding="utf-8") as fh:
-        found = re.findall(pattern, fh.read())
+    """A backtick command of R-REV-9 in skills/dev-core/SKILL.md or its reference push-scan.md (Issue #104)."""
+    text = ""
+    for parts in (("SKILL.md",), ("references", "push-scan.md")):
+        with open(os.path.join(ROOT, "skills", "dev-core", *parts), encoding="utf-8") as fh:
+            text += fh.read()
+    found = re.findall(pattern, text)
     assert len(found) == 1, (pattern, found)
     return found[0]
 

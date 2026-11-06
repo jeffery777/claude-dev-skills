@@ -778,6 +778,20 @@ Cowork runtime test). At that release,
   after the user confirms it in this session. The R-DEL-2 floor list does
   not change (FU-036 evaluates it).
 
+- Rule slimming (Issue #104, closes Issue #102; D-031, DL-048, DL-049):
+  - `dev-core` shrinks from 15,754 to about 11,000 words: the read-back manual
+    moved to `references/readback-gate.md`, and the push steps and the "Not
+    covered" list of R-REV-9 moved to `references/push-scan.md`.
+  - R-VER-2 goes back to the Core level: the main agent re-evaluates and reports,
+    and stops for the user only on a `MUST-FIX`, a requirement change or a
+    loosening.
+  - Read-back stays only for the Merge Review, the security review of the head
+    and the merge readiness scan. The floor check of the main session stays.
+  - Issue and PR text gets a deterministic check and a scan for private data only.
+  - R-REV-4 judges the threat model, then the requirement, and only then fixes.
+    An accepted residual risk is not raised again in the same work. A platform
+    signature on a merge or squash commit is recorded only.
+
 ### Fixed
 
 - Skill paths (REQ-026, FU-025, Issue #64). In the first use of

@@ -1,5 +1,9 @@
 # Model and effort read-back script (Issue #89)
 
+From Issue #104 on, R-DEL-2 reads back only the three dispatches that
+`readback-gate.md` names, with `--floor review-scan`; the script keeps its
+other `--floor` values. The text below says what the script does.
+
 This file describes a script; it is not a rule. No dev-* skill tells an
 agent to run it; Issue #79 slice C decides whether and how. Until then the
 manual reading of R-DEL-2 stays as it is. Issue #93 (slice C1 of

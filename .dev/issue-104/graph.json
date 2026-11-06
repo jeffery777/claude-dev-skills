@@ -1,0 +1,114 @@
+{
+  "schema": "claude-dev-graph/v1",
+  "objective": {
+    "id": "issue-104",
+    "title": "Rule slimming",
+    "rigor": "strict",
+    "requirements": [
+      "REQ-009",
+      "REQ-011",
+      "REQ-012",
+      "REQ-022",
+      "REQ-029"
+    ]
+  },
+  "nodes": [
+    {
+      "id": "DR",
+      "title": "Design review",
+      "kind": "review",
+      "depends_on": [],
+      "risk": "high",
+      "review": "deep",
+      "status": "ready",
+      "dod": [
+        "deep and security design reviews read back"
+      ],
+      "verify": [],
+      "requirements": [],
+      "owns": []
+    },
+    {
+      "id": "U1",
+      "title": "Mechanical move to references",
+      "kind": "implement",
+      "requirements": [
+        "REQ-022"
+      ],
+      "depends_on": [
+        {
+          "node": "DR",
+          "consumes": "reviewed design"
+        }
+      ],
+      "owns": [
+        "skills/dev-core/**",
+        "tests/test_push_precheck.py"
+      ],
+      "risk": "high",
+      "review": "deep",
+      "status": "planned",
+      "dod": [
+        "moved text equals the source"
+      ],
+      "verify": [
+        "python3 -I -m unittest discover -s tests"
+      ]
+    },
+    {
+      "id": "U2",
+      "title": "Decisions Q1 to Q3, R-REV-4, records",
+      "kind": "implement",
+      "requirements": [
+        "REQ-009",
+        "REQ-011",
+        "REQ-012",
+        "REQ-029"
+      ],
+      "depends_on": [
+        {
+          "node": "U1",
+          "consumes": "moved text"
+        }
+      ],
+      "owns": [
+        "skills/**",
+        "agents/**",
+        "tests/**",
+        "docs/**",
+        "CHANGELOG.md",
+        ".dev/issue-101/plan.md",
+        ".dev/issue-104/**"
+      ],
+      "risk": "high",
+      "review": "security",
+      "status": "planned",
+      "dod": [
+        "each decision has a rule and a test"
+      ],
+      "verify": [
+        "scripts/validate.sh"
+      ]
+    },
+    {
+      "id": "G",
+      "title": "Gate and PR",
+      "kind": "gate",
+      "depends_on": [
+        {
+          "node": "U2",
+          "consumes": "reviewed head"
+        }
+      ],
+      "risk": "high",
+      "review": "none",
+      "status": "planned",
+      "dod": [
+        "ready card written"
+      ],
+      "verify": [],
+      "requirements": [],
+      "owns": []
+    }
+  ]
+}

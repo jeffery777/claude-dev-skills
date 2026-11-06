@@ -36,6 +36,9 @@ sources:
   - type: issue
     locator: "GitHub Issue #68 body, Goal (user decisions of 2026-10-27 on cards E1 and E2 and item 4 of the cost proposal; E2: evidence bound to the tree)"
     quote: "E1 選 A，E2 同意"
+  - type: issue
+    locator: "GitHub Issue #104 body, Decisions Q1 (a) and Scope (the R-REV-4 order, an accepted residual risk), relayed by the orchestrator session; confirmed by the user's own message in the Issue #104 session, card I104-C2 (`.dev/issue-104/cards-1.md`)"
+    quote: "「C1 a，C2 a」"
 non_goals:
   - D-009 to D-012, the context-cost sentence, CHANGELOG, core-feedback and cleanups (PR-C)
   - Changes to engineering-workflow-core, codex-dev-skills or grok-build-dev-skills
@@ -53,13 +56,15 @@ classified before anyone fixes it, and a fix stays inside the requirements. A
 new mechanism names its unique role and its requirement. Fixes get a narrow
 independent confirmation before a push. Two rounds in a row with new blockers,
 or the same mechanism needing fixes and producing new problems in two rounds
-in a row, stop the fix loop for a re-evaluation. Review records never create a new head.
+in a row, trigger a re-evaluation; the main agent reports it and stops for the
+user only on a `MUST-FIX`, a requirement change or a loosening (Issue #104).
+Review records never create a new head.
 
 ## Acceptance
 
 - `dev-core` defines the severity thresholds, classification before fixing,
   the narrow confirmation before a push, evidence reuse in the Merge Review
-  for provably unaffected parts with reason and coverage, the stop rule, and record storage without a new
+  for provably unaffected parts with reason and coverage, the re-evaluation, and record storage without a new
   head; `deltas.md` records each difference from Core.
 - Issue #68 (E2): `dev-core` R-EXH-3 binds reusable content evidence to the
   tree and the diff. When a new head differs from a reviewed head only in
@@ -79,6 +84,10 @@ in a row, stop the fix loop for a re-evaluation. Review records never create a n
   note.
 
 ## Notes
+
+Issue #104 (D-031, DL-049): the stop of the fix loop is gone; item 5 of D-013
+now means a re-evaluation at the Core level. This replaces the bounded exception
+of Issue #102, whose text never shipped.
 
 Origin: PR #2 Merge Reviews 1 to 5 did not converge (Merge Reviews 6 and 7
 had no findings). Evidence: the PR-A

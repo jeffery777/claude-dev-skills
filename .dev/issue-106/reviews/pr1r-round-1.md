@@ -48,3 +48,18 @@ disposition applied.
 
 Observations kept as is: D-032 item 6 wording ("the D-032 scope of C3 (a)");
 `accept` prints the current-record line before the accepted text (order only).
+
+## Correction of P1RD-04 (after the push of `39d332d`)
+
+The user's own words, relayed by the orchestrator (2026-11-09): 「關於README 的
+P1RD-04，原本的建議是"沒有有效紀錄時檢查會停下，README 會說明怎麼建立紀錄。"，這我
+同意。我的想法是希望README裡也要寫上原因，否則其它人可能也會和我一樣有相同的擔憂。
+畢竟這是因為原生功能的一種妥協，不是你和我不願意做。我的原意不是只要求寫原因」.
+The triage of P1RD-04 ("the user asked for the reasons"), read as "only the reasons", is wrong. The
+README gets back one line on the optional session sandbox, with only the
+verbatim fact of the official page (sandboxing.md, "Scope": "Bash commands
+inside a subagent are sandboxed when sandboxing is enabled in the parent
+session.", read by a fetch agent, 2026-11-09). `permissions.deny` is not on
+that page verbatim, so it is not written. The line says that it does not
+make the reviewers read-only and does not replace the record. A third
+commit carries it.

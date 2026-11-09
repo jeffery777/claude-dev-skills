@@ -74,6 +74,7 @@ engineering-workflow-core v0.5.0 要求必要的 reviewer 沒有有效的寫入�
 - 殘餘風險：reviewer 的 Bash 可以寫檔、寫 `.git`、寫網路。pack 在每次審查前後用 CB-4 比對 HEAD、status 和 diff hash，但它偵測不到的範圍不少，完整清單在 [`skills/dev-core/references/reviewer-acceptance.md`](skills/dev-core/references/reviewer-acceptance.md)。
 - 怎麼接受：在 Claude Code 以外的終端機視窗，到 clone 的頂層執行 `python3 -I <pack 根目錄>/skills/dev-core/scripts/reviewer_acceptance.py accept`。它會印出你要接受的全文，請你寫下自己的話，打 `yes` 才寫入。必要審查因為沒有紀錄而停下時，主代理會在對話裡給你含 pack 根目錄的完整指令。紀錄存在 `~/.claude/dev-skills/reviewer-acceptance/`，每個 clone 一份，不放進 repo。搬移或重新 clone、還原家目錄、換電腦後要再接受一次；pack 改了接受的文字時（版本提高）也要。
 - 沒有紀錄時，每個必要審查和掃描都會停下（`STOP NO_RECORD`）。雲端、CI 或每次重建的環境裡沒有你的紀錄，也會停下。
+- 選用的自保做法（自行負責）：在自己的 settings 開啟 sandbox（`/sandbox` 或 `sandbox.enabled`）。官方文件寫明，主 session 開啟 sandbox 時，subagent 裡的 Bash 指令也會被 sandbox（[sandboxing 的 Scope 一節](https://code.claude.com/docs/en/sandboxing.md)）。它作用於整個 session，主代理也受影響；它不會讓 reviewer 變成唯讀，也不能代替接受紀錄。
 - Claude Code 若提供單一 subagent 的唯讀隔離，這個做法會重新評估。
 
 ## 適度嚴謹
@@ -216,6 +217,7 @@ engineering-workflow-core v0.5.0 asks that a required reviewer has no effective 
 - Residual risk: the reviewers' Bash can write files, `.git` and to the network. Before and after each review the pack compares HEAD, status and a diff hash (CB-4), but much stays outside that check; the full list is in [`skills/dev-core/references/reviewer-acceptance.md`](skills/dev-core/references/reviewer-acceptance.md).
 - How to accept: in a terminal window outside Claude Code, at the top level of the clone, run `python3 -I <pack root>/skills/dev-core/scripts/reviewer_acceptance.py accept`. It prints the full text that you accept, asks for your own words, and writes only after you type `yes`. When a required review stops for a missing record, the main agent gives you the full command, with the pack root, in the chat. The record is in `~/.claude/dev-skills/reviewer-acceptance/`, one per clone, in no repository. Accept again after you move or re-clone the repository, restore your home folder or change machines, and when the pack changes the accepted text (a new version).
 - Without a record, every required review and scan stops (`STOP NO_RECORD`). Cloud, CI or rebuilt environments have no record of yours and stop too.
+- Optional self-protection (at your own risk): turn on the sandbox in your own settings (`/sandbox` or `sandbox.enabled`). The official page says that Bash commands inside a subagent are sandboxed when sandboxing is enabled in the parent session ([sandboxing, section Scope](https://code.claude.com/docs/en/sandboxing.md)). It acts on the whole session, the main agent included; it does not make the reviewers read-only and does not replace the record.
 - This design is assessed again when Claude Code offers read-only isolation for one subagent.
 
 ## Proportionate rigor

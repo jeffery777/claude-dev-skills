@@ -811,7 +811,8 @@ Cowork runtime test). At that release,
     `NOT_RUN`, and a detected change voids the review and keeps its record.
   - CB-5 keeps the technical-isolation sentence; the record is never
     technical read-only.
-  - README: why the reviewers keep Bash, and how to make the record.
+  - README: why the reviewers keep Bash, how to make the record, and the
+    optional session sandbox that the official page documents.
 
 ### Fixed
 

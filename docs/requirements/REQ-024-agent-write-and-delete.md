@@ -42,6 +42,18 @@ sources:
   - type: doc
     locator: ".dev/followups.md, FU-013 row (from FU-010 cards 3d and 6a, Issue #18)"
     quote: "Keep the rule that reviewers write nothing."
+  - type: chat
+    locator: "Claude Code session 2026-11-09 (Issue #106 session), user answer to card I106-C1 (one-time acceptance of the reviewer write channel, option a: the account jeffery777 and the repository jeffery777/claude-dev-skills only; D-032; superseded by card I106-C4 (a))"
+    quote: "C1 a，C2 b"
+  - type: chat
+    locator: "Claude Code session 2026-11-09 (Issue #106 session), user answer to card I106-C3 (findings P1S-02, P1D-01, P1D-02: a change of the reviewer setup or of D-032 itself counts under D-032 only with a new, quoted decision of the user for that change, recorded in it)"
+    quote: "C3 a"
+  - type: chat
+    locator: "Claude Code session 2026-11-09 (Issue #106 session), user answer to cards I106-C4 (accept the residual risk of the reviewer write channel on the user's own machine, version 1) and I106-C5 (the decision for a setup change is the user's own message in the dispatching session)"
+    quote: "C4 a，C5 b"
+  - type: doc
+    locator: "GitHub Issue #106, section Scope change (2026-11-09): the user's decision relayed by the orchestrator session"
+    quote: "同意，照你的建議改走第2條"
 non_goals:
   - A scratchpad allowance or a cleanup mechanism for reviewer files (card 3d)
   - Changes to `skills/dev-core/` (CB-5, R-AUTH-3 and `deltas.md` keep their text)
@@ -176,3 +188,5 @@ own tests create and remove temporary files with `tempfile`; without a narrow
 exception a reviewer running `validate.sh` would break the sentence, so the
 user chose card 11b: such self-removed test files are not reviewer writes.
 Related: [[REQ-016-deploy-and-measure]], [[REQ-023-core-audit]].
+
+Issue #106 PR-1 (D-032, DL-004): the reviewer agents keep Bash, an effective write channel; they count for a required review only when `reviewer_acceptance.py check` prints `PASS` for the user's one-time acceptance record on the user's own machine, one per clone, made only by the user with `accept` (`skills/dev-core/references/reviewer-acceptance.md`). C4 (a) supersedes C1 (a). It is not technical read-only. Issue #106 changed R-REV-1, CB-4, CB-5, DL-004 and the DL-009 row; the earlier non-goal and Acceptance lines on the read-only rules apply to the work that they name. A change of the reviewer setup counts only with a new decision of the user for that change, given in the session that dispatches the review (cards I106-C3 (a), I106-C5 (b)).

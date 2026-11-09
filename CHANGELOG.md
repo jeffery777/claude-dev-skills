@@ -792,6 +792,28 @@ Cowork runtime test). At that release,
     An accepted residual risk is not raised again in the same work. A platform
     signature on a merge or squash commit is recorded only.
 
+- Reviewer write channel (Issue #106 PR-1; D-032, DL-004;
+  `jeffery777/engineering-workflow-core#23`; the user's answers to cards
+  I106-C4 and I106-C5: 「C4 a，C5 b」):
+  - R-REV-1 applies Core v0.5.0 `review-required-read-only` by tag: a
+    required reviewer counts only without an effective write channel, or
+    when `reviewer_acceptance.py check` prints `PASS`. The pack reviewers
+    keep Bash, so they count only under the user's acceptance record.
+  - The record is on the user's own machine, one file per clone; only the
+    user makes it, with `reviewer_acceptance.py accept` in a terminal. No
+    account or repository is bound or checked, and no network is needed.
+  - `skills/dev-core/references/reviewer-acceptance.md` holds the accepted
+    text, the record, the check and the setup-change rule; a test ties it,
+    CB-4, CB-5, the `dev-retro` read-back and the reviewer tool lines to a
+    version.
+  - CB-4 runs the `dev-retro` read-back commands with an exit-status check
+    before and after each review and scan; a failed or missing command is
+    `NOT_RUN`, and a detected change voids the review and keeps its record.
+  - CB-5 keeps the technical-isolation sentence; the record is never
+    technical read-only.
+  - README: why the reviewers keep Bash, how to make the record, and the
+    optional session sandbox that the official page documents.
+
 ### Fixed
 
 - Skill paths (REQ-026, FU-025, Issue #64). In the first use of

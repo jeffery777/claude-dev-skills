@@ -1255,8 +1255,10 @@ class ReviewerBinding(unittest.TestCase):
 
     def test_accidental_edit_check_is_stated(self):
         self.assertIn("git rev-parse HEAD", self.section)
-        self.assertIn("git status --porcelain=v1 --untracked-files=all", self.section)
-        self.assertIn("git diff HEAD --binary", self.section)
+        self.assertIn("git --no-optional-locks status --porcelain=v1 --untracked-files=all", self.section)
+        self.assertIn("git diff HEAD --binary --no-ext-diff --no-textconv", self.section)
+        self.assertIn("A failed or missing command makes the detection `NOT_RUN`, and the review or scan does not count", self.section)
+        self.assertIn("void the review, report it and keep its record", self.section)
         self.assertIn("It is not isolation", self.section)
 
     def test_commit_state_setting(self):

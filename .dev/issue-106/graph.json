@@ -1,0 +1,208 @@
+{
+  "schema": "claude-dev-graph/v1",
+  "objective": {
+    "id": "issue-106",
+    "title": "Vendored Core update to v0.5.0",
+    "rigor": "strict",
+    "requirements": [
+      "REQ-005",
+      "REQ-007",
+      "REQ-009",
+      "REQ-011",
+      "REQ-012",
+      "REQ-018",
+      "REQ-019",
+      "REQ-022",
+      "REQ-023",
+      "REQ-024"
+    ]
+  },
+  "nodes": [
+    {
+      "id": "DR",
+      "title": "Design review of plan and cards",
+      "kind": "review",
+      "depends_on": [],
+      "risk": "high",
+      "review": "deep",
+      "status": "done",
+      "dod": [
+        "deep and security design reviews done, findings triaged"
+      ],
+      "verify": [],
+      "requirements": [],
+      "owns": []
+    },
+    {
+      "id": "P1",
+      "title": "PR-1: #23 acceptance record and reviewer rules",
+      "kind": "implement",
+      "requirements": [
+        "REQ-007",
+        "REQ-024"
+      ],
+      "depends_on": [
+        {
+          "node": "DR",
+          "consumes": "reviewed design and the user's answer to I106-C1"
+        }
+      ],
+      "owns": [
+        "skills/dev-core/**",
+        "docs/**",
+        "tests/**",
+        "CHANGELOG.md",
+        ".dev/issue-106/**"
+      ],
+      "risk": "high",
+      "review": "security",
+      "status": "done",
+      "dod": [
+        "D-032 has every Core field",
+        "R-REV-1, CB-4, CB-5, DL-004 changed",
+        "pin test passes"
+      ],
+      "verify": [
+        "scripts/validate.sh"
+      ]
+    },
+    {
+      "id": "P1G",
+      "title": "PR-1 gate and ready card",
+      "kind": "gate",
+      "depends_on": [
+        {
+          "node": "P1",
+          "consumes": "reviewed head"
+        }
+      ],
+      "risk": "high",
+      "review": "none",
+      "status": "planned",
+      "dod": [
+        "PR open, gate comment posted and read back"
+      ],
+      "verify": [],
+      "requirements": [],
+      "owns": []
+    },
+    {
+      "id": "P3",
+      "title": "PR-3: R-REV-9 against review-publication-data, SEC105B-01",
+      "kind": "implement",
+      "requirements": [
+        "REQ-009",
+        "REQ-011"
+      ],
+      "depends_on": [
+        {
+          "node": "P1G",
+          "consumes": "PR-1 merged"
+        }
+      ],
+      "owns": [
+        "skills/dev-core/**",
+        "skills/dev-gate/**",
+        "skills/dev-implement/**",
+        "agents/dev-security-reviewer.md",
+        "docs/**",
+        "tests/**",
+        "CHANGELOG.md",
+        ".dev/issue-106/**"
+      ],
+      "risk": "high",
+      "review": "security",
+      "status": "planned",
+      "dod": [
+        "each #22 gap closed or recorded",
+        "SEC105B-01 closed"
+      ],
+      "verify": [
+        "scripts/validate.sh"
+      ]
+    },
+    {
+      "id": "P3G",
+      "title": "PR-3 gate and ready card",
+      "kind": "gate",
+      "depends_on": [
+        {
+          "node": "P3",
+          "consumes": "reviewed head"
+        }
+      ],
+      "risk": "high",
+      "review": "none",
+      "status": "planned",
+      "dod": [
+        "PR open, gate comment posted and read back"
+      ],
+      "verify": [],
+      "requirements": [],
+      "owns": []
+    },
+    {
+      "id": "P2",
+      "title": "PR-2: vendor bump and rule text that follows Core",
+      "kind": "implement",
+      "requirements": [
+        "REQ-005",
+        "REQ-007",
+        "REQ-009",
+        "REQ-012",
+        "REQ-018",
+        "REQ-019",
+        "REQ-022",
+        "REQ-023"
+      ],
+      "depends_on": [
+        {
+          "node": "P3G",
+          "consumes": "PR-3 merged"
+        }
+      ],
+      "owns": [
+        "vendor/**",
+        "skills/**",
+        "agents/**",
+        "docs/**",
+        "tests/**",
+        "scripts/**",
+        "CHANGELOG.md",
+        ".dev/issue-106/**"
+      ],
+      "risk": "high",
+      "review": "deep",
+      "status": "planned",
+      "dod": [
+        "vendor equals v0.5.0",
+        "verify_core --upstream passes",
+        "each Core change has a pack change, delta row or reason"
+      ],
+      "verify": [
+        "scripts/validate.sh",
+        "python3 -I scripts/verify_core.py --upstream <clone>"
+      ]
+    },
+    {
+      "id": "P2G",
+      "title": "PR-2 gate and ready card (Closes #106)",
+      "kind": "gate",
+      "depends_on": [
+        {
+          "node": "P2",
+          "consumes": "reviewed head"
+        }
+      ],
+      "risk": "high",
+      "review": "none",
+      "status": "planned",
+      "dod": [
+        "PR open, gate comment posted and read back"
+      ],
+      "verify": [],
+      "requirements": [],
+      "owns": []
+    }
+  ]
+}

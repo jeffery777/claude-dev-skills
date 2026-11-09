@@ -15,6 +15,9 @@ sources:
   - type: doc
     locator: "docs/design-proposal.md, section 7, D-001 (2026-10-20)"
     quote: "Core（vendor + pin） | `vendor/engineering-workflow-core/` 放原文，並鎖定 immutable revision 與 digest | **唯一權威**；有衝突時以它為準"
+  - type: chat
+    locator: "Claude Code session 2026-11-09 (Issue #106 session), user answer to card I106-C1 (one-time acceptance of the reviewer write channel, option a: the account jeffery777 and the repository jeffery777/claude-dev-skills only; D-032)"
+    quote: "C1 a，C2 b"
 non_goals:
   - Modifying engineering-workflow-core, codex-dev-skills or grok-build-dev-skills
 depends_on: []
@@ -36,3 +39,5 @@ Vendor and pin Core; dev-core is a compact execution digest with a source map, a
 ## Notes
 
 Related: [[REQ-003]]
+
+Issue #106 PR-1 (D-032, DL-004): Core v0.5.0 `review-required-read-only` is applied by tag before the vendor bump; the reviewer agents count only under the user's one-time acceptance D-032.

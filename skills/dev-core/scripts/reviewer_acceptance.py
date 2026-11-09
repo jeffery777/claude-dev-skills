@@ -30,7 +30,7 @@ import subprocess
 import sys
 import tempfile
 
-ACCEPTANCE_VERSION = 1
+ACCEPTANCE_VERSION = 2
 KEYS = ("version", "decision", "date")
 TIMEOUT = 20
 HERE = os.path.dirname(os.path.realpath(__file__))

@@ -1051,14 +1051,14 @@ D-009 到 D-016 是同一天的決定。D-015 由 PR #5（Issue #4）記錄；D-
 
 ### D-032 reviewer 寫入通道：使用者在自己電腦上的一次性接受（Core `review-required-read-only`，`jeffery777/engineering-workflow-core#23`）（已決定，2026-11-09）
 
-- 來源：GitHub Issue #106 的 "Scope change (2026-11-09)"。使用者的話（orchestrator 轉述，Issue body 也有）：「同意，照你的建議改走第2條」；「技能本身本來就不應該綁帳號和repo，這是我的認知，否則會造成其它問題對嗎？」；「同意，如果是上游的engineering-workflow-core有問題，那麼要開一個Issue回饋給上游，我讓codex修改」。使用者在 Issue #106 session 對卡片 I106-C4、I106-C5（`.dev/issue-106/cards-3.md`）的回答：「C4 a，C5 b」（2026-11-09）。計畫：`.dev/issue-106/plan.md`（design v4、v4.1）。需求：REQ-007、REQ-024。
+- 來源：GitHub Issue #106 的 "Scope change (2026-11-09)"。使用者的話：「同意，照你的建議改走第2條」（orchestrator 轉述，Issue body 也有）；「技能本身本來就不應該綁帳號和repo，這是我的認知，否則會造成其它問題對嗎？」與「同意，如果是上游的engineering-workflow-core有問題，那麼要開一個Issue回饋給上游，我讓codex修改」（orchestrator 給 Issue #106 session 的訊息轉述，2026-11-09）。使用者在 Issue #106 session 對卡片 I106-C4、I106-C5（`.dev/issue-106/cards-3.md`）的回答：「C4 a，C5 b」（2026-11-09）。計畫：`.dev/issue-106/plan.md`（design v4、v4.1）。需求：REQ-007、REQ-024。
 - 問題：Core v0.5.0 要求必要 reviewer 沒有有效寫入通道，或由使用者對特定環境一次性接受殘餘風險。pack 的 reviewer 保留 Bash；plugin 沒辦法只讓一個 subagent 跑在唯讀 sandbox 裡；拿掉 Bash 後 reviewer 只剩 Read（部分主機沒有獨立的 Grep、Glob）。PR #107 第一版把接受綁在一個帳號和一個 repo 的共用規則裡，其他安裝者會一直停下。
 - 決定：
   1. 接受紀錄放在使用者自己的電腦上（`~/.claude/dev-skills/reviewer-acceptance/`），每個 clone 一個檔案，不放進任何 repo，不比對帳號或 repo，不需要網路。
   2. 只有使用者在自己的終端機用 `reviewer_acceptance.py accept` 建立紀錄；agent 不建立、不修改、不刪除。
   3. 每次必要 review 或掃描前，主代理跑 `reviewer_acceptance.py check`；只有 `PASS` 算數。
   4. 接受的文字、紀錄格式、檢查和 setup change 規則都在 `skills/dev-core/references/reviewer-acceptance.md`，版本號綁住它們。
-  5. C4 (a)：使用者接受版本 1 的殘餘風險，PR-1 merge 後自己在這個 clone 跑 `accept`。C5 (b)：改到 reviewer 設定的變更，使用者為它給的決定只算派 review 的那個 session 裡本人打的字，原話和日期記在變更裡。
+  5. C4 (a)：使用者接受版本 1 的殘餘風險，PR-1 merge 後自己在這個 clone 跑 `accept`（merge 前因 MR107B-01 改為版本 2，接受的文字相同）。C5 (b)：改到 reviewer 設定的變更，使用者為它給的決定只算派 review 的那個 session 裡本人打的字，原話、日期和它是為哪個變更給的，都記在變更裡。
   6. 取代 C1 (a)（綁帳號加 repo）與 C3 (a) 中 D-032 的範圍；C3 (a) 的「改到設定要有使用者的決定」改寫在 reference 的 setup change 規則裡。
 - 與 Core 的差異：DL-004。
 - 殘餘風險：agent 用別的工具直接寫紀錄檔、pseudo-terminal 跑 `accept`、CB-4 偵測不到的範圍（見 reference），以及雲端、CI 或每次重建的環境裡沒有紀錄時一律停下。
@@ -4942,14 +4942,14 @@ Note (Issue #104, D-031): the read-back narrows to the three dispatches before a
 
 ### D-032 Reviewer write channel: the user's one-time acceptance on their own machine (Core `review-required-read-only`, `jeffery777/engineering-workflow-core#23`) (decided, 2026-11-09)
 
-- Origin: GitHub Issue #106, "Scope change (2026-11-09)". The user's words (relayed by the orchestrator, also in the Issue body): 「同意，照你的建議改走第2條」; 「技能本身本來就不應該綁帳號和repo，這是我的認知，否則會造成其它問題對嗎？」; 「同意，如果是上游的engineering-workflow-core有問題，那麼要開一個Issue回饋給上游，我讓codex修改」. The user's own message in the Issue #106 session, in answer to cards I106-C4 and I106-C5 (`.dev/issue-106/cards-3.md`): 「C4 a，C5 b」 (2026-11-09). Plan: `.dev/issue-106/plan.md` (design v4, v4.1). Requirements: REQ-007, REQ-024.
+- Origin: GitHub Issue #106, "Scope change (2026-11-09)". The user's words: 「同意，照你的建議改走第2條」 (relayed by the orchestrator, also in the Issue body); 「技能本身本來就不應該綁帳號和repo，這是我的認知，否則會造成其它問題對嗎？」 and 「同意，如果是上游的engineering-workflow-core有問題，那麼要開一個Issue回饋給上游，我讓codex修改」 (relayed in the orchestrator's message to the Issue #106 session, 2026-11-09). The user's own message in the Issue #106 session, in answer to cards I106-C4 and I106-C5 (`.dev/issue-106/cards-3.md`): 「C4 a，C5 b」 (2026-11-09). Plan: `.dev/issue-106/plan.md` (design v4, v4.1). Requirements: REQ-007, REQ-024.
 - Problem: Core v0.5.0 asks that a required reviewer has no effective write channel, or that the user accepts the residual risk once for a specific environment. The pack reviewers keep Bash; a plugin cannot run one subagent in a read-only sandbox; without Bash a reviewer keeps only Read (some hosts have no separate Grep or Glob). The first version of PR #107 bound the acceptance to one account and one repository in a shared rule, so every other installer would stop.
 - Decisions:
   1. The record lives on the user's own machine (`~/.claude/dev-skills/reviewer-acceptance/`), one file per clone, in no repository; no account or repository is compared; no network is needed.
   2. Only the user creates it, in their own terminal, with `reviewer_acceptance.py accept`; the agent never creates, edits or deletes it.
   3. Before each required review or scan, the main agent runs `reviewer_acceptance.py check`; only `PASS` counts.
   4. The accepted text, the record format, the check and the setup-change rule are in `skills/dev-core/references/reviewer-acceptance.md`, tied to a version.
-  5. C4 (a): the user accepts the residual risk of version 1 and runs `accept` in this clone after PR-1 merges. C5 (b): the user's decision for a change of the reviewer setup counts only as the user's own message in the session that dispatches the review, quoted with its date and recorded in the change.
+  5. C4 (a): the user accepts the residual risk of version 1 and runs `accept` in this clone after PR-1 merges (version 2 before the merge, for MR107B-01; the accepted text is the same). C5 (b): the user's decision for a change of the reviewer setup counts only as the user's own message in the session that dispatches the review, quoted with its date and the change it was given for, and recorded in the change.
   6. This replaces C1 (a) (account and repository binding) and the D-032 scope of C3 (a); the C3 (a) rule that a setup change needs a decision of the user is in the setup-change rule of the reference.
 - Difference from Core: DL-004.
 - Residual risk: an agent that writes the record file with another tool, `accept` run through a pseudo-terminal, what CB-4 does not see (see the reference), and a full stop wherever no record exists (cloud, CI or rebuilt environments).

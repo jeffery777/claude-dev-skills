@@ -820,7 +820,8 @@ The user's own message in this session (2026-11-09): 「C4 a，C5 b」. C4 (a):
 the user accepts the residual risk of the reviewer write channel (version 1
 text) and runs `accept` in this clone after PR-1 merges. C5 (b): the
 decision for a setup change counts only as the user's own message in the
-session that dispatches the review, quoted and recorded in the change.
+session that dispatches the review, quoted with its date and the change it
+was given for, and recorded in the change (MR107B-01).
 
 ## PR-1 redesign completeness checks (2026-11-09, on the index, before the reviews)
 
@@ -829,7 +830,7 @@ Same command form as above. Files under `.dev/` get no rows.
 | ID | String | Exit | Rows (path: count, disposition, reason) |
 | --- | --- | --- | --- |
 | K10 | `D-032` | 0 | `skills/dev-core/SKILL.md`: 1, `skills/dev-core/deltas.md`: 2, `skills/dev-core/references/reviewer-acceptance.md`: 2, `skills/dev-core/scripts/reviewer_acceptance.py`: 1, changed (the decision entry, no binding); `docs/design-proposal.md`: 4, changed (D-032 rewritten); `docs/requirements/REQ-007-core-authority.md`: 2, `REQ-024-agent-write-and-delete.md`: 3, `log.md`: 3, `CHANGELOG.md`: 1, `tests/test_reviewer_acceptance.py`: 1, changed |
-| K11 | the owner login | 0 | `skills/dev-retro/SKILL.md`: 3, noted (feedback destination; outside the Done-when reading, confirmed by the orchestrator); `README.md`: 6, `.claude-plugin/*.json`: 4, `LICENSE`: 1, `CHANGELOG.md`: 2, `docs/design-proposal.md`: 4, `REQ-009`: 1, `REQ-026`: 3, noted (links and authorship, not a binding); `REQ-007`: 1, `REQ-024`: 1, historical (the C1 (a) source locator; the new notes say it is superseded); `tests/test_reviewer_acceptance.py`: 1, changed (asserts the login is absent from the rule files); `vendor/…`: noted (Core text) |
+| K11 | the owner login | 0 | `skills/dev-retro/SKILL.md`: 3, noted (feedback destination; outside the Done-when reading, confirmed by the orchestrator); `README.md`: 6, `.claude-plugin/*.json`: 4, `LICENSE`: 1, `CHANGELOG.md`: 2, `docs/design-proposal.md`: 4, `REQ-009`: 1, `REQ-026`: 3, noted (links and authorship, not a binding); `REQ-007`: 1, `REQ-024`: 1, historical (the C1 (a) source locator; the REQ-007 note says that C4 (a) supersedes it, and the REQ-024 note and locator say so since MR107B-02); `tests/test_reviewer_acceptance.py`: 1, changed (asserts the login is absent from the rule files); `vendor/…`: noted (Core text) |
 | K12 | `reviewer_acceptance` | 0 | `README.md`: 2, `CHANGELOG.md`: 2, `docs/design-proposal.md`: 4, `REQ-024`: 1, `log.md`: 1, `skills/dev-core/deltas.md`: 1, `references/reviewer-acceptance.md`: 4, test: 5; changed (new) |
 | K13 | `bound environment` | 0 | hits only under `.dev/` |
 | K14 | `this account` | 1 | no hit |
@@ -839,3 +840,15 @@ Same command form as above. Files under `.dev/` get no rows.
 Co-change rule 1: REQ-007, REQ-024 and `log.md` change; `log.md` gets `+|`
 rows for REQ-007 and REQ-024 (run again before the commit).
 `scripts/validate.sh`: exit 0, 409 tests OK (3 skipped).
+
+## Open notes (follow-up candidates, not fixed in PR-1)
+
+From the Merge Review of head `92492bf` (relayed by the orchestrator,
+2026-11-09), below the merge threshold:
+
+- A repository without a commit fails CB-4 (`git rev-parse HEAD`), so its
+  reviews never count until the first commit.
+- `check` needs Git 2.31 or later (`--path-format`); an older Git gives
+  `STOP GIT` (fail closed).
+- README says that the design is assessed again when Claude Code offers a
+  read-only mode for one subagent; no follow-up names that trigger yet.

@@ -20,7 +20,7 @@ named reviewers with pinned tool lines; the environment is the clone of the
 record; the resources are the protected resources below and the cases where
 the record does not apply.
 
-## Accepted text (version 1)
+## Accepted text (version 2)
 
 - Write channels: Bash in `dev-reviewer` and `dev-security-reviewer`. Bash
   can write in the worktree, in `.git`, outside the repository and to the
@@ -134,7 +134,7 @@ a rule that the record covers (the sentences of R-REV-1 that apply it, CB-4,
 CB-5, the `dev-retro` read-back), its reviews and scans count only with
 `PASS` and a new decision of the user for this change: the user's own
 message in the session that dispatches the review, quoted with its date and
-recorded in this change. The decision also says whether the version is raised. An added
+the change it was given for, and recorded in this change. The decision also says whether the version is raised. An added
 or moved cite or line number is no change.
 
 ## Version
@@ -150,4 +150,5 @@ digest only, with the reason below. Both need the setup-change decision.
 
 | Version | Change |
 | --- | --- |
-| 1 | First version (Issue #106 PR-1). |
+| 1 | First version (Issue #106 PR-1, head `92492bf`); never in a merged pack. |
+| 2 | The setup-change rule records the change that the decision was given for (Merge Review finding MR107B-01; card I106-C5 (b) has these words). The Accepted text did not change. |

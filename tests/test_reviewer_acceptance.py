@@ -12,6 +12,7 @@ import subprocess
 import sys
 import tempfile
 import unittest
+from unittest import mock
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SCRIPT = os.path.join(ROOT, "skills", "dev-core", "scripts", "reviewer_acceptance.py")
@@ -22,7 +23,7 @@ REVIEWERS = ("dev-reviewer", "dev-security-reviewer")
 # text fails this test. Raise the version when the meaning or a tool line changes; update only the
 # digest for a cite, a line number or a typo, with the reason in the version table of the reference.
 # Both need a new decision of the user for that change (setup-change rule of the reference).
-PINNED = {1: "b1e9b2973ccaf9f6706b5ee1ff182767b301f083d28b1db7702b838d51613499"}
+PINNED = {1: "b1e9b2973ccaf9f6706b5ee1ff182767b301f083d28b1db7702b838d51613499", 2: "b69a4a495498d5268dda4492d583c20f8ed9ee3942118265f2558115d5b1a7cf"}
 
 
 def load(name, path):
@@ -56,9 +57,20 @@ def pinned_digest():
     return digest.hexdigest()
 
 
+def clean_env(home):
+    """No GIT_* variable and no global or system Git config (as tests/test_push_precheck.py)."""
+    env = {k: v for k, v in os.environ.items() if not k.startswith("GIT_") and k != "XDG_CONFIG_HOME"}
+    env.update(GIT_CONFIG_GLOBAL="/dev/null", GIT_CONFIG_SYSTEM="/dev/null", GIT_CONFIG_NOSYSTEM="1", HOME=home)
+    return env
+
+
+def git(home, *args):
+    subprocess.run(["git", "-c", "commit.gpgsign=false", *args], env=clean_env(home), check=True,
+                   stdin=subprocess.DEVNULL, capture_output=True)
+
+
 def run(args, cwd, home, stdin=subprocess.DEVNULL):
-    env = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
-    env["HOME"] = home
+    env = clean_env(home)
     return subprocess.run([sys.executable, "-I", SCRIPT] + args, cwd=cwd, env=env, stdin=stdin,
                           capture_output=True, text=True, timeout=60)
 
@@ -69,12 +81,13 @@ class Check(unittest.TestCase):
         self.home = os.path.join(self.tmp.name, "home")
         self.repo = os.path.join(self.tmp.name, "repo")
         os.makedirs(self.home)
-        subprocess.run(["git", "init", "-q", self.repo], check=True)
+        git(self.home, "init", "-q", self.repo)
         self.mod = load("reviewer_acceptance", SCRIPT)
         cwd = os.getcwd()
         os.chdir(self.repo)
         try:
-            self.cid = self.mod.clone_id()
+            with mock.patch.dict(os.environ, clean_env(self.home), clear=True):
+                self.cid = self.mod.clone_id()
         finally:
             os.chdir(cwd)
         self.folder = os.path.join(self.home, ".claude", "dev-skills", "reviewer-acceptance")
@@ -125,16 +138,16 @@ class Check(unittest.TestCase):
         sub = os.path.join(self.repo, "sub")
         os.makedirs(sub)
         self.assertEqual(self.check(sub), ("PASS\n", 0))
-        subprocess.run(["git", "-C", self.repo, "-c", "user.name=t", "-c", "user.email=t@example.invalid",
-                        "commit", "-q", "--allow-empty", "-m", "init"], check=True)
+        git(self.home, "-C", self.repo, "-c", "user.name=t", "-c", "user.email=t@example.invalid",
+            "commit", "-q", "--allow-empty", "-m", "init")
         wt = os.path.join(self.tmp.name, "wt")
-        subprocess.run(["git", "-C", self.repo, "worktree", "add", "-q", wt], check=True)
+        git(self.home, "-C", self.repo, "worktree", "add", "-q", wt)
         self.assertEqual(self.check(wt), ("PASS\n", 0))
 
     def test_another_clone_has_no_record(self):
         self.write(json.dumps({"version": self.mod.ACCEPTANCE_VERSION, "decision": "a", "date": "d"}))
         other = os.path.join(self.tmp.name, "other")
-        subprocess.run(["git", "init", "-q", other], check=True)
+        git(self.home, "init", "-q", other)
         self.assertEqual(self.check(other), ("STOP NO_RECORD\n", 1))
 
     def test_relative_or_root_home_gives_no_record(self):
@@ -144,10 +157,10 @@ class Check(unittest.TestCase):
             self.assertEqual((proc.stdout, proc.returncode, proc.stderr), ("STOP NO_RECORD\n", 1, ""), home)
 
     def test_written_record_passes_and_is_shown(self):
-        env_home = os.environ.get("HOME")
         cwd = os.getcwd()
-        os.environ["HOME"] = self.home
         os.chdir(self.repo)
+        patch = mock.patch.dict(os.environ, clean_env(self.home), clear=True)
+        patch.start()
         try:
             self.assertEqual(self.mod.existing_record_line(), "This clone has no record yet.")
             self.mod.write_record("  I accept the residual risk  ")
@@ -155,11 +168,8 @@ class Check(unittest.TestCase):
             path = os.path.join(self.folder, self.cid + ".json")
             self.assertEqual(os.stat(path).st_mode & 0o777, 0o600)
         finally:
+            patch.stop()
             os.chdir(cwd)
-            if env_home is None:
-                os.environ.pop("HOME", None)
-            else:
-                os.environ["HOME"] = env_home
         self.assertEqual(self.check(), ("PASS\n", 0))
 
     def test_bad_arguments(self):
@@ -173,7 +183,7 @@ class Accept(unittest.TestCase):
             home = os.path.join(tmp, "home")
             repo = os.path.join(tmp, "repo")
             os.makedirs(home)
-            subprocess.run(["git", "init", "-q", repo], check=True)
+            git(home, "init", "-q", repo)
             proc = run(["accept"], repo, home)
             self.assertEqual((proc.stdout, proc.returncode, proc.stderr), ("STOP NO_TTY\n", 1, ""))
             self.assertFalse(os.path.exists(os.path.join(home, ".claude")))
@@ -220,7 +230,7 @@ class Rules(unittest.TestCase):
         for sentence in ("The agent never creates, edits, moves or deletes the user's record",
                          "keeps the review incomplete and the\ndependent gate stopped",
                          "or a case where\nthe record does not apply",
-                         "quoted with its date and\nrecorded in this change"):
+                         "quoted with its date and\nthe change it was given for, and recorded in this change"):
             self.assertIn(sentence, ref)
         for path in (os.path.join(ROOT, "skills", "dev-core", "SKILL.md"), REFERENCE, SCRIPT,
                      os.path.join(ROOT, "skills", "dev-core", "deltas.md")):

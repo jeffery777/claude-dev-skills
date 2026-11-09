@@ -18,6 +18,12 @@ sources:
   - type: chat
     locator: "Claude Code session 2026-11-09 (Issue #106 session), user answer to card I106-C1 (one-time acceptance of the reviewer write channel, option a: the account jeffery777 and the repository jeffery777/claude-dev-skills only; D-032)"
     quote: "C1 a，C2 b"
+  - type: chat
+    locator: "Claude Code session 2026-11-09 (Issue #106 session), user answer to cards I106-C4 (accept the residual risk of the reviewer write channel on the user's own machine, version 1) and I106-C5 (the decision for a setup change is the user's own message in the dispatching session)"
+    quote: "C4 a，C5 b"
+  - type: doc
+    locator: "GitHub Issue #106, section Scope change (2026-11-09): the user's decision relayed by the orchestrator session"
+    quote: "同意，照你的建議改走第2條"
 non_goals:
   - Modifying engineering-workflow-core, codex-dev-skills or grok-build-dev-skills
 depends_on: []
@@ -40,4 +46,4 @@ Vendor and pin Core; dev-core is a compact execution digest with a source map, a
 
 Related: [[REQ-003]]
 
-Issue #106 PR-1 (D-032, DL-004): Core v0.5.0 `review-required-read-only` is applied by tag before the vendor bump; the reviewer agents count only under the user's one-time acceptance D-032.
+Issue #106 PR-1 (D-032, DL-004): Core v0.5.0 `review-required-read-only` is applied by tag before the vendor bump; the reviewer agents count only under the user's one-time acceptance record on the user's own machine (`skills/dev-core/references/reviewer-acceptance.md`). C4 (a) supersedes C1 (a); C5 (b) says where the C3 (a) decision for a setup change is given.

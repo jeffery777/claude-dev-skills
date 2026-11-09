@@ -67,18 +67,52 @@
       ]
     },
     {
+      "id": "P1R",
+      "title": "PR-1 redesign: acceptance record on the user's machine",
+      "kind": "implement",
+      "requirements": [
+        "REQ-007",
+        "REQ-024"
+      ],
+      "depends_on": [
+        {
+          "node": "P1",
+          "consumes": "PR #107 head e71b2eb"
+        }
+      ],
+      "owns": [
+        "skills/dev-core/**",
+        "docs/**",
+        "tests/**",
+        "README.md",
+        "CHANGELOG.md",
+        ".dev/issue-106/**"
+      ],
+      "risk": "high",
+      "review": "security",
+      "status": "done",
+      "dod": [
+        "no account or repository that binds or checks an acceptance in the shared rules",
+        "an installer can make a record and pass the check",
+        "tests pin the check and the reviewer tool lines"
+      ],
+      "verify": [
+        "scripts/validate.sh"
+      ]
+    },
+    {
       "id": "P1G",
       "title": "PR-1 gate and ready card",
       "kind": "gate",
       "depends_on": [
         {
-          "node": "P1",
+          "node": "P1R",
           "consumes": "reviewed head"
         }
       ],
       "risk": "high",
       "review": "none",
-      "status": "planned",
+      "status": "ready",
       "dod": [
         "PR open, gate comment posted and read back"
       ],

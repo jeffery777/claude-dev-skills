@@ -793,24 +793,25 @@ Cowork runtime test). At that release,
     signature on a merge or squash commit is recorded only.
 
 - Reviewer write channel (Issue #106 PR-1; D-032, DL-004;
-  `jeffery777/engineering-workflow-core#23`; the user's answer to card
-  I106-C1: 「C1 a，C2 b」):
+  `jeffery777/engineering-workflow-core#23`; the user's answers to cards
+  I106-C4 and I106-C5: 「C4 a，C5 b」):
   - R-REV-1 applies Core v0.5.0 `review-required-read-only` by tag: a
     required reviewer counts only without an effective write channel, or
-    under the user's one-time acceptance D-032. The pack reviewers keep Bash,
-    so they count only under D-032.
-  - D-032 binds the account `jeffery777` and the repository
-    `jeffery777/claude-dev-skills`. Before each required review or scan, a
-    one-line check prints `PASS` or `STOP`; other repositories stop at each
-    required review until the user accepts them too.
-  - A change of the reviewer setup or of D-032 itself counts under D-032 only
-    with a new, quoted decision of the user for that change (card I106-C3:
-    「C3 a」).
+    when `reviewer_acceptance.py check` prints `PASS`. The pack reviewers
+    keep Bash, so they count only under the user's acceptance record.
+  - The record is on the user's own machine, one file per clone; only the
+    user makes it, with `reviewer_acceptance.py accept` in a terminal. No
+    account or repository is bound or checked, and no network is needed.
+  - `skills/dev-core/references/reviewer-acceptance.md` holds the accepted
+    text, the record, the check and the setup-change rule; a test ties it,
+    CB-4, CB-5, the `dev-retro` read-back and the reviewer tool lines to a
+    version.
   - CB-4 runs the `dev-retro` read-back commands with an exit-status check
-    before and after each review and scan; a failed command is `NOT_RUN`, and
-    a detected change voids the review and keeps its record.
-  - CB-5 keeps the technical-isolation sentence; D-032 is never technical
-    read-only.
+    before and after each review and scan; a failed or missing command is
+    `NOT_RUN`, and a detected change voids the review and keeps its record.
+  - CB-5 keeps the technical-isolation sentence; the record is never
+    technical read-only.
+  - README: why the reviewers keep Bash, and how to make the record.
 
 ### Fixed
 

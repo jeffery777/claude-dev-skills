@@ -413,3 +413,429 @@ note names CB-5); dispositions unchanged. A tenth string `C3 a` was tried and
 dropped: with `-i` it matches unrelated text. Co-change rule 1: the
 `--name-only` list is REQ-007, REQ-024 and `log.md` (exit 0); `log.md` has
 three `+|` rows (REQ-007, REQ-024, REQ-024 fix round) and no `-|` row.
+
+## PR-1 redesign: a generic acceptance record (2026-11-09, design v2)
+
+Source: the orchestrator's message to this session, 2026-11-09, which
+quotes the user: 「同意，照你的建議改走第2條」. An earlier message of the same
+day ("remove Bash", 「同意，那就拿掉bash。…」) is void; its survey was
+stopped. The Issue #106 body was updated at 2026-11-09T05:36:28Z (`gh issue
+view 106 --json updatedAt`); its "Scope change (2026-11-09)" section has both
+decisions and the new Scope item 2. A later orchestrator message adds the
+user's request: 「README裡是否也要寫上原因？…畢竟這是因為原生功能的一種妥協，
+不是你和我不願意做。」 (relayed). Design v1 had a design review (DR3, both
+lanes); v2 applies its findings (`reviews/design-round-3.md`).
+
+Why (the official pages `code.claude.com/docs/en/sandboxing.md` and
+`…/sub-agents.md`, relayed by the orchestrator; this session reads both
+pages before the README text is written): a sandbox is a setting of the
+whole session, off by default; a subagent inherits the main session's
+setting and its front matter has no sandbox key; a plugin agent ignores
+`permissionMode`, `hooks` and `mcpServers`. Without Bash the reviewers would
+keep only Read: the subagents of this host list `Bash` and `Read` and no
+separate `Grep` or `Glob` (`.dev/issue-69-readonly-tools-check/plan.md:99-112`).
+
+### Design v2
+
+1. Record: its own file `.dev/reviewer-acceptance.json`, read only at the
+   bound base, never in the working tree or at the head (the base read of
+   `platform_profile`; a separate file leaves `platform_profile.py` and its
+   key list unchanged, DR3-D-02, DR3-S-07). Exactly these keys:
+   - `version`: integer, equal to `ACCEPTANCE_VERSION` of the check script.
+   - `account`: the GitHub login of the user (compared without case).
+   - `repository`: `owner/name` (compared without case).
+   - `decision`: the user's own words, the date, and a public place or
+     "Claude Code session" (no path, session ID or host name; DR3-S-08).
+   The texts that Core :29 asks for (write channels, reason, detection, what
+   it misses, protected resources, rules, what it does not exempt) are the
+   pack's text of that version, in one reference file (item 3). The record
+   accepts that text by its version (inference: a versioned pointer meets
+   "記錄"; card I106-C4 shows it to the user). One account per record
+   (card I106-C6).
+2. Check: `skills/dev-core/scripts/reviewer_acceptance.py`.
+   - `check --base <full base ID>`: reads the record from the base with
+     `git --no-replace-objects cat-file blob <base>:.dev/reviewer-acceptance.json`;
+     the base contract of the read-back script (40 or 64 lowercase hex, and
+     `git rev-parse --verify <base>^{commit}` equals the literal, else
+     `STOP BAD_ARGS`); the parse contract of `platform_profile.py` (no
+     duplicate keys, exactly the keys above, types); compares `account` with
+     `gh api --hostname github.com user --jq .login` and `repository` with
+     `gh repo view --json nameWithOwner --jq .nameWithOwner` run at the top
+     level of the worktree under review; `version` with the constant.
+   - `validate --file <path>`: format and version of a record file only, for
+     the head record before its merge; prints `VALID` or `INVALID <CODE>`; it
+     never qualifies a reviewer (DR3-D-01).
+   - Output: exactly one line on stdout (`PASS`, `STOP <CODE>` with
+     `BAD_ARGS`, `GIT`, `NO_RECORD`, `BAD_RECORD`, `VERSION`, `ACCOUNT`,
+     `REPOSITORY`, `GH`, `INTERNAL`); stderr stays empty; every exception and
+     subprocess failure becomes a code; subprocesses get `stdin=DEVNULL` and
+     a time limit; no value read is printed (DR3-S-03, DR3-S-04). Exit 0 only
+     for `PASS` or `VALID`.
+   - In the repository of the pack, the main agent runs the base copy
+     (`git --no-replace-objects cat-file blob <full base ID>:skills/dev-core/scripts/reviewer_acceptance.py | python3 -I - check --base <same full base ID>`),
+     as `references/readback-gate.md` says for the read-back script (the
+     base found with `git merge-base`, the literal checked in the command
+     text). Elsewhere it runs the copy on the skill path.
+3. Rule text in one place: `skills/dev-core/references/reviewer-acceptance.md`
+   (read in full, part of R-REV-1): the record format and template, the
+   check and its outcomes, the protected resources, the write channels, the
+   reason, the detection (CB-4), what it misses, what it does not exempt,
+   the setup-change rule (item 5), and the version history. A test pins the
+   SHA-256 of this file, of the CB-4 and CB-5 bullets and of the `tools` and
+   `disallowedTools` lines of both reviewer agent files to
+   `ACCEPTANCE_VERSION` (DR3-S-01, DR3-D-03). A change of any of them fails
+   the test until the version is raised or the pinned digest is updated;
+   both need the user's decision for that change (item 5). A raised version
+   makes every record stop with `STOP VERSION` until its owner accepts again.
+4. R-REV-1 (no account or repository name, DR3-D-05): a required reviewer
+   counts only without an effective write channel, or under the project's
+   acceptance record when the check prints `PASS` (read the reference in
+   full). The pack reviewers keep Bash, so they count only under the record.
+   The record does not apply when the task, the brief or a project policy
+   names another protected resource or requires technical isolation; it
+   covers only `dev-reviewer` and `dev-security-reviewer`; an agent with
+   write tools never counts (DR3-S-02, DR3-D-04). Anything but `PASS`: the
+   review stays incomplete, the dependent gate stops, safe independent work
+   may go on, and the main agent gives the user a decision card; it never
+   adds or edits a record on its own (DR3-D-04). CB-4 runs around each
+   review and scan.
+5. Setup change (card I106-C3 (a), generalized). "The change" is all work
+   from the bound base to the candidate, staged and working tree included.
+   - When it adds or edits `.dev/reviewer-acceptance.json` and nothing else
+     (`git --no-replace-objects diff --name-only <base>` plus the index and
+     the working tree list only that file), the user's new decision for this
+     change replaces a base `STOP NO_RECORD`, `BAD_RECORD`, `VERSION`,
+     `ACCOUNT` or `REPOSITORY`; never `BAD_ARGS`, `GIT`, `GH` or `INTERNAL`.
+     Before its merge, `validate` on the head file prints `VALID`. This is
+     the path of the first record and of each re-acceptance (DR3-D-01,
+     DR3-S-05, DR3-S-06).
+   - When it edits a reviewer agent file, `READ_ONLY_AGENTS` of
+     `scripts/check_pack.py`, the check script, the reference or a pinned
+     digest, its reviews and scans need the check's `PASS` and the user's new
+     decision for this change.
+   - The decision is quoted and recorded in that change, with the change it
+     is for (branch or PR). Card I106-C5 decides whether it must be the
+     user's own message in the dispatching session.
+6. This repository's record: `.dev/reviewer-acceptance.json` with version 1,
+   `jeffery777`, `jeffery777/claude-dev-skills` and the user's words to
+   card I106-C4. D-032 becomes "this repository's record by the generic
+   mechanism" (the decision, the binding, the pointer); its field texts move
+   to the reference. PR-1's own reviews run under the base rules (the
+   record is not at the base yet).
+7. README (one section, both languages; the template is only in the
+   reference, the README points to it, REQ-022): why the reviewers keep Bash
+   (tests, Git commands, search; no separate Grep or Glob on some hosts);
+   why no read-only sandbox (session-wide setting, subagents inherit it, no
+   front matter key; links to the two pages); the residual risk and what
+   CB-4 sees and misses; optional user hardening that the pages document
+   (a session sandbox, `permissions.deny`), at the user's own risk; how to
+   create the record, the prerequisites (GitHub, `gh` logged in, network,
+   card I106-C6), what `STOP` means; that a narrowing of the record on main
+   reaches a branch only after a rebase (DR3-S-10); that the design is
+   re-assessed when Claude Code offers a read-only mode for one subagent.
+8. Kept from PR #107: CB-4 (exit-status check, `NOT_RUN`, void and keep the
+   record), CB-5 (isolation sentence) with "the project's acceptance record
+   (R-REV-1)" instead of D-032, DL-004 (`tighten` until the vendor bump,
+   names no account or repository), DL-009 row and note.
+9. Removed: the account check with its literals in R-REV-1, the literal
+   names in DL-004, CB-5, the REQ-007 and REQ-024 notes, and the PR #107
+   test assertions on the literal check; `tests/test_reviewer_acceptance.py`
+   pins the script outputs, the digest-to-version tie and this
+   repository's record instead; `check_pack` pins stay.
+10. "No account or repository name in the shared rules" (Issue Done when):
+    read as "no account or repository that a record binds". At the base,
+    `skills/dev-retro/SKILL.md:140`, `:141` and `:191` name the Core
+    repository as the destination of feedback, and the vendored Core names
+    its owner; they stay (DR3-D-06; the orchestrator confirms the reading).
+    A deterministic `git grep -n -F` over `skills agents scripts` for the
+    login lists only those lines after PR-1.
+11. Records: REQ-024 and REQ-007 get sources for the new decision (relayed,
+    with the Issue body as source) and for the card answers; `log.md`
+    appends rows; CHANGELOG entry rewritten; search list K rows for
+    `D-032`, the login, `reviewer_acceptance`, `bound environment`, `this
+    account` (DR3-D-05).
+12. Not done: a sandbox for the reviewers (not possible for a plugin);
+    FU-004 stays open: Bash is accepted as a write channel; non-GitHub hosts
+    and several accounts per repository (card I106-C6; follow-up when
+    chosen).
+
+### What a new installer does
+
+Create `.dev/reviewer-acceptance.json` from the template in the reference,
+with the user's own words, in a change that touches only that file; its
+reviews count with the user's decision for that change; `validate` passes
+before the merge. After the merge, the check prints `PASS` for that account
+and repository until the pack raises the version.
+
+### Cards (`cards-3.md`)
+
+- I106-C4: accept this repository's record (version 1 texts).
+- I106-C5: whether the decision for one change must be the user's own
+  message in the dispatching session.
+- I106-C6: the limits of version 1 (GitHub with `gh` only; one account per
+  repository).
+
+### Design v3: amendments from round 4 (DR4)
+
+These amendments replace the named parts of design v2. Triage:
+`reviews/design-round-3.md`, section "Round 4".
+
+- Item 2: `validate` is deleted (over-design 1). A wrong record that merges
+  fails closed (`STOP BAD_RECORD`) and is fixed by a record-only change;
+  this repository's record is pinned by a test. `check` is the only mode;
+  exit 0 only for `PASS`.
+- Item 3: the sentences that apply the record (item 4) live in the
+  reference; R-REV-1 keeps one sentence and a pointer, so the digest covers
+  them (DR4-02). The pinned ranges: the whole reference file; the lines
+  from `- **CB-4**` to the line before `- **CB-6**` of `skills/dev-core/SKILL.md`
+  as LF bytes; the raw `tools` and `disallowedTools` lines that
+  `check_pack.py` reads (DR4-09). Version rule in the reference: a change of
+  the meaning of a pinned text, or of any tool line, raises the version; only
+  a change that keeps the meaning (a cite, a line number, a typo) updates the
+  digest, with the reason in the version history (DR4-02).
+- Item 4: the main agent runs `check` before each required review or scan;
+  only one stdout line `PASS` with exit 0 counts (DR4-11).
+- Item 5, one list (DR4-01; card I106-C3 (a)): when the change adds or edits
+  the record, a reviewer agent file, `READ_ONLY_AGENTS`, the check script,
+  the reference, a pinned digest or a rule that the record covers (the
+  apply sentences, CB-4, CB-5), its reviews and scans count only with a new
+  decision of the user for this change; a change that is not record-only
+  also needs `PASS`. For a record-only change, that decision also replaces a
+  base `STOP NO_RECORD`, `BAD_RECORD`, `VERSION`, `ACCOUNT` or `REPOSITORY`,
+  never `BAD_ARGS`, `GIT`, `GH` or `INTERNAL`. An added or moved cite or line
+  number is no change. "Record-only" (DR4-03): the three lists
+  `git --no-replace-objects -c core.quotePath=false diff --name-only --no-renames --no-relative --ignore-submodules=none -z <base>`,
+  the same with `--cached`, and `git ls-files --others --exclude-standard -z`
+  together hold exactly `.dev/reviewer-acceptance.json`. The record's
+  `decision` field is the record of the decision for a record-only change;
+  the commit message names the branch or PR; that change commits no other
+  file, state files included; the decision covers only the record content
+  shown on the card, and a later edit needs a new decision (DR4-04).
+- Item 7, README: the "what CB-4 sees and misses" part points to the
+  reference instead of repeating it (over-design 2). The optional hardening
+  stays short (the user asked for the reasons; the orchestrator's note) and
+  says: it acts on the whole session, the main agent included; it does not
+  replace the record; a sandbox that blocks the network makes the check
+  `STOP GH`. "No separate Grep or Glob" keeps its mark: a subagent's own
+  report, not a harness list (DR4-10).
+- Item 10 (DR4-08): correction: `skills/dev-retro/SKILL.md:140`, `:141` and
+  `:191` name this pack's repository (the feedback destination), not the
+  Core repository (`git grep -n -F` at the base). Reading of the Done-when
+  line: "no account or repository name that binds or checks an acceptance".
+  The orchestrator confirms the reading.
+- Residual (DR4-05): a full commit ID of the change passed as the base lets
+  a change qualify itself; outside the pack repository there is one literal
+  only. It goes to card I106-C4 (fact), the reference ("what it misses") and
+  the scope of FU-063; the user decides by the card.
+- "What a new installer does": no `validate` step.
+
+Orchestrator's answers (its message to this session, 2026-11-09): (1) the
+Done-when reading "no name that binds or checks an acceptance" is right;
+the dev-retro feedback destination is outside it. (2) The cards are not
+shown yet: the orchestrator relays them and offers the user another
+direction for C6 (C6 (a) would block commits off GitHub or offline, behind
+the current main, DL-045). No implementation until the user decides C6;
+then the user answers C4 and C5 in this session.
+
+## PR-1 design v4: the acceptance record on the user's own machine (2026-11-09)
+
+Source: the orchestrator's message to this session, 2026-11-09, with the
+user's words (relayed): 「技能本身本來就不應該綁帳號和repo，這是我的認知，否則
+會造成其它問題對嗎？」; on the base risk of card C4: 「這應該無論是AI Agent或是人
+都有可能犯錯，所以能以工作流程加以規範，將可能性降到最低嗎？」; on a record on
+the user's machine: 「同意，如果是上游的engineering-workflow-core有問題，那麼要開一個
+Issue回饋給上游，我讓codex修改」. Design v4 replaces design v2 and its v3
+amendments where they differ; their findings stay as history.
+
+Core check (Core v0.5.0 `review-and-security.md:29-35`, read from the tag of
+the local clone): the record must be traceable to the user's explicit
+decision, bind the environment and the rules, and record the write
+channels, the reason, the detection and what it misses; each review checks
+that the record applies and runs the detection; a change of the
+environment or the rules needs a new acceptance; the acceptance of another
+environment or consumer never applies. Core does not say where the record
+lives, and does not ask that it is in the repository or visible in a PR
+(`:29-35`; `review-evidence` asks only that the review lists the commands
+run and their results). So a record on the user's machine meets Core; no
+upstream Issue is needed (inference from the text; no Core sentence names a
+place).
+
+Facts tested in this session (2026-11-09): the Bash tool of the agent has
+no terminal: `sys.stdin.isatty()` and `sys.stdout.isatty()` are `False`, and
+opening `/dev/tty` fails with errno 6 (ENXIO).
+
+### Design v4
+
+1. Record: one JSON file per clone, outside every repository, at
+   `~/.claude/dev-skills/reviewer-acceptance/<id>.json`. `<id>` is the
+   SHA-256 of the real path of `git rev-parse --path-format=absolute
+   --git-common-dir`, so all worktrees of one clone share it, and another
+   clone, another machine or another user has none. Keys, exactly:
+   `version` (integer, equal to `ACCEPTANCE_VERSION`), `decision` (the
+   user's own words), `date`. No account, repository name or path is
+   stored or printed. Works offline, on any Git host, without a remote, and
+   for each user of a shared repository (each has their own home folder).
+2. Create: only the user, in their own terminal:
+   `python3 <pack root>/skills/dev-core/scripts/reviewer_acceptance.py accept`
+   at the top level of the clone. It prints the version text summary (the
+   reference, item 4), reads the user's words from `/dev/tty`, and writes
+   the file. Without a terminal (`/dev/tty` cannot be opened) it prints
+   `STOP NO_TTY` and writes nothing, so an agent's Bash cannot run it. The
+   agent never creates, edits or deletes the record by any means
+   (R-REV-1). Residual: an agent error that writes the file with another
+   tool is not stopped by the script; R-REV-1 forbids it, and the user sees
+   the file's date and words when they run `accept` again or open it.
+3. Check: `reviewer_acceptance.py check`, run by the main agent at the top
+   level of the worktree under review before each required review or scan.
+   It finds the record by the same `<id>`, checks the keys and the version,
+   and prints exactly one stdout line: `PASS`, or `STOP <CODE>` with `GIT`,
+   `NO_RECORD`, `BAD_RECORD`, `VERSION` or `INTERNAL`; stderr stays empty;
+   exit 0 only for `PASS`. No `--base`, no `gh`, no network. The main agent
+   runs the copy on the skill path (CB-6); in the pack's own repository the
+   plugin loads from `main`, so a change under review does not run its own
+   script (CB-6 Limit stays as residual risk).
+4. Reference `skills/dev-core/references/reviewer-acceptance.md` (read in
+   full; part of R-REV-1): the Core :29 texts (write channels, reason,
+   detection CB-4, what it misses, protected resources, what it does not
+   exempt), the record, `accept` and `check`, and the version history. The
+   digest test of design v3 stays: the reference, the CB-4 and CB-5 lines
+   and both reviewer tool lines are pinned to `ACCEPTANCE_VERSION`; a change
+   of meaning or of a tool line raises the version, and every record then
+   gives `STOP VERSION` until its user runs `accept` again.
+5. R-REV-1 (one sentence and a pointer; no account or repository name): a
+   required reviewer counts only without an effective write channel, or when
+   `check` prints `PASS`; the record does not apply when the task, the brief
+   or a project policy names another protected resource or requires
+   technical isolation; it covers only `dev-reviewer` and
+   `dev-security-reviewer`; an agent with write tools never counts; anything
+   but `PASS` keeps the review incomplete and the dependent gate stopped,
+   and the main agent tells the user how to run `accept`. CB-4 runs around
+   each review and scan.
+6. Setup change (card I106-C3 (a)): when the change under review edits a
+   reviewer agent file, `READ_ONLY_AGENTS`, the script, the reference, a
+   pinned digest or a rule that the record covers, its reviews and scans
+   need `PASS` and a new decision of the user for this change; card I106-C5
+   decides where that decision must be given. An added or moved cite or line
+   number is no change. The record-only path of v2 and v3 is gone (the
+   record is not in the repository).
+7. Removed from v2 and v3: `.dev/reviewer-acceptance.json`, the base read and
+   `--base`, the `gh` comparisons, the account and repository fields, the
+   DR4-05 residual, the DR4-03 name-only commands, card I106-C6. If a later
+   step needs a base, it gets it with a fixed command, never a typed ID.
+8. This repository: D-032 records the user's decision to use the generic
+   mechanism and to accept the residual risk on their own machine (the
+   user's words to card I106-C4); the record itself is the user's local
+   file, made by `accept` after PR-1 merges. D-032 names no account,
+   repository or path.
+9. README (both languages, one short section): why the reviewers keep Bash;
+   why no read-only sandbox for one subagent (the two official pages, read
+   by this session before writing); the residual risk with a pointer to the
+   reference; optional user hardening that the pages document, at the
+   user's own risk, acting on the whole session; how to run `accept` and
+   what each `STOP` means; that moving or re-cloning a repository needs a
+   new `accept`; re-assessment when Claude Code offers a read-only mode for
+   one subagent.
+10. Kept from PR #107 and v3: CB-4 (exit-status check, `NOT_RUN`, void and
+    keep the record), CB-5 (isolation sentence, "the user's acceptance
+    record (R-REV-1)"), DL-004 (`tighten` until the vendor bump, no names),
+    DL-009, the digest test, the search list rows.
+11. Tests: `accept` refuses without a terminal; `check` outputs for a
+    missing, malformed or old-version record and for `PASS`, with a
+    temporary home folder and temporary repositories; the digest-to-version
+    tie; `check_pack` pins.
+
+### Cards (`cards-3.md`, rewritten)
+
+- I106-C4: accept the residual risk of the reviewer write channel on your
+  machine (version 1 text), and run `accept` yourself after PR-1 merges.
+- I106-C5: whether the decision for a setup change must be the user's own
+  message in the dispatching session.
+- I106-C6: deleted (no GitHub or account limit remains).
+
+### Design v4.1: amendments from round 5 (DR5)
+
+These amendments replace the named parts of design v4. Triage:
+`reviews/design-round-3.md`, section "Round 5".
+
+- Item 1, key (DR5-05 (a)): `<id>` is the SHA-256 of the real path of the
+  common Git directory together with its `st_dev` and `st_ino`; a re-clone at
+  the same path, a restored home folder or another machine gives
+  `NO_RECORD` (fails closed). A file system with unstable inode numbers can
+  give a false `STOP` (unverified).
+- Item 2, `accept` (DR5-03, DR5-04, DR5-08, DR5-11): it runs only when
+  `sys.stdin.isatty()` and `sys.stdout.isatty()` are both true, else
+  `STOP NO_TTY` and no write; it prints the pinned acceptance section of the
+  reference word for word (`STOP` if the reference is missing); it reads the
+  user's words from stdin, then asks for the exact answer `yes`; anything
+  else, an empty line, end of input or an interrupt writes nothing
+  (`STOP DECLINED`); it writes the file atomically; it prints no clone path
+  and no file name. What the gate stops: an agent that runs `accept`
+  directly in a tool without a terminal. What it does not stop: a
+  pseudo-terminal, another tool that writes the file, or a host where the
+  agent's shell keeps a terminal (unverified); the rules forbid all of them.
+  The README says: run `accept` in a separate terminal, not through Claude
+  Code.
+- Item 3, `check` (DR5-10, DR5-12, DR5-14): the parse contract of v2 stays
+  (no duplicate keys, exactly the three keys, `type(version) is int`, a
+  non-empty `decision`, every failure a code, `stdin=DEVNULL`, a time limit,
+  no value printed); it runs as `python3 -I`; the main agent runs it in the
+  same Bash command as the CB-4 commands before the review, so the recorded
+  HEAD shows the tree it ran in. The sentence "the plugin loads from main"
+  is replaced by "the CB-6 Limit applies; item 6 covers a change that edits
+  the script".
+- Item 4, pinned ranges (DR5-01): add the `## Read-back` section of
+  `skills/dev-retro/SKILL.md` (from that heading to the line before
+  `## capture`, LF bytes), which holds the exit-status rule of CB-4. The
+  reference gets one mapping sentence (DR5-13): in Core :21-31 "路徑" is the
+  reviewer path (R-REV-1 covers only the two named reviewers, and the tool
+  lines are pinned); the environment is the clone key; the resources are the
+  reference list and the cases where the record does not apply (inference).
+  The reference also says (DR5-11): the main agent reads the record only
+  through `check`; the folder, the file name and the content never go into a
+  record or a post.
+- Item 6, setup change (DR5-02, restores card C3 (a)): when the change under
+  review (all work from the bound base to the candidate, staged and working
+  tree included) edits a reviewer agent file, `READ_ONLY_AGENTS`, the
+  script, the reference, a pinned digest, D-032 or a rule that the record
+  covers, its reviews and scans need `PASS` and a new decision of the user
+  for this change, quoted and recorded in this change. The decision also
+  says whether the version is raised (a change of the reviewer body text,
+  for example the no-write instructions, raises no version by itself; open
+  note of DR5). Card I106-C5 decides only where the decision is given.
+- Item 7: the sentence on "a later step needs a base" is deleted
+  (over-design 1).
+- Cards: C4 gets the facts of DR5-04, DR5-05, DR5-06 and DR5-07; C5 (b) gets
+  the recording sentence.
+- Issue body (DR5-09): Scope item 2 says "in their own project" and "D-032
+  becomes the record of this repository only"; v4 keeps the record on the
+  user's machine and D-032 as the decision entry. The orchestrator updates
+  the Issue body before the implementation.
+
+Orchestrator (its message to this session, 2026-11-09): it withdrew its
+idea of dropping `st_dev` and `st_ino` from `<id>`; the key of v4.1 and card
+C4 stay as they are. It updated the Issue #106 body for DR5-09 and relayed
+cards C4 and C5 to the user; the user answers them in this session.
+
+The user's own message in this session (2026-11-09): 「C4 a，C5 b」. C4 (a):
+the user accepts the residual risk of the reviewer write channel (version 1
+text) and runs `accept` in this clone after PR-1 merges. C5 (b): the
+decision for a setup change counts only as the user's own message in the
+session that dispatches the review, quoted and recorded in the change.
+
+## PR-1 redesign completeness checks (2026-11-09, on the index, before the reviews)
+
+Same command form as above. Files under `.dev/` get no rows.
+
+| ID | String | Exit | Rows (path: count, disposition, reason) |
+| --- | --- | --- | --- |
+| K10 | `D-032` | 0 | `skills/dev-core/SKILL.md`: 1, `skills/dev-core/deltas.md`: 2, `skills/dev-core/references/reviewer-acceptance.md`: 2, `skills/dev-core/scripts/reviewer_acceptance.py`: 1, changed (the decision entry, no binding); `docs/design-proposal.md`: 4, changed (D-032 rewritten); `docs/requirements/REQ-007-core-authority.md`: 2, `REQ-024-agent-write-and-delete.md`: 3, `log.md`: 3, `CHANGELOG.md`: 1, `tests/test_reviewer_acceptance.py`: 1, changed |
+| K11 | the owner login | 0 | `skills/dev-retro/SKILL.md`: 3, noted (feedback destination; outside the Done-when reading, confirmed by the orchestrator); `README.md`: 6, `.claude-plugin/*.json`: 4, `LICENSE`: 1, `CHANGELOG.md`: 2, `docs/design-proposal.md`: 4, `REQ-009`: 1, `REQ-026`: 3, noted (links and authorship, not a binding); `REQ-007`: 1, `REQ-024`: 1, historical (the C1 (a) source locator; the new notes say it is superseded); `tests/test_reviewer_acceptance.py`: 1, changed (asserts the login is absent from the rule files); `vendor/…`: noted (Core text) |
+| K12 | `reviewer_acceptance` | 0 | `README.md`: 2, `CHANGELOG.md`: 2, `docs/design-proposal.md`: 4, `REQ-024`: 1, `log.md`: 1, `skills/dev-core/deltas.md`: 1, `references/reviewer-acceptance.md`: 4, test: 5; changed (new) |
+| K13 | `bound environment` | 0 | hits only under `.dev/` |
+| K14 | `this account` | 1 | no hit |
+| K15 | `gh api user` | 0 | `tests/test_reviewer_acceptance.py`: 1, changed (asserts absence in the rule files) |
+| K16 | `reviewer-acceptance.json` | 0 | `tests/test_reviewer_acceptance.py`: 1, changed (asserts absence) |
+
+Co-change rule 1: REQ-007, REQ-024 and `log.md` change; `log.md` gets `+|`
+rows for REQ-007 and REQ-024 (run again before the commit).
+`scripts/validate.sh`: exit 0, 409 tests OK (3 skipped).

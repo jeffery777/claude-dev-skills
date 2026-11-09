@@ -65,6 +65,17 @@ Subagents：`dev-explorer`、`dev-implementer`、`dev-reviewer`，以及 `dev-se
   - pack 以一般子資料夾放在專案的 repository 裡：`STOP IN_REPO`；改用 stdin 形式後，讀的是 repository 根目錄的設定檔，結果通常是 `unknown`。
   - 解法：用不在任何 Git repository 裡的安裝副本，或在 Git 專案裡工作。
 
+## Reviewer 的寫入通道（一次性接受）
+
+engineering-workflow-core v0.5.0 要求必要的 reviewer 沒有有效的寫入通道，否則要由使用者對自己的環境做一次性接受。本 pack 的 `dev-reviewer` 和 `dev-security-reviewer` 保留 Bash，所以每位使用者要在自己的電腦上接受一次。這是配合 Claude Code 原生功能的妥協，不是省略防護：
+
+- 為什麼保留 Bash：reviewer 要跑測試和掃描用的 Git 指令，也要在 repo 裡搜尋。在部分主機上 subagent 沒有獨立的 Grep、Glob 工具（subagent 自己的回報，未經主機工具清單驗證），拿掉 Bash 就只剩 Read。
+- 為什麼不用唯讀 sandbox：Claude Code 的 sandbox 預設關閉，由使用者用 `/sandbox` 或 settings 的 `sandbox.enabled` 對 session 開啟（[sandboxing](https://code.claude.com/docs/en/sandboxing.md)）。subagent 的 frontmatter 沒有 sandbox 欄位，plugin 的 subagent 也會忽略 `hooks`、`mcpServers` 和 `permissionMode`（[sub-agents](https://code.claude.com/docs/en/sub-agents.md)）。所以 pack 沒辦法只讓 reviewer 唯讀。
+- 殘餘風險：reviewer 的 Bash 可以寫檔、寫 `.git`、寫網路。pack 在每次審查前後用 CB-4 比對 HEAD、status 和 diff hash，但它偵測不到的範圍不少，完整清單在 [`skills/dev-core/references/reviewer-acceptance.md`](skills/dev-core/references/reviewer-acceptance.md)。
+- 怎麼接受：在 Claude Code 以外的終端機視窗，到 clone 的頂層執行 `python3 -I <pack 根目錄>/skills/dev-core/scripts/reviewer_acceptance.py accept`。它會印出你要接受的全文，請你寫下自己的話，打 `yes` 才寫入。必要審查因為沒有紀錄而停下時，主代理會在對話裡給你含 pack 根目錄的完整指令。紀錄存在 `~/.claude/dev-skills/reviewer-acceptance/`，每個 clone 一份，不放進 repo。搬移或重新 clone、還原家目錄、換電腦後要再接受一次；pack 改了接受的文字時（版本提高）也要。
+- 沒有紀錄時，每個必要審查和掃描都會停下（`STOP NO_RECORD`）。雲端、CI 或每次重建的環境裡沒有你的紀錄，也會停下。
+- Claude Code 若提供單一 subagent 的唯讀隔離，這個做法會重新評估。
+
 ## 適度嚴謹
 
 - `light`：低風險的局部修改，不建 graph 檔。若要 commit、push 或開 PR，仍須先經獨立 review 與 commit gate。
@@ -195,6 +206,17 @@ Subagents: `dev-explorer`, `dev-implementer`, `dev-reviewer` and `dev-security-r
   - `git` refuses the repository (dubious ownership), or does not look for a repository across a file system boundary: `STOP REPO_CHECK`.
   - The pack is a plain subfolder of the project repository: `STOP IN_REPO`; the stdin form then reads the configuration file at the root of the repository, and the outcome is usually `unknown`.
   - The remedy: use an installed copy that lies in no Git repository, or work in a Git project.
+
+## Reviewer write channel (one-time acceptance)
+
+engineering-workflow-core v0.5.0 asks that a required reviewer has no effective write channel, or that the user accepts the residual risk once for their own environment. The `dev-reviewer` and `dev-security-reviewer` agents of this pack keep Bash, so each user accepts once on their own machine. This is a compromise with the native features of Claude Code, not a skipped safeguard:
+
+- Why the reviewers keep Bash: they run tests and the Git commands of the scans, and they search the repository. On some hosts a subagent has no separate Grep or Glob tool (a subagent's own report, not checked against the host's tool list), so without Bash it keeps only Read.
+- Why no read-only sandbox: the Claude Code sandbox is off by default; the user turns it on for a session with `/sandbox` or with `sandbox.enabled` in settings ([sandboxing](https://code.claude.com/docs/en/sandboxing.md)). A subagent's front matter has no sandbox key, and plugin subagents ignore `hooks`, `mcpServers` and `permissionMode` ([sub-agents](https://code.claude.com/docs/en/sub-agents.md)). So the pack cannot make only its reviewers read-only.
+- Residual risk: the reviewers' Bash can write files, `.git` and to the network. Before and after each review the pack compares HEAD, status and a diff hash (CB-4), but much stays outside that check; the full list is in [`skills/dev-core/references/reviewer-acceptance.md`](skills/dev-core/references/reviewer-acceptance.md).
+- How to accept: in a terminal window outside Claude Code, at the top level of the clone, run `python3 -I <pack root>/skills/dev-core/scripts/reviewer_acceptance.py accept`. It prints the full text that you accept, asks for your own words, and writes only after you type `yes`. When a required review stops for a missing record, the main agent gives you the full command, with the pack root, in the chat. The record is in `~/.claude/dev-skills/reviewer-acceptance/`, one per clone, in no repository. Accept again after you move or re-clone the repository, restore your home folder or change machines, and when the pack changes the accepted text (a new version).
+- Without a record, every required review and scan stops (`STOP NO_RECORD`). Cloud, CI or rebuilt environments have no record of yours and stop too.
+- This design is assessed again when Claude Code offers read-only isolation for one subagent.
 
 ## Proportionate rigor
 

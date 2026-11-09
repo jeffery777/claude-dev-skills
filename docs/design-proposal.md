@@ -1049,20 +1049,19 @@ D-009 到 D-016 是同一天的決定。D-015 由 PR #5（Issue #4）記錄；D-
 - 取代：DL-049 寫明被取代的 delta。Issue #102 關閉；它的例外文字沒有送出，卡 I101-U3R1-C2 與發現 U3R1-S-01 到 S-03、D-01、D-02 因此不再適用。
 - 殘餘風險：不做 read-back 的派工，設定錯誤只有主 session 的 dispatch 值和 agent file 釘住值擋著；merge 前的 read-back 是最後一道。
 
-### D-032 reviewer 寫入通道的一次性接受（Core `review-required-read-only`，`jeffery777/engineering-workflow-core#23`）（已決定，2026-11-09）
+### D-032 reviewer 寫入通道：使用者在自己電腦上的一次性接受（Core `review-required-read-only`，`jeffery777/engineering-workflow-core#23`）（已決定，2026-11-09）
 
-- 來源：GitHub Issue #106 的 Scope 2；使用者在 Issue #106 session 對卡片 I106-C1（`.dev/issue-106/cards-1.md`）的回答：「C1 a，C2 b」（2026-11-09）。C1 (a)：只限這個帳號和這個 repo。對卡片 I106-C3（`.dev/issue-106/cards-2.md`）的回答：「C3 a」（2026-11-09）：改到 reviewer 設定或 D-032 本身的變更，要有使用者為那次變更新給的決定。計畫：`.dev/issue-106/plan.md`。需求：REQ-007、REQ-024。agent 沒有自行接受，也不推定接受。
-- Core 規則：Core v0.5.0（tag object `374124ac6bc88efe73b27a4f7875fffd0dc669e2`，commit `0edcbad3d126cb8a7c0b64e9ad95283e2cca635e`）`contracts/review-and-security.md#review-required-read-only`：計入必要獨立審查的 reviewer 不得有能改動受審內容或受保護資源的有效寫入通道；第 5 到 8 段允許使用者對特定環境一次性接受殘餘風險。
-- 綁定的環境：Claude Code 加上本 pack 的 `dev-reviewer` 與 `dev-security-reviewer`、GitHub 帳號 `jeffery777`、repo `jeffery777/claude-dev-skills`。每次必要 review 或掃描前，主代理在受審 worktree 的頂層跑 R-REV-1 的檢查：`test "$(gh api user --jq .login 2>/dev/null)" = jeffery777 && test "$(gh repo view --json nameWithOwner --jq .nameWithOwner 2>/dev/null)" = jeffery777/claude-dev-skills && echo PASS || echo STOP`。不綁機器（卡片 I106-C1）。
-- 受保護資源：這個 repo 的受審內容（worktree、index、refs、objects）、掃描的輸入檔，以及這個 repo 的 PR 與 Issue。任務、brief 或專案政策指明其他受保護資源，或要求技術隔離時，D-032 不適用。
-- 涵蓋的規則：Core v0.5.0 `review-required-read-only`、R-REV-1 套用它的句子、CB-4、CB-5。適用於 `dev-reviewer` 或 `dev-security-reviewer` 執行的每個必要獨立審查與每個 R-REV-9 掃描。之後修改 R-REV-9，或新增、移動 cite 與行號，都不算修改這些規則。
-- 寫入通道：兩個 agent 的 Bash，可以寫 worktree、`.git`、repo 外的檔案，也可以寫網路（例如用使用者的 `gh` token 做 merge、關 Issue、刪 branch、建 Release）；以及主機在 agent file 之外給 subagent 的任何工具。agent file 的設定是 `tools: Read, Grep, Glob, Bash` 與 `disallowedTools: Edit, Write, NotebookEdit`；這兩行在執行時是否生效未驗證（FU-004）。
-- 保留理由：reviewer 要跑測試，也要跑掃描的 Git 與 read-back 命令。
-- 替代偵測：CB-4（review 與掃描前後的 HEAD、status hash、diff hash，失敗或沒有跑的命令記 `NOT_RUN`，該次 review 或掃描不算）。
-- 偵測未涵蓋：worktree 與 index 以外的一切：`.git` 的 refs 和 objects（push 與 merge readiness 掃描的對象）、未追蹤與 ignored 的檔案以及未追蹤檔案內的修改（文字掃描的對象）、其他 worktree、plugin 載入的 checkout（CB-6 Limit）、repo 外的效果、網路與平台寫入、在事後檢查前又改回的修改、review 以外的時間，以及主機權限設定的改變（責任人是使用者，不逐次檢查）。前後的值相同，不能證明沒有改動。
-- 不免除：作者與 reviewer 的獨立性、實際審查、必要掃描、exact-head、資料保護、操作授權，以及其他較高的要求。它不給 reviewer 修改受審內容的權利，也從不記為技術唯讀。
-- 結束與修改：環境、涵蓋的規則、reviewer agent 的工具或權限、受保護資源或偵測方法改變時，D-032 結束，要使用者重新接受。受審的變更若改到 reviewer agent file、`scripts/check_pack.py` 的 `READ_ONLY_AGENTS`、D-032 或 D-032 涵蓋的規則，那次變更的 review 與掃描，只有在使用者為那次變更新給、有引述並記在那次變更裡的決定之下，才依 D-032 計入（卡片 I106-C3 (a)）。只有使用者新的、有引述的決定能修改 D-032；為了讓測試通過而改它，會使它失效。
+- 來源：GitHub Issue #106 的 "Scope change (2026-11-09)"。使用者的話（orchestrator 轉述，Issue body 也有）：「同意，照你的建議改走第2條」；「技能本身本來就不應該綁帳號和repo，這是我的認知，否則會造成其它問題對嗎？」；「同意，如果是上游的engineering-workflow-core有問題，那麼要開一個Issue回饋給上游，我讓codex修改」。使用者在 Issue #106 session 對卡片 I106-C4、I106-C5（`.dev/issue-106/cards-3.md`）的回答：「C4 a，C5 b」（2026-11-09）。計畫：`.dev/issue-106/plan.md`（design v4、v4.1）。需求：REQ-007、REQ-024。
+- 問題：Core v0.5.0 要求必要 reviewer 沒有有效寫入通道，或由使用者對特定環境一次性接受殘餘風險。pack 的 reviewer 保留 Bash；plugin 沒辦法只讓一個 subagent 跑在唯讀 sandbox 裡；拿掉 Bash 後 reviewer 只剩 Read（部分主機沒有獨立的 Grep、Glob）。PR #107 第一版把接受綁在一個帳號和一個 repo 的共用規則裡，其他安裝者會一直停下。
+- 決定：
+  1. 接受紀錄放在使用者自己的電腦上（`~/.claude/dev-skills/reviewer-acceptance/`），每個 clone 一個檔案，不放進任何 repo，不比對帳號或 repo，不需要網路。
+  2. 只有使用者在自己的終端機用 `reviewer_acceptance.py accept` 建立紀錄；agent 不建立、不修改、不刪除。
+  3. 每次必要 review 或掃描前，主代理跑 `reviewer_acceptance.py check`；只有 `PASS` 算數。
+  4. 接受的文字、紀錄格式、檢查和 setup change 規則都在 `skills/dev-core/references/reviewer-acceptance.md`，版本號綁住它們。
+  5. C4 (a)：使用者接受版本 1 的殘餘風險，PR-1 merge 後自己在這個 clone 跑 `accept`。C5 (b)：改到 reviewer 設定的變更，使用者為它給的決定只算派 review 的那個 session 裡本人打的字，原話和日期記在變更裡。
+  6. 取代 C1 (a)（綁帳號加 repo）與 C3 (a) 中 D-032 的範圍；C3 (a) 的「改到設定要有使用者的決定」改寫在 reference 的 setup change 規則裡。
 - 與 Core 的差異：DL-004。
+- 殘餘風險：agent 用別的工具直接寫紀錄檔、pseudo-terminal 跑 `accept`、CB-4 偵測不到的範圍（見 reference），以及雲端、CI 或每次重建的環境裡沒有紀錄時一律停下。
 
 ---
 
@@ -4941,19 +4940,18 @@ Note (Issue #104, D-031): the read-back narrows to the three dispatches before a
 - Superseded: DL-049 names the deltas. Issue #102 closes; its exception text never shipped, so card I101-U3R1-C2 and findings U3R1-S-01 to S-03, D-01 and D-02 no longer apply.
 - Residual risk: for a dispatch that is not read back, only the dispatch values and the pinned agent files stand against a wrong setting; the read-back before a merge is the last check.
 
-### D-032 One-time acceptance of the reviewer write channel (Core `review-required-read-only`, `jeffery777/engineering-workflow-core#23`) (decided, 2026-11-09)
+### D-032 Reviewer write channel: the user's one-time acceptance on their own machine (Core `review-required-read-only`, `jeffery777/engineering-workflow-core#23`) (decided, 2026-11-09)
 
-- Origin: GitHub Issue #106, Scope 2; the user's own message in the Issue #106 session, in answer to card I106-C1 (`.dev/issue-106/cards-1.md`): 「C1 a，C2 b」 (2026-11-09). C1 (a): this account and this repository only. In answer to card I106-C3 (`.dev/issue-106/cards-2.md`): 「C3 a」 (2026-11-09): a change of the reviewer setup or of D-032 itself needs a new decision of the user for that change. Plan: `.dev/issue-106/plan.md`. Requirements: REQ-007, REQ-024. The agent did not accept and does not presume acceptance.
-- Core rule: Core v0.5.0 (tag object `374124ac6bc88efe73b27a4f7875fffd0dc669e2`, commit `0edcbad3d126cb8a7c0b64e9ad95283e2cca635e`), `contracts/review-and-security.md#review-required-read-only`: a reviewer that counts for a required independent review has no effective write channel to the content under review or to a protected resource; paragraphs 5 to 8 let the user accept the residual risk once for a specific environment.
-- Bound environment: Claude Code with the `dev-reviewer` and `dev-security-reviewer` agents of this pack, the GitHub account `jeffery777` and the repository `jeffery777/claude-dev-skills`. Before each required review or scan, the main agent runs the check of R-REV-1 at the top level of the worktree under review: `test "$(gh api user --jq .login 2>/dev/null)" = jeffery777 && test "$(gh repo view --json nameWithOwner --jq .nameWithOwner 2>/dev/null)" = jeffery777/claude-dev-skills && echo PASS || echo STOP`. The machine is not bound (card I106-C1).
-- Protected resources: the content under review in this repository (worktree, index, refs, objects), the scan input files, and the PRs and Issues of this repository. When a task, a brief or a project policy names another protected resource or requires technical isolation, D-032 does not apply.
-- Rules covered: Core v0.5.0 `review-required-read-only`, the sentences of R-REV-1 that apply it, CB-4 and CB-5. It applies to every required independent review and every R-REV-9 scan that `dev-reviewer` or `dev-security-reviewer` runs. A later change of R-REV-9, or an added or moved cite or line number, is no change of these rules.
-- Write channels: Bash in both agents, which can write in the worktree, in `.git`, outside the repository and to the network (for example `gh` with the user's token: merge a PR, close an Issue, delete a branch, create a Release); and any tool that the host gives the subagent beyond the agent file. The agent files have `tools: Read, Grep, Glob, Bash` and `disallowedTools: Edit, Write, NotebookEdit`; runtime enforcement of these lines is not tested (FU-004).
-- Reason: the reviewers run tests and the Git and read-back commands of the scans.
-- Substitute detection: CB-4 (HEAD, the status hash and the diff hash before and after each review and scan; a failed or missing command is `NOT_RUN`, and that review or scan does not count).
-- Not covered by the detection: everything outside the worktree and the index: `.git` refs and objects (the content of the push and merge readiness scans), untracked and ignored files and edits inside an untracked file (the content of text scans), other worktrees, the checkout from which the plugin is loaded (CB-6 Limit), effects outside the repository, network and platform writes, a change that is undone before the after-check, the time outside the review, and changes of the host permission settings (owner: the user; not checked each time). Equal values before and after do not prove that nothing changed.
-- Not exempted: independence of author and reviewer, the real review, the required scans, exact-head, data protection, operation authority and higher requirements. It gives no reviewer the right to change the content under review, and it is never recorded as technical read-only.
-- End and change: D-032 ends when the environment, the covered rules, the tools or permissions of the reviewer agents, the protected resources or the detection change; then the user accepts again. When the change under review edits a reviewer agent file, `READ_ONLY_AGENTS` in `scripts/check_pack.py`, D-032 or a rule that D-032 covers, its reviews and scans count under D-032 only with a new decision of the user for that change, quoted and recorded in that change (card I106-C3 (a)). Only a new decision of the user, quoted, changes D-032; a change made to pass a test voids it.
+- Origin: GitHub Issue #106, "Scope change (2026-11-09)". The user's words (relayed by the orchestrator, also in the Issue body): 「同意，照你的建議改走第2條」; 「技能本身本來就不應該綁帳號和repo，這是我的認知，否則會造成其它問題對嗎？」; 「同意，如果是上游的engineering-workflow-core有問題，那麼要開一個Issue回饋給上游，我讓codex修改」. The user's own message in the Issue #106 session, in answer to cards I106-C4 and I106-C5 (`.dev/issue-106/cards-3.md`): 「C4 a，C5 b」 (2026-11-09). Plan: `.dev/issue-106/plan.md` (design v4, v4.1). Requirements: REQ-007, REQ-024.
+- Problem: Core v0.5.0 asks that a required reviewer has no effective write channel, or that the user accepts the residual risk once for a specific environment. The pack reviewers keep Bash; a plugin cannot run one subagent in a read-only sandbox; without Bash a reviewer keeps only Read (some hosts have no separate Grep or Glob). The first version of PR #107 bound the acceptance to one account and one repository in a shared rule, so every other installer would stop.
+- Decisions:
+  1. The record lives on the user's own machine (`~/.claude/dev-skills/reviewer-acceptance/`), one file per clone, in no repository; no account or repository is compared; no network is needed.
+  2. Only the user creates it, in their own terminal, with `reviewer_acceptance.py accept`; the agent never creates, edits or deletes it.
+  3. Before each required review or scan, the main agent runs `reviewer_acceptance.py check`; only `PASS` counts.
+  4. The accepted text, the record format, the check and the setup-change rule are in `skills/dev-core/references/reviewer-acceptance.md`, tied to a version.
+  5. C4 (a): the user accepts the residual risk of version 1 and runs `accept` in this clone after PR-1 merges. C5 (b): the user's decision for a change of the reviewer setup counts only as the user's own message in the session that dispatches the review, quoted with its date and recorded in the change.
+  6. This replaces C1 (a) (account and repository binding) and the D-032 scope of C3 (a); the C3 (a) rule that a setup change needs a decision of the user is in the setup-change rule of the reference.
 - Difference from Core: DL-004.
+- Residual risk: an agent that writes the record file with another tool, `accept` run through a pseudo-terminal, what CB-4 does not see (see the reference), and a full stop wherever no record exists (cloud, CI or rebuilt environments).
 
 </details>

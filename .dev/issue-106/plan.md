@@ -852,3 +852,60 @@ From the Merge Review of head `92492bf` (relayed by the orchestrator,
   `STOP GIT` (fail closed).
 - README says that the design is assessed again when Claude Code offers a
   read-only mode for one subagent; no follow-up names that trigger yet.
+
+## PR-3 implementation (2026-11-09)
+
+Later changes (2026-11-10): cards I106-C8 (d), C9 (a), C10 (a) and C11 (a)
+replace parts of this section: push step 2 and step 5 keep the base text (no
+destination test of URL forms, no allow path), PR and Issue metadata and ref
+names are read, and the acceptance version is 3 (record key without `st_dev`).
+The review record `reviews/pr3-round-1.md` has the details.
+
+Branch `issue-106-pr3-publication-data` from main `1ae24b5` (PR #107 merged).
+Setup change: PR-3 edits the body of `agents/dev-security-reviewer.md` (not
+its tool lines); the user's own message in this session to card I106-C7
+(`cards-4.md`): 「C7 a」 (agree; the acceptance version stays 2). The rules
+of the merged base apply: `reviewer_acceptance.py check` prints `PASS` in
+this clone before each required review and scan.
+
+Changes: R-REV-9 (scope, payload, destination, signing settings, look-for
+list, SEC105B-01 clause, `-----BEGIN ` pattern), push step 2 (destination
+test), `skills/dev-implement/SKILL.md` and `agents/dev-security-reviewer.md`
+copies, REQ-011 notes, DL-050, CHANGELOG, `tests/test_publication_data.py`,
+README version wording (MR107C-02, SEC107C-01), ID rename P1DR-01
+(MR107C-01).
+
+Completeness checks (index): K20 `SEC105B-01` (exit 0): all hits changed;
+K21 `machine hostnames` (exit 0): `docs/design-proposal.md` 1, historical;
+K22 `PRIVATE KEY` (exit 0): `skills/dev-core/SKILL.md` 1 (the signing
+sentence, "no private key"), noted; `tests/test_rule_slimming.py` 1, noted
+(the sample still matches `-----BEGIN `); K23 `stays for it alone` (exit 0):
+only the new test that asserts its absence; K24 `review-publication-data`
+(exit 0): all changed; K25 `Look for keys` (exit 0): SKILL.md and the agent
+file, changed; K26 `counts as no scan` (exit 0): `docs/design-proposal.md` 1
+and REQ-009 1, historical (they state the Issue #95 rule; the REQ-011 note
+now says it holds for each scan). Co-change rule 1: REQ-011 changes; the
+`log.md` row for REQ-011 is in this change. `scripts/validate.sh`: exit 0,
+416 tests.
+
+## PR-3 completeness checks before the commit (2026-11-10, index)
+
+Command form as above, from the top of the worktree; files under
+`.dev/issue-106/` and `vendor/` get no rows.
+
+| ID | String | Exit | Rows (path: count, disposition, reason) |
+| --- | --- | --- | --- |
+| K20 | `SEC105B-01` | 0 | `CHANGELOG.md`: 1, `REQ-011`: 1, `log.md`: 1, `skills/dev-core/SKILL.md`: 1, `skills/dev-core/deltas.md`: 1, `tests/test_publication_data.py`: 1; all changed |
+| K21 | `machine hostnames` | 0 | `docs/design-proposal.md`: 1, historical (an earlier decision text) |
+| K22 | `PRIVATE KEY` | 0 | `skills/dev-core/SKILL.md`: 1, noted ("no private key … is read"); `tests/test_rule_slimming.py`: 1, noted (sample matched by `-----BEGIN `); `.dev/issue-1-phase1/…`: 1, historical |
+| K23 | `stays for it alone` | 0 | `tests/test_publication_data.py`: 1, changed (asserts absence) |
+| K24 | `review-publication-data` | 0 | `CHANGELOG.md`, `REQ-011`, `log.md`, `skills/dev-core/SKILL.md`, `skills/dev-core/deltas.md`, `tests/test_publication_data.py`: 1 each, changed |
+| K25 | `Look for keys` | 0 | `agents/dev-security-reviewer.md`: 1, `skills/dev-core/SKILL.md`: 1, changed |
+| K26 | `counts as no scan` | 0 | `REQ-011`: 2 (one changed note, one unchanged Issue #95 note, noted: the Issue #104 note now says it holds for each scan); `docs/design-proposal.md`: 1, `REQ-009`: 1, historical; `CHANGELOG.md`, `log.md`, `SKILL.md`, `deltas.md`, test: 1 each, changed |
+| K27 | `st_dev` | 0 | `reviewer-acceptance.md`: 2, `reviewer_acceptance.py`: 1, `tests/test_reviewer_acceptance.py`: 1, changed (C10); `model_effort_readback.py`: 3, `references/model-effort-readback.md`: 1, `deltas.md`: 1 (DL-046), `docs/design-proposal.md`: 2, `REQ-009`: 1, `tests/test_platform_profile.py`: 1, `tests/test_review_loop_rules.py`: 1, noted (the read-back repository check, unrelated); `.dev/issue-4-…`, `.dev/issue-96-pr3/…`: historical |
+| K28 | `STOP VERSION` | 0 | `reviewer-acceptance.md`: 2, `tests/test_reviewer_acceptance.py`: 1, noted (true for a version raise without a key change) |
+| K29 | `names the repository of the task` | 0 | `tests/test_publication_data.py`: 1, changed (asserts absence) |
+
+Co-change rule 1: `--name-only` lists REQ-011 and `log.md` (exit 0); the
+`-U0` diff of `log.md` has three `+|` rows for REQ-011 (one per round) and no
+`-|` row. `scripts/validate.sh`: exit 0.

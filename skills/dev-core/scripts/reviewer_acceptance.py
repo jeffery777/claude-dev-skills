@@ -5,7 +5,7 @@ The pack reviewers keep Bash, an effective write channel. Core v0.5.0
 `review-required-read-only` lets the user accept that residual risk once for a
 specific environment. The record lives on the user's machine, one file per clone:
 `~/.claude/dev-skills/reviewer-acceptance/<id>.json`, where `<id>` is the SHA-256
-of the real path, `st_dev` and `st_ino` of the clone's common Git directory.
+of the real path and `st_ino` of the clone's common Git directory.
 The accepted text is the "Accepted text" section of
 `../references/reviewer-acceptance.md` of the version below.
 
@@ -30,7 +30,7 @@ import subprocess
 import sys
 import tempfile
 
-ACCEPTANCE_VERSION = 2
+ACCEPTANCE_VERSION = 3
 KEYS = ("version", "decision", "date")
 TIMEOUT = 20
 HERE = os.path.dirname(os.path.realpath(__file__))
@@ -52,7 +52,7 @@ def record_dir() -> str:
 
 
 def clone_id() -> str:
-    """SHA-256 of the real path, st_dev and st_ino of the common Git directory of the cwd."""
+    """SHA-256 of the real path and st_ino of the common Git directory of the cwd (no st_dev: it can change at a reboot)."""
     try:
         proc = subprocess.run(
             ["git", "--no-replace-objects", "rev-parse", "--path-format=absolute", "--git-common-dir"],
@@ -68,7 +68,7 @@ def clone_id() -> str:
         st = os.stat(real)
     except OSError:
         raise Stop("GIT")
-    key = f"{real}\0{st.st_dev}\0{st.st_ino}".encode("utf-8", "surrogateescape")
+    key = f"{real}\0{st.st_ino}".encode("utf-8", "surrogateescape")
     return hashlib.sha256(key).hexdigest()
 
 

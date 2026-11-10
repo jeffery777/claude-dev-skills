@@ -73,7 +73,7 @@ NIT 一起」.
 
 | ID | Severity | Disposition |
 | --- | --- | --- |
-| MR107B-01 | MUST-FIX | Fixed: the setup-change rule (reference) and D-032 item 5 (both languages) say "with its date and the change it was given for", as card C5 (b); plan C5 (b) summary corrected. The version is raised to 2, as the Version rule of the reference says for a change of meaning (first written as "stays 1"; P1D-01 below); the Accepted text is unchanged |
+| MR107B-01 | MUST-FIX | Fixed: the setup-change rule (reference) and D-032 item 5 (both languages) say "with its date and the change it was given for", as card C5 (b); plan C5 (b) summary corrected. The version is raised to 2, as the Version rule of the reference says for a change of meaning (first written as "stays 1"; P1DR-01 below; renamed from P1D-01, which `pr1-round-1.md` already uses, MR107C-01); the Accepted text is unchanged |
 | MR107B-02 | NIT | Fixed: the REQ-024 C1 (a) source and note say that C4 (a) supersedes C1 (a); plan K11 row corrected; `log.md` row |
 | MR107B-03 | NIT | Fixed: D-032 origin says which words are in the Issue body and which came only in the orchestrator's message |
 | SEC107B-01 | NIT | Fixed: README (both languages) keeps the re-clone sentence with the inode hedge of the reference |
@@ -85,4 +85,4 @@ recorded `unknown`, case `not read back`; CB-4 before and after equal: status
 
 | ID | Severity | Triage | Disposition |
 | --- | --- | --- | --- |
-| P1D-01 | NIT | "version stays 1" was outside the Version rule of the reference (a change of meaning raises the version) | Fixed: `ACCEPTANCE_VERSION` 2, the Accepted text heading, the version table (1 never in a merged pack; 2 adds "the change it was given for"), `PINNED` keeps 1 and adds 2; D-032 item 5 notes the version |
+| P1DR-01 | NIT | "version stays 1" was outside the Version rule of the reference (a change of meaning raises the version) | Fixed: `ACCEPTANCE_VERSION` 2, the Accepted text heading, the version table (1 never in a merged pack; 2 adds "the change it was given for"), `PINNED` keeps 1 and adds 2; D-032 item 5 notes the version |

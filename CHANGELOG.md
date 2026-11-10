@@ -814,6 +814,29 @@ Cowork runtime test). At that release,
   - README: why the reviewers keep Bash, how to make the record, and the
     optional session sandbox that the official page documents.
 
+- Publication data checks (Issue #106 PR-3; DL-050; Core v0.5.0
+  `review-publication-data`, `jeffery777/engineering-workflow-core#22`):
+  - The text scan also covers Release titles, notes, tag names and
+    targets, and attached files; a file that cannot be read as a whole text
+    makes the scan `NOT_RUN`. A post names its repository and sends the
+    scanned file itself.
+  - The commit scan input says whether Git will sign; a signature that Git
+    will make goes to the user.
+  - Push step 2 keeps its test: the push URL equals the fetch URL after
+    rewrites, for any host and URL form (card I106-C8 (d)); a difference
+    still stops the push (card I106-C11 (a)).
+  - The scans also read the labels, milestone and assignees that a post
+    sets and the ref names that a push sends (card I106-C9 (a)).
+  - The look-for list adds certificates, hosts and addresses, accounts and
+    unneeded execution logs; an approved public identity and license
+    notices are not removed for a literal match alone; the deterministic text
+    check matches any `-----BEGIN ` block.
+  - Each scan counts only by R-DEL-2 and R-REV-1, also when push step 5
+    counts it as passed (SEC105B-01).
+  - The reviewer acceptance record key drops the device number, which can
+    change at a reboot; the acceptance version is 3, so each user runs
+    `accept` again (card I106-C10 (a)).
+
 ### Fixed
 
 - Skill paths (REQ-026, FU-025, Issue #64). In the first use of

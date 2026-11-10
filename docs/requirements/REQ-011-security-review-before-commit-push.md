@@ -363,11 +363,24 @@ the requirement.
 
 Note (Issue #104, D-031, DL-048, DL-049): the push steps and the "Not covered"
 list are in `skills/dev-core/references/push-scan.md`. Only the merge readiness
-scan is read back; the note on Issue #95 above stays for it alone. A text scan has
+scan is read back. The session binding and R-REV-1 apply to each scan: a scan
+that does not count by R-DEL-2 and R-REV-1 counts as no scan, also when push
+step 5 counts it as passed (Issue #106, SEC105B-01); the read-back of the note
+on Issue #95 applies to the merge readiness scan only. A text scan has
 a deterministic check first, then looks for private data only, not fact
 precision; the agent and the role do not change. A signature on a merge or squash
 commit that the hosting platform created is recorded only; a signature on the
 user's own commits before a push still goes to the user.
+
+Note (Issue #106 PR-3, Core v0.5.0 `review-publication-data`): the text scan
+also covers Release titles, notes, tag names and targets and attached files; a
+file that cannot be read as a whole text makes the scan `NOT_RUN`; a post names
+its repository and sends the scanned file itself; the commit scan input says
+whether Git will sign; push step 2 keeps the base test (push URL equals fetch
+URL, any host; cards I106-C8 (d), I106-C11 (a)); labels, milestone, assignees and pushed ref names
+are read too (card I106-C9 (a)); the
+"Look for" list adds certificates, hosts and addresses, accounts and unneeded
+execution logs. The FU-007 (b) release notes item is covered by this.
 
 Origin: PR #2 SEC-01 (a hostname-derived author email was pushed). Design
 records: D-015 and, since Issue #68, D-021 in `docs/design-proposal.md`. Related: [[REQ-003]], [[REQ-007]].

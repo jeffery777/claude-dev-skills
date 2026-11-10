@@ -23,7 +23,7 @@ REVIEWERS = ("dev-reviewer", "dev-security-reviewer")
 # text fails this test. Raise the version when the meaning or a tool line changes; update only the
 # digest for a cite, a line number or a typo, with the reason in the version table of the reference.
 # Both need a new decision of the user for that change (setup-change rule of the reference).
-PINNED = {1: "b1e9b2973ccaf9f6706b5ee1ff182767b301f083d28b1db7702b838d51613499", 2: "b69a4a495498d5268dda4492d583c20f8ed9ee3942118265f2558115d5b1a7cf"}
+PINNED = {1: "b1e9b2973ccaf9f6706b5ee1ff182767b301f083d28b1db7702b838d51613499", 2: "b69a4a495498d5268dda4492d583c20f8ed9ee3942118265f2558115d5b1a7cf", 3: "b9e6b29eebb67fd3cc5e7130424e73a3c5971a8955e2651ec9b6d7fec61a0410"}
 
 
 def load(name, path):
@@ -171,6 +171,13 @@ class Check(unittest.TestCase):
             patch.stop()
             os.chdir(cwd)
         self.assertEqual(self.check(), ("PASS\n", 0))
+
+    def test_key_has_no_device_number(self):
+        proc = subprocess.run(["git", "-C", self.repo, "rev-parse", "--path-format=absolute", "--git-common-dir"],
+                              env=clean_env(self.home), capture_output=True, text=True, check=True)
+        real = os.path.realpath(proc.stdout.strip())
+        want = hashlib.sha256(f"{real}\0{os.stat(real).st_ino}".encode("utf-8", "surrogateescape")).hexdigest()
+        self.assertEqual(self.cid, want)  # card I106-C10 (a): st_dev can change at a reboot
 
     def test_bad_arguments(self):
         proc = run(["check", "--base", "x"], self.repo, self.home)

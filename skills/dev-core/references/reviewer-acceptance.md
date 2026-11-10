@@ -20,7 +20,7 @@ named reviewers with pinned tool lines; the environment is the clone of the
 record; the resources are the protected resources below and the cases where
 the record does not apply.
 
-## Accepted text (version 2)
+## Accepted text (version 3)
 
 - Write channels: Bash in `dev-reviewer` and `dev-security-reviewer`. Bash
   can write in the worktree, in `.git`, outside the repository and to the
@@ -62,12 +62,14 @@ the record does not apply.
 
 One JSON file per clone, outside every repository:
 `~/.claude/dev-skills/reviewer-acceptance/<id>.json`. `<id>` is the SHA-256
-of the real path, `st_dev` and `st_ino` of the clone's common Git directory
+of the real path and `st_ino` of the clone's common Git directory
 (`git rev-parse --path-format=absolute --git-common-dir`), so all worktrees
-of one clone share it; another clone, another machine or another user has
-none, nor has a re-clone at the same path or a restored home folder where
+of one clone share it; another clone or another user has none, nor has
+another machine, a re-clone at the same path or a restored home folder where
 the file system gives a new inode number (unverified on file systems that
-reuse inode numbers). Keys,
+reuse inode numbers). The device number (`st_dev`) is not used: it can change
+at a reboot (card I106-C10). Residual: the same path on another disk with the
+same inode number reuses the record. Keys,
 exactly: `version` (integer, equal to `ACCEPTANCE_VERSION` of the script),
 `decision` (the user's own words), `date`. No account, repository name or
 path is stored.
@@ -152,3 +154,4 @@ digest only, with the reason below. Both need the setup-change decision.
 | --- | --- |
 | 1 | First version (Issue #106 PR-1, head `92492bf`); never in a merged pack. |
 | 2 | The setup-change rule records the change that the decision was given for (Merge Review finding MR107B-01; card I106-C5 (b) has these words). The Accepted text did not change. |
+| 3 | The record key drops `st_dev`, which changed at a reboot (card I106-C10 (a)); the Accepted text did not change. |

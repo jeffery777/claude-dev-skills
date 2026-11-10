@@ -12,3 +12,8 @@
 {"seq": 12, "at": "2026-11-09T07:48:13+00:00", "actor": "main-agent", "node": "P1R", "from": "in_progress", "to": "reviewing", "evidence": ".dev/issue-106/reviews/pr1r-round-1.md rounds 1-2; validate.sh exit 0"}
 {"seq": 13, "at": "2026-11-09T07:48:13+00:00", "actor": "main-agent", "node": "P1R", "from": "reviewing", "to": "done", "evidence": ".dev/issue-106/reviews/pr1r-round-1.md rounds 1-2; validate.sh exit 0"}
 {"seq": 14, "at": "2026-11-09T07:48:13+00:00", "actor": "main-agent", "node": "P1G", "from": "blocked", "to": "ready", "evidence": "P1R done"}
+{"seq": 15, "at": "2026-11-09T09:34:15+00:00", "actor": "main-agent", "node": "P1G", "from": "ready", "to": "in_progress", "evidence": "PR #107 merged as 1ae24b5 (orchestrator, user decision)"}
+{"seq": 16, "at": "2026-11-09T09:34:16+00:00", "actor": "main-agent", "node": "P1G", "from": "in_progress", "to": "reviewing", "evidence": "PR #107 merged as 1ae24b5 (orchestrator, user decision)"}
+{"seq": 17, "at": "2026-11-09T09:34:16+00:00", "actor": "main-agent", "node": "P1G", "from": "reviewing", "to": "done", "evidence": "PR #107 merged as 1ae24b5 (orchestrator, user decision)"}
+{"seq": 18, "at": "2026-11-09T09:34:16+00:00", "actor": "main-agent", "node": "P3", "from": "planned", "to": "ready", "evidence": "branch issue-106-pr3-publication-data from 1ae24b5; card I106-C7 (a)"}
+{"seq": 19, "at": "2026-11-09T09:34:16+00:00", "actor": "main-agent", "node": "P3", "from": "ready", "to": "in_progress", "evidence": "branch issue-106-pr3-publication-data from 1ae24b5; card I106-C7 (a)"}

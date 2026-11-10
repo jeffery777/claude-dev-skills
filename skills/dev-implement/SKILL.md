@@ -47,7 +47,7 @@ When the user asked for it, use this order (R-REV-9):
 1. Stage only the intended files and check the staged list.
 2. `dev-security-reviewer` scans the staged diff and the author, committer
    (`git var GIT_AUTHOR_IDENT`, `git var GIT_COMMITTER_IDENT`), message and
-   trailers the commit will carry.
+   trailers the commit will carry, and whether Git will sign it (R-REV-9).
 3. Pass the `dev-gate` commit gate, then commit without overriding the
    identity. Read back `git --no-replace-objects cat-file commit HEAD`.
 4. Before the push, read

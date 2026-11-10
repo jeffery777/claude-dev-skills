@@ -30,9 +30,11 @@ later release needs.
 ## Acceptance
 
 - `CHANGELOG.md` follows Keep a Changelog and has an `[Unreleased]` section that covers Phase 1 (PR #2), PR #5, PR #7 and this change.
-- It records the upstream Core pin: v0.1.1, tag object `7ce698fa853106c8ef44c4240c9334762da5ffb0`, commit `7b66978a76597d09be1b55ad199a969b4ee59c0f`, matching `vendor/engineering-workflow-core.lock.json`.
+- It records the current upstream Core pin, matching `vendor/engineering-workflow-core.lock.json`: v0.5.0, tag object `374124ac6bc88efe73b27a4f7875fffd0dc669e2`, commit `0edcbad3d126cb8a7c0b64e9ad95283e2cca635e` (Issue #106).
 
 ## Notes
+
+- The first pin was v0.1.1, tag object `7ce698fa853106c8ef44c4240c9334762da5ffb0`, commit `7b66978a76597d09be1b55ad199a969b4ee59c0f`; Issue #106 PR-2 moved it to v0.5.0.
 
 No release yet: the first tagged release waits for FU-001 (its promotion
 trigger in `.dev/followups.md`). Related: [[REQ-007]].

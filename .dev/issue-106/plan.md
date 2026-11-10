@@ -909,3 +909,68 @@ Command form as above, from the top of the worktree; files under
 Co-change rule 1: `--name-only` lists REQ-011 and `log.md` (exit 0); the
 `-U0` diff of `log.md` has three `+|` rows for REQ-011 (one per round) and no
 `-|` row. `scripts/validate.sh`: exit 0.
+
+## PR-2 implementation (2026-11-10)
+
+Branch `issue-106-pr2-vendor-bump` (local `issue-106-pr2`) from main
+`9d17e9c` (PR #108 merged). Not a setup change: no reviewer agent file,
+`READ_ONLY_AGENTS`, script, reference `reviewer-acceptance.md`, pinned
+digest, D-032 or covered rule changes; R-REV-1 gets an added cite only.
+`reviewer_acceptance.py check`: `PASS` (the user ran `accept` again after the
+merge). Floor check: transcript effort `high`, `opus` tier 3 at the base.
+
+Cards: `cards-8.md`, I106-C12 (a) and I106-C13 (a), the user's own messages
+in this session (2026-11-10): 「C12 a」, 「C13 a」. Design of C12, MR108-02 and
+MR108-03: `pr2-c12-design.md` (v2); design review round 1:
+`reviews/pr2-design-round-1.md` (P2D-01 to P2D-08).
+
+Deferred from PR #108 by the user (「merge，全部延到 PR-2」, relayed):
+MR108-01 (cards C12, C13), MR108-02, MR108-03, MR108-04 (DL-050, CHANGELOG,
+REQ-011 sources), MR108-05 (FU-007 Trigger), MR108-06 (below), SEC108-01
+(`cards-6.md`: the device numbers and the date are gone), SEC108-02
+(`test_old_version` also tests an older version), the README sentence on a
+disk copy or an image restore.
+
+MR108-06, correction of the PR #108 body (a merged PR body is not edited):
+the body says "three narrow confirmations and one narrow review of the last
+NIT fixes". The record (`reviews/pr3-round-1.md`) has the deep and the
+security review of round 1 and two narrow confirmations (P3-R2, P3-R3); the
+fixes of the two P3R3 NITs had no narrow review before the commit. The commit
+scan and the merge-time reviews of PR #108 covered the head.
+
+Vendor: `git -C <clone> archive v0.5.0`, extracted into a new empty folder,
+then copied into `vendor/engineering-workflow-core/` (31 files, no symlink).
+Lock rewritten; `git ls-remote origin 'refs/tags/v0.5.0*'` in the clone gave
+tag object `374124ac…` and `^{}` commit `0edcbad3…` (exit 0);
+`verify_core.py --upstream <clone>`: OK, 31 files.
+
+Line citations (step 4): `git grep -lE 'workflow\.md:[0-9]' -- skills agents
+docs/requirements`, then a replacement by a map that `difflib` built from the
+equal lines of `contracts/workflow.md` at both tags: 56→57, 60→61, 62→63,
+64→65, 72→73, 74→77, 76→79, 88→93, 90-97→95-102, 99→104, 117→122; 34
+replacements in `REQ-025`, `REQ-026`, `skills/dev-core/SKILL.md`,
+`deltas.md`, `dev-retro/SKILL.md`, `review-report.md`. The
+`authorization-and-stops.md` lines cited (3, 21, 35, 52) did not move. The
+stage map lines of `review-and-security.md` 33 and 37 moved to 61 and 65.
+Cites that already named v0.5.0 (DL-004, DL-050, R-REV-1, R-REV-9) were not
+changed.
+
+Not done: step 12 (`REQ-022:55`): the line is an acceptance item of a closed
+requirement; changing it would rewrite a past acceptance, so it stays.
+REQ-023 gets a note instead of an acceptance change (Core v0.5.0 has three
+`wf-writing` items).
+
+Completeness checks (working tree, `git grep -c -F`, without `vendor/`,
+`.dev/` and `CHANGELOG.md`; all exit 0):
+
+| String | Rows (path: count, disposition) |
+| --- | --- |
+| `v0.1.1` | `docs/core-feedback.md`: 11, noted (its items stay at v0.1.1; a note says the pin moved); `docs/design-proposal.md`: 2, changed (the parity note); `REQ-018`: 1, changed (moved to a note); `log.md`: 1, historical; `deltas.md`: 1, changed (DL-051 names the old items) |
+| `--dry-run --porcelain` | `push-scan.md`: 2, changed; `dev-implement/SKILL.md`: 1, changed; `docs/design-proposal.md`: 2, historical (D-015 text); `push_precheck.py`: 1, noted (docstring; the script reads the saved output only, Issue Out); tests: 4, noted or changed |
+| `spot-check` | `SKILL.md`: 2, `deltas.md`: 2, `source-map.md`: 2, changed or noted; `REQ-023`: 1, noted (a note added) |
+| `R-WRT-2` | `SKILL.md`, `deltas.md`, `source-map.md`, `task-brief.md`, `dev-docs/SKILL.md`: changed |
+| `push.pushOption`, `oid sha256` | `push-scan.md`, `deltas.md`, `REQ-011`, the test: changed |
+
+Co-change rule 1: REQ-011, REQ-018, REQ-023, REQ-025 and REQ-026 change; each
+has a new `log.md` row. `scripts/validate.sh`: exit 0, 421 tests (3 skipped),
+before the reviews.

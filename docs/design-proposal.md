@@ -294,7 +294,7 @@ Phase 1 之後新增的技能（不屬於 D-008 的 Phase 1 範圍）：
 
 | 項目 | 內容 | 驗收 |
 | --- | --- | --- |
-| Core vendor | `vendor/engineering-workflow-core/`（v0.1.1，14 檔）加 `vendor/engineering-workflow-core.lock.json` | `scripts/verify_core.py` 比對每個檔案和集合的 digest；13 份 Markdown 的集合 digest 與 codex-dev-skills 的 lock 相同 |
+| Core vendor | `vendor/engineering-workflow-core/`（v0.5.0，31 檔；Issue #106）加 `vendor/engineering-workflow-core.lock.json` | `scripts/verify_core.py` 比對每個檔案和集合的 digest；和 codex-dev-skills lock 的一致性在 v0.5.0 未核對（v0.1.1 時 13 份 Markdown 的集合 digest 相同） |
 | 8 個技能 | 第 4 節表中的 `dev-core`、`dev-plan`、`dev-implement`、`dev-review`、`dev-gate`、`dev-docs`、`dev-continue`、`dev-deliver` | 符合 frontmatter 規則；`dev-core` 的每條規則都對應到 Core 錨點 |
 | source-map、delta、覆蓋檢查 | `skills/dev-core/source-map.md`、`skills/dev-core/deltas.md`、`scripts/check_core_coverage.py` | 21 個 Core 錨點全部是「已覆蓋」或「不適用（附理由）」，漏一個就失敗 |
 | 4 個 agents | 第 4 節表中的 `dev-explorer`、`dev-implementer`、`dev-reviewer`、`dev-security-reviewer` | reviewer 類的 agent 沒有寫入工具 |
@@ -1655,7 +1655,7 @@ session never counts; see D-028.)
 
 | Item | Content | Acceptance |
 | --- | --- | --- |
-| Core vendor | `vendor/engineering-workflow-core/` (v0.1.1, 14 files) plus `vendor/engineering-workflow-core.lock.json` | `scripts/verify_core.py` checks every file digest and the set digests; the 13-Markdown set digest equals the one in the codex-dev-skills lock |
+| Core vendor | `vendor/engineering-workflow-core/` (v0.5.0, 31 files; Issue #106) plus `vendor/engineering-workflow-core.lock.json` | `scripts/verify_core.py` checks every file digest and the set digests; parity with the codex-dev-skills lock is not checked at v0.5.0 (at v0.1.1 the 13-Markdown set digest was equal) |
 | 8 skills | `dev-core`, `dev-plan`, `dev-implement`, `dev-review`, `dev-gate`, `dev-docs`, `dev-continue` and `dev-deliver` from the table in section 4 | Front matter rules hold; every `dev-core` rule cites a Core anchor |
 | Source map, deltas, coverage check | `skills/dev-core/source-map.md`, `skills/dev-core/deltas.md`, `scripts/check_core_coverage.py` | All 21 Core anchors are `covered` or `not-applicable` with a reason; one gap fails |
 | 4 agents | `dev-explorer`, `dev-implementer`, `dev-reviewer` and `dev-security-reviewer` from the table in section 4 | Reviewer agents have no write tools |

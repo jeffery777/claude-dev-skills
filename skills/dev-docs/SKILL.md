@@ -14,7 +14,7 @@ path only with that full absolute path, never with a path relative to the
 working directory; when such a path does not resolve or cannot be read, stop
 and report it (CB-6).
 The writing rules are in
-R-WRT-1.
+R-WRT-1; for a document task, R-WRT-2 also applies (read Core `writing.md` in full).
 
 ## Workflow
 

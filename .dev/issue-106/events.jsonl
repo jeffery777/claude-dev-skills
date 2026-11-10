@@ -17,3 +17,11 @@
 {"seq": 17, "at": "2026-11-09T09:34:16+00:00", "actor": "main-agent", "node": "P1G", "from": "reviewing", "to": "done", "evidence": "PR #107 merged as 1ae24b5 (orchestrator, user decision)"}
 {"seq": 18, "at": "2026-11-09T09:34:16+00:00", "actor": "main-agent", "node": "P3", "from": "planned", "to": "ready", "evidence": "branch issue-106-pr3-publication-data from 1ae24b5; card I106-C7 (a)"}
 {"seq": 19, "at": "2026-11-09T09:34:16+00:00", "actor": "main-agent", "node": "P3", "from": "ready", "to": "in_progress", "evidence": "branch issue-106-pr3-publication-data from 1ae24b5; card I106-C7 (a)"}
+{"seq": 20, "at": "2026-11-10T04:18:07+00:00", "actor": "main-agent", "node": "P3", "from": "in_progress", "to": "reviewing", "evidence": ".dev/issue-106/reviews/pr3-round-1.md rounds 1-3; validate.sh exit 0"}
+{"seq": 21, "at": "2026-11-10T04:18:08+00:00", "actor": "main-agent", "node": "P3", "from": "reviewing", "to": "done", "evidence": "PR #108 head 848a9fd"}
+{"seq": 22, "at": "2026-11-10T04:18:08+00:00", "actor": "main-agent", "node": "P3G", "from": "planned", "to": "ready", "evidence": "PR #108 open"}
+{"seq": 23, "at": "2026-11-10T04:18:08+00:00", "actor": "main-agent", "node": "P3G", "from": "ready", "to": "in_progress", "evidence": "PR #108 gate comment"}
+{"seq": 24, "at": "2026-11-10T04:18:08+00:00", "actor": "main-agent", "node": "P3G", "from": "in_progress", "to": "reviewing", "evidence": "PR #108 merge-time reviews (orchestrator)"}
+{"seq": 25, "at": "2026-11-10T04:18:08+00:00", "actor": "main-agent", "node": "P3G", "from": "reviewing", "to": "done", "evidence": "PR #108 merged as 9d17e9c (orchestrator, user decision)"}
+{"seq": 26, "at": "2026-11-10T04:18:08+00:00", "actor": "main-agent", "node": "P2", "from": "planned", "to": "ready", "evidence": "branch issue-106-pr2-vendor-bump from 9d17e9c; cards I106-C12 (a), I106-C13 (a)"}
+{"seq": 27, "at": "2026-11-10T04:18:08+00:00", "actor": "main-agent", "node": "P2", "from": "ready", "to": "in_progress", "evidence": "branch issue-106-pr2-vendor-bump from 9d17e9c; design .dev/issue-106/pr2-c12-design.md"}

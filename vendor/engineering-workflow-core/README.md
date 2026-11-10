@@ -23,6 +23,22 @@ GitHub disclosure sections are independent. Traditional Chinese is open by defau
 
 ## 開始閱讀
 
+[Issue #34 的未發行實作](docs/architecture/original-writing-design.md)採兩層寫作設計：[wf-writing](contracts/workflow.md#wf-writing) 保留交付摘要、一般紀錄與適當零星修改的最低要求；文件內容本身是交付或審查對象，涉及實質撰寫、修改、翻譯或文件審查時，按需讀完整[共用寫作契約](contracts/writing.md)。一般交付摘要不觸發全文載入；短小但實質影響步驟、風險或重要結論的修改仍按影響處理。其他必讀工程契約與既有下游加嚴不減免。
+
+一般文章可明確選用共用寫作契約，不因此採納整套工程 gates。正式寫作規則集中於該契約，本頁與設計案例只是導讀；下方較早工作包的「四契約未改」保留其歷史範圍，不描述 #34 的新修改。新增文件與引用須由 consumer 另驗固定版本、清冊、digest、完整閉包及載入；本包不證明發布、採用或安裝。
+
+[v0.4.0 規則準備紀錄](docs/releases/v0.4.0.md)及 [#22／#23 上游候選](docs/maintenance/issue-22-23-upstream-candidate.md)描述新增 reviewer 資格與公開資料檢查，並按使用者後續決策分開 Core 自身驗收與下游採用。下方 PR31 伴讀及雙端先驗門檻保留準備歷史；本次 Core 不再以 Grok pin／eval 為前置，Grok 相容性未知，版本／候選文字也不證明正式合併或發布。
+
+必要 reviewer 的有效唯讀是預設；後續新增的[特定環境例外](contracts/review-and-security.md#review-required-read-only)允許使用者一次性接受必要保留寫入通道的殘餘風險，記錄替代偵測與缺口，同環境及規則未變不逐次確認，改變則重新接受，偵測到受審內容改動使該次審查作廢。例外不等於技術唯讀，也不是本頁或 Claude 案例已完成特定環境接受的證明。
+
+本輪 #23／#22 的[接續評估](docs/maintenance/2026-11-04-issue-22-23-followup.md)與[新增伴讀](docs/companion/remaining-feedback-cases.md#followup-22-23)區分既有 Core 義務、Codex #370／#368 的有限交付及尚未採納的共用門檻，並列後續驗收與 Grok pending 相依；四份權威契約保持原 bytes。
+
+緊接的首段保留較早伴讀／未生效測試階段；其中「四份契約未修改」不是後續候選的 bytes 聲明。目前 [v0.3.0 draft](docs/releases/v0.3.0.md) 在雙端有限文字門檻後只向 workflow 新增兩句，尚未正式採納或更新 consumer；選用伴讀本身仍非權威。
+
+剩餘 #27 → #21 → #23 → #22 的具體反例見 [回饋判讀案例](docs/companion/remaining-feedback-cases.md)；[接續工作包](docs/maintenance/2026-11-01-remaining-feedback.md) 區分既有義務、未採納提案與兩句待測文字。它們均非權威文件，四份契約未修改，不代表新候選已通過 consumer eval 或已接受。
+
+選用的 [決策卡片](docs/companion/decision-cards.md)、[Core 讀取伴讀](docs/companion/core-reading-guide.md) 與 [審查決策／公開記錄格式](docs/companion/review-decisions.md) 提供非權威導讀；它們不改四份契約或 consumer 義務。七項回饋的順序評估、候選門檻與逐字保留重跑命令見 [維護工作包](docs/maintenance/2026-10-31-consumer-feedback.md)。
+
 1. 讀完整 [工作流](contracts/workflow.md)，確認工程階段與必要產物。完成標準也稱 Definition of Done（DoD）。
 2. 每次操作都保留 [授權與停止條件](contracts/authorization-and-stops.md)。讀過文件或通過測試，不會自動取得寫入權。
 3. 需要審查或正式交付時，讀 [獨立審查與安全掃描](contracts/review-and-security.md)。
@@ -31,6 +47,8 @@ GitHub disclosure sections are independent. Traditional Chinese is open by defau
 缺必要文件或能力不能視為豁免。使用接口前，依其自己的載入與固定版本說明操作；Core 沒有安裝器。各 consumer 在建置時鎖定 immutable revision、文件 digest、來源與 notices；runtime 不追蹤 Core `main`。
 
 ## 版本、採用與升級
+
+[#21 的 v0.3.0 draft 準備紀錄](docs/releases/v0.3.0.md) 記載兩端 v3 有限文字驗證及僅新增兩句的修改候選；不是正式採納、publication 或 consumer loader 升級。原 #27／#23／#22 伴讀與範圍校正見 [剩餘工作包](docs/maintenance/2026-11-01-remaining-feedback.md)。
 
 Core 的文件版本與版本命名見 [CHANGELOG](CHANGELOG.md)；各版的範圍、驗收與限制見 [v0.1.0 發行準備紀錄](docs/releases/v0.1.0.md) 與 [v0.1.1 發行準備紀錄](docs/releases/v0.1.1.md)。這些是來源版本／點時歷史，不證明已發布。正式 publication 須核對相應 annotated tag object、解析後完整 commit 與 GitHub 正式 Release metadata；本頁不維護 mutable latest 或當前已發行版本指標。
 
@@ -101,6 +119,22 @@ Suppose you must assign implementation and review for a change. Read the shared 
 
 ## Start here
 
+The [unreleased Issue #34 implementation](docs/architecture/original-writing-design.md) uses two writing layers. [wf-writing](contracts/workflow.md#wf-writing) keeps minimum requirements for routine delivery summaries, records and suitable minor text edits. Read the full [shared writing contract](contracts/writing.md) when document content itself is the deliverable or review target, including substantive writing, revision, translation and document review. A routine delivery summary does not trigger full loading. Judge short changes to steps, risks or important conclusions by their effect. Preserve other required engineering contracts and existing stricter consumer rules.
+
+General articles can explicitly select the writing contract without adopting all engineering gates. That contract is the full writing-rule source; this page and the design cases are guides. Earlier four-unchanged-contract statements below retain their historical scope and do not describe the new #34 changes. Consumers must separately verify the new inventory, fixed revision, digests, reference closure and loading. This packet proves no publication, adoption or installation.
+
+The [v0.4.0 rule-preparation record](docs/releases/v0.4.0.md) and [#22/#23 upstream candidate](docs/maintenance/issue-22-23-upstream-candidate.md) describe added reviewer/publication duties and separate Core acceptance from later consumer adoption under the revised user decision. Earlier PR31 guidance and dual-consumer-first statements retain preparation history. Grok pins/evals no longer gate this Core work; compatibility is unknown. Version/candidate wording does not prove merge or publication.
+
+Effective read-only review remains the default. The later environment-specific exception permits one-time user acceptance of necessarily retained write channels, recording alternative detection and gaps. Unchanged environments and rules need no repeated confirmation; changes require renewed acceptance, and detected reviewed-content modification invalidates that review. This proves neither technical read-only operation nor a completed acceptance record for this page's or Claude's environment.
+
+The [#23/#22 follow-up](docs/maintenance/2026-11-04-issue-22-23-followup.md) and [added optional guide](docs/companion/remaining-feedback-cases.md#followup-22-23) distinguish existing Core duties, bounded Codex #370/#368 delivery and unadopted shared thresholds, with acceptance cases and pending Grok dependencies. All four authoritative contracts retain their bytes.
+
+The next paragraph retains the earlier companion/inactive-test stage; its four-unchanged-contract statement does not describe the later candidate bytes. The v0.3.0 draft adds only two workflow sentences after both limited text checks, without formal adoption or consumer updates. Optional guides remain non-authoritative.
+
+The optional [feedback cases](docs/companion/remaining-feedback-cases.md) and [continuation packet](docs/maintenance/2026-11-01-remaining-feedback.md) distinguish existing duties, unadopted proposals and two sentences of evaluation data for #27, #21, #23 and #22. They are non-authoritative. The four contracts are unchanged; no new consumer evaluation or acceptance is implied.
+
+Optional [decision cards](docs/companion/decision-cards.md), the [Core reading companion](docs/companion/core-reading-guide.md), and [review decisions/public-record formats](docs/companion/review-decisions.md) provide non-authoritative guidance. They change neither the four contracts nor consumer obligations. See the [maintenance packet](docs/maintenance/2026-10-31-consumer-feedback.md) for the ordered seven-item assessment, candidate gates, and reproducible preservation check.
+
 1. Read the complete [workflow](contracts/workflow.md). Confirm the stages and required outputs. Definition of Done (DoD) means the completion criteria.
 2. Keep the [authorization and stop conditions](contracts/authorization-and-stops.md) for every action. Reading a document or passing a test does not grant write authority.
 3. For review or formal delivery, read [independent review and security scans](contracts/review-and-security.md).
@@ -109,6 +143,8 @@ Suppose you must assign implementation and review for a change. Read the shared 
 A missing required document or capability is not an exemption. Follow the interface's own loading and version-lock instructions. Core has no installer. Each consumer locks the immutable revision, document digests, source, and notices at build time. It does not follow Core `main` at runtime.
 
 ## Versions, adoption, and upgrades
+
+The [Issue #21 v0.3.0 draft preparation record](docs/releases/v0.3.0.md) covers both consumers' limited v3 text checks and a two-sentence modifying candidate, not formal adoption, publication or ordinary loading. The remaining packet records #27/#23/#22 companions and bounded scope calibration.
 
 See [CHANGELOG](CHANGELOG.md) for the Core document version and version names. See the [v0.1.0 preparation record](docs/releases/v0.1.0.md) and [v0.1.1 preparation record](docs/releases/v0.1.1.md) for scope, acceptance, and limits. These record source versions and point-in-time history. They do not prove publication. Verify the corresponding annotated tag object, full resolved commit, and formal GitHub Release metadata. This page does not maintain a mutable latest or current-published-version pointer.
 
@@ -161,3 +197,6 @@ This repository uses the [MIT LICENSE](LICENSE). Extracted content also retains 
 Traditional Chinese remains the authoritative language of the formal contracts. This English guide adds no policy and does not change contract authority. The English text is written using [ASD-STE100 Issue 9](https://asd-ste100.org/STE_downloads.html) principles. Full conformance has not been verified. This page has not checked every rule and dictionary entry. The Chinese text does not claim conformance to an English controlled-language standard.
 
 </details>
+
+
+伴讀維護頁的原逐字重跑命令只適用固定 PR28 伴讀 tree；v0.2.0 的修改候選改用 [三基準逐字保留重跑命令](docs/releases/v0.2.0.md#preservation-reproduction)，分開檢查插入保留與已評估契約 equality。The companion packet's original reproduction command applies only to its fixed PR28 tree. Use the v0.2.0 three-baseline command for the modifying packet, separating insert-only preservation from evaluated-contract equality.

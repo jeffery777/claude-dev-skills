@@ -1,5 +1,9 @@
 # 契約來源與逐條處置
 
+緊接的 2026-11-01 段落保留較早伴讀／未生效測試階段；其中四契約不變及不宣稱模型結果的字句不是後續候選現況。後續 [v0.3.0 draft](../releases/v0.3.0.md) 已在兩端各一次 v3 12/12 與理由核對後，只向 workflow 加入原字兩句；其餘三契約／LICENSE／完整 notices 不變，尚未正式採納、更新 consumer 或證明完整 runtime。The next paragraph retains the earlier companion/inactive-test stage. Its unchanged-contract/no-model-result statements do not describe the later v0.3.0 draft. After one v3 12/12 response and reasoning review per consumer, add only the exact two workflow sentences; retain the other contracts/LICENSE/full notices. Formal adoption, consumer updates and full runtime qualification remain separate.
+
+2026-11-01 的 [剩餘工作包](../maintenance/2026-11-01-remaining-feedback.md) 依同一固定 Claude CF-001／002／003／009 與 #27／#21／#23／#22 的實際完整討論新增 [合成案例](../companion/remaining-feedback-cases.md)。#21 窄版文字是本次非權威提案，不是原 107 單位、P1 原文或已生效義務；四份 contracts、LICENSE 與完整 notices bytes 不變。新增來源仍適用下方既有 Claude notice，不另宣稱模型測試或 runtime 資格。This continuation adds synthetic cases and non-authoritative proposal data from the same fixed feedback and full Issue discussions. It changes no contract, original extraction unit, LICENSE or notice, and proves no model result or runtime qualification.
+
 P1 的固定抽取來源是 `jeffery777/codex-dev-skills@993597561881d6ed8c552f9a18c59315015ad245`；本機來源只讀，未混用 draft #317/#324/#326。目的基線是 P0 merge `0815b74abe52d57efd032bd075e39c83c2ebf0d6`，工作包為 [Issue #3](https://github.com/jeffery777/engineering-workflow-core/issues/3)。核心的正式契約以繁體中文為權威；英文 identifiers 及 notices 原文不翻譯。全面雙語改造另包評估，不在 P1 宣稱 ASD-STE100 符合性。
 
 上述抽取身分與下列逐條對照記錄 P1 當時的來源及處置。P1 之後的使用者新增要求分開記於 [簡明寫作更新](#plain-writing-update)、[證據生命週期更新](#evidence-lifecycle-update)、[風險與審查時機更新](#risk-review-update)、[安全檢查政策更新](#security-policy-update) 、[前提與改善取捨更新](#assumptions-options-update)、[首版發行文件更新](#release-version-docs-update) 與 [最小接續規則澄清](#task-continuation-update)，不倒寫成原上游義務或 P1 當時已完成的符合性驗證。
@@ -284,3 +288,110 @@ This document packet covers those four files. The expected inventory is 12 Markd
 Under user approval, [Issue #19](https://github.com/jeffery777/engineering-workflow-core/issues/19) on 2026-10-19 adds explicit wording to [Continue](../../contracts/workflow.md#wf-stages): prefer the original session. If an operation or delegated task has an unknown outcome at the interruption point, check its current state before continuing unfinished work. This new wording clarifies the order of existing continuation, current ownership, and [unknown-effect checks without blind replay](../../contracts/authorization-and-stops.md#auth-destructive). It is not original wording from the 107 extraction units or P1.
 
 “Prefer” is a preference. Manual checkpoint fallback, valid authority, stops, and required review and gates remain. The wording does not guarantee session restoration, cross-tool deduplication, or automatic runtime recovery. It grants no new delegation right. The English guide preserves the Chinese meaning. Traditional Chinese remains authoritative; full ASD-STE100 conformance remains unverified. The [v0.1.1 preparation record](../releases/v0.1.1.md) records the five-file scope, inventory, and later consumer adoption conditions. Retain original source revisions, hashes and notices, earlier packet history, and v0.1.0 release documents.
+
+## 2026-10-31 #24／#26 隔離修改候選／Isolated modifying candidate
+
+本候選依使用者的候選準備授權，評估 Claude 在 [固定 core-feedback.md@071c1a7](https://github.com/jeffery777/claude-dev-skills/blob/071c1a7ff1f2ce67a605d54ce5c3e85480852b69/docs/core-feedback.md) CF-004／006 提出的 finding 需求關係及機制擴張問題。新增句子是本包的接口無關設計，不是原 107 單位、不是 P1 原文，也不移植 Claude 的整套規則。只在 review-findings 與 wf-assumptions-and-options 增句，全部舊字、原 notices 及 LICENSE 保留。英文對照、來源及 pending 門檻見 [候選記錄](../maintenance/issue-24-26-candidate.md)。Codex #361 評估本候選；Grok #36 延後，原雙 consumer gate 未滿足前不接受正式義務或合併。
+
+Under the user's candidate-preparation authority, this packet evaluates the interface-neutral requirement-relation and mechanism-scope problems in fixed Claude CF-004/006. Its added sentences are a new design, not original extraction units, P1 wording, or a copy of the full Claude rule set. Add sentences only to review-findings and wf-assumptions-and-options; retain all old text, original notices, and LICENSE. The candidate record supplies English meaning, sources, and pending gates. Codex #361 evaluates the candidate; Grok #36 is deferred. No formal acceptance or merge before the original dual-consumer gate passes.
+
+<a id="consumer-feedback-companions"></a>
+
+## 2026-10-31 使用端回饋伴讀／Consumer feedback companions
+
+使用者指定依序評估 #25、#27、#24、#26、#21、#23、#22，完整來源為 [claude-dev-skills 的 core-feedback.md@071c1a7ff1f2ce67a605d54ce5c3e85480852b69](https://github.com/jeffery777/claude-dev-skills/blob/071c1a7ff1f2ce67a605d54ce5c3e85480852b69/docs/core-feedback.md)、各 Issue 與實際存在的補充留言，以及 [Claude #91](https://github.com/jeffery777/claude-dev-skills/issues/91) 的只新增句子／確定性逐字保留教訓。原 107 單位及歷史來源不變。
+
+[決策卡](../companion/decision-cards.md) 改編該 revision 的 `skills/dev-review/references/decision-card.md`（SHA-256 `d10c301c8c53f2d2f3fdf41fdbb17c64763aac3bf05ab880e5b114077485f9d4`），保留欄位目的，改寫為選用、接口無關的雙語範本，不沿用 Claude 專屬 ID、強制卡片或需求分類。[讀取伴讀](../companion/core-reading-guide.md) 綜合 CF-007／008／009，區分既有義務、建議與未決問題；[審查決策／公開格式](../companion/review-decisions.md) 綜合 CF-001 第 4 點及 CF-002 遮蔽建議。完整新增來源 notice 見 [upstream-notices](upstream-notices.md#claude-feedback-notice)。
+
+本包四份正式契約及 LICENSE 原 bytes 保留；README、CHANGELOG、source-map、notices 僅插入新增段落，其餘既有文字保留。逐項評估、原始基準與確定性驗證命令見 [維護工作包](../maintenance/2026-10-31-consumer-feedback.md)。本包沒有接受修改型規則、變更 consumer pin、執行安裝或發布。新增伴讀會改變完整文件清冊及相依閉包，不能沿用舊集合 digest 冒稱已包含伴讀；consumer 採用仍需固定 revision、清冊、digest、notices 與自己的驗證。
+
+The user requested assessment in the stated order, using the fixed Claude feedback, actual Issue supplements, and the additive-only lesson of Claude #91. The decision card adapts the fixed source with the digest above into an optional, interface-neutral bilingual template. The reading companion draws on CF-007/008/009; review decisions and public formats draw on CF-001 point 4 and CF-002. The original 107 units and historical sources remain unchanged. The added source has a complete MIT notice.
+
+This packet preserves the bytes of all four formal contracts and LICENSE. Existing README, CHANGELOG, source-map, and notice text is retained, with new paragraphs inserted. The maintenance packet records assessments, baseline, and reproducible checks. This packet accepts no modifying rules and changes no consumer pin, installation, or publication. New companions change inventory and dependency closure; the old set digest does not cover them. Consumer adoption still needs a fixed revision, inventory, digests, notices, and its own checks. Full ASD-STE100 conformance has not been verified.
+
+
+## v0.2.0 需求追溯接受準備／Requirement traceability acceptance preparation
+
+本工作包依既有七案維護範圍整合 PR28 的選用伴讀及 PR29 的 #24／#26 修改候選，新增 [v0.2.0 準備紀錄](../releases/v0.2.0.md)。候選四契約原始 bytes、v0.1.1／PR28／PR29 的原字行序及 modes，以及 LICENSE／完整 notices 均保留；新增記錄不是原107單位，也不改先前來源與授權。兩端各一次九案9/9的公開結果綁定原候選，重用僅限逐 byte 相同的四契約；新發行文件／清冊及接口遷移另驗。準備資料分開記 reviewed head、文件集合身分與未知 publication revision/tag object，不能把前者標為後者。
+
+This packet integrates PR28's optional companions and PR29's #24/#26 candidate within the seven-Issue maintenance scope, adding the v0.2.0 preparation record. Preserve candidate-contract bytes, original text/line order/modes from v0.1.1, PR28 and PR29, LICENSE and complete notices. Added records are not the original107 units and do not rewrite earlier source or authority. Each consumer's one nine-case success binds the original candidate; reuse covers only the byte-identical four contracts. Verify new release documents, inventory and migration separately. Preparation distinguishes the reviewed head/set identity from unknown publication revision/tag object.
+
+## v0.3.0 draft 與有界驗收／Draft and bounded acceptance
+
+接續七案剩餘維護及使用者確認的 Agent／workflow 目標，保留全部舊字，新增正常流程範圍說明及 [v0.3.0 draft 準備紀錄](../releases/v0.3.0.md)。先由 Codex 再 Grok 各自固定 Core9cec 的四契約／382-byte 引文，v3 僅對一案附加批准澄清、十二案 expected 不變；各一次實際12/12及獨立理由通過後，才將相同原字兩句加至 wf-verification。workflow 舊字完整保留，其他三契約／LICENSE／完整 notices equality 不變。這不改原107單位的來源，不以舊九案證明新語義，不接受其他擴張義務或更新 consumer／安裝。
+
+Continue the remaining seven-Issue maintenance under the user-confirmed agent/workflow scope, preserving all old text. Add bounded normal-process guidance and the v0.3.0 draft record. Codex then Grok independently pin Core9cec's four contracts/382-byte quotation; v3 appends the approved clarification to one case with all expected values unchanged. Only after each actual12/12 and independent reasoning PASS insert the exact two sentences in wf-verification. Preserve all original workflow text and exact other contracts/LICENSE/full notices. Do not rewrite the original107-unit provenance, use old nine-case results for new semantics, adopt broader proposals or update consumers/installations.
+
+## 2026-11-04 #23／#22 接續來源／Follow-up sources
+
+依使用者的 Core 接續要求，新增[剩餘需求評估](../maintenance/2026-11-04-issue-22-23-followup.md)及[選用伴讀](../companion/remaining-feedback-cases.md#followup-22-23)，以兩案本文、全部實際留言、Codex #370／#368 的固定來源交付與既有正式契約逐項核對。#22 的 10/30 補充確實存在，#23 沒有該日留言；不倒寫缺少的來源。新增內容為本包的接口無關分析，不移植 Claude／Codex 特定工具或將其能力升格為 Core 義務，既有原107單位、來源 notices 與全部舊字保留。
+
+本包不改四份權威契約、LICENSE 或完整 notices，不建立修改型候選 commit、consumer pin／eval 或新發行。Codex 局部交付不表示 Core #22／#23 完成；Grok 依最新使用者指示暫緩，雙端新門檻仍 pending。新增文件與引用會改完整清冊及 dependency closure，未來採用另驗固定 revision／digest，不沿用舊集合宣稱已包含本包。
+
+Under the user's Core continuation request, add the linked assessment and optional guidance using both Issue bodies, every actual comment, fixed Codex #370/#368 delivery and existing authoritative contracts. #22 has the October 30 supplement; #23 does not. This packet supplies interface-neutral analysis rather than transplanting provider tools or promoting their capabilities into Core duties. Retain the original107 units, source notices and every earlier word.
+
+Preserve all four authoritative contracts, LICENSE and complete notices. Create no modifying-candidate commit, consumer pin/eval or release. Bounded Codex delivery does not complete Core #22/#23; Grok and the new dual-consumer threshold remain pending. Later adoption must verify the changed inventory/reference closure and fixed revision/digests. Old set identities do not cover this addition.
+
+## 2026-11-04 上游規則與時點新決策／Upstream rule and timing decision
+
+使用者在 PR31 伴讀交付後，釐清 Core 上游完成自身必要評估、測試及審查後可先採納與發布，不須等待 Codex／Grok pin 候選或完成 eval；Codex 在後續採用自行驗證，Grok 工作暫緩、相容性未知。本段記錄本次 #22／#23 新決策的來源及適用範圍，取代該工作先前的雙端先驗時點，不倒寫已完成工作包或當時未執行的驗證。
+
+本包在 [review-and-security](../../contracts/review-and-security.md) 新增接口無關完整句子，覆蓋兩案本文及 #22 10/30 補充的必要 reviewer 有效唯讀資格與公開操作資料檢查，沒有移植 Claude／Codex 專用工具、控制參數或驗證資格。它是原107單位之後的新義務，不是 P1 原字抽取；舊來源、所有原字行序、完整 notices／LICENSE、其他三契約及歷史發行文件保留。需求、早期設計 findings、有限規則案例與驗收邊界見 [上游候選](../maintenance/issue-22-23-upstream-candidate.md)。
+
+依新增義務準備 [v0.4.0](../releases/v0.4.0.md) 與雙語 CHANGELOG，不以伴讀版本或舊 scan／eval 代替權威新差異的審查。Core 是純 Markdown，實際工具控制及下游相容性須由各接口另驗；新清冊、相對引用閉包與 digest 另核。候選、合併、正式 tag／Release 與下游採用各有獨立證據及操作權，不由本段自授權。
+
+After PR31's companion delivery, the user clarified that Core may adopt/publish after its own required evaluation/tests/review without waiting for consumer candidate pins/evals. Codex validates later adoption; Grok is deferred with unknown compatibility. This records the new source and scope for current #22/#23 timing, preserving earlier packets and unrun-check history.
+
+Add interface-neutral complete sentences to review-and-security for required reviewers' effective read-only qualification and publication-data inspection from both Issue bodies and #22's October 30 supplement. Transplant no provider-specific tool, setting or qualification. These are post-P1 duties, not original107-unit extraction. Retain every earlier word/line, source notice/LICENSE, other three contracts and historical releases. The upstream packet records requirements, early design findings, finite cases and acceptance limits.
+
+Prepare v0.4.0 and bilingual CHANGELOG for added duties; companion versions and old scans/evals do not review the new authority diff. Core remains Markdown-only; interfaces verify actual controls and compatibility separately. Recheck the new inventory/reference closure/digests. Candidate, merge, official tag/Release and downstream adoption retain separate evidence and authority.
+
+## #23 特定環境殘餘風險接受／Environment-specific residual-risk acceptance
+
+使用者後續明確要求一次性環境接受例外，並授權擴充候選 commit、非破壞性 push、更新現有 draft PR31 及新版本完整 Merge Review，不包含 merge 或正式發布。依直接要求，在 review-required-read-only 僅新增完整句子，明定必要保留寫入通道的接受紀錄、替代偵測及缺口、同環境／規則重用與變更重新接受、偵測改動作廢及不冒稱技術唯讀。舊預設與全部原字保留，其他必要義務不豁免，這也不是任何環境已取得接受的紀錄。
+
+Claude 固定來源、Bash／比對限制與接受紀錄尚未驗證完成的規劃見[候選補充](../maintenance/issue-22-23-upstream-candidate.md)。不把平台特定 Bash 或 Git 比對命令升格為 Core 必用工具；舊授權／掃描敘述保留歷史，新候選的原字、案例、完整安全評估及新 HEAD 審查另驗。Grok 未啟動、相容性未知，不改寫公開 Git 歷史。
+
+The user's later direct request adds one-time environment-specific acceptance and authorizes the expanded candidate's commit, non-destructive push, existing draft PR31 update and full new-version Merge Review, excluding merge and official release. Add complete sentences only for necessary retained channels, acceptance records, alternative detection/gaps, unchanged-environment/rule reuse, renewed acceptance on change, detected-modification invalidation and no technical-read-only claim. Preserve every earlier word/default and other required duties. This is not an environment's completed acceptance record.
+
+The candidate addendum identifies fixed Claude evidence and its limits; the planned acceptance remains unverified. No provider tool or fingerprint command becomes mandatory Core machinery. Historical authority/scan statements remain; new candidate preservation, cases, full security scope and changed-head review are separately verified. Grok remains untouched with unknown compatibility; rewrite no public Git history.
+
+## 2026-11-05 簡明用語澄清／Plain-wording clarification
+
+依使用者同意的後續寫作補強，於 [wf-writing](../../contracts/workflow.md#wf-writing) 只新增完整句子，說明既有讀者、術語及精度要求如何適用於不必要的行話、縮寫、中英混用與名詞連用。必要術語依讀者需要解釋，技術細節與機器字面保留；不要求所有文件去工程化，不新增認證或 gate。[非權威雙語例子](../companion/plain-writing-examples.md)為本包原創的假設情境，不是引用其他平台的能力或實際執行證據。
+
+本包按既有義務的文件澄清準備 [v0.4.1 patch 候選](../releases/v0.4.1.md)，不是原 107 單位或 P1 抽取原字。舊字、三份其他契約（含 #23 例外）、歷史證據、來源 revision／hash、LICENSE 與完整 notices 保留。此決定授權本機候選及審查，不自行授權對外 Issue／PR、commit／push、合併、發布或 consumer 採用；Codex 後續另驗，Grok 維持暫緩。沒有新增 ASD 官方查核或完整符合性結果。
+
+Under the user's approval for follow-up writing improvements, add complete sentences only to wf-writing. Explain how its existing reader, terminology and precision duties apply to unnecessary jargon, abbreviations, mixed-language wording and noun sequences. Explain necessary terms when the reader needs it. Preserve technical detail and machine literals. Require no universal nontechnical wording, new certification or gate. The optional bilingual examples are original hypothetical situations, not provider capabilities or execution evidence.
+
+Prepare a v0.4.1 patch candidate for clarification of existing duties. These additions are not original107 extraction units or P1 wording. Retain all earlier text, the other three contracts including the #23 exception, historical evidence, source revisions/hashes, LICENSE and complete notices. This decision permits local preparation and review, not external Issues/PRs, commit/push, merge, publication or consumer adoption. Codex adoption needs later verification; Grok remains deferred. No new official ASD check or complete conformance result is claimed.
+
+使用者亦希望 Core 完成後由 Codex 後續採用，使文件流程依循規範而不必逐次提醒；這是下游交接目標，不是本包已更新文件技能或安裝的證據。The user also wants later Codex adoption so document workflows follow these requirements without repeated reminders. This is a downstream handoff goal, not evidence of updated document skills or installations in this packet.
+
+<a id="original-writing-update"></a>
+
+## #34 原創共用寫作與兩層入口／Shared writing and two reading layers
+
+使用者已同意方案 B 與兩層調整，授權本地實作及必要驗證／合格獨立審查，不包含 commit、push、PR、合併或發布。完整規則集中在 [writing](../../contracts/writing.md)，[wf-writing](../../contracts/workflow.md#wf-writing) 保留最低要求及按需入口；[設計／案例](../architecture/original-writing-design.md)是非權威決策與判讀資料。一般文章可明確選用寫作範圍，不自動承接工程 gates；一般工程摘要不觸發全文，實質文件工作與有意義的短改動按影響判斷。其他必要契約及下游加嚴保留。
+
+本包從使用者需求及 Core v0.4.1 的既有寫作要求獨立設計，未讀取或移植 `larashero3-dotcom/lieflat-less-ai-tone` 的文字、清單、範例、提示詞或架構。新要求與例子不是 P1 原 107 單位，也不改其來源 revision、hash 或完整 notices。繁中台灣用語、引用與自行研究證據的區別、兩層入口及等義 STE 聲明均來自本次使用者決定；未取得 ASD 全文、受控詞典與適用技術詞的完整核對，不宣稱符合。
+
+| v0.4.1 wf-writing 內容 | 本包目的位置與處置 |
+| --- | --- |
+| 讀者、目的、操作深度、下一步與完成判準 | writing-principles／writing-genres 保留完整文類要求；wf-writing 保留適合短輸出的最低要求 |
+| 明確行動者、句意、順序與一致術語 | writing-principles／writing-genres 保留；不把敘事文章強制改為手冊 |
+| 技術精度、安全、授權、證據、前提、風險與限制 | wf-writing 最低要求及 writing-principles 保留；按需閱讀不豁免其他工程契約 |
+| ASD-STE100 Issue 9、核對範圍及未驗證聲明 | writing-language 為單一完整來源；本次明確允許等義聲明，保留未完整驗證意思、不可 Passed、工具／自評不足及下游較嚴規定 |
+| 繁中簡明調適、雙語資訊與機器字面 | writing-language／writing-principles 保留；採台灣用語，不宣稱中文 ASD 標準 |
+| v0.4.1 行話、縮寫、中英混用與名詞連用澄清 | writing-principles 保留必要術語與精度例外；既有雙語伴讀仍為選用 |
+| review 抽查、結果、未驗證限制及 findings／重審 | writing-process 保留，工程審查仍依原 review-and-security；不為一般文章新增工程報告或 gate |
+
+本次授權允許替換 wf-writing 範圍的文字；該 anchor、外側全部原始 bytes 及其他三契約（包含 #23 全部例外）保留。README／CHANGELOG 新增必要雙語導讀，source-map 新增本段；三檔舊文字及歷史行序保留。LICENSE、完整 notices 與其餘未列範圍的既有文件不變。這與先前各包「只增句／全四契約不變」的歷史保護範圍不同，不倒寫其結果。
+
+新增 writing 與設計文件使預期清冊為 29 份 Markdown 加 LICENSE，共 30 檔；consumer 日後另驗固定 revision、文件清冊／digest、完整相依閉包、來源／notices 與按需載入。完整組裝閉包不要求每次讀完所有被引用文件；Core 不增加 loader、程式或安裝。此包不改 Codex PR #374、Grok 或 Claude，不宣稱各 runtime 已遵循，不以文案縮短證明成本／品質改善。
+
+The user approved option B and the two reading layers for local implementation and qualified review, excluding commit, push, PR, merge and publication. The full writing-rule source is writing; wf-writing keeps minimum duties and its conditional entry. Design cases remain non-authoritative. Select writing alone for general articles without adding engineering gates. Routine summaries do not load the full contract; judge substantive document work and short meaningful changes by impact. Retain other required contracts and stricter consumer rules.
+
+This independent design uses user requirements and existing Core v0.4.1 writing duties, not protected expression from the named reference repository. The map above preserves the old reader/depth, actor/order/terms, safety/precision, STE, Traditional Chinese/bilingual/literal and review duties in their new locations. Equivalent STE notices retain the unverified-full-conformance meaning and stricter downstream requirements. No complete standards check is claimed. New material is not original P1 extraction; source revisions, hashes and complete notices remain.
+
+Only wf-writing may be replaced; retain its anchor, all bytes outside it and the other three contracts including the full #23 exception. Add bilingual README/CHANGELOG guidance and this source-map section while retaining earlier text and order. Keep LICENSE, full notices and all other existing files. The expected inventory becomes 29 Markdown files plus LICENSE. Later consumer adoption must verify fixed identity, inventory, digests, complete closure, sources, notices and conditional loading; assembly closure is not mandatory reading on every task. No runtime mechanism, consumer update or publication is established.

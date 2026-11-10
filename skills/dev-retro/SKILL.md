@@ -261,7 +261,7 @@ write happened.
    that can change the judgment; the report names that evidence.
 7. Give each suggestion one of the four Core judgments: necessary fix, worth
    improving, keep as is, or needs human decision (Core
-   `workflow.md:90-97`).
+   `workflow.md:95-102`).
    - Each suggestion that changes a rule file, skill text, a REQ or any
      record is a card. This includes a narrowed claim, a merge, a
      clarification, a retirement and a level promotion.
@@ -278,7 +278,7 @@ write happened.
      A comment on Core becomes a core-feedback draft (REQ-019).
 8. Do the read-back again and give the report. The report states the
    problem, the objective, the scope, the available evidence, the budget,
-   the stop condition and the next step (Core `workflow.md:99`).
+   the stop condition and the next step (Core `workflow.md:104`).
 9. A review result is not an approval and not completion evidence. The
    review report goes to the user, not into the repository. A part that goes
    into a record follows the card rules of capture.

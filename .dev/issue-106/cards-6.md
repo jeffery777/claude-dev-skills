@@ -9,7 +9,7 @@
 - 問題：紀錄的 id 目前用 clone 的 `.git` 資料夾的 realpath、`st_dev` 和 `st_ino` 算出來。要不要拿掉 `st_dev`，只留 realpath 和 `st_ino`？
 - 為什麼要你決定：這會改到 `reviewer_acceptance.py`、`skills/dev-core/references/reviewer-acceptance.md` 和釘住的 digest，屬於 setup change（reference 的 Setup change 一節，卡片 I106-C3 (a)、I106-C5 (b)）。你的決定要寫明版本是否提高。
 - 事實（orchestrator 查證，2026-11-10）：
-  - 這台機器在 2026-11-10 重開機後，這個磁碟的 `st_dev` 從 16777233 變成 16777234。
+  - 這台機器重開機後，這個磁碟的 `st_dev` 變了。
   - 紀錄檔還在，但 id 變了，所以 `check` 印出 `STOP NO_RECORD`，你要重跑 `accept`。
   - 照目前的設計，之後每次重開機都可能要重跑 `accept`。
 - 修法：刪掉 id 裡的 `st_dev`。

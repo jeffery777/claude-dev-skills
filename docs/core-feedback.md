@@ -13,6 +13,7 @@
 - 流程依 `docs/design-proposal.md` 的 D-001：增量型提案優先，也就是在 Core 新增非權威的伴讀文件，權威原文不動。修改型提案要先讓 codex-dev-skills 與 grok-build-dev-skills 各自 pin 候選版本並跑過 evals。
 - 本文件只是紀錄。本專案不修改 Core、codex-dev-skills 或 grok-build-dev-skills。到 Core 開 Issue 或留言，每一則都需要使用者另外授權。
 - 依據的 Core 版本：v0.1.1（commit `7b66978a76597d09be1b55ad199a969b4ee59c0f`）。行號依 v0.1.1。
+- 本專案 vendor 的 Core 在 Issue #106 PR-2 改 pin 到 v0.5.0（commit `0edcbad3d126cb8a7c0b64e9ad95283e2cca635e`）。本文件的項目與行號仍依 v0.1.1，下面的上游狀態是 2026-10-30 的紀錄。
 - 上游狀態（2026-10-30 讀取）：CF-001 到 CF-006 與 CF-009 對應的 `engineering-workflow-core#21` 到 `engineering-workflow-core#27`（2026-10-22 開立）都還是 open，沒有維護者回覆；唯一的留言是本專案在 `engineering-workflow-core#27` 補充第 4、5 點的讀法（2026-10-22）。Core 的 main 仍是 v0.1.1，之後沒有新的 tag 或 PR。所以上游沒有任何變化影響本文件的項目。
 - 本文件中的「Issue #n」與「PR #n」指 claude-dev-skills 的 Issue 與 PR；上游 Issue 寫成 `engineering-workflow-core#n`。
 
@@ -253,6 +254,10 @@ adopt it and the other two projects can re-pin it themselves (REQ-019).
   needs separate approval from the user.
 - Core version: v0.1.1 (commit `7b66978a76597d09be1b55ad199a969b4ee59c0f`).
   Line numbers are at v0.1.1.
+- Issue #106 PR-2 moved the vendored Core pin of this project to v0.5.0
+  (commit `0edcbad3d126cb8a7c0b64e9ad95283e2cca635e`). The items and line
+  numbers of this document stay at v0.1.1; the upstream state below is the
+  record of 2026-10-30.
 - Upstream state (read on 2026-10-30): `engineering-workflow-core#21` to
   `engineering-workflow-core#27` (opened 2026-10-22) for CF-001 to CF-006 and
   CF-009 are all open, with no reply from a maintainer. The only comment is

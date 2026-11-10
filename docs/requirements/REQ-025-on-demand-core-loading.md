@@ -68,7 +68,7 @@ index line for each other rule. R-AUTH-5 and R-VER-3 become index lines that
 keep their project readings. No project tightening regresses.
 
 Two Core sentences can be read two ways (`authorization-and-stops.md:35`,
-`workflow.md:76`; CF-009 items 4 and 5). The project writes its reading of
+`workflow.md:79`; CF-009 items 4 and 5). The project writes its reading of
 each, never looser than Core.
 
 The user accepted that the context grows (estimated 1.5 to 1.85 times the

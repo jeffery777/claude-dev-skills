@@ -66,8 +66,8 @@ sources:
 non_goals:
   - A lessons ledger or a lessons file in a repository (card D19-C4 (a))
   - A user-level lessons file, or any other store of lessons outside the repository (card D19-C2 (a))
-  - Hooks (Core `workflow.md:74`)
-  - A schedule, a scheduled review or a scheduler (card D19-C3 (a); Core `workflow.md:62`, `:74`)
+  - Hooks (Core `workflow.md:77`)
+  - A schedule, a scheduled review or a scheduler (card D19-C3 (a); Core `workflow.md:63`, `:77`)
   - Model invocation of `dev-retro`, or another skill that invokes it (card D19-C1 (a))
   - A validator or script that checks lessons
   - A rule change that comes from a lesson; each one needs its own card and its own work (card D19-C1 (a))
@@ -88,7 +88,7 @@ to when there is new evidence, for example from a newer model (U2). It has no
 way to say which level a lesson belongs to, so a lesson that one project
 records can happen again in a project added later (U3).
 
-Core `workflow.md:74` says that improvement acceptance records the gap, the
+Core `workflow.md:77` says that improvement acceptance records the gap, the
 basis of its cause and the next step in the existing report, checks the
 coverage of the existing contracts first, and adds no reflection executor,
 memory, hooks or scheduler. D-010 and REQ-015 build no memory backend.
@@ -309,7 +309,7 @@ Each item names its source: U1 to U3 (the user requirements) or a card.
     a comment on a rule of this pack is only an L2 draft, and review does
     not use the installed copy of the plugin as a review input. FU rows get
     no "lesson" marker.
-  - New evidence (U2; D19-C3 (a); Core `workflow.md:72`, `:99`): a new
+  - New evidence (U2; D19-C3 (a); Core `workflow.md:73`, `:104`): a new
     lesson candidate, a recorded failure, or a concern that the user names.
     A model change alone is not new evidence; review then says that it would
     only read the old evidence again and asks the user to confirm the
@@ -320,7 +320,7 @@ Each item names its source: U1 to U3 (the user requirements) or a card.
     the CB-4 record of the review, and `git status` runs only with
     `--no-optional-locks`. The report states the
     problem, the objective, the scope, the available evidence, the budget,
-    the stop condition and the next step (Core `workflow.md:99`). A model
+    the stop condition and the next step (Core `workflow.md:104`). A model
     change clears no finding. A closed finding opens again only with new
     evidence that can change the judgment, and the report names that
     evidence. The dispatch names `opus`; which version the alias resolves to
@@ -339,7 +339,7 @@ Each item names its source: U1 to U3 (the user requirements) or a card.
     `opus`/`xhigh` as card D19-C3 (a) says, and the read-back passes
     `review-scan` by that mode (D-029 PR-3 supplement, DL-046).
   - Suggestions (U2; D19-C3 (a)): each suggestion has one of the four Core
-    judgments (Core `workflow.md:90-97`). Each suggestion that changes a
+    judgments (Core `workflow.md:95-102`). Each suggestion that changes a
     rule file, skill text, a REQ or any record (including a narrowed claim,
     a merge, a clarification, a retirement or a level promotion) is a card.
     A "required fix" (for example a delta that loosens Core) is a card too,
@@ -381,21 +381,21 @@ Each item names its source: U1 to U3 (the user requirements) or a card.
     R-VER-4 is a removed ID and is not used again (REQ-022).
   - The `dev-deliver` final report and the `dev-review` review report each
     have a section with the English heading "Lesson candidates". It is a
-    tightening of Core `workflow.md:74` for these two reports, not a new
-    report system. Other reports still follow Core `workflow.md:74`.
+    tightening of Core `workflow.md:77` for these two reports, not a new
+    report system. Other reports still follow Core `workflow.md:77`.
   - Minimum triggers: the R-VER-2 re-evaluation fired (Issue #104: R-VER-2 no longer stops the fix loop); a `REQ-GAP` was raised,
     or a spec lost a condition of its source words; the same kind of finding
     came back in two or more rounds of this work; the user corrected the
     agent; a tool call was refused, or the platform behaved differently from
     a rule. The last two apply only to `dev-deliver`. Other gaps follow Core
-    `workflow.md:74`. With no candidate, the section says "none".
+    `workflow.md:77`. With no candidate, the section says "none".
   - Fields of each candidate: the suggested level (L1 to L4, or unclear);
     the trigger; the source (with the locator rule of PR-2); the observation
     (fact or unverified); the lesson (inference); the number of independent
     events; the rules or records that already cover it; one of the four Core
-    judgments (Core `workflow.md:90-97`); the smallest fix (narrow a claim or
+    judgments (Core `workflow.md:95-102`); the smallest fix (narrow a claim or
     add a management measure before a new check; a management measure meets
-    Core `workflow.md:88` (an actual owner, a verifiable precondition, a
+    Core `workflow.md:93` (an actual owner, a verifiable precondition, a
     feasible upkeep, and a stop or handover when it fails); the order never replaces or loosens a required
     security check, scan, review or Core obligation); for a platform lesson,
     when to check again; the item-by-item result of the abstraction
@@ -419,7 +419,7 @@ Each item names its source: U1 to U3 (the user requirements) or a card.
   - The section is report content only: it writes no file, changes no rule
     and invokes neither `dev-retro` nor another skill. A candidate is a
     proposal, never authority or completion evidence.
-  - Management measure (Core `workflow.md:88`): the owner is the user; the
+  - Management measure (Core `workflow.md:93`): the owner is the user; the
     precondition that can be verified is that the user reads the final
     report; the upkeep is that every `dev-deliver` and `dev-review` report
     has the section; on failure (the user does not read it or gives no
@@ -584,7 +584,7 @@ Each item names its source: U1 to U3 (the user requirements) or a card.
   D-019 PR-4 from card R4); until FU-022 changes `dev-plan`, the
   failure path depends on the judgment of the `dev-plan` reviewer.
 - Difference from the codex-dev-skills improvement contracts: Core
-  (`vendor/engineering-workflow-core/docs/provenance/source-map.md:177-179`)
+  (`vendor/engineering-workflow-core/docs/provenance/source-map.md:181-183`)
   lists three codex-dev-skills contracts (operational evidence, improvement
   proposal, candidate evaluation). They keep real proposals and evaluations
   private, and public Git has only synthetic fixtures. This pack publishes

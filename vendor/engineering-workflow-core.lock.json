@@ -2,42 +2,43 @@
   "contract": "claude-core-document-lock/v1",
   "source": {
     "repository": "jeffery777/engineering-workflow-core",
-    "version": "0.1.1",
-    "tag": "v0.1.1",
-    "tag_object": "7ce698fa853106c8ef44c4240c9334762da5ffb0",
-    "revision": "7b66978a76597d09be1b55ad199a969b4ee59c0f"
+    "version": "0.5.0",
+    "tag": "v0.5.0",
+    "tag_object": "374124ac6bc88efe73b27a4f7875fffd0dc669e2",
+    "revision": "0edcbad3d126cb8a7c0b64e9ad95283e2cca635e"
   },
   "authority": "Vendored Core is the sole authority. skills/dev-core is a non-authoritative execution digest (D-001).",
   "consumer": {
     "repository": "jeffery777/claude-dev-skills",
     "revision": "the commit that contains this lock file (git log -1 -- vendor/engineering-workflow-core.lock.json)",
     "version": "0.1.0 (.claude-plugin/plugin.json)",
-    "assembler": "git archive v0.1.1 | tar -x into vendor/engineering-workflow-core/; verified by scripts/verify_core.py (utf8-path-tab-sha256-lf/v1)",
+    "assembler": "git archive v0.5.0 | tar -x into vendor/engineering-workflow-core/; verified by scripts/verify_core.py (utf8-path-tab-sha256-lf/v1)",
     "layout": "vendor/engineering-workflow-core/<upstream path>, byte-identical, LICENSE and notices kept",
     "verification_environment": "python3 standard library; optional upstream comparison with scripts/verify_core.py --upstream <clone>",
     "sections_used": [
       "contracts/workflow.md",
       "contracts/authorization-and-stops.md",
       "contracts/review-and-security.md",
-      "contracts/exact-head-and-evidence.md"
+      "contracts/exact-head-and-evidence.md",
+      "contracts/writing.md"
     ],
-    "dependency_closure": "all 14 files of the tag; the contracts link only to files inside this set (docs/provenance/source-map.md, docs/provenance/upstream-notices.md)",
+    "dependency_closure": "all 31 files of the tag; the contracts link only to files inside this set (LICENSE, docs/architecture/original-writing-design.md, docs/companion/plain-writing-examples.md, docs/provenance/source-map.md, docs/provenance/upstream-notices.md)",
     "upstream_verification": {
-      "date": "2026-10-20",
-      "method": "git ls-remote refs/tags/v0.1.1 -> tag object 7ce698fa853106c8ef44c4240c9334762da5ffb0 -> commit 7b66978a76597d09be1b55ad199a969b4ee59c0f; verify_core.py --upstream: all 14 files match",
-      "codex_dev_skills_parity": "markdown_only digest equals upstream_markdown_set.sha256 in codex-dev-skills vendor/engineering-workflow-core.lock.json at 863db227dea38a828280d33bc6e40e5fd708226d"
+      "date": "2026-11-10",
+      "method": "git ls-remote refs/tags/v0.5.0 -> tag object 374124ac6bc88efe73b27a4f7875fffd0dc669e2, refs/tags/v0.5.0^{} -> commit 0edcbad3d126cb8a7c0b64e9ad95283e2cca635e; verify_core.py --upstream: all 31 files match",
+      "codex_dev_skills_parity": "not checked at v0.5.0"
     }
   },
   "set_digests": {
     "algorithm": "utf8-path-tab-sha256-lf/v1",
-    "markdown_only": "ef0ed075dfbddd7504f65126deabe135632e4737f3148efaf19551224a577ea5",
-    "all_files": "beb93e8a0886390f65d33bc6e9c71200353ecbe8d05f8d82d17b903f94c15755"
+    "markdown_only": "08e23c280b989ead80e0c0f1a3c7efac08b6d8bebe1415452f1be251a768545e",
+    "all_files": "f8e2e4e2d43de82861df4dcd48fa62864df61c49c0330da4976eebf81b0582e9"
   },
   "files": [
     {
       "path": "CHANGELOG.md",
-      "sha256": "fa7f679f2c2f0f09dfae137f1631e55ed0a03d92ca4006b90f013e86b5b5d158",
-      "size_bytes": 10337
+      "sha256": "f9f989acadc1625420e086fcf31d9547450d359fe842bd4e0dfc4ed4f272d8ae",
+      "size_bytes": 28222
     },
     {
       "path": "LICENSE",
@@ -46,8 +47,8 @@
     },
     {
       "path": "README.md",
-      "sha256": "a9ecc868915ccad6bbee388c09d2c234eecefbc41d07c580a269a13956f5ea7b",
-      "size_bytes": 21986
+      "sha256": "6270d7e9ec7332853e02374e7ea6d82641dde88131b6c0280675435a53cdc2f1",
+      "size_bytes": 30074
     },
     {
       "path": "contracts/authorization-and-stops.md",
@@ -61,13 +62,18 @@
     },
     {
       "path": "contracts/review-and-security.md",
-      "sha256": "a29ae05f7df55f8469235baff7c59c00a99a0fb9e697e47eb46a9be7c4b90b03",
-      "size_bytes": 11463
+      "sha256": "8531deb4a0309f31d8f8abbd778460e0deff1fdc42ef789935c7dc98c6f8f819",
+      "size_bytes": 18771
     },
     {
       "path": "contracts/workflow.md",
-      "sha256": "abd418b0679675029eabf70a2e1bc77db1e3f898fbf2e2e4e66907df1fb52b51",
-      "size_bytes": 18689
+      "sha256": "a8ff41fdd31041d3065f782b3a01bc0f0fd9239cf1d623656bcd681b7a99663f",
+      "size_bytes": 19226
+    },
+    {
+      "path": "contracts/writing.md",
+      "sha256": "847a2e302adb831b736e86155caa0d8e2e61bd48c0e704350e137237e915434a",
+      "size_bytes": 7850
     },
     {
       "path": "docs/architecture/dependency-inventory.md",
@@ -80,19 +86,74 @@
       "size_bytes": 23166
     },
     {
+      "path": "docs/architecture/original-writing-design.md",
+      "sha256": "74192657105c7d481c3860281b2ad5b4df286971ffc64efe266ef74a55dd17f9",
+      "size_bytes": 10996
+    },
+    {
       "path": "docs/architecture/project-split.md",
       "sha256": "18e3e3b620d917aeff7881f4bfe5d4736725d6cac0eb8c758b810564df5f8d84",
       "size_bytes": 34720
     },
     {
+      "path": "docs/companion/core-reading-guide.md",
+      "sha256": "493ca529e89ab7e785815687ca93b8aed805557be01de795e611da6c4e14a3c1",
+      "size_bytes": 14960
+    },
+    {
+      "path": "docs/companion/decision-cards.md",
+      "sha256": "34f2d40509795448c7d7d947427f911667cc5dee4351a8a9ce49ab10b6f38c1c",
+      "size_bytes": 5328
+    },
+    {
+      "path": "docs/companion/plain-writing-examples.md",
+      "sha256": "7b89c447761642906f20010d1327ac06613af2fbf56a10c9115eaa6493a69b7d",
+      "size_bytes": 4994
+    },
+    {
+      "path": "docs/companion/remaining-feedback-cases.md",
+      "sha256": "fed5625aa09d152ef30d685a10550a02af3d5e7d387980b5d8b85d0ee5bcb372",
+      "size_bytes": 23201
+    },
+    {
+      "path": "docs/companion/review-decisions.md",
+      "sha256": "2c8a7768f76af27ad3972948bf2b1567eb72624f2230e260c00575f1d11805c2",
+      "size_bytes": 6604
+    },
+    {
+      "path": "docs/maintenance/2026-10-31-consumer-feedback.md",
+      "sha256": "3bd34f290e72632991380dffb99f218b1a6e061ee403773cef1c61a2bcae20b1",
+      "size_bytes": 19143
+    },
+    {
+      "path": "docs/maintenance/2026-11-01-remaining-feedback.md",
+      "sha256": "3ef2e689830fcadb3112c963a50f358a7117c0b503795398033a71fd88188b82",
+      "size_bytes": 15853
+    },
+    {
+      "path": "docs/maintenance/2026-11-04-issue-22-23-followup.md",
+      "sha256": "42d50af91e6a7b1cec0814ddfac6aea97c0b57b1aa199c96231cb12ef0bccdf7",
+      "size_bytes": 26286
+    },
+    {
+      "path": "docs/maintenance/issue-22-23-upstream-candidate.md",
+      "sha256": "1659ed30e4b93c42e3f4e39153db1e7645cf1d7c8456e9adfe6623ce13977e35",
+      "size_bytes": 18922
+    },
+    {
+      "path": "docs/maintenance/issue-24-26-candidate.md",
+      "sha256": "89b9e312865fa49fd417cd6d3a5fd65f5e82db475950b7d0532ca08e4347e071",
+      "size_bytes": 9608
+    },
+    {
       "path": "docs/provenance/source-map.md",
-      "sha256": "902c491a5412efb85d8d942ada48f8a8ad33a576b597d6748877d29507accfa9",
-      "size_bytes": 59639
+      "sha256": "e1297b40229208de9d4170d30603af5eb0d69cf64392f0d85c41e348df2f0908",
+      "size_bytes": 82772
     },
     {
       "path": "docs/provenance/upstream-notices.md",
-      "sha256": "a33e7445a6eea9df9f12dd5b32cb6f08353d00b7d873496d48389dbe36ceb888",
-      "size_bytes": 2332
+      "sha256": "e4adc2d6e2b7e9169db5273aa83306f93546ef0219e73f412d524fb38f3b2d82",
+      "size_bytes": 4450
     },
     {
       "path": "docs/releases/v0.1.0.md",
@@ -103,6 +164,31 @@
       "path": "docs/releases/v0.1.1.md",
       "sha256": "c58714a705d46e6e244b9e5008df26e501a0343cfbbd7955e55f262c01e989be",
       "size_bytes": 10819
+    },
+    {
+      "path": "docs/releases/v0.2.0.md",
+      "sha256": "8993bcf05434a53f8afa815b199f99a349014b7cd0fe3e23a1a9dc74b153392d",
+      "size_bytes": 12698
+    },
+    {
+      "path": "docs/releases/v0.3.0.md",
+      "sha256": "21fddabd3c56548e85a2aa1d7b2770133f1d0ac55a069c4c54efc7095b8566dc",
+      "size_bytes": 9269
+    },
+    {
+      "path": "docs/releases/v0.4.0.md",
+      "sha256": "cd9fed14dde6a2e043d57e51f63fcec7b03dea1e7d4ae7ba6781311ad3e3e6ab",
+      "size_bytes": 9743
+    },
+    {
+      "path": "docs/releases/v0.4.1.md",
+      "sha256": "49ea4c99e504d83551b0d0c0819766d71517d8e0abbb968bd273655128da1a37",
+      "size_bytes": 6121
+    },
+    {
+      "path": "docs/releases/v0.5.0.md",
+      "sha256": "74a785c40e1105d92c96555c0fa71e8d42a348f2df24e5058e363e00519d231a",
+      "size_bytes": 11401
     }
   ]
 }

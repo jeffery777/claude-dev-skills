@@ -55,10 +55,10 @@ When the user asked for it, use this order (R-REV-9):
    Confirm that the recorded identity and message match what
    was scanned. Check the remote names and that the fetch and push URLs of
    `<remote>` are one and the same; stop when the configuration of
-   `<remote>` sets a push mirror or a `+` or `:<dst>` push refspec
-   (R-REV-9). Then run
+   `<remote>` sets a push mirror or a `+` or `:<dst>` push refspec,
+   or when `push.pushOption` is set (R-REV-9). Then run
    `git ls-remote --heads --tags '<remote>'` (no `git fetch`) and the real
-   push command with `--dry-run --porcelain` added. The real push has the
+   push command with `--dry-run --porcelain --no-verify` added. The real push has the
    form that R-REV-9 gives: it names `'<remote>'`, always includes
    `--no-recurse-submodules` and has no other option outside that form;
    write each source as a full ref name (`refs/heads/<branch>`). Check that the
@@ -68,7 +68,8 @@ When the user asked for it, use this order (R-REV-9):
    without substituting them (R-REV-9). Run
    `python3 -I ${CLAUDE_SKILL_DIR}/../dev-gate/scripts/push_precheck.py verify --dry-run <saved dry-run output> --remote-ids <file with the ID list of R-REV-9 step 6>`
    in the worktree of the dry-run; any result other than exit 0 stops the
-   push, and exit 0 replaces no scan (R-REV-9 step 4a). Have `dev-security-reviewer` scan
+   push, and exit 0 replaces no scan (R-REV-9 step 4a). Run step 6a: a Git LFS
+   pointer line in the commits that the push sends stops the push. Have `dev-security-reviewer` scan
    everything it lists: every commit the remote does not have yet and any
    annotated tag; a signature that R-REV-9 step 8 reports as blocking stops
    the push for the user's decision.

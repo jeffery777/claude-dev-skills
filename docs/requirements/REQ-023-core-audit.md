@@ -93,5 +93,7 @@ design of its own; the user moved it to FU-014 (card 8a).
 
 ## Notes
 
+- Issue #106 PR-2 (Core v0.5.0, DL-051, card I106-C2 (b)): `wf-writing` now has a three-item minimum and puts the full writing rules in `writing.md`. R-WRT-1 covers the minimum, and R-WRT-2 covers the two-layer reading of `writing.md` and the spot-check; the acceptance item on items 1 to 6 records the state at Core v0.1.1.
+
 Related: [[REQ-007-core-authority]], [[REQ-022-single-source-rules]],
 [[REQ-019-core-feedback]].

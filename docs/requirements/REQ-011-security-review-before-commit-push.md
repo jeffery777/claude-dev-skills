@@ -96,6 +96,9 @@ sources:
   - type: issue
     locator: "GitHub Issue #104 body, Decisions Q3 (a) and Scope (the signature on a merge commit), relayed by the orchestrator session; confirmed by the user's own message in the Issue #104 session, card I104-C2 (`.dev/issue-104/cards-1.md`)"
     quote: "「C1 a，C2 a」"
+  - type: issue
+    locator: "GitHub Issue #106 (Scope 3 and 8) and the user's own messages in the Issue #106 session, 2026-11-09 and 2026-11-10, to cards I106-C7 to I106-C13 (`.dev/issue-106/cards-4.md` to `cards-8.md`)"
+    quote: "「C7 a」「C8 d，C9 a」「C10 a」「C11 a」「C12 a」「C13 a」"
 non_goals:
   - Installing gitleaks or Git hooks without the user's approval
   - Review convergence, decision cards and REQ-GAP (PR-B, D-013, D-014, D-016)
@@ -378,9 +381,17 @@ file that cannot be read as a whole text makes the scan `NOT_RUN`; a post names
 its repository and sends the scanned file itself; the commit scan input says
 whether Git will sign; push step 2 keeps the base test (push URL equals fetch
 URL, any host; cards I106-C8 (d), I106-C11 (a)); labels, milestone, assignees and pushed ref names
-are read too (card I106-C9 (a)); the
+go into a separate text file that gets the same `awk` and the reviewer scan (card I106-C9 (a); Issue #106 PR-2, MR108-02); the
 "Look for" list adds certificates, hosts and addresses, accounts and unneeded
 execution logs. The FU-007 (b) release notes item is covered by this.
+
+Note (Issue #106 PR-2, cards I106-C12 (a) and I106-C13 (a), MR108-01): push
+options and Git LFS objects are no longer accepted residual risk. A configured
+`push.pushOption` stops the push (push step 3), the dry-run runs no pre-push hook
+(`--no-verify`), and an LFS pointer line in the commits that the push sends
+stops it (push step 6a); both stops leave the push scan `NOT_RUN`. The
+remaining LFS cases are in the "Not covered" list. A signature that Git will
+make at a commit goes to the user like a push signature (MR108-03).
 
 Origin: PR #2 SEC-01 (a hostname-derived author email was pushed). Design
 records: D-015 and, since Issue #68, D-021 in `docs/design-proposal.md`. Related: [[REQ-003]], [[REQ-007]].

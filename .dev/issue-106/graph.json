@@ -146,7 +146,7 @@
       ],
       "risk": "high",
       "review": "security",
-      "status": "in_progress",
+      "status": "done",
       "dod": [
         "each #22 gap closed or recorded",
         "SEC105B-01 closed"
@@ -167,7 +167,7 @@
       ],
       "risk": "high",
       "review": "none",
-      "status": "planned",
+      "status": "done",
       "dod": [
         "PR open, gate comment posted and read back"
       ],
@@ -207,7 +207,7 @@
       ],
       "risk": "high",
       "review": "deep",
-      "status": "planned",
+      "status": "in_progress",
       "dod": [
         "vendor equals v0.5.0",
         "verify_core --upstream passes",

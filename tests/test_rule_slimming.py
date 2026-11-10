@@ -65,6 +65,13 @@ class Decisions(unittest.TestCase):
         for parts in (("skills", "dev-implement", "SKILL.md"), ("skills", "dev-continue", "SKILL.md")):
             self.assertNotIn("does not count by R-DEL-2", read(*parts), parts)
 
+    def test_q2_the_three_dispatches_are_named(self):
+        """MR105-D-03: the three dispatches that keep the read-back, in R-DEL-2 and the reference."""
+        three = ("the Merge Review (`dev-gate` step 3), each security review that the head needs at the merge "
+                 "(R-REV-7) and the merge readiness scan (R-REV-9)")
+        self.assertIn("The main agent reads back " + three + ".", rule(read(*CORE), "R-DEL-2"))
+        self.assertIn("the main agent reads back " + three + ". These are \"the three dispatches\" below.", read(*GATE))
+
     def test_q2_keeps_the_floor_check_and_the_session_rule(self):
         core = read(*CORE)
         self.assertIn("A review or scan counts only in the session that dispatched it as a subagent", core)

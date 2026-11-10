@@ -189,6 +189,43 @@ Cowork runtime test). At that release,
 
 ### Changed
 
+- Upstream pin (Issue #106 PR-2): `engineering-workflow-core` v0.5.0
+  (`jeffery777/engineering-workflow-core`), tag object
+  `374124ac6bc88efe73b27a4f7875fffd0dc669e2`, commit
+  `0edcbad3d126cb8a7c0b64e9ad95283e2cca635e`, replaces v0.1.1. The vendored
+  Core has 31 files; the lock, both set digests, `sections_used` (adds
+  `contracts/writing.md`) and the upstream check (`git ls-remote` and
+  `verify_core.py --upstream`, 2026-11-10) are new. Parity with the
+  codex-dev-skills lock is not checked at v0.5.0.
+  - Source map: rows for `review-required-read-only` (R-REV-1),
+    `review-publication-data` (R-REV-9) and the six `writing.md` anchors
+    (R-WRT-2); the Core line citations in live rules and requirements move
+    to v0.5.0.
+  - Writing (card I106-C2 (b), the user's own message 「C1 a，C2 b」;
+    DL-051): R-WRT-1 is the Core minimum plus the Traditional Chinese and
+    ASD-STE100 tightenings; the new R-WRT-2 reads Core `writing.md` in full
+    when the document is the deliverable or the review target and keeps the
+    spot-check. The stage map, the review criteria and the task brief name
+    `writing.md` for those cases.
+  - R-REV-3 and R-REV-4: a Core blocker blocks readiness and is fixed only
+    inside the authorized scope; a fix outside it, a new requirement or an
+    external write goes to a decision card. R-VER-2 and R-DEL-2: a failure
+    that points at the spec, the acceptance or a design premise is classified
+    as an implementation defect, a premise problem or mixed, and no model or
+    effort change replaces that re-assessment.
+  - Push scan (cards I106-C12 (a) and I106-C13 (a), the user's own messages
+    「C12 a」 and 「C13 a」; PR #108 finding MR108-01): a configured
+    `push.pushOption` stops the push, the dry-run runs no pre-push hook
+    (`--no-verify`), and a Git LFS pointer line in the commits that the push
+    sends stops it; both stops leave the scan `NOT_RUN`. FU-007 is closed.
+  - The metadata of a post and the ref names of a push go into a separate
+    text file that gets the same `awk` (MR108-02); a signature that Git will
+    make at a commit waits for the user like a push signature (MR108-03).
+  - Deltas: DL-003, DL-004, DL-010, DL-011 and DL-049 follow Core v0.5.0
+    (DL-049: the re-check of the read-back reading stays an inference).
+  - README: a disk copy or an image restore can carry the acceptance record
+    to another machine; accept again there.
+
 - Deterministic completeness checks in the review loop (REQ-029, D-030,
   DL-047, Issue #101 unit U1; the user's own answers in the Issue #101
   session 「C1 a，C2 a，C3 a，C4 a，C5 a」, 「R2-C1 a，R2-C2 a」,
@@ -815,7 +852,9 @@ Cowork runtime test). At that release,
     optional session sandbox that the official page documents.
 
 - Publication data checks (Issue #106 PR-3; DL-050; Core v0.5.0
-  `review-publication-data`, `jeffery777/engineering-workflow-core#22`):
+  `review-publication-data`, `jeffery777/engineering-workflow-core#22`;
+  the user's own messages in the Issue #106 session: 「C7 a」,
+  「C8 d，C9 a」, 「C10 a」, 「C11 a」):
   - The text scan also covers Release titles, notes, tag names and
     targets, and attached files; a file that cannot be read as a whole text
     makes the scan `NOT_RUN`. A post names its repository and sends the

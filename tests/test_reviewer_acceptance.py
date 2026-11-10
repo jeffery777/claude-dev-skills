@@ -125,8 +125,10 @@ class Check(unittest.TestCase):
             self.assertEqual(self.check(), ("STOP BAD_RECORD\n", 1), text)
 
     def test_old_version(self):
-        self.write(json.dumps({"version": self.mod.ACCEPTANCE_VERSION + 1, "decision": "a", "date": "d"}))
-        self.assertEqual(self.check(), ("STOP VERSION\n", 1))
+        for version in (self.mod.ACCEPTANCE_VERSION - 1, self.mod.ACCEPTANCE_VERSION + 1):  # SEC108-02: older and newer
+            with self.subTest(version=version):
+                self.write(json.dumps({"version": version, "decision": "a", "date": "d"}))
+                self.assertEqual(self.check(), ("STOP VERSION\n", 1))
 
     def test_outside_a_repository(self):
         outside = os.path.join(self.tmp.name, "plain")

@@ -279,7 +279,7 @@ a repository; `skills/dev-retro/SKILL.md` "Read-back" already handles this).
 12. Optional, only when it is one line: the old label at
     `docs/requirements/REQ-022-single-source-rules.md:55`. Not done: the
     R-REV-3 sentence on accepted residual risk that grows (a requirement
-    question; listed as a follow-up), `dev-plan` step 6 (card MR105-C2 was for
+    question; FU-066, added by Issue #110), `dev-plan` step 6 (card MR105-C2 was for
     PR #105 only).
 13. Rejected: `verify_core.py` reads the clone without `--no-replace-objects`
     (DR-deep residual 12): only deliberate tampering reaches it.
@@ -955,21 +955,27 @@ stage map lines of `review-and-security.md` 33 and 37 moved to 61 and 65.
 Cites that already named v0.5.0 (DL-004, DL-050, R-REV-1, R-REV-9) were not
 changed.
 
-Not done: step 12 (`REQ-022:55`): the line is an acceptance item of a closed
-requirement; changing it would rewrite a past acceptance, so it stays.
+Not done: step 12 (`REQ-022:55`): the line records an acceptance that PR #17
+completed (REQ-022 is `active`; Issue #110 corrected the earlier reason, which
+called the requirement closed); changing it would rewrite a past acceptance, so
+it stays.
 REQ-023 gets a note instead of an acceptance change (Core v0.5.0 has three
 `wf-writing` items).
 
-Completeness checks (working tree, `git grep -c -F`, without `vendor/`,
-`.dev/` and `CHANGELOG.md`; all exit 0):
+Completeness checks. Issue #110 (finding MR109-03) replaced the first table,
+which ran on the working tree with wider exclusions before the reviews. These
+rows come from the command form of `dev-plan` step 6 (`grep --cached -c -F -i`)
+on the content of the PR-2 commit (main `fbb588d`), with only `.dev/issue-106/`
+excluded; every command exited 0.
 
-| String | Rows (path: count, disposition) |
+| String | Rows (path: count, disposition, reason) |
 | --- | --- |
-| `v0.1.1` | `docs/core-feedback.md`: 11, noted (its items stay at v0.1.1; a note says the pin moved); `docs/design-proposal.md`: 2, changed (the parity note); `REQ-018`: 1, changed (moved to a note); `log.md`: 1, historical; `deltas.md`: 1, changed (DL-051 names the old items) |
-| `--dry-run --porcelain` | `push-scan.md`: 2, changed; `dev-implement/SKILL.md`: 1, changed; `docs/design-proposal.md`: 2, historical (D-015 text); `push_precheck.py`: 1, noted (docstring; the script reads the saved output only, Issue Out); tests: 4, noted or changed |
-| `spot-check` | `SKILL.md`: 2, `deltas.md`: 2, `source-map.md`: 2, changed or noted; `REQ-023`: 1, noted (a note added) |
-| `R-WRT-2` | `SKILL.md`, `deltas.md`, `source-map.md`, `task-brief.md`, `dev-docs/SKILL.md`: changed |
-| `push.pushOption`, `oid sha256` | `push-scan.md`, `deltas.md`, `REQ-011`, the test: changed |
+| `v0.1.1` | `.dev/handoff/pr-2-checkpoint.md`: 1, `.dev/issue-1-phase1/gate-commit.md`: 2, `.dev/issue-18-core-audit/audit.md`: 1, `.dev/issue-22-fu005-records/fu005-checklist.md`: 1, `.dev/issue-35-fu005-pr4/table-d-f.md`: 1, `.dev/issue-8-decisions-changelog-core-feedback/graph.json`: 1, historical (records of earlier work at that pin; the lock and this plan supersede the pin); `CHANGELOG.md`: 6, changed (the PR-2 entry says v0.5.0 replaces v0.1.1) or historical (earlier entries); `docs/core-feedback.md`: 11, noted or changed (its items stay at v0.1.1; PR-2 added the notes that say the pin moved); `docs/design-proposal.md`: 2, changed (the parity note); `REQ-018`: 1, changed (the first pin moved to a note); `REQ-023`: 1, changed (the PR-2 note says which acceptance item records v0.1.1); `log.md`: 2, changed (the two new PR-2 rows); `deltas.md`: 1, changed (DL-051 names the old items); `vendor/engineering-workflow-core.lock.json`: 1, noted (the path of the upstream release note file); `vendor/engineering-workflow-core/CHANGELOG.md`: 6, `vendor/engineering-workflow-core/README.md`: 2, `vendor/engineering-workflow-core/docs/companion/core-reading-guide.md`: 2, `vendor/engineering-workflow-core/docs/maintenance/2026-10-31-consumer-feedback.md`: 5, `vendor/engineering-workflow-core/docs/maintenance/issue-24-26-candidate.md`: 4, `vendor/engineering-workflow-core/docs/provenance/source-map.md`: 4, `vendor/engineering-workflow-core/docs/releases/v0.1.1.md`: 5, `vendor/engineering-workflow-core/docs/releases/v0.2.0.md`: 6, noted (upstream text, kept byte for byte) |
+| `--dry-run --porcelain` | `.dev/followups.md`: 1, changed (FU-065, new in PR-2, names the old docstring form); `.dev/issue-4-commit-security/reviews/round-1.md`: 1, historical (an earlier review record); `docs/design-proposal.md`: 2, historical (D-015 text); `push-scan.md`: 2, changed; `push_precheck.py`: 1, noted (docstring, FU-065; the script reads the saved output only, Issue Out); `dev-implement/SKILL.md`: 1, changed; `tests/test_publication_data.py`: 3, changed (the new assertions on the rule text); `tests/test_push_precheck.py`: 1, noted (the saved output format did not change) |
+| `spot-check` | `.dev/issue-10-cleanups/reviews/round-1.md`: 1, `.dev/issue-18-core-audit/audit.md`: 3, `.dev/issue-18-core-audit/reviews/round-1.md`: 1, `.dev/issue-18-core-audit/reviews/round-2.md`: 1, `.dev/issue-18-core-audit/reviews/round-3.md`: 1, `.dev/issue-18-core-audit/reviews/round-4.md`: 2, `.dev/issue-32-sr21b-001/reviews/round-1.md`: 1, historical (earlier records); `CHANGELOG.md`: 2, changed (the PR-2 entry) or historical (the Issue #18 entry); `REQ-023`: 2, noted or changed (the acceptance item records v0.1.1; the PR-2 note says R-WRT-2 has the spot-check now); `SKILL.md`: 2, `deltas.md`: 2, `source-map.md`: 2, changed |
+| `R-WRT-2` | `CHANGELOG.md`: 2, `REQ-023`: 1, `log.md`: 1, `SKILL.md`: 6, `deltas.md`: 1, `source-map.md`: 7, `task-brief.md`: 1, `dev-docs/SKILL.md`: 1, changed (all new text of PR-2) |
+| `push.pushOption` | `CHANGELOG.md`: 1, `REQ-011`: 1, `deltas.md`: 1, `push-scan.md`: 1, `dev-implement/SKILL.md`: 1, `tests/test_publication_data.py`: 1, changed |
+| `oid sha256` | `push-scan.md`: 1, `tests/test_publication_data.py`: 2, changed |
 
 Co-change rule 1: REQ-011, REQ-018, REQ-023, REQ-025 and REQ-026 change; each
 has a new `log.md` row. `scripts/validate.sh`: exit 0, 421 tests (3 skipped),

@@ -1,0 +1,119 @@
+{
+  "schema": "claude-dev-graph/v1",
+  "objective": {
+    "id": "issue-115",
+    "title": "Node list keys in the task graph schema",
+    "rigor": "strict",
+    "requirements": [
+      "REQ-002",
+      "REQ-005",
+      "REQ-018"
+    ]
+  },
+  "nodes": [
+    {
+      "id": "DR",
+      "title": "Design review",
+      "kind": "review",
+      "requirements": [],
+      "depends_on": [],
+      "owns": [],
+      "risk": "high",
+      "review": "deep",
+      "status": "done",
+      "dod": [
+        "deep and security design reviews recorded with dispositions"
+      ],
+      "verify": []
+    },
+    {
+      "id": "U1",
+      "title": "Schema text, test and changelog",
+      "kind": "implement",
+      "requirements": [
+        "REQ-002",
+        "REQ-005",
+        "REQ-018"
+      ],
+      "depends_on": [
+        {
+          "node": "DR",
+          "consumes": "reviewed design"
+        }
+      ],
+      "owns": [
+        "skills/dev-plan/references/graph-schema.md",
+        "tests/test_graph.py",
+        "CHANGELOG.md",
+        ".dev/followups.md"
+      ],
+      "risk": "high",
+      "review": "deep",
+      "status": "done",
+      "dod": [
+        "schema text states the five list keys on every node and the write-node rules",
+        "test: review node with empty lists passes; each missing key gives SCHEMA",
+        "CHANGELOG Fixed entry",
+        "FU-068 row (Open) for the graph.py ready traceback"
+      ],
+      "verify": [
+        "python3 -I -B -m unittest discover -s tests",
+        "./scripts/validate.sh"
+      ]
+    },
+    {
+      "id": "IR",
+      "title": "Implementation review",
+      "kind": "review",
+      "requirements": [],
+      "depends_on": [
+        {
+          "node": "U1",
+          "consumes": "U1 diff"
+        }
+      ],
+      "owns": [],
+      "risk": "high",
+      "review": "deep",
+      "status": "done",
+      "dod": [],
+      "verify": []
+    },
+    {
+      "id": "G",
+      "title": "Commit and push gate, PR",
+      "kind": "gate",
+      "requirements": [],
+      "depends_on": [
+        {
+          "node": "IR",
+          "consumes": "review report with dispositions"
+        }
+      ],
+      "owns": [],
+      "risk": "high",
+      "review": "none",
+      "status": "in_progress",
+      "dod": [],
+      "verify": []
+    },
+    {
+      "id": "H",
+      "title": "Merge (orchestrator session and user)",
+      "kind": "human_gate",
+      "requirements": [],
+      "depends_on": [
+        {
+          "node": "G",
+          "consumes": "PR, exact head and base"
+        }
+      ],
+      "owns": [],
+      "risk": "high",
+      "review": "none",
+      "status": "planned",
+      "dod": [],
+      "verify": []
+    }
+  ]
+}

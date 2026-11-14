@@ -255,7 +255,7 @@ the `log.md` command printed nothing (exit 0): no requirement file changes.
 The Issue Scope names four keys. Before U1, the Issue body gets `depends_on`
 as a fifth key, the chosen option (a) and its reading of "without the
 optional content" (the keys are present as `[]`; deep review residual risk
-8) (global rule: update the Issue when the work changes what it says). The
+8). The
 text is scanned before the post (R-REV-9).
 
 ## Finding triage

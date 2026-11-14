@@ -659,7 +659,7 @@ limits:
   `workflow.md:76`; DL-028, DL-029). DL-018 to DL-027 record existing
   tightenings that had no row; no other rule text changes. CB-1 to CB-5 name
   their origin. `docs/core-feedback.md` records the upstream Issues
-  engineering-workflow-core#21 to #27.
+  engineering-workflow-core#21 to engineering-workflow-core#27.
 - On-demand Core loading, PR-2 Core reading (REQ-025, D-020, FU-005,
   Issue #28). `dev-core` has a stage map: the Core files that each skill
   reads in full before it acts, and the Core files that each reviewer role

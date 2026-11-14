@@ -809,7 +809,9 @@ class FrontMatterGuards(unittest.TestCase):
                 (market, '  "name": "dev-skills",\n  "owner"', "agents", "top level"),
                 (market, '  "name": "dev-skills",\n  "owner"', "hooks", "top level"),
                 (market, '      "name": "dev-skills",\n', "mcpServers", "plugins[] entry"),
-                (market, '      "name": "dev-skills",\n', "agents", "plugins[] entry")):
+                (market, '      "name": "dev-skills",\n', "agents", "plugins[] entry"),
+                (plugin, '  "name": "dev-skills",\n', "version", "top level"),  # REQ-030, Issue #114 card C7 (a)
+                (market, '      "name": "dev-skills",\n', "version", "plugins[] entry")):
             with self.subTest(manifest=manifest, key=key, part=part):
                 head = old.split("\n")[0] + "\n"
                 code, out = self.check(manifest, old, head + f'  "{key}": {{}},\n' + old[len(head):])

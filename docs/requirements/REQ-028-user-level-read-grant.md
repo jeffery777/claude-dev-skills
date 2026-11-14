@@ -93,11 +93,11 @@ accepted: re-invoke a skill or approve the prompt.
   `.claude-plugin/` other than `plugin.json` and `marketplace.json`, a
   missing one, or one that is not valid JSON, deep nesting included (a
   clear error, not a traceback); a manifest key outside the allowlist of
-  the keys in use: `.claude-plugin/plugin.json` (`name`, `displayName`, `version`,
+  the keys in use: `.claude-plugin/plugin.json` (`name`, `displayName`,
   `description`, `author`, `homepage`, `repository`, `license`,
   `keywords`), `.claude-plugin/marketplace.json` (`name`, `owner`,
   `description`, `plugins`) and its `plugins` entry (`name`, `source`,
-  `description`, `version`); a `plugins` value other than exactly one
+  `description`; no `version` since Issue #114, REQ-030); a `plugins` value other than exactly one
   entry with name `dev-skills` and source `./`; an entry of `skills/` that
   is hidden, not a directory, a symlink, or without a regular file named
   exactly `SKILL.md`; an entry of `agents/` that is hidden, not a regular
@@ -170,7 +170,8 @@ accepted: re-invoke a skill or approve the prompt.
   the work moves to option (b) of that card without another card.
 - The root, agent and manifest allowlists are the sets in use on
   2026-10-27; a new root item, file or key needs a change of
-  `check_pack.py` with review.
+  `check_pack.py` with review. Since Issue #114 the manifest allowlists
+  have no `version` (REQ-030, card C7 (a)).
 - `depends_on: [REQ-026]`: a denied pack read is handled as CB-6, which
   comes from FU-025 under REQ-026. `refines: [REQ-016]`: REQ-016 asks for
   the user-scope install; this REQ details its permission side (inference

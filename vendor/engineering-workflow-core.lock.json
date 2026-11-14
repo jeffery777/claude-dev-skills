@@ -11,7 +11,7 @@
   "consumer": {
     "repository": "jeffery777/claude-dev-skills",
     "revision": "the commit that contains this lock file (git log -1 -- vendor/engineering-workflow-core.lock.json)",
-    "version": "0.1.0 (.claude-plugin/plugin.json)",
+    "version": "the commit SHA (the manifests in .claude-plugin/ set no version since Issue #114; REQ-030)",
     "assembler": "git archive v0.5.0 | tar -x into vendor/engineering-workflow-core/; verified by scripts/verify_core.py (utf8-path-tab-sha256-lf/v1)",
     "layout": "vendor/engineering-workflow-core/<upstream path>, byte-identical, LICENSE and notices kept",
     "verification_environment": "python3 standard library; optional upstream comparison with scripts/verify_core.py --upstream <clone>",

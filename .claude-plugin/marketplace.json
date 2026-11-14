@@ -6,8 +6,7 @@
     {
       "name": "dev-skills",
       "source": "./",
-      "description": "Software development workflow for Claude Code and Cowork.",
-      "version": "0.1.0"
+      "description": "Software development workflow for Claude Code and Cowork."
     }
   ]
 }

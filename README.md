@@ -32,9 +32,11 @@ claude plugin install dev-skills@dev-skills
 
 安裝到用戶層級時，pack 檔案在工作目錄之外。每個技能宣告兩條範圍很窄的 Read 規則（CB-7），所以在呼叫技能的那一回合，技能讀自己的 pack 檔案不會跳出權限詢問。之後的回合可能再次詢問：再呼叫一次技能（例如 `/dev-skills:dev-continue`），或同意該詢問。不需要改設定。不要改在設定裡加入範圍更大的 Read 規則。這些行為只在 headless 執行中測過；互動 session 與實際安裝的測試尚待進行（FU-031）。
 
-Cowork：到 Customize > Plugins > Add marketplace，輸入 `jeffery777/claude-dev-skills`，再安裝 `dev-skills`。
+Cowork：到 Customize > Plugins > Add > Add marketplace，輸入 `jeffery777/claude-dev-skills`，再安裝 `dev-skills`。
 
-Cowork 有三項尚未實測：技能能否執行 `graph.py`（需要 shell）、`${CLAUDE_SKILL_DIR}` 的相對路徑能否解析，以及使用 `${CLAUDE_PLUGIN_ROOT}` 的 `allowed-tools` 規則能否生效（FU-001）。沒有 shell 時，技能依文件手動操作。路徑無法解析時，技能會停下並回報，不會改讀工作目錄裡的同名檔案，也不會在沒有規則的情況下繼續（CB-6）。
+Cowork 實測（FU-001，Issue #3）：2026-11-13 在維護者電腦上的 Cowork 桌面版 session 測過版本 `0.1.0`、commit `e37a990`（早於這次 release 的 commit）。plugin 可以從 marketplace 安裝；`dev-plan` 可以執行，被呼叫的技能裡 `${CLAUDE_SKILL_DIR}` 會換成技能資料夾，技能也讀到了 `dev-core` 與 Core 檔案；`python3` 與 `graph.py` 可以執行；四個 plugin agent 都可用，`dev-explorer` 實際跑過。沒有測：雲端的 Cowork session，以及在 Cowork 裡跑必要的 review 或 scan（reviewer 的唯讀只靠指示約束，和 Claude Code 相同）。未驗證：使用 `${CLAUDE_PLUGIN_ROOT}` 的 `allowed-tools` 規則在 Cowork 裡能否讓技能讀 pack 檔案時不跳出詢問（該次測試沒有回報）。尚未完成的項目記在 FU-069。沒有 shell 時，技能依文件手動操作。路徑無法解析時，技能會停下並回報，不會改讀工作目錄裡的同名檔案，也不會在沒有規則的情況下繼續（CB-6）。
+
+版本：兩個 manifest 都不設 `version`（REQ-030）。所以 Claude Code 以安裝時的 commit SHA 當版本，更新時會拿到最新的 `main`（Claude Code 官方 plugin 文件的版本說明）。`v0.1.0` 這類 tag 是審查過的快照，附 release notes；沒有指定 tag 或分支（ref）的安裝不會停在 tag 上。Cowork 怎麼處理沒有 `version` 的 plugin，未驗證（FU-069）。
 
 ## 技能
 
@@ -175,9 +177,11 @@ To test from a local checkout, use `claude plugin marketplace add ./` instead.
 
 In a user-level install, the pack files are outside the working directory. Each skill declares two narrow Read rules for them (CB-7), so in the turn that invokes a skill, the skills read their pack files without a permission prompt. A later turn can prompt again: invoke a skill again (for example `/dev-skills:dev-continue`) or approve the prompt. No settings change is needed. Do not add a broad Read rule to your settings instead. This was tested in headless runs only; tests in interactive sessions and with a real install are pending (FU-031).
 
-Cowork: open Customize > Plugins > Add marketplace, enter `jeffery777/claude-dev-skills`, then install `dev-skills`.
+Cowork: open Customize > Plugins > Add > Add marketplace, enter `jeffery777/claude-dev-skills`, then install `dev-skills`.
 
-Three things are not yet tested in Cowork: whether skills can run `graph.py` (a shell is required), whether relative paths from `${CLAUDE_SKILL_DIR}` resolve, and whether the `allowed-tools` rules with `${CLAUDE_PLUGIN_ROOT}` work (FU-001). Without a shell, the skills use the written procedures. When a path does not resolve, a skill stops and reports it; it does not read a file with the same name from the working directory and does not continue without the rules (CB-6).
+Cowork test (FU-001, Issue #3): on 2026-11-13, a Cowork desktop session on the maintainer's computer tested version `0.1.0` at commit `e37a990` (earlier than the release commit). The plugin installs from the marketplace; `dev-plan` runs, `${CLAUDE_SKILL_DIR}` is replaced with the skill folder in the invoked skill, and the skill read `dev-core` and the Core files; `python3` and `graph.py` run; the four plugin agents are available, and `dev-explorer` ran. Not tested: a Cowork session in the cloud, and a required review or scan in Cowork (reviewer read-only rests on instructions, as in Claude Code). Not verified: whether the `allowed-tools` rules with `${CLAUDE_PLUGIN_ROOT}` keep pack reads in Cowork free of prompts (the test does not report it). The open items are in FU-069. Without a shell, the skills use the written procedures. When a path does not resolve, a skill stops and reports it; it does not read a file with the same name from the working directory and does not continue without the rules (CB-6).
+
+Version: the two manifests set no `version` (REQ-030). So Claude Code uses the commit SHA of the install as the version, and an update gets the latest `main` (the version section of the official Claude Code plugin docs). A tag such as `v0.1.0` marks a reviewed snapshot with release notes; an install that does not name a tag or branch (a ref) does not stay at a tag. How Cowork handles a plugin without `version` is not verified (FU-069).
 
 ## Skills
 

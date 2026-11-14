@@ -951,6 +951,16 @@ Cowork runtime test). At that release,
   `dev-deliver` description says "run or dispatch each node". MR73D-003
   and MR73D-004: the Issue #73 plan and graph record the rigor as
   `strict`, and review round 4 records the recorded value `unknown`.
+- Task graph node keys (REQ-002, Issue #115). `graph-schema.md` said that
+  `requirements` and `owns` are required on write nodes and had no rows for
+  `dod` and `verify`, but `graph.py validate` reports `SCHEMA` when any node,
+  a review node included, has no `requirements`, `depends_on`, `owns`, `dod`
+  or `verify` list (found in the FU-001 Cowork run, Issue #3). The schema
+  text now says that every node has these five list keys, with `[]` where a
+  node has nothing for a key, and which of them must not be empty on write
+  nodes. `graph.py` does not change. A new test covers a review node with
+  five empty lists and each missing key. The `graph.py ready` traceback on a
+  node without `status` or `id` is FU-068.
 
 ### Security
 

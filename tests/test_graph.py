@@ -511,6 +511,36 @@ class Transitions(unittest.TestCase):
         self.assertEqual(errs[0]["code"], "STATUS_DEP")
 
 
+class NodeListKeys(unittest.TestCase):
+    """Issue #115: every node has the five list keys; `[]` where a node has nothing."""
+
+    KEYS = ("requirements", "depends_on", "owns", "dod", "verify")
+
+    def graph_with(self, node):
+        g = graph.load(os.path.join(FIXTURES, "valid", "rate-limit.json"))
+        g["nodes"].append(node)
+        return g
+
+    @staticmethod
+    def review_node():
+        return {"id": "R1", "title": "Review", "kind": "review", "requirements": [], "depends_on": [],
+                "owns": [], "risk": "low", "review": "routine", "status": "planned", "dod": [], "verify": []}
+
+    def test_non_write_node_with_empty_lists_passes(self):
+        self.assertEqual(graph.check_graph(self.graph_with(self.review_node()))[0], [])
+
+    def test_missing_list_key_is_schema_error(self):
+        for key in self.KEYS:
+            with self.subTest(key=key):
+                node = self.review_node()
+                del node[key]
+                errors = graph.check_graph(self.graph_with(node))[0]
+                self.assertEqual(len(errors), 1)
+                self.assertEqual(errors[0]["code"], "SCHEMA")
+                self.assertEqual(errors[0].get("node"), "R1")
+                self.assertTrue(errors[0]["message"].startswith(key + " "))
+
+
 class Overlap(unittest.TestCase):
     def test_patterns(self):
         self.assertTrue(graph.patterns_overlap("src/**", "src/auth/x.py"))

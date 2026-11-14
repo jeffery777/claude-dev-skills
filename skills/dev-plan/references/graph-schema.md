@@ -33,13 +33,20 @@ authority (R-AUTH-1, R-VER-1). Location: `.dev/<objective-id>/graph.json`.
 
 ## Fields
 
+Every node has all five list keys: `requirements`, `depends_on`, `owns`,
+`dod` and `verify`. When a node has nothing for a key, write `[]`; never
+leave the key out. `graph.py validate` reports a missing key or a value of
+the wrong type as `SCHEMA` (`check_schema` in `scripts/graph.py`).
+
 | Field | Values | Notes |
 | --- | --- | --- |
 | `objective.rigor` | `standard`, `strict` | `light` work has no graph file (R-RIG-1) |
 | `kind` | `explore`, `implement`, `docs`, `verify`, `review`, `gate`, `human_gate` | `implement` and `docs` are write nodes |
-| `requirements` | `REQ-…` ids from `objective.requirements` | Required on write nodes |
+| `requirements` | `REQ-…` ids from `objective.requirements` | Not empty on write nodes (`NO_REQUIREMENT`) |
 | `depends_on[].consumes` | Text naming the data that crosses the edge | Missing means a fake edge |
-| `owns` | Repository-relative path globs (no absolute paths, no `..`) | Required on write nodes; parallel writers must not overlap |
+| `owns` | Repository-relative path globs (no absolute paths, no `..`) | Not empty on write nodes (`NO_OWNERSHIP`); parallel writers must not overlap |
+| `dod` | Items that say when the node is done | At least one item on write nodes (`SCHEMA`) |
+| `verify` | Commands or checks that verify the node | |
 | `risk` | `low`, `medium`, `high`, `unknown` | `high` or `unknown` write nodes need `deep` or `security` review (R-REV-6) |
 | `review` | `none`, `routine`, `deep`, `security` | `strict` forbids `none` on write nodes |
 | `status` | `planned`, `ready`, `in_progress`, `blocked`, `reviewing`, `done`, `accepted`, `cancelled` | Change only through `graph.py transition`. Nodes and edges change by re-planning (`dev-plan`), followed by `validate` |

@@ -1,0 +1,13 @@
+{"seq": 1, "at": "2026-11-14T00:46:56+00:00", "actor": "main", "node": "DR", "from": "ready", "to": "in_progress", "evidence": "design review dispatched"}
+{"seq": 2, "at": "2026-11-14T00:46:56+00:00", "actor": "main", "node": "DR", "from": "in_progress", "to": "reviewing", "evidence": "reports received"}
+{"seq": 3, "at": "2026-11-14T00:46:57+00:00", "actor": "main", "node": "DR", "from": "reviewing", "to": "done", "evidence": "file:.dev/issue-115/reviews/design-round-1.md sha256:30bc1ac622d5c7bd8f3c5f60c338a49f11e94af16a041a433a4d79ec369a70c8"}
+{"seq": 4, "at": "2026-11-14T00:50:05+00:00", "actor": "main", "node": "U1", "from": "planned", "to": "ready", "evidence": "DR done; Issue 115 body updated"}
+{"seq": 5, "at": "2026-11-14T00:50:05+00:00", "actor": "main", "node": "U1", "from": "ready", "to": "in_progress", "evidence": "implementation started"}
+{"seq": 6, "at": "2026-11-14T00:55:21+00:00", "actor": "main", "node": "U1", "from": "in_progress", "to": "reviewing", "evidence": "unittest 424 OK; validate.sh passed"}
+{"seq": 7, "at": "2026-11-14T01:42:49+00:00", "actor": "main", "node": "U1", "from": "reviewing", "to": "done", "evidence": "file:.dev/issue-115/reviews/impl-round-1.md sha256:4ce02086ea80eb80d51ade893b0cf2513f8e6e1ba8cc47a43753b2e139bf9346"}
+{"seq": 8, "at": "2026-11-14T01:43:09+00:00", "actor": "main", "node": "IR", "from": "planned", "to": "ready", "evidence": "U1 done"}
+{"seq": 9, "at": "2026-11-14T01:43:10+00:00", "actor": "main", "node": "IR", "from": "ready", "to": "in_progress", "evidence": "rounds 1 to 4 dispatched"}
+{"seq": 10, "at": "2026-11-14T01:43:10+00:00", "actor": "main", "node": "IR", "from": "in_progress", "to": "reviewing", "evidence": "reports received"}
+{"seq": 11, "at": "2026-11-14T01:43:10+00:00", "actor": "main", "node": "IR", "from": "reviewing", "to": "done", "evidence": "file:.dev/issue-115/reviews/impl-round-1.md sha256:4ce02086ea80eb80d51ade893b0cf2513f8e6e1ba8cc47a43753b2e139bf9346"}
+{"seq": 12, "at": "2026-11-14T01:43:10+00:00", "actor": "main", "node": "G", "from": "planned", "to": "ready", "evidence": "IR done"}
+{"seq": 13, "at": "2026-11-14T01:43:10+00:00", "actor": "main", "node": "G", "from": "ready", "to": "in_progress", "evidence": "commit gate"}

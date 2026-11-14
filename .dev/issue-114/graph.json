@@ -1,0 +1,234 @@
+{
+  "schema": "claude-dev-graph/v1",
+  "objective": {
+    "id": "issue-114",
+    "title": "First tagged release v0.1.0 (repository part)",
+    "rigor": "strict",
+    "requirements": [
+      "REQ-001",
+      "REQ-005",
+      "REQ-011",
+      "REQ-018",
+      "REQ-026",
+      "REQ-009",
+      "REQ-020",
+      "REQ-030",
+      "REQ-028"
+    ]
+  },
+  "nodes": [
+    {
+      "id": "DR",
+      "title": "Design review",
+      "kind": "review",
+      "requirements": [],
+      "depends_on": [],
+      "owns": [],
+      "risk": "high",
+      "review": "deep",
+      "status": "done",
+      "dod": [
+        "deep and security design reviews recorded with dispositions"
+      ],
+      "verify": []
+    },
+    {
+      "id": "C",
+      "title": "Decision cards C1-C6: version, FU-027 (two), FU-036, Core #40, PR keywords",
+      "kind": "human_gate",
+      "requirements": [],
+      "depends_on": [
+        {
+          "node": "DR",
+          "consumes": "reviewed design and card options"
+        }
+      ],
+      "owns": [],
+      "risk": "high",
+      "review": "none",
+      "status": "done",
+      "dod": [
+        "each card answered by the user, quoted with date and relay"
+      ],
+      "verify": []
+    },
+    {
+      "id": "U1",
+      "title": "FU rows, README Cowork state, CHANGELOG 0.1.0, requirement sync, REQ-030",
+      "kind": "docs",
+      "requirements": [
+        "REQ-001",
+        "REQ-005",
+        "REQ-018",
+        "REQ-020",
+        "REQ-026",
+        "REQ-030",
+        "REQ-009"
+      ],
+      "depends_on": [
+        {
+          "node": "C",
+          "consumes": "card answers"
+        }
+      ],
+      "owns": [
+        ".dev/followups.md",
+        "README.md",
+        "CHANGELOG.md",
+        "docs/requirements/REQ-018-changelog.md",
+        "docs/requirements/REQ-020-minimal-ci.md",
+        "docs/requirements/REQ-026-lessons-skill.md",
+        "docs/requirements/REQ-030-plugin-version-policy.md",
+        "docs/requirements/index.md",
+        "docs/requirements/log.md"
+      ],
+      "risk": "high",
+      "review": "deep",
+      "status": "done",
+      "dod": [
+        "FU-001 row Done for a Cowork desktop session, FU-069 for the items not covered, no private data",
+        "FU-027 and FU-036 rows Done with the card answers",
+        "README zh and EN: tested Cowork state, install path, what an install follows, items not covered",
+        "CHANGELOG [0.1.0] heading, limits paragraph and header sentence",
+        "REQ-018, REQ-020, REQ-026 notes match; REQ-030 added; index and log rows"
+      ],
+      "verify": [
+        "./scripts/validate.sh",
+        "python3 -I -B -m unittest discover -s tests"
+      ]
+    },
+    {
+      "id": "U2",
+      "title": "Manifests without version; lock file consumer version",
+      "kind": "implement",
+      "requirements": [
+        "REQ-030"
+      ],
+      "depends_on": [
+        {
+          "node": "U1",
+          "consumes": "REQ-030 file"
+        }
+      ],
+      "owns": [
+        ".claude-plugin/plugin.json",
+        ".claude-plugin/marketplace.json",
+        "vendor/engineering-workflow-core.lock.json"
+      ],
+      "risk": "high",
+      "review": "deep",
+      "status": "done",
+      "dod": [
+        "no version key in plugin.json or the marketplace plugin entry",
+        "lock consumer.version names the commit SHA"
+      ],
+      "verify": [
+        "python3 scripts/verify_core.py",
+        "./scripts/validate.sh"
+      ]
+    },
+    {
+      "id": "U3",
+      "title": "check_pack refuses version in the manifests; tests; REQ-030, REQ-028",
+      "kind": "implement",
+      "requirements": [
+        "REQ-030",
+        "REQ-028"
+      ],
+      "depends_on": [
+        {
+          "node": "U2",
+          "consumes": "manifests without version"
+        }
+      ],
+      "owns": [
+        "scripts/check_pack.py",
+        "tests/test_core_checks.py",
+        "docs/requirements/REQ-030-plugin-version-policy.md",
+        "docs/requirements/REQ-028-user-level-read-grant.md",
+        "docs/requirements/log.md",
+        "CHANGELOG.md"
+      ],
+      "risk": "high",
+      "review": "deep",
+      "status": "done",
+      "dod": [
+        "check_pack fails on a version key in plugin.json or the marketplace plugin entry",
+        "tests cover both cases",
+        "REQ-030 acceptance and REQ-028 key list updated, log rows"
+      ],
+      "verify": [
+        "./scripts/validate.sh"
+      ]
+    },
+    {
+      "id": "IR",
+      "title": "Implementation review",
+      "kind": "review",
+      "requirements": [],
+      "depends_on": [
+        {
+          "node": "U1",
+          "consumes": "U1 diff"
+        },
+        {
+          "node": "U2",
+          "consumes": "U2 diff"
+        },
+        {
+          "node": "U3",
+          "consumes": "U3 diff"
+        }
+      ],
+      "owns": [],
+      "risk": "high",
+      "review": "deep",
+      "status": "done",
+      "dod": [
+        "deep review and Security Diff Scan of U1 and of U2, as separate units, recorded with dispositions"
+      ],
+      "verify": []
+    },
+    {
+      "id": "G",
+      "title": "Commit and push gate, PR, release-note drafts",
+      "kind": "gate",
+      "requirements": [],
+      "depends_on": [
+        {
+          "node": "IR",
+          "consumes": "reviewed candidate"
+        }
+      ],
+      "owns": [],
+      "risk": "high",
+      "review": "none",
+      "status": "in_progress",
+      "dod": [
+        "commit, push and PR text scans passed; PR open with Part of #114 and Closes #3 (card C6 (a))"
+      ],
+      "verify": []
+    },
+    {
+      "id": "H",
+      "title": "Merge, tag and Release (orchestrator session and the user)",
+      "kind": "human_gate",
+      "requirements": [],
+      "depends_on": [
+        {
+          "node": "G",
+          "consumes": "PR and merge card"
+        }
+      ],
+      "owns": [],
+      "risk": "high",
+      "review": "none",
+      "status": "planned",
+      "dod": [
+        "user approves merge, tag and Release, each on its own",
+        "tag target and notes bound to the merge commit M (plan D6 handover); read back"
+      ],
+      "verify": []
+    }
+  ]
+}

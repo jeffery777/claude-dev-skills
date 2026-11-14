@@ -142,9 +142,9 @@ CLOSED_WORLD_HINT = ("a new plugin component needs a change of check_pack.py wit
 MANIFEST_NAMES = ("plugin.json", "marketplace.json")  # the only files in .claude-plugin/
 MANIFEST_KEYS = {  # the keys in use; (manifest, part) -> allowed keys
     (".claude-plugin/plugin.json", "top level"): {
-        "name", "displayName", "version", "description", "author", "homepage", "repository", "license", "keywords"},
+        "name", "displayName", "description", "author", "homepage", "repository", "license", "keywords"},
     (".claude-plugin/marketplace.json", "top level"): {"name", "owner", "description", "plugins"},
-    (".claude-plugin/marketplace.json", "plugins[] entry"): {"name", "source", "description", "version"},
+    (".claude-plugin/marketplace.json", "plugins[] entry"): {"name", "source", "description"},  # no version (REQ-030, card C7 (a))
 }
 
 _spec = importlib.util.spec_from_file_location("graph", os.path.join(ROOT, "skills", "dev-plan", "scripts", "graph.py"))

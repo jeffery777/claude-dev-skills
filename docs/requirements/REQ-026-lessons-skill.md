@@ -63,6 +63,9 @@ sources:
   - type: chat
     locator: "Claude Code session 2026-10-26 (orchestrator session, relayed to the FU-025 session, Issue #64), user answer to cards FU25-R2-C1 (a: after the R-VER-2 stop rule in review rounds 1 and 2, one narrow round of fixes that only narrow, restore or add records, by dev-implementer opus/high, then one confirmation round; findings FU25R2-001 to FU25R2-005, FU25S2-001 to FU25S2-008) and FU25-R2-C2 (a: confirm the dev-retro read scope after FU-025 and annotate the D-019 acceptance items; finding FU25R2-001), and approval of the FU-028 v2 text"
     quote: "FU25-R2：C1a、C2a、FU-028 v2 同意"
+  - type: chat
+    locator: "Claude Code session 2026-11-14 (orchestrator session, relayed to the Issue #114 session), user answer to cards C1 to C6 of `.dev/issue-114/cards-1.md` (the orchestrator asked whether all six cards follow the recommendations); card C2 (a): the released definition stays, because card C1 (c) removes `version` from the manifests (REQ-030); card C3 (a): a Deferred finding is not a residual risk that the user accepted in a card; FU-027"
+    quote: "全照建議"
 non_goals:
   - A lessons ledger or a lessons file in a repository (card D19-C4 (a))
   - A user-level lessons file, or any other store of lessons outside the repository (card D19-C2 (a))
@@ -72,7 +75,7 @@ non_goals:
   - A validator or script that checks lessons
   - A rule change that comes from a lesson; each one needs its own card and its own work (card D19-C1 (a))
   - A codex-dev-skills or grok-build-dev-skills version of `dev-retro`
-depends_on: [REQ-011, REQ-015, REQ-019, REQ-022]
+depends_on: [REQ-011, REQ-015, REQ-019, REQ-022, REQ-030]
 refines: []
 conflicts_with: []
 superseded_by: []
@@ -549,7 +552,8 @@ Each item names its source: U1 to U3 (the user requirements) or a card.
   level, including plugin skills"; claude.ai uploads and the Skills API
   accept only `name`, `description`, `license`, `compatibility`, `metadata`
   and `allowed-tools`. Whether Cowork supports them is not known (the FU-001
-  Cowork test is not done). Where a platform does not support them,
+  Cowork test of 2026-11-13 did not run `dev-retro`; Issue #3, FU-069).
+  Where a platform does not support them,
   "invoked only by the user" rests on the skill text only. Card D19-A3 (a)
   narrows the claim to Claude Code.
 - Exception to REQ-005: the REQ-005 source says that the skills are mainly
@@ -612,5 +616,13 @@ Each item names its source: U1 to U3 (the user requirements) or a card.
   - whether `claude plugin validate` accepts the new front matter keys
     (PR-2 verification).
 - "Core feedback: no" in D-019 is an inference that the review confirms.
+- FU-027 (Issue #114, cards C2 (a) and C3 (a)): the "released" definition
+  stays. Since Issue #114 the manifests set no `version` (REQ-030), so a
+  fix merged to `main` reaches a Claude Code user at that user's next
+  update (official docs; an install pinned to a tag or branch does not get
+  it; Cowork: not verified, FU-069 item 5); no rule can make sure that a
+  user has installed it (inference). A Deferred finding is not a
+  residual risk that the user accepted in a card: only a risk that the user
+  accepts by name in a card counts.
 
-Related: [[REQ-001]], [[REQ-005]], [[REQ-010]], [[REQ-011]], [[REQ-015]], [[REQ-019]], [[REQ-022]], [[REQ-025]]
+Related: [[REQ-001]], [[REQ-005]], [[REQ-010]], [[REQ-011]], [[REQ-015]], [[REQ-019]], [[REQ-022]], [[REQ-025]], [[REQ-030]]

@@ -5,12 +5,37 @@ follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the
 project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 Every entry names the upstream `engineering-workflow-core` version that the
-pack follows. Every change of the Core pin gets its own entry. No version is
-released yet: the first tagged release waits for FU-001 (GitHub Issue #3,
-Cowork runtime test). At that release,
-`[Unreleased]` becomes `[0.1.0] - <date>` and serves as the release notes.
+pack follows. Every change of the Core pin gets its own entry. The first
+tagged release is `0.1.0` (Issue #114), after the FU-001 Cowork test passed
+(GitHub Issue #3). Each release section serves as the release notes of its
+tag. The next change adds an `[Unreleased]` section above the newest release.
 
-## [Unreleased]
+## [0.1.0] - 2026-11-14
+
+The first tagged release (tag `v0.1.0`). It follows `engineering-workflow-core`
+v0.5.0, the pin in `vendor/engineering-workflow-core.lock.json`. The entries
+of this section are grouped by kind, not by date. Where two entries differ,
+the entry of the later merged change supersedes the earlier one. Known
+limits:
+
+- The plugin manifests set no `version` (REQ-030). In Claude Code, an
+  install that does not pin a tag or branch follows the commits of `main`
+  and gets the latest `main` at its next update (official Claude Code
+  plugin docs). The tag `v0.1.0` marks a reviewed snapshot.
+- DL-049 reads back the model and effort of three kinds of dispatch before
+  a merge: the Merge Review, each security review that the head needs at
+  the merge, and the merge readiness scan. Its reading of Core
+  `workflow.md:57` is marked inference, and
+  [jeffery777/engineering-workflow-core#40](https://github.com/jeffery777/engineering-workflow-core/issues/40)
+  asks Core whether it means a check of each dispatch ("Reading A"). That
+  answer would make Core stricter than this release on that point (FU-067).
+- Cowork was tested only in one desktop session, at commit `e37a990`
+  (earlier than this release), and no review or scan ran there. Not
+  verified in Cowork: whether pack reads prompt, and how Cowork updates a
+  plugin without `version` (FU-001, FU-069).
+- The reviewer agents keep Bash, so their read-only use rests on their
+  instructions, in Claude Code and in Cowork. Runtime enforcement of their
+  tool lists is not tested (FU-004).
 
 ### Added
 
@@ -875,6 +900,22 @@ Cowork runtime test). At that release,
   - The reviewer acceptance record key drops the device number, which can
     change at a reboot; the acceptance version is 3, so each user runs
     `accept` again (card I106-C10 (a)).
+- First tagged release (REQ-001, REQ-018, REQ-020, REQ-026, REQ-030,
+  Issue #114; cards C1 to
+  C6 of `.dev/issue-114/cards-1.md`). FU-001 is done for a Cowork desktop
+  session (Issue #3); the items that it did not cover move to FU-069. The
+  README states the tested Cowork state, the corrected Cowork install path
+  (Customize > Plugins > Add > Add marketplace) and what an install follows.
+  Both manifests drop `version` (REQ-030, card C1 (c)), so Claude Code uses
+  the commit SHA as the version and an update gets the latest `main`
+  (Cowork: not verified, FU-069); `consumer.version` in the Core lock file
+  says the same. `scripts/check_pack.py` now fails when a manifest has
+  `version` (card C7 of `.dev/issue-114/cards-2.md`). FU-027 is done:
+  the `dev-retro` "released" definition stays (card C2 (a)), and a Deferred
+  finding is not a residual risk that the user accepted in a card (card
+  C3 (a)). FU-036 is done: the R-DEL-2 floor list does not change (card
+  C4 (a)). REQ-018 and REQ-020 follow the rename of `[Unreleased]`; REQ-026
+  records the FU-027 outcome and the Cowork note.
 
 ### Fixed
 

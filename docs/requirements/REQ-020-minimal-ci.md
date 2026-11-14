@@ -47,7 +47,7 @@ secrets; documentation; after the merge the user sets the checks as required.
 - Job `gitleaks` downloads an exact gitleaks release, checks its SHA-256 against a value in the workflow before it runs, and scans every commit reachable from the checked-out commit with redacted output.
 - Every action is pinned by a full commit SHA, with the release tag in a comment.
 - `dev-gate` reads the checks of a PR back as Core requires (R-EXH-4): one read of the head and the checks, each check listed. The result is `NOT_CONFIGURED`, because no project setting selects a provider profile yet (Q3 (b); the setting is FU-009, Q5 (a)), or `UNVERIFIED` when the read fails or shows another head.
-- README, `docs/design-proposal.md` (D-017) and `CHANGELOG.md` `[Unreleased]` describe the CI and the limits of the gitleaks scan, and README gives the steps with which the user makes the checks required.
+- README, `docs/design-proposal.md` (D-017) and `CHANGELOG.md` `[Unreleased]` (since Issue #114 the `[0.1.0]` section) describe the CI and the limits of the gitleaks scan, and README gives the steps with which the user makes the checks required.
 - CI runs green on the PR that adds it, or its failure is explained.
 
 ## Notes

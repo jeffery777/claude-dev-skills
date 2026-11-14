@@ -1,0 +1,26 @@
+{"seq": 1, "at": "2026-11-14T03:49:46+00:00", "actor": "main-agent", "node": "DR", "from": "planned", "to": "ready", "evidence": "graph validate ok"}
+{"seq": 2, "at": "2026-11-14T03:49:47+00:00", "actor": "main-agent", "node": "DR", "from": "ready", "to": "in_progress", "evidence": "plan.md sha256 e41692c5 at base 7e71ad5"}
+{"seq": 3, "at": "2026-11-14T04:13:58+00:00", "actor": "main-agent", "node": "DR", "from": "in_progress", "to": "reviewing", "evidence": "design reviews returned"}
+{"seq": 4, "at": "2026-11-14T04:13:58+00:00", "actor": "main-agent", "node": "DR", "from": "reviewing", "to": "done", "evidence": "file:.dev/issue-114/reviews/design-round-1.md sha256:eca476654dee3d8e50a10772544be70eaaecc366e4c9843630628b9f46342fce"}
+{"seq": 5, "at": "2026-11-14T04:13:59+00:00", "actor": "main-agent", "node": "C", "from": "planned", "to": "ready", "evidence": "cards-1.md"}
+{"seq": 6, "at": "2026-11-14T04:13:59+00:00", "actor": "main-agent", "node": "C", "from": "ready", "to": "in_progress", "evidence": "cards presented to the user"}
+{"seq": 7, "at": "2026-11-14T04:29:05+00:00", "actor": "main-agent", "node": "C", "from": "in_progress", "to": "reviewing", "evidence": "cards-1 answered: relayed 全照建議"}
+{"seq": 8, "at": "2026-11-14T04:29:05+00:00", "actor": "main-agent", "node": "C", "from": "reviewing", "to": "done", "evidence": "file:.dev/issue-114/cards-1.md sha256:12a7337aac7ebece1dc3fe34f8e7641fa32fb473f8100b78606ae08c14457254"}
+{"seq": 9, "at": "2026-11-14T04:29:05+00:00", "actor": "main-agent", "node": "U1", "from": "planned", "to": "ready", "evidence": "C done"}
+{"seq": 10, "at": "2026-11-14T04:29:05+00:00", "actor": "main-agent", "node": "U1", "from": "ready", "to": "in_progress", "evidence": "U1 edits applied in worktree"}
+{"seq": 11, "at": "2026-11-14T04:30:59+00:00", "actor": "main-agent", "node": "U1", "from": "in_progress", "to": "reviewing", "evidence": "validate.sh exit 0"}
+{"seq": 12, "at": "2026-11-14T05:03:43+00:00", "actor": "main-agent", "node": "U1", "from": "reviewing", "to": "done", "evidence": "file:.dev/issue-114/reviews/impl-u1-round-2.md sha256:b30a0dac17cc9a649cf4085cee0e606a7fa85bed31244a984378452fdc01efbb"}
+{"seq": 13, "at": "2026-11-14T05:03:43+00:00", "actor": "main-agent", "node": "U2", "from": "planned", "to": "ready", "evidence": "U1 done"}
+{"seq": 14, "at": "2026-11-14T05:03:44+00:00", "actor": "main-agent", "node": "U2", "from": "ready", "to": "in_progress", "evidence": "manifests and lock edited (written before U1 review; plan order deviation)"}
+{"seq": 15, "at": "2026-11-14T05:03:44+00:00", "actor": "main-agent", "node": "U2", "from": "in_progress", "to": "reviewing", "evidence": "file:.dev/issue-114/reviews/impl-u2-round-1.md sha256:fa7e9998e8cb292706cde723bad08c32db64f1a1d7fb55cc363a84ebb1e5a9fb"}
+{"seq": 16, "at": "2026-11-14T05:08:59+00:00", "actor": "main-agent", "node": "U2", "from": "reviewing", "to": "done", "evidence": "impl-u2-round-1.md; REQ-GAP answered by C7 (a) (relayed: C7 a), resolved in U3"}
+{"seq": 17, "at": "2026-11-14T05:08:59+00:00", "actor": "main-agent", "node": "U3", "from": "planned", "to": "ready", "evidence": "C7 a"}
+{"seq": 18, "at": "2026-11-14T05:09:00+00:00", "actor": "main-agent", "node": "U3", "from": "ready", "to": "in_progress", "evidence": "U3 edits start"}
+{"seq": 19, "at": "2026-11-14T05:27:51+00:00", "actor": "main-agent", "node": "U3", "from": "in_progress", "to": "reviewing", "evidence": "file:.dev/issue-114/reviews/impl-u3-round-1.md sha256:181e2ea59c456f831d5e539b549094cb59365c62cc4c09c890725366eec5a936"}
+{"seq": 20, "at": "2026-11-14T05:27:51+00:00", "actor": "main-agent", "node": "U3", "from": "reviewing", "to": "done", "evidence": "U3 narrow confirmation IR-U3-R2: all confirmed, no new finding"}
+{"seq": 21, "at": "2026-11-14T05:27:51+00:00", "actor": "main-agent", "node": "IR", "from": "planned", "to": "ready", "evidence": "implementation reviews of U1, U2, U3 (reviews/impl-*.md)"}
+{"seq": 22, "at": "2026-11-14T05:27:51+00:00", "actor": "main-agent", "node": "IR", "from": "ready", "to": "in_progress", "evidence": "implementation reviews of U1, U2, U3 (reviews/impl-*.md)"}
+{"seq": 23, "at": "2026-11-14T05:27:51+00:00", "actor": "main-agent", "node": "IR", "from": "in_progress", "to": "reviewing", "evidence": "implementation reviews of U1, U2, U3 (reviews/impl-*.md)"}
+{"seq": 24, "at": "2026-11-14T05:27:51+00:00", "actor": "main-agent", "node": "IR", "from": "reviewing", "to": "done", "evidence": "all review units done; dispositions recorded"}
+{"seq": 25, "at": "2026-11-14T05:27:51+00:00", "actor": "main-agent", "node": "G", "from": "planned", "to": "ready", "evidence": "IR done"}
+{"seq": 26, "at": "2026-11-14T05:27:52+00:00", "actor": "main-agent", "node": "G", "from": "ready", "to": "in_progress", "evidence": "commit gate starts"}

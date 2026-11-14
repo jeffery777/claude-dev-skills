@@ -33,3 +33,4 @@ One row per requirement. Agents read this first, then open only the files they n
 | REQ-027 | dev-plan - source trace of rule sentences (FU-022) and review units by risk and review cost | active | [[REQ-027-plan-trace-and-slicing-cost]] |
 | REQ-028 | User-level install without permission allow rules - a narrow Read grant for the pack files (Issue #66) | active | [[REQ-028-user-level-read-grant]] |
 | REQ-029 | Review loop - deterministic completeness checks and sources of new facts (Issue #101) | active | [[REQ-029-review-loop-checks]] |
+| REQ-030 | Plugin version policy - no version in the manifests; a tag marks a reviewed snapshot (Issue #114) | active | [[REQ-030-plugin-version-policy]] |
